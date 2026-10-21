@@ -48,11 +48,15 @@ def assemble():
     css = read(SRC, "scan.css")
     scan_html = read(SRC, "scan.html")
     scan_js = read(SRC, "scan.js")
+    create_css = read(SRC, "create.css")
+    create_html = read(SRC, "create.html")
+    create_std_html = read(SRC, "create-std.html")
+    create_js = read(SRC, "create.js")
 
     s = s.replace("qr-code-styling@1.6.0-rc.1", "qr-code-styling@" + QR_VERSION)
     # Couleurs et polices : générées depuis design/tokens.json (tools/build_theme.py)
     s = rep(s, "/*THEME*/", read(SRC, "theme.css"))
-    s = rep(s, "</style>", css + "</style>")
+    s = rep(s, "</style>", css + create_css + "</style>")
     s = rep(s, """  <header>
     <h1>Atelier <span>QR</span></h1>
     <p>Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.</p>
@@ -66,8 +70,9 @@ def assemble():
     </div>
     <p id="headDesc">Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.</p>
   </header>""")
-    s = rep(s, '  <div class="grid">', '  <div id="view-create" role="tabpanel">\n  <div class="grid">')
-    s = rep(s, "    </aside>\n  </div>\n", "    </aside>\n  </div>\n  </div>\n" + scan_html)
+    # Onglet Créer : choix du type en haut, module QR personnalisé, puis générateur standard (tous les autres types)
+    s = rep(s, '  <div class="grid">', '  <div id="view-create" role="tabpanel">\n' + create_html + '  <div id="qrMode">\n  <div class="grid">')
+    s = rep(s, "    </aside>\n  </div>\n", "    </aside>\n  </div>\n  </div>\n" + create_std_html + "  </div>\n" + scan_html)
     s = rep(s, "\nupdate();fillRanges();\n})();", """
 window.atelierLoad=function(t){
   const isUrl=/^https?:\\/\\/\\S+$/i.test(t.trim());
@@ -79,8 +84,9 @@ window.atelierLoad=function(t){
 };
 update();fillRanges();
 })();""")
-    wasm = base64.b64encode(read(VENDOR, f"zxing_reader-{ZXING_VERSION}.wasm", mode="rb")).decode()
-    tail = f'<script type="application/octet-stream" id="zxwasm">{wasm}</script>\n<script>\n{scan_js}\n</script>\n'
+    wasm = base64.b64encode(read(VENDOR, f"zxing_full-{ZXING_VERSION}.wasm", mode="rb")).decode()
+    tail = (f'<script type="application/octet-stream" id="zxwasm">{wasm}</script>\n<script>\n{scan_js}\n</script>\n'
+            f'<script>\n{create_js}\n</script>\n')
     return s, tail
 
 
@@ -88,10 +94,10 @@ def main():
     s, tail = assemble()
     qr_cdn = f'<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@{QR_VERSION}/lib/qr-code-styling.js"></script>'
     qr_inline = inline_script(read(VENDOR, f"qr-code-styling-{QR_VERSION}.js"))
-    zx_inline = inline_script(read(VENDOR, f"zxing-wasm-reader-{ZXING_VERSION}.js"))
+    zx_inline = inline_script(read(VENDOR, f"zxing-wasm-full-{ZXING_VERSION}.js"))
 
     # 1. Artefact Claude (bibliothèques sur CDN)
-    artifact = (s + f'\n<script src="https://cdn.jsdelivr.net/npm/zxing-wasm@{ZXING_VERSION}/dist/iife/reader/index.js"></script>\n'
+    artifact = (s + f'\n<script src="https://cdn.jsdelivr.net/npm/zxing-wasm@{ZXING_VERSION}/dist/iife/full/index.js"></script>\n'
                 + '<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>\n' + tail)
     write(os.path.join(DIST, "artifact.html"), artifact)
 

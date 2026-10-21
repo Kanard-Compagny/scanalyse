@@ -1,0 +1,77 @@
+  <div id="stdMode" hidden>
+    <div class="grid">
+      <div class="controls">
+        <section class="card">
+          <h2>Contenu <small id="stdContentHint">ce que le code contient</small></h2>
+
+          <div id="stdText" class="std-pane">
+            <label class="f">Données<textarea id="stdTextInput" spellcheck="false"></textarea></label>
+            <p class="hint" id="stdTextHelp"></p>
+          </div>
+
+          <div id="stdDigits" class="std-pane" hidden>
+            <label class="f"><span id="stdDigitsLabel">Numéro</span><input id="stdDigitsInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false"></label>
+            <p class="hint" id="stdDigitsHelp"></p>
+          </div>
+
+          <div id="stdGs1" class="std-pane" hidden>
+            <div class="gs1-rows" id="gs1Rows"></div>
+            <div class="gs1-actions">
+              <label class="f gs1-add">Ajouter un champ<select id="gs1AddSel"></select></label>
+              <button class="btn" id="gs1Add" type="button">Ajouter</button>
+            </div>
+            <label class="f">Chaîne GS1 (forme lisible, modifiable)<input id="gs1Raw" type="text" spellcheck="false" autocomplete="off"></label>
+            <p class="hint">Les séparateurs FNC1 / GS sont ajoutés automatiquement là où il le faut. La clé du GTIN et du SSCC est calculée si tu saisis le numéro sans elle.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Apparence</h2>
+          <div class="row">
+            <label class="f">Taille d'un module <span class="rv" id="stdScaleV">4 px</span><input type="range" id="stdScale" min="1" max="12" value="4"></label>
+            <label class="f">Rotation<select id="stdRotate"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label>
+          </div>
+          <div class="row">
+            <label class="f">Couleur des barres<div class="color"><input type="color" id="stdFg" value="#15191c"><input type="text" id="stdFgT" value="#15191c" aria-label="Couleur des barres en hexadécimal"></div></label>
+            <label class="f">Couleur du fond<div class="color"><input type="color" id="stdBg" value="#ffffff"><input type="text" id="stdBgT" value="#ffffff" aria-label="Couleur du fond en hexadécimal"></div></label>
+          </div>
+          <div class="std-toggles">
+            <label class="toggle" id="stdHrtWrap"><input id="stdHrt" type="checkbox" checked>Texte lisible sous le code</label>
+            <label class="toggle"><input id="stdQuiet" type="checkbox" checked>Zones de silence (marges blanches)</label>
+            <label class="toggle"><input id="stdTransparent" type="checkbox">Fond transparent</label>
+            <label class="toggle" id="stdSquareWrap" hidden><input id="stdSquare" type="checkbox">Data Matrix carré uniquement</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Taille à l'impression <small>imprimante d'étiquettes</small></h2>
+          <div class="row">
+            <label class="f">Résolution<select id="stdDpi"><option value="203">203 dpi (8 points/mm)</option><option value="300" selected>300 dpi (12 points/mm)</option><option value="600">600 dpi (24 points/mm)</option></select></label>
+            <label class="f">Points par module <span class="rv" id="stdDotsV">4</span><input type="range" id="stdDots" min="1" max="12" value="4"></label>
+          </div>
+          <p class="hint" id="stdPrint"></p>
+        </section>
+      </div>
+
+      <aside class="preview" aria-label="Aperçu">
+        <div class="stage">
+          <div class="canvas std-canvas" id="stdPreview" role="img" aria-label="Aperçu du code"></div>
+          <div class="status ok" id="stdStatus">Prêt.</div>
+          <div class="payload" id="stdPayload"></div>
+          <div class="row" style="grid-template-columns:1fr 1fr">
+            <label class="f">Format<select id="stdFmt"><option value="png">PNG</option><option value="svg">SVG (vectoriel)</option></select></label>
+            <label class="f">Échelle d'export<select id="stdExportScale"><option value="1">×1 (taille réglée)</option><option value="2" selected>×2</option><option value="4">×4</option></select></label>
+          </div>
+          <div class="exp">
+            <button class="btn primary" id="stdDl" type="button">Télécharger</button>
+            <button class="btn" id="stdCopy" type="button">Copier le contenu</button>
+          </div>
+          <p class="toast" id="stdToast" aria-live="polite"></p>
+          <div class="fallback" id="stdFallback" hidden>
+            <p class="hint">Le téléchargement direct n'est pas disponible ici. Clic droit (ou appui long) sur l'image puis « Enregistrer l'image ».</p>
+            <img id="stdFallbackImg" alt="Code à enregistrer">
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>

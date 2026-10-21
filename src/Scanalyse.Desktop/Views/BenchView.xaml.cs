@@ -1,9 +1,12 @@
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
+using Scanalyse.Core.Gs1;
 using Scanalyse.Core.Text;
 
 namespace Scanalyse.Desktop.Views;
@@ -20,6 +23,9 @@ public partial class BenchView : UserControl
         InitializeComponent();
     }
 
+    /// <summary>Dessine un code (texte, type de l'Atelier) : fourni par la fenêtre principale.</summary>
+    public Func<string, string, Task<(byte[]? Png, string? Error)>>? Renderer { get; set; }
+
     /// <summary>Déclenché après chaque comparaison (résultat, données reçues en notation lisible).</summary>
     public event Action<ComparisonResult, string>? Compared;
 
@@ -34,6 +40,15 @@ public partial class BenchView : UserControl
         var aim = _expectedAim is null ? string.Empty : $" · identifiant {_expectedAim}";
         ExpectedSource.Text = $"Repris de l'analyse d'image : {request.Format}{aim}";
         ExpectedSource.Visibility = Visibility.Visible;
+
+        if (request.ImagePng is { Length: > 0 } png)
+        {
+            ShowPreview(png, $"Vignette de l'image analysée · {request.Format}");
+        }
+        else
+        {
+            _ = GeneratePreviewAsync();
+        }
 
         ReceivedBox.Clear();
         FindingsList.ItemsSource = null;
@@ -85,7 +100,109 @@ public partial class BenchView : UserControl
 
         _expectedAim = null;
         ExpectedSource.Visibility = Visibility.Collapsed;
+        ClearPreview();
     }
+
+    // ------------------------------------------------------------------ Aperçu du code testé
+
+    private async void Preview_Click(object sender, RoutedEventArgs e) => await GeneratePreviewAsync();
+
+    private async Task GeneratePreviewAsync()
+    {
+        if (Renderer is null || string.IsNullOrWhiteSpace(ExpectedBox.Text))
+        {
+            return;
+        }
+
+        var chosen = PreviewTypes.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? "auto";
+        var text = ControlCharacters.FromVisualized(ExpectedBox.Text);
+        var type = chosen == "auto" ? GuessType(text) : chosen;
+        PreviewSource.Text = "Génération de l'aperçu…";
+        var (png, error) = await Renderer(text, type);
+        if (png is { Length: > 0 })
+        {
+            ShowPreview(png, $"Aperçu généré · {TypeLabel(type)}{(chosen == "auto" ? " (type choisi automatiquement)" : string.Empty)}");
+        }
+        else
+        {
+            ClearPreview();
+            PreviewSource.Text = $"Aperçu impossible en {TypeLabel(type)} : {error}";
+        }
+    }
+
+    private void ShowPreview(byte[] png, string caption)
+    {
+        try
+        {
+            var bmp = new BitmapImage();
+            using (var ms = new MemoryStream(png))
+            {
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.StreamSource = ms;
+                bmp.EndInit();
+            }
+
+            bmp.Freeze();
+            PreviewImage.Source = bmp;
+            PreviewEmpty.Visibility = Visibility.Collapsed;
+            PreviewSource.Text = caption;
+        }
+        catch (Exception ex) when (ex is NotSupportedException or IOException or InvalidOperationException)
+        {
+            ClearPreview();
+        }
+    }
+
+    private void ClearPreview()
+    {
+        if (PreviewImage is null)
+        {
+            return;
+        }
+
+        PreviewImage.Source = null;
+        PreviewEmpty.Visibility = Visibility.Visible;
+        PreviewSource.Text = "La vignette s'affiche quand la référence vient d'une image analysée. Sinon, choisis le type et génère l'aperçu.";
+    }
+
+    /// <summary>Type le plus probable pour dessiner une référence saisie à la main.</summary>
+    internal static string GuessType(string text)
+    {
+        var looksGs1 = text.Contains(ControlCharacters.GroupSeparator) || text.StartsWith('(');
+        if (looksGs1 && Gs1Parser.Parse(text) is { } msg && msg.Elements.All(e => e.Definition is not null))
+        {
+            return "gs1datamatrix";
+        }
+
+        if (text.Length > 0 && text.All(char.IsAsciiDigit))
+        {
+            if (text.Length is 12 or 13)
+            {
+                return "ean13";
+            }
+
+            if (text.Length == 8)
+            {
+                return "ean8";
+            }
+        }
+
+        return text.Length is > 0 and <= 40 && text.All(c => c is >= ' ' and < '\u007F') ? "code128" : "datamatrix";
+    }
+
+    private static string TypeLabel(string id) => id switch
+    {
+        "gs1datamatrix" => "GS1 DataMatrix",
+        "datamatrix" => "Data Matrix",
+        "gs1qr" => "GS1 QR Code",
+        "gs1128" => "GS1-128",
+        "code128" => "Code 128",
+        "ean13" => "EAN-13",
+        "ean8" => "EAN-8",
+        "pdf417" => "PDF417",
+        _ => id,
+    };
 
     private void Compare_Click(object sender, RoutedEventArgs e)
     {
@@ -103,6 +220,10 @@ public partial class BenchView : UserControl
         FindingsList.ItemsSource = result.Findings.Select(FindingView.From).ToList();
         FieldsList.ItemsSource = null;
         Compared?.Invoke(result, ControlCharacters.Visualize(ReceivedBox.Text));
+        if (PreviewImage.Source is null)
+        {
+            _ = GeneratePreviewAsync();
+        }
     }
 
     private void Analyze_Click(object sender, RoutedEventArgs e)

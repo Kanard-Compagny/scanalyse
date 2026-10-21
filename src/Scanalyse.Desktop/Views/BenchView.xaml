@@ -93,8 +93,47 @@
         </Grid>
       </Border>
 
-      <!-- Résultat -->
-      <Border Grid.Column="2" Style="{StaticResource Card}">
+      <!-- Code testé + résultat -->
+      <Grid Grid.Column="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="16" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <!-- Le code est toujours montré sur fond blanc, comme imprimé -->
+            <Border Width="230" Height="150" CornerRadius="8" Background="White" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+              <Grid>
+                <Image x:Name="PreviewImage" Stretch="Uniform" Margin="10" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                <TextBlock x:Name="PreviewEmpty" Text="Aucun aperçu" Foreground="#5D656C" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+            <StackPanel Grid.Column="2">
+              <TextBlock Style="{StaticResource CardTitle}" Text="Code testé" />
+              <TextBlock x:Name="PreviewSource" Style="{StaticResource PageSubtitle}"
+                         Text="La vignette s'affiche quand la référence vient d'une image analysée. Sinon, choisis le type et génère l'aperçu." />
+              <WrapPanel x:Name="PreviewTypes" Margin="0,10,0,0">
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="auto" Content="Auto" IsChecked="True" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="gs1datamatrix" Content="GS1 DataMatrix" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="datamatrix" Content="Data Matrix" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="gs1qr" Content="GS1 QR" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="gs1128" Content="GS1-128" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="code128" Content="Code 128" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="ean13" Content="EAN-13" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="PreviewType" Tag="pdf417" Content="PDF417" />
+              </WrapPanel>
+              <Button Style="{StaticResource BtnSecondary}" Content="Générer l'aperçu" Click="Preview_Click" HorizontalAlignment="Left" Margin="0,4,0,0" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+      <Border Grid.Row="1" Style="{StaticResource Card}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel>
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Résultat" />
@@ -136,6 +175,7 @@
           </StackPanel>
         </ScrollViewer>
       </Border>
+      </Grid>
     </Grid>
   </Grid>
 </UserControl>

@@ -11,7 +11,8 @@ namespace Scanalyse.Desktop;
 /// <param name="Text">Données brutes du code, telles qu'un scanner les transmet.</param>
 /// <param name="Format">Symbologie lue (« Data Matrix »…).</param>
 /// <param name="SymbologyIdentifier">Identifiant AIM (« ]d2 »…), si connu.</param>
-public sealed record CompareRequest(string Text, string Format, string SymbologyIdentifier);
+/// <param name="ImagePng">Vignette du code découpée dans l'image analysée (PNG), si disponible.</param>
+public sealed record CompareRequest(string Text, string Format, string SymbologyIdentifier, byte[]? ImagePng = null);
 
 /// <summary>Code trouvé par l'Atelier dans une image.</summary>
 public sealed record DecodedCode(string Format, string Text);
@@ -26,6 +27,7 @@ internal sealed class AtelierHost
     private const string Host = "scanalyse.local";
 
     private readonly WebView2 _view;
+    private readonly Dictionary<string, TaskCompletionSource<(byte[]? Png, string? Error)>> _renders = new();
     private bool _ready;
 
     public AtelierHost(WebView2 view) => _view = view;
@@ -38,6 +40,9 @@ internal sealed class AtelierHost
 
     /// <summary>L'Atelier a analysé une image (liste vide : aucun code trouvé).</summary>
     public event Action<string, IReadOnlyList<DecodedCode>>? Decoded;
+
+    /// <summary>L'Atelier est passé de lui-même en mode « scan » ou « create » (par exemple « Recréer ce code »).</summary>
+    public event Action<string>? ModeChanged;
 
     /// <summary>Prépare le moteur web et charge l'Atelier.</summary>
     public async Task InitializeAsync()
@@ -96,6 +101,48 @@ internal sealed class AtelierHost
     public Task SetModeAsync(string mode) =>
         ExecuteAsync($"window.atelierSetMode&&window.atelierSetMode({JsonSerializer.Serialize(mode)},false)");
 
+    /// <summary>Ouvre « Créer un code » sur un type donné (identifiant de l'Atelier : « ean13 », « gs1datamatrix »…).</summary>
+    public Task SetCreateTypeAsync(string typeId) =>
+        ExecuteAsync($"window.atelierSetCreateType&&window.atelierSetCreateType({JsonSerializer.Serialize(typeId)})");
+
+    /// <summary>
+    /// Fait dessiner un code par l'Atelier (aperçu du banc d'essai). Renvoie l'image PNG, ou un message d'erreur.
+    /// </summary>
+    public async Task<(byte[]? Png, string? Error)> RenderAsync(string text, string typeId)
+    {
+        if (!_ready || _view.CoreWebView2 is null)
+        {
+            return (null, "L'Atelier n'est pas encore prêt.");
+        }
+
+        var id = Guid.NewGuid().ToString("N");
+        var tcs = new TaskCompletionSource<(byte[]? Png, string? Error)>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _renders[id] = tcs;
+        await ExecuteAsync($"window.atelierRender({JsonSerializer.Serialize(id)},{JsonSerializer.Serialize(text)},{JsonSerializer.Serialize(typeId)})");
+        var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(10)));
+        _renders.Remove(id);
+        return done == tcs.Task ? tcs.Task.Result : (null, "Délai dépassé.");
+    }
+
+    /// <summary>Convertit une image « data:image/png;base64,… » en octets.</summary>
+    public static byte[]? FromDataUrl(string dataUrl)
+    {
+        var comma = dataUrl.IndexOf(',');
+        if (comma < 0 || !dataUrl.StartsWith("data:image/", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Convert.FromBase64String(dataUrl[(comma + 1)..]);
+        }
+        catch (FormatException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>Envoie une image PNG à analyser.</summary>
     public Task LoadImageAsync(byte[] png, string label) =>
         ExecuteAsync($"window.atelierLoadImageData('data:image/png;base64,{Convert.ToBase64String(png)}',{JsonSerializer.Serialize(label)})");
@@ -132,7 +179,21 @@ internal sealed class AtelierHost
             switch (Get(root, "type"))
             {
                 case "compare":
-                    CompareRequested?.Invoke(new CompareRequest(Get(root, "text"), Get(root, "format"), Get(root, "symbologyIdentifier")));
+                    CompareRequested?.Invoke(new CompareRequest(Get(root, "text"), Get(root, "format"), Get(root, "symbologyIdentifier"),
+                        FromDataUrl(Get(root, "image"))));
+                    break;
+
+                case "mode":
+                    ModeChanged?.Invoke(Get(root, "mode"));
+                    break;
+
+                case "rendered":
+                    if (_renders.TryGetValue(Get(root, "id"), out var tcs))
+                    {
+                        var error = Get(root, "error");
+                        tcs.TrySetResult(error.Length > 0 ? (null, error) : (FromDataUrl(Get(root, "image")), null));
+                    }
+
                     break;
 
                 case "decoded":

@@ -45,6 +45,9 @@ public partial class MainWindow : Window
         _atelier.CompareRequested += OnCompareRequested;
         _atelier.Decoded += OnDecoded;
         Bench.Compared += OnBenchCompared;
+        Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
+        _atelier.ModeChanged += OnAtelierModeChanged;
+        Symbols.CreateRequested += OnCreateRequested;
         ThemeManager.Changed += OnThemeChanged;
         _captureTimer.Tick += CaptureTimer_Tick;
 
@@ -81,6 +84,31 @@ public partial class MainWindow : Window
     {
         await _atelier.SetThemeAsync(ThemeManager.IsDark);
         await _atelier.SetModeAsync(_atelierMode);
+    }
+
+    /// <summary>L'Atelier a changé de mode tout seul (ex. « Recréer ce code ») : le menu suit.</summary>
+    private void OnAtelierModeChanged(string mode)
+    {
+        if (AtelierPage.Visibility != Visibility.Visible)
+        {
+            return;
+        }
+
+        if (mode == "create" && NavCreate.IsChecked != true)
+        {
+            NavCreate.IsChecked = true;
+        }
+        else if (mode == "scan" && NavAnalyse.IsChecked != true)
+        {
+            NavAnalyse.IsChecked = true;
+        }
+    }
+
+    /// <summary>« Créer ce type de code » depuis la page Symbologies.</summary>
+    private async void OnCreateRequested(string typeId)
+    {
+        NavCreate.IsChecked = true;
+        await _atelier.SetCreateTypeAsync(typeId);
     }
 
     private void ShowWebError(string message)
@@ -152,7 +180,7 @@ public partial class MainWindow : Window
             _atelierMode = create ? "create" : "scan";
             AtelierTitle.Text = create ? "Créer un code" : "Analyser une image";
             AtelierSubtitle.Text = create
-                ? "QR codes personnalisés : contenu, couleurs, formes, logo central, contrôle de lisibilité et export."
+                ? "Tous les types de codes : QR personnalisés, Data Matrix, GS1, EAN, Code 128, PDF417… avec vérification par relecture et export."
                 : "Importe, colle ou capture une image : chaque code est lu, détaillé et peut être comparé à une lecture douchette.";
             AtelierPage.Visibility = Visibility.Visible;
             await _atelier.SetModeAsync(_atelierMode);

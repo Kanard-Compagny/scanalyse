@@ -21,6 +21,7 @@
   <Geometry x:Key="IconTheme">M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z</Geometry>
   <Geometry x:Key="IconChevronLeft">M15 6l-6 6 6 6</Geometry>
   <Geometry x:Key="IconChevronDown">M6 9l6 6 6-6</Geometry>
+  <Geometry x:Key="IconSearch">M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.5 15.5L20 20</Geometry>
 
   <!-- Textes -->
   <Style x:Key="PageTitle" TargetType="TextBlock">
@@ -271,6 +272,48 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+
+  <!-- Puces de choix (filtres, types) -->
+  <Style x:Key="Chip" TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Margin" Value="0,0,6,6" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="Bd" CornerRadius="999" Padding="12,6" Background="{DynamicResource Surface2}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+            <ContentPresenter VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Muted}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brand}" />
+              <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brand}" />
+              <Setter Property="Foreground" Value="{DynamicResource OnBrand}" />
+              <Setter Property="FontWeight" Value="SemiBold" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Focus}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Champ de recherche (police d'interface, pas monospace) -->
+  <Style x:Key="SearchInput" TargetType="TextBox" BasedOn="{StaticResource Input}">
+    <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="TextWrapping" Value="NoWrap" />
+    <Setter Property="Padding" Value="36,9,10,9" />
+    <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
   </Style>
 
   <!-- Barres de défilement fines, aux couleurs du thème -->

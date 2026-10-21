@@ -8,10 +8,34 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <StackPanel Margin="0,0,0,18">
+    <StackPanel Margin="0,0,0,16">
       <TextBlock Style="{StaticResource PageTitle}" Text="Symbologies" />
       <TextBlock Style="{StaticResource PageSubtitle}"
                  Text="Fiche de référence de chaque type de code : ce qu'il sait encoder, sa capacité, ses usages et sa norme." />
+      <Grid Margin="0,16,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="340" />
+          <ColumnDefinition Width="16" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid VerticalAlignment="Top">
+          <TextBox x:Name="SearchBox" Style="{StaticResource SearchInput}" TextChanged="Filter_Changed" AutomationProperties.Name="Rechercher une symbologie" />
+          <Viewbox Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False">
+            <Path Data="{StaticResource IconSearch}" Width="24" Height="24" Stroke="{DynamicResource Muted}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+          </Viewbox>
+          <TextBlock x:Name="SearchPlaceholder" Text="Rechercher : nom, usage, norme, caractères…" Margin="37,0,0,0" VerticalAlignment="Center"
+                     Foreground="{DynamicResource Muted}" IsHitTestVisible="False" />
+        </Grid>
+        <WrapPanel Grid.Column="2" x:Name="Categories" VerticalAlignment="Center">
+          <RadioButton Style="{StaticResource Chip}" GroupName="SymCat" Tag="all" Content="Toutes" IsChecked="True" Checked="Filter_Changed" />
+          <RadioButton Style="{StaticResource Chip}" GroupName="SymCat" Tag="Matrix" Content="2D matriciel" Checked="Filter_Changed" />
+          <RadioButton Style="{StaticResource Chip}" GroupName="SymCat" Tag="Stacked" Content="2D empilé" Checked="Filter_Changed" />
+          <RadioButton Style="{StaticResource Chip}" GroupName="SymCat" Tag="Retail" Content="Distribution" Checked="Filter_Changed" />
+          <RadioButton Style="{StaticResource Chip}" GroupName="SymCat" Tag="Industrial" Content="Industriel" Checked="Filter_Changed" />
+          <RadioButton Style="{StaticResource Chip}" GroupName="SymCat" Tag="gs1" Content="Compatibles GS1" Checked="Filter_Changed" />
+        </WrapPanel>
+      </Grid>
+      <TextBlock x:Name="CountText" Style="{StaticResource PageSubtitle}" Margin="0,4,0,0" />
     </StackPanel>
 
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -54,6 +78,8 @@
                     <TextBlock Text="{Binding QuietZone}" TextWrapping="Wrap" Margin="0,2,0,0" />
                   </StackPanel>
                 </Grid>
+                <Button Style="{StaticResource BtnGhost}" Content="Créer ce type de code" HorizontalAlignment="Left" Margin="-12,10,0,-6"
+                        Visibility="{Binding CreateVisibility}" Tag="{Binding TypeId}" Click="Create_Click" />
               </StackPanel>
             </Border>
           </DataTemplate>
