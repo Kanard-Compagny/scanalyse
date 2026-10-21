@@ -72,9 +72,11 @@ public partial class DevicesView : UserControl
     private async Task RefreshAsync(string? keepId)
     {
         IReadOnlyList<DeviceEntry> devices;
+        DeviceHint.Visibility = Visibility.Collapsed;
+        StatusText.Text = _source is null ? "Recherche des douchettes…" : StatusText.Text;
         try
         {
-            devices = await DeviceCatalog.FindAsync();
+            devices = await Task.Run(() => DeviceCatalog.FindAsync());
         }
         catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -101,6 +103,10 @@ public partial class DevicesView : UserControl
             ?? (RadioButton)DeviceList.Children[0];
         keep.IsChecked = true;
         DeviceHint.Visibility = devices.Count <= 1 ? Visibility.Visible : Visibility.Collapsed;
+        if (_source is null)
+        {
+            StatusText.Text = "Douchette en mode clavier";
+        }
     }
 
     private FrameworkElement DeviceContent(DeviceEntry d)

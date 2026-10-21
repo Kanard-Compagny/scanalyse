@@ -35,6 +35,9 @@ internal static class DeviceCatalog
 {
     private const string PortNameProperty = "System.DeviceInterface.Serial.PortName";
 
+    /// <summary>Au-delà, on renonce à la recherche Windows (pilotes lents, Bluetooth…) et on garde ce qu'on a.</summary>
+    private static readonly TimeSpan SearchTimeout = TimeSpan.FromSeconds(4);
+
     /// <summary>Entrée « mode clavier », toujours disponible.</summary>
     public static DeviceEntry Keyboard { get; } = new(ScanSourceKind.Keyboard, "keyboard", "Mode clavier (émulation)", null);
 
@@ -46,8 +49,8 @@ internal static class DeviceCatalog
         var names = new Dictionary<string, DeviceInformation>(StringComparer.OrdinalIgnoreCase);
         try
         {
-            var infos = await DeviceInformation.FindAllAsync(SerialDevice.GetDeviceSelector(), [PortNameProperty]);
-            foreach (var info in infos)
+            var infos = await WithTimeout(DeviceInformation.FindAllAsync(SerialDevice.GetDeviceSelector(), [PortNameProperty]).AsTask());
+            foreach (var info in infos ?? [])
             {
                 if (info.Properties.TryGetValue(PortNameProperty, out var p) && p is string port)
                 {
@@ -70,7 +73,7 @@ internal static class DeviceCatalog
         // Scanners HID POS reconnus par Windows.
         try
         {
-            foreach (var info in await DeviceInformation.FindAllAsync(BarcodeScanner.GetDeviceSelector()))
+            foreach (var info in await WithTimeout(DeviceInformation.FindAllAsync(BarcodeScanner.GetDeviceSelector()).AsTask()) ?? [])
             {
                 list.Add(new DeviceEntry(ScanSourceKind.Pos, info.Id, info.Name, UsbVendors.Identify(info.Id)));
             }
@@ -80,6 +83,12 @@ internal static class DeviceCatalog
         }
 
         return list;
+    }
+
+    private static async Task<IReadOnlyList<DeviceInformation>?> WithTimeout(Task<DeviceInformationCollection> search)
+    {
+        var done = await Task.WhenAny(search, Task.Delay(SearchTimeout));
+        return done == search ? await search : null;
     }
 
     private static int PortNumber(string port) =>

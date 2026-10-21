@@ -23,10 +23,10 @@ internal sealed class PosScanSource(string deviceId, string displayName) : IScan
     {
         try
         {
-            _scanner = await BarcodeScanner.FromIdAsync(deviceId)
-                ?? throw new ScannerException($"{displayName} n'est plus disponible : rebranche-la puis actualise la liste.");
-            _claimed = await _scanner.ClaimScannerAsync()
-                ?? throw new ScannerException($"{displayName} est déjà utilisée par une autre application (logiciel de caisse, utilitaire du fabricant…).");
+            _scanner = await WithTimeout(BarcodeScanner.FromIdAsync(deviceId).AsTask())
+                ?? throw new ScannerException($"{displayName} n'est plus disponible ou ne répond pas : rebranche-la puis actualise la liste.");
+            _claimed = await WithTimeout(_scanner.ClaimScannerAsync().AsTask())
+                ?? throw new ScannerException($"{displayName} est déjà utilisée par une autre application (logiciel de caisse, utilitaire du fabricant…) ou ne répond pas.");
 
             // Une autre application demande la douchette : on la garde tant que Scanalyse est connecté.
             _claimed.ReleaseDeviceRequested += (_, claimed) => claimed.RetainDevice();
@@ -51,6 +51,14 @@ internal sealed class PosScanSource(string deviceId, string displayName) : IScan
             await DisposeAsync();
             throw new ScannerException($"Connexion HID POS impossible à {displayName} : {ex.Message}", ex);
         }
+    }
+
+    /// <summary>Un pilote qui ne répond pas ne doit jamais figer Scanalyse.</summary>
+    private static async Task<T?> WithTimeout<T>(Task<T> task)
+        where T : class
+    {
+        var done = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(8)));
+        return done == task ? await task : null;
     }
 
     private void OnDataReceived(ClaimedBarcodeScanner sender, BarcodeScannerDataReceivedEventArgs args)

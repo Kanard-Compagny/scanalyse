@@ -67,7 +67,8 @@ public partial class MainWindow : Window
 
         Loaded += async (_, _) =>
         {
-            await Devices.InitializeAsync();
+            // L'Atelier d'abord ; la recherche des douchettes tourne à côté sans jamais le bloquer.
+            _ = InitializeDevicesAsync();
             await StartAtelierAsync();
         };
         Closed += async (_, _) =>
@@ -185,6 +186,18 @@ public partial class MainWindow : Window
         if (Bench.Visibility != Visibility.Visible && Devices.Visibility != Visibility.Visible)
         {
             NavBench.IsChecked = true;
+        }
+    }
+
+    private async Task InitializeDevicesAsync()
+    {
+        try
+        {
+            await Devices.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            AddLog(LogKind.Warning, "DOUCHETTE", "Recherche des douchettes impossible : " + ex.Message);
         }
     }
 
