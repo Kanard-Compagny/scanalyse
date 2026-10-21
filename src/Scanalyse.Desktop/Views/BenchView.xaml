@@ -84,8 +84,11 @@
           <TextBox x:Name="ReceivedBox" Grid.Row="3" Style="{StaticResource Input}" MinHeight="90"
                    PreviewKeyDown="ReceivedBox_PreviewKeyDown" TextChanged="ReceivedBox_TextChanged" />
 
-          <TextBlock x:Name="ReceivedVisual" Grid.Row="4" Margin="0,8,0,0" FontFamily="{StaticResource MonoFont}" FontSize="12"
-                     Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+          <StackPanel Grid.Row="4" Margin="0,8,0,0">
+            <TextBlock x:Name="ReceivedOrigin" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource BrandText}" TextWrapping="Wrap" Visibility="Collapsed" />
+            <TextBlock x:Name="ReceivedVisual" FontFamily="{StaticResource MonoFont}" FontSize="12"
+                       Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+          </StackPanel>
 
           <WrapPanel Grid.Row="5" Margin="0,16,0,0">
             <Button Style="{StaticResource BtnAction}" Content="Comparer" Click="Compare_Click" Margin="0,0,8,8" />

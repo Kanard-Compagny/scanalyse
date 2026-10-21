@@ -13,6 +13,9 @@ using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
+using Scanalyse.Core.Text;
+using Scanalyse.Desktop.Scanners;
+using Scanalyse.Desktop.Views;
 
 namespace Scanalyse.Desktop;
 
@@ -48,6 +51,9 @@ public partial class MainWindow : Window
         Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         _atelier.ModeChanged += OnAtelierModeChanged;
         Symbols.CreateRequested += OnCreateRequested;
+        Devices.Scanned += OnDeviceScanned;
+        Devices.StatusChanged += OnScannerStatus;
+        Devices.Log += (kind, text) => AddLog(kind, "DOUCHETTE", text);
         ThemeManager.Changed += OnThemeChanged;
         _captureTimer.Tick += CaptureTimer_Tick;
 
@@ -58,8 +64,16 @@ public partial class MainWindow : Window
         OnThemeChanged();
         AddLog(LogKind.Info, "SCANALYSE", "Prêt. L'analyse est faite sur ce PC, rien n'est envoyé sur Internet.");
 
-        Loaded += async (_, _) => await StartAtelierAsync();
-        Closed += (_, _) => ThemeManager.Changed -= OnThemeChanged;
+        Loaded += async (_, _) =>
+        {
+            await Devices.InitializeAsync();
+            await StartAtelierAsync();
+        };
+        Closed += async (_, _) =>
+        {
+            ThemeManager.Changed -= OnThemeChanged;
+            await Devices.ShutdownAsync();
+        };
     }
 
     // ------------------------------------------------------------------ Atelier
@@ -160,6 +174,28 @@ public partial class MainWindow : Window
         AddLog(kind, "DIAGNOSTIC", main.Title);
     }
 
+    // ------------------------------------------------------------------ Douchettes
+
+    /// <summary>Lecture reçue en direct : journal, puis banc d'essai (qui compare si la référence est connue).</summary>
+    private void OnDeviceScanned(ScanEvent scan)
+    {
+        AddLog(LogKind.Info, scan.Symbology?.ToUpperInvariant() ?? "LECTURE", $"{ControlCharacters.Visualize(scan.Text)}   [{scan.Hex}]");
+        Bench.ReceiveScan(scan);
+        if (Bench.Visibility != Visibility.Visible && Devices.Visibility != Visibility.Visible)
+        {
+            NavBench.IsChecked = true;
+        }
+    }
+
+    private void OnScannerStatus(ScannerStatus status)
+    {
+        SourceText.Text = status.Text;
+        SourceDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty,
+            status.Error ? "BadFg" : status.Kind == ScanSourceKind.Keyboard ? "Muted" : "OkFg");
+    }
+
+    private void Source_Click(object sender, RoutedEventArgs e) => NavDevices.IsChecked = true;
+
     // ------------------------------------------------------------------ Navigation
 
     private async void Nav_Checked(object sender, RoutedEventArgs e)
@@ -172,6 +208,7 @@ public partial class MainWindow : Window
         AtelierPage.Visibility = Visibility.Collapsed;
         Bench.Visibility = Visibility.Collapsed;
         Symbols.Visibility = Visibility.Collapsed;
+        Devices.Visibility = Visibility.Collapsed;
         SettingsPage.Visibility = Visibility.Collapsed;
 
         if (sender == NavAnalyse || sender == NavCreate)
@@ -189,6 +226,10 @@ public partial class MainWindow : Window
         {
             Bench.Visibility = Visibility.Visible;
             Bench.FocusReception();
+        }
+        else if (sender == NavDevices)
+        {
+            Devices.Visibility = Visibility.Visible;
         }
         else if (sender == NavSymbols)
         {

@@ -1,0 +1,185 @@
+<UserControl x:Class="Scanalyse.Desktop.Views.DevicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:Scanalyse.Desktop.Views">
+  <Grid Margin="28,22,28,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Margin="0,0,0,18">
+      <TextBlock Style="{StaticResource PageTitle}" Text="Douchettes" />
+      <TextBlock Style="{StaticResource PageSubtitle}"
+                 Text="Relie une douchette en port COM ou en HID POS : Scanalyse reçoit les octets exacts, sans passer par le clavier, et les envoie au banc d'essai." />
+    </StackPanel>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5*" />
+        <ColumnDefinition Width="18" />
+        <ColumnDefinition Width="6*" />
+      </Grid.ColumnDefinitions>
+
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+          <!-- Périphériques -->
+          <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+              <DockPanel Margin="0,0,0,12">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Click="Refresh_Click" ToolTip="Rechercher à nouveau les douchettes branchées">
+                  <StackPanel Orientation="Horizontal">
+                    <Viewbox Width="14" Height="14"><Path Data="{StaticResource IconRefresh}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" /></Viewbox>
+                    <TextBlock Text="Actualiser" Margin="6,0,0,0" />
+                  </StackPanel>
+                </Button>
+                <TextBlock Style="{StaticResource CardTitle}" Text="Douchettes détectées" VerticalAlignment="Center" />
+              </DockPanel>
+              <StackPanel x:Name="DeviceList" />
+              <TextBlock x:Name="DeviceHint" Style="{StaticResource FieldLabel}" Margin="0,4,0,0" Visibility="Collapsed"
+                         Text="Aucun port COM ni scanner HID POS trouvé. La douchette est sans doute en mode clavier : voir « Passer en liaison directe » plus bas." />
+
+              <Border Height="1" Background="{DynamicResource Line}" Margin="0,14" />
+              <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                  <Button x:Name="DisconnectButton" Style="{StaticResource BtnSecondary}" Content="Déconnecter" Click="Disconnect_Click" Margin="0,0,8,0" Visibility="Collapsed" />
+                  <Button x:Name="ConnectButton" Style="{StaticResource BtnAction}" Content="Connecter" Click="Connect_Click" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Ellipse x:Name="StatusDot" Width="9" Height="9" Fill="{DynamicResource Muted}" VerticalAlignment="Center" />
+                  <TextBlock x:Name="StatusText" Text="Mode clavier" Margin="9,0,12,0" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource Ink}" />
+                </StackPanel>
+              </DockPanel>
+            </StackPanel>
+          </Border>
+
+          <!-- Réglages du port série -->
+          <Border x:Name="SerialCard" Style="{StaticResource Card}" Margin="0,0,0,14" Visibility="Collapsed">
+            <StackPanel>
+              <TextBlock Style="{StaticResource CardTitle}" Text="Réglages du port série" />
+              <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
+                         Text="Indispensables en RS-232 : ils doivent être identiques à ceux de la douchette. En port COM virtuel USB, vitesse et parité sont le plus souvent ignorées." />
+
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Vitesse (bauds)" />
+              <WrapPanel x:Name="BaudChips" Margin="0,0,0,8">
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="1200" Content="1200" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="2400" Content="2400" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="4800" Content="4800" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="9600" Content="9600" IsChecked="True" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="19200" Content="19200" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="38400" Content="38400" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="57600" Content="57600" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Baud" Tag="115200" Content="115200" />
+              </WrapPanel>
+
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="16" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                  <TextBlock Style="{StaticResource FieldLabel}" Text="Bits de données" />
+                  <WrapPanel x:Name="DataBitsChips" Margin="0,0,0,8">
+                    <RadioButton Style="{StaticResource Chip}" GroupName="DataBits" Tag="7" Content="7" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="DataBits" Tag="8" Content="8" IsChecked="True" />
+                  </WrapPanel>
+                  <TextBlock Style="{StaticResource FieldLabel}" Text="Bits d'arrêt" />
+                  <WrapPanel x:Name="StopBitsChips" Margin="0,0,0,8">
+                    <RadioButton Style="{StaticResource Chip}" GroupName="StopBits" Tag="One" Content="1" IsChecked="True" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="StopBits" Tag="Two" Content="2" />
+                  </WrapPanel>
+                  <TextBlock Style="{StaticResource FieldLabel}" Text="Signal DTR (PC prêt)" />
+                  <WrapPanel x:Name="DtrChips" Margin="0,0,0,8">
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Dtr" Tag="True" Content="Activé" IsChecked="True" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Dtr" Tag="False" Content="Désactivé" />
+                  </WrapPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                  <TextBlock Style="{StaticResource FieldLabel}" Text="Parité" />
+                  <WrapPanel x:Name="ParityChips" Margin="0,0,0,8">
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Parity" Tag="None" Content="Aucune" IsChecked="True" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Parity" Tag="Even" Content="Paire" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Parity" Tag="Odd" Content="Impaire" />
+                  </WrapPanel>
+                  <TextBlock Style="{StaticResource FieldLabel}" Text="Contrôle de flux" />
+                  <WrapPanel x:Name="FlowChips" Margin="0,0,0,8">
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Flow" Tag="None" Content="Aucun" IsChecked="True" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Flow" Tag="RequestToSend" Content="RTS/CTS" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Flow" Tag="XOnXOff" Content="XON/XOFF" />
+                  </WrapPanel>
+                  <TextBlock Style="{StaticResource FieldLabel}" Text="Encodage du texte" />
+                  <WrapPanel x:Name="EncodingChips" Margin="0,0,0,8">
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Encoding" Tag="Auto" Content="Auto" IsChecked="True" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Encoding" Tag="Utf8" Content="UTF-8" />
+                    <RadioButton Style="{StaticResource Chip}" GroupName="Encoding" Tag="Latin1" Content="Latin-1" />
+                  </WrapPanel>
+                </StackPanel>
+              </Grid>
+
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Fin de lecture : silence de (ms)" />
+              <TextBox x:Name="IdleBox" Style="{StaticResource Input}" Width="120" HorizontalAlignment="Left" Text="80"
+                       ToolTip="Une lecture est terminée quand la ligne reste silencieuse ce temps-là. Augmente-le si une lecture arrive coupée en deux." />
+            </StackPanel>
+          </Border>
+
+          <!-- Aide -->
+          <Border Style="{StaticResource Card}">
+            <StackPanel>
+              <TextBlock Style="{StaticResource CardTitle}" Text="Passer en liaison directe" />
+              <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource Ink}"
+                         Text="Une douchette USB sort d'usine en mode clavier. Pour une liaison directe, scanne dans le guide de programmation du fabricant le code qui change l'interface USB :" />
+              <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource Ink}">
+                <Run FontWeight="SemiBold" Text="Port COM virtuel : " /><Run Text="« USB CDC » chez Zebra, « USB Serial » chez Honeywell, « USB-COM » chez Datalogic. Windows crée un port COM, puis clique sur Actualiser." />
+              </TextBlock>
+              <TextBlock TextWrapping="Wrap" Margin="0,6,0,0" Foreground="{DynamicResource Ink}">
+                <Run FontWeight="SemiBold" Text="HID POS : " /><Run Text="« USB HID POS », si le modèle le propose. Windows le reconnaît sans pilote et indique en plus la symbologie lue." />
+              </TextBlock>
+              <TextBlock Style="{StaticResource FieldLabel}" Margin="0,10,0,0"
+                         Text="Pense à remettre la douchette dans son mode d'origine avant de la rendre au client." />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Moniteur -->
+      <Border Grid.Column="2" Style="{StaticResource Card}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <StackPanel Margin="0,0,0,12">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Content="Effacer" Click="ClearMonitor_Click" />
+              <TextBlock Style="{StaticResource CardTitle}" Text="Moniteur des lectures" VerticalAlignment="Center" />
+            </DockPanel>
+            <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,0"
+                       Text="Chaque lecture telle que reçue : texte avec caractères invisibles, et octets en hexadécimal. Elle part aussi au banc d'essai." />
+          </StackPanel>
+          <Grid Grid.Row="1">
+            <TextBlock x:Name="MonitorEmpty" Text="Aucune lecture pour l'instant. Connecte une douchette puis scanne un code."
+                       Foreground="{DynamicResource Muted}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" MaxWidth="320" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <ItemsControl x:Name="MonitorList">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="{x:Type views:MonitorItem}">
+                    <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                      <StackPanel>
+                        <TextBlock Text="{Binding Header}" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+                        <TextBox Text="{Binding Visual, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,4,0,0"
+                                 FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
+                        <TextBox Text="{Binding Hex, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,4,0,0"
+                                 FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

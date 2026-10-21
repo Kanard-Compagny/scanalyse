@@ -54,12 +54,12 @@
         <DockPanel Margin="16,0" LastChildFill="False">
           <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock Text="Source" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
-            <Border Height="38" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource Line}" Background="{DynamicResource Surface}" Padding="12,0">
-              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Ellipse Width="8" Height="8" Fill="{DynamicResource OkFg}" VerticalAlignment="Center" />
-                <TextBlock Text="Douchette en mode clavier" Margin="10,0,0,0" VerticalAlignment="Center" />
+            <Button Style="{StaticResource BtnSecondary}" Click="Source_Click" ToolTip="Choisir comment la douchette est reliée au PC">
+              <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="SourceDot" Width="8" Height="8" Fill="{DynamicResource Muted}" VerticalAlignment="Center" />
+                <TextBlock x:Name="SourceText" Text="Douchette en mode clavier" Margin="10,0,0,0" VerticalAlignment="Center" />
               </StackPanel>
-            </Border>
+            </Button>
             <Rectangle Width="1" Height="28" Fill="{DynamicResource Line}" Margin="14,0" />
             <Button Style="{StaticResource BtnSecondary}" Click="Paste_Click" ToolTip="Analyser l'image du presse-papiers (Ctrl + Maj + V)">
               <StackPanel Orientation="Horizontal">
@@ -109,6 +109,7 @@
               <RadioButton x:Name="NavAnalyse" Style="{StaticResource NavItem}" Tag="{StaticResource IconAnalyse}" Content="Analyser une image" ToolTip="Analyser une image" Checked="Nav_Checked" />
               <RadioButton x:Name="NavCreate" Style="{StaticResource NavItem}" Tag="{StaticResource IconCreate}" Content="Créer un code" ToolTip="Créer un code" Checked="Nav_Checked" />
               <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="{StaticResource IconBench}" Content="Banc d'essai douchette" ToolTip="Banc d'essai douchette" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavDevices" Style="{StaticResource NavItem}" Tag="{StaticResource IconScanner}" Content="Douchettes" ToolTip="Douchettes" Checked="Nav_Checked" />
               <RadioButton x:Name="NavSymbols" Style="{StaticResource NavItem}" Tag="{StaticResource IconSymbols}" Content="Symbologies" ToolTip="Symbologies" Checked="Nav_Checked" />
             </StackPanel>
           </DockPanel>
@@ -143,6 +144,7 @@
           </Grid>
 
           <views:BenchView x:Name="Bench" Visibility="Collapsed" />
+          <views:DevicesView x:Name="Devices" Visibility="Collapsed" />
           <views:SymbologiesView x:Name="Symbols" Visibility="Collapsed" />
           <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" />
 

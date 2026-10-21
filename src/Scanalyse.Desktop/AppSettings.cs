@@ -1,5 +1,7 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Scanalyse.Desktop.Scanners;
 
 namespace Scanalyse.Desktop;
 
@@ -8,6 +10,9 @@ public sealed class AppSettings
 {
     /// <summary>Thème choisi.</summary>
     public AppTheme Theme { get; set; } = AppTheme.System;
+
+    /// <summary>Dernière douchette connectée (reconnectée au démarrage si elle est présente).</summary>
+    public ScannerPreferences Scanner { get; set; } = new();
 
     /// <summary>Dossier des données de Scanalyse (réglages, cache de l'Atelier).</summary>
     public static string DataFolder =>
@@ -44,4 +49,16 @@ public sealed class AppSettings
         {
         }
     }
+}
+
+/// <summary>Douchette mémorisée.</summary>
+public sealed class ScannerPreferences
+{
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public ScanSourceKind Kind { get; set; } = ScanSourceKind.Keyboard;
+
+    /// <summary>Port (« COM5 ») ou identifiant Windows du scanner HID POS.</summary>
+    public string DeviceId { get; set; } = string.Empty;
+
+    public SerialSettings Serial { get; set; } = new();
 }

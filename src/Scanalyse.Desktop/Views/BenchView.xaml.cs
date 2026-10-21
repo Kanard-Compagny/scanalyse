@@ -9,6 +9,7 @@ using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
 using Scanalyse.Core.Gs1;
 using Scanalyse.Core.Text;
+using Scanalyse.Desktop.Scanners;
 
 namespace Scanalyse.Desktop.Views;
 
@@ -18,6 +19,7 @@ public partial class BenchView : UserControl
     private readonly ContentAnalyzer _analyzer = new();
     private string? _expectedAim;
     private bool _settingExpected;
+    private bool _settingReceived;
 
     public BenchView()
     {
@@ -59,6 +61,35 @@ public partial class BenchView : UserControl
         Dispatcher.InvokeAsync(() => ReceivedBox.Focus(), DispatcherPriority.Input);
     }
 
+    /// <summary>
+    /// Lecture reçue en direct (port série ou HID POS) : les octets exacts, sans traduction clavier.
+    /// Si le contenu attendu est connu, la comparaison est lancée tout de suite.
+    /// </summary>
+    public void ReceiveScan(ScanEvent scan)
+    {
+        if (ZoomOverlay.Visibility == Visibility.Visible)
+        {
+            ZoomOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        _settingReceived = true;
+        ReceivedBox.Text = scan.Text;
+        _settingReceived = false;
+        ReceivedOrigin.Text = $"Reçu en direct · {scan.Source}"
+            + (scan.Symbology is null ? string.Empty : $" · symbologie annoncée : {scan.Symbology}");
+        ReceivedOrigin.Visibility = Visibility.Visible;
+
+        if (!string.IsNullOrWhiteSpace(ExpectedBox.Text))
+        {
+            Compare_Click(this, new RoutedEventArgs());
+        }
+        else
+        {
+            ResultTitle.Text = "Lecture reçue";
+            ResultSubtitle.Text = "Saisis ou reprends le contenu réel du code pour lancer la comparaison, ou clique sur « Analyser le contenu ».";
+        }
+    }
+
     /// <summary>Donne le focus au champ de réception, prêt pour un scan.</summary>
     public void FocusReception() => Dispatcher.InvokeAsync(() => ReceivedBox.Focus(), DispatcherPriority.Input);
 
@@ -93,10 +124,18 @@ public partial class BenchView : UserControl
         }
     }
 
-    private void ReceivedBox_TextChanged(object sender, TextChangedEventArgs e) =>
+    private void ReceivedBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
         ReceivedVisual.Text = ReceivedBox.Text.Length == 0
             ? string.Empty
             : $"Reçu ({ReceivedBox.Text.Length} caractères) : {ControlCharacters.Visualize(ReceivedBox.Text)}";
+
+        // Saisie ou lecture clavier : l'origine « en direct » ne s'applique plus.
+        if (!_settingReceived && ReceivedOrigin is not null)
+        {
+            ReceivedOrigin.Visibility = Visibility.Collapsed;
+        }
+    }
 
     private void ExpectedBox_TextChanged(object sender, TextChangedEventArgs e)
     {

@@ -21,6 +21,8 @@
   <Geometry x:Key="IconTheme">M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z</Geometry>
   <Geometry x:Key="IconChevronLeft">M15 6l-6 6 6 6</Geometry>
   <Geometry x:Key="IconChevronDown">M6 9l6 6 6-6</Geometry>
+  <Geometry x:Key="IconScanner">M4 5h11a3 3 0 0 1 0 6h-4l-3 8H5l2.5-8H4zM18 15l2 2M18 19h2</Geometry>
+  <Geometry x:Key="IconRefresh">M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6</Geometry>
   <Geometry x:Key="IconSearch">M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.5 15.5L20 20</Geometry>
 
   <!-- Textes -->
@@ -63,7 +65,7 @@
     <Setter Property="Padding" Value="18" />
   </Style>
   <Style x:Key="Pill" TargetType="Border">
-    <Setter Property="CornerRadius" Value="999" />
+    <Setter Property="CornerRadius" Value="11" />
     <Setter Property="Padding" Value="10,3" />
     <Setter Property="Background" Value="{DynamicResource Surface2}" />
     <Setter Property="VerticalAlignment" Value="Center" />
