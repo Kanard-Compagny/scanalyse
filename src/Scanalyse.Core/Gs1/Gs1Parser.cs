@@ -47,6 +47,26 @@ public sealed record Gs1Message(Gs1Notation Notation, IReadOnlyList<Gs1Element> 
 
     /// <summary>Premier champ portant l'AI demandé.</summary>
     public Gs1Element? Get(string ai) => Elements.FirstOrDefault(e => e.Ai == ai);
+
+    /// <summary>
+    /// Forme transmise par un scanner : AI et valeurs à la suite, avec un séparateur GS
+    /// après chaque champ de longueur variable (sauf le dernier).
+    /// </summary>
+    public string ToTransmitted()
+    {
+        var sb = new System.Text.StringBuilder();
+        for (var i = 0; i < Elements.Count; i++)
+        {
+            var e = Elements[i];
+            sb.Append(e.Ai).Append(e.Value);
+            if (i < Elements.Count - 1 && ApplicationIdentifiers.PredefinedLength(e.Ai) is null)
+            {
+                sb.Append(ControlCharacters.GroupSeparator);
+            }
+        }
+
+        return sb.ToString();
+    }
 }
 
 /// <summary>Lecture des chaînes d'éléments GS1.</summary>

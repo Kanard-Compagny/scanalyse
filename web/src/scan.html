@@ -1,0 +1,46 @@
+  <div id="view-scan" hidden>
+    <div class="scan-grid">
+      <section class="card">
+        <h2>Source <small>image, capture ou collage</small></h2>
+        <div class="src-actions">
+          <label class="btn primary" for="scanFile">Importer une image</label>
+          <input type="file" id="scanFile" accept="image/*" hidden>
+          <button class="btn" id="scanScreen" type="button">Capturer l'écran</button>
+          <button class="btn" id="scanPaste" type="button" hidden>Coller</button>
+          <button class="btn" id="scanSample" type="button">Analyser le QR de l'atelier</button>
+        </div>
+        <p class="hint" id="pasteHint">Capture rapide : <kbd>Win</kbd> + <kbd>Maj</kbd> + <kbd>S</kbd> (Mac : <kbd>Cmd</kbd> + <kbd>Maj</kbd> + <kbd>4</kbd>), puis <kbd>Ctrl</kbd> + <kbd>V</kbd> sur cette page. Le glisser-déposer marche aussi.</p>
+        <div class="scan-stage" id="scanStage">
+          <div class="scan-empty" id="scanEmpty"><b>Dépose une image ici</b>Photo, capture d'écran, scan d'étiquette, PDF exporté en image…</div>
+          <canvas id="scanCanvas" hidden aria-label="Image analysée, avec les codes détectés encadrés"></canvas>
+        </div>
+        <div class="scan-tools">
+          <span class="hint" id="scanInfo">Trace un rectangle sur l'image pour n'analyser qu'une zone, ou « Agrandir » pour zoomer.</span>
+          <div class="src-actions">
+            <button class="btn small" id="scanZoom" type="button">Agrandir</button>
+            <button class="btn small" id="scanSelect" type="button" aria-pressed="false">Sélectionner une zone</button>
+            <button class="btn small" id="scanReset" type="button" hidden>Toute l'image</button>
+          </div>
+        </div>
+        <p class="engine" id="scanEngine">Analyse 100 % locale : l'image ne quitte pas ton appareil.</p>
+      </section>
+      <div class="results" id="scanResults" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="vHint">
+    <div class="v-bar">
+      <p class="v-hint" id="vHint">Trace un rectangle autour du code à analyser.</p>
+      <div class="v-tools">
+        <button class="btn small" id="vZoomOut" type="button" aria-label="Dézoomer">−</button>
+        <span class="v-zoom" id="vZoomV">100 %</span>
+        <button class="btn small" id="vZoomIn" type="button" aria-label="Zoomer">+</button>
+        <button class="btn small" id="vFit" type="button">Ajuster</button>
+        <button class="btn small" id="v100" type="button">100 %</button>
+        <button class="btn small" id="vPan" type="button" aria-pressed="false">Main (déplacer)</button>
+        <button class="btn small" id="vAll" type="button">Analyser toute l'image</button>
+        <button class="btn small primary" id="vClose" type="button">Fermer</button>
+      </div>
+    </div>
+    <div class="v-area" id="vArea"><canvas id="vCanvas" aria-label="Image agrandie : trace un rectangle pour sélectionner un code"></canvas></div>
+    <p class="v-foot">Molette ou pincement : zoom · Glisser : sélectionner · Espace, clic molette ou clic droit + glisser : déplacer · Échap : fermer</p>
+  </div>

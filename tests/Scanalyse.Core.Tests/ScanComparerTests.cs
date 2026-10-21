@@ -105,4 +105,16 @@ public class ScanComparerTests
         Assert.Equal("DIFFERENT", f.Code);
         Assert.Contains("position 3", f.Explanation);
     }
+
+    [Fact]
+    public void ReadableGs1IsComparedWithTransmittedForm()
+    {
+        var r = ScanComparer.Compare("(01)03453120000011(10)LOT(21)SN", "0103453120000011" + "10LOT\u001D21SN");
+
+        Assert.True(r.Identical);
+    }
+
+    [Fact]
+    public void ReadableGs1DetectsLostSeparator() =>
+        Assert.Equal("GS_LOST", MainCode("(01)03453120000011(10)LOT(21)SN", "010345312000001110LOT21SN"));
 }

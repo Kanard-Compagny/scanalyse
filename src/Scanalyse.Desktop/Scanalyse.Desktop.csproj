@@ -14,4 +14,14 @@
     <ProjectReference Include="..\Scanalyse.Core\Scanalyse.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Composant web officiel de Microsoft (moteur Edge, déjà présent sur Windows 10/11) pour afficher l'Atelier. -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Atelier (création + analyse d'images), généré par web/build.py et embarqué dans l'exécutable. -->
+    <EmbeddedResource Include="Web\index.html" LogicalName="Scanalyse.Web.index.html" />
+  </ItemGroup>
+
 </Project>

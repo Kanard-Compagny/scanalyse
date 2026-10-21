@@ -10,5 +10,7 @@
     <File Path="Directory.Build.props" />
     <File Path=".editorconfig" />
     <File Path="README.md" />
+    <File Path="THIRD-PARTY-NOTICES.md" />
+    <File Path="web/build.py" />
   </Folder>
 </Solution>

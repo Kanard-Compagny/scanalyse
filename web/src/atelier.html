@@ -1,0 +1,505 @@
+<title>Atelier QR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: établi à deux colonnes — réglages à gauche, aperçu collant à droite ; une colonne sur mobile */
+:root{
+  --bg:#f3f4f7; --panel:#ffffff; --ink:#151a2b; --muted:#5c6378; --line:#dfe2ea;
+  --accent:#2b3fd6; --accent-ink:#ffffff; --soft:#e8ebfb; --warn:#a85a00; --warn-bg:#fff3e0; --ok:#1d7a4a;
+  --check:#e4e6ee;
+  --f-display:"Familjen Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1220; --panel:#171b2c; --ink:#e9ebf3; --muted:#9aa1b8; --line:#2a3048;
+  --accent:#7d8cff; --accent-ink:#0f1220; --soft:#222a4d; --warn:#ffb35c; --warn-bg:#33240f; --ok:#5fd59a; --check:#252a3f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1220; --panel:#171b2c; --ink:#e9ebf3; --muted:#9aa1b8; --line:#2a3048;
+  --accent:#7d8cff; --accent-ink:#0f1220; --soft:#222a4d; --warn:#ffb35c; --warn-bg:#33240f; --ok:#5fd59a; --check:#252a3f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1160px;margin:0 auto;display:grid;gap:24px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,4vw,40px);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 span{color:var(--accent)}
+header p{margin:0;color:var(--muted);max-width:52ch}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}.preview{order:-1;position:static}.canvas{width:min(100%,380px);margin-inline:auto}}
+.controls{display:grid;gap:16px;min-width:0}
+section.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 20px;display:grid;gap:14px;min-width:0}
+.card h2{font-family:var(--f-display);font-size:17px;font-weight:700;margin:0;display:flex;align-items:center;gap:10px}
+.card h2 small{font-family:var(--f-body);font-weight:500;font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+label.f{display:grid;gap:5px;font-size:13px;font-weight:500;color:var(--muted);min-width:0}
+input[type=text],input[type=url],input[type=email],input[type=tel],input[type=password],textarea,select{
+  font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:84px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.chip span{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:500;background:var(--bg);cursor:pointer;user-select:none}
+.chip input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.shapes{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.shape{position:relative}
+.shape input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.shape div{display:grid;justify-items:center;gap:4px;padding:10px 4px 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:12px;color:var(--muted);cursor:pointer}
+.shape svg{width:34px;height:34px;color:var(--ink)}
+.shape input:checked+div{border-color:var(--accent);background:var(--soft);color:var(--ink)}
+.shape input:focus-visible+div{outline:2px solid var(--accent);outline-offset:2px}
+.color{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:5px 8px}
+.color input[type=color]{width:30px;height:30px;border:0;padding:0;background:none;cursor:pointer;flex:none}
+.color input[type=text]{border:0;background:transparent;padding:4px;font-family:var(--f-mono);font-size:13px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--accent)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(var(--accent),var(--accent)) 0/var(--p,50%) 100% no-repeat,var(--line)}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:var(--accent)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--panel);border:3px solid var(--accent);margin-top:-6px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--panel);border:3px solid var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+input[type=range]:focus-visible{outline:none}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--soft)}
+input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--soft)}
+.rv{font-family:var(--f-mono);font-size:12px;color:var(--ink)}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.preset{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 12px 5px 6px;font:inherit;font-size:13px;cursor:pointer}
+.preset i{width:20px;height:20px;border-radius:50%;display:block}
+.preview{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:12px}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:14px}
+.canvas{aspect-ratio:1;max-width:100%;border-radius:10px;display:grid;place-items:center;overflow:hidden;
+  background-color:var(--panel);background-image:linear-gradient(45deg,var(--check) 25%,transparent 25%),linear-gradient(-45deg,var(--check) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--check) 75%),linear-gradient(-45deg,transparent 75%,var(--check) 75%);background-size:18px 18px;background-position:0 0,0 9px,9px -9px,-9px 0}
+.canvas svg,.canvas canvas{width:100%!important;height:auto!important;display:block}
+.payload{font-family:var(--f-mono);font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-all;max-height:88px;overflow:auto}
+.status{font-size:13px;display:flex;gap:8px;align-items:flex-start;padding:9px 11px;border-radius:9px}
+.status.ok{color:var(--ok);background:var(--soft)}
+.status.warn{color:var(--warn);background:var(--warn-bg)}
+.exp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exp #share{grid-column:1/-1}
+[hidden]{display:none!important}
+.btn{font:inherit;font-weight:600;font-size:14px;border-radius:10px;padding:11px 14px;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover{filter:brightness(1.06)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer;background:var(--bg)}
+.drop.over{border-color:var(--accent);background:var(--soft)}
+.drop img{width:52px;height:52px;object-fit:contain;border-radius:8px;background:var(--panel)}
+.drop .ph{width:52px;height:52px;border-radius:8px;display:grid;place-items:center;background:var(--panel);color:var(--muted);font-size:22px;flex:none}
+.drop p{margin:0;font-size:13px;color:var(--muted)}
+.drop b{color:var(--ink);font-weight:600}
+.hint{font-size:12px;color:var(--muted);margin:0}
+.fallback{display:grid;gap:8px}
+.fallback img{max-width:100%;border-radius:8px;border:1px solid var(--line)}
+.toast{font-size:13px;color:var(--muted);min-height:1.2em;margin:0}
+[data-pane]{display:grid;gap:12px}
+/* Écran étroit : placé en fin de feuille pour primer sur .preview (collant) */
+@media (max-width:900px){.preview{position:static;top:auto}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Atelier <span>QR</span></h1>
+    <p>Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.</p>
+  </header>
+
+  <div class="grid">
+    <div class="controls">
+
+      <section class="card">
+        <h2>Contenu <small>ce que le code ouvre</small></h2>
+        <div class="tabs" role="radiogroup" aria-label="Type de contenu" id="kinds">
+          <label class="chip"><input type="radio" name="kind" value="url" checked><span>Lien</span></label>
+          <label class="chip"><input type="radio" name="kind" value="text"><span>Texte</span></label>
+          <label class="chip"><input type="radio" name="kind" value="wifi"><span>Wi-Fi</span></label>
+          <label class="chip"><input type="radio" name="kind" value="email"><span>E-mail</span></label>
+          <label class="chip"><input type="radio" name="kind" value="tel"><span>Téléphone</span></label>
+          <label class="chip"><input type="radio" name="kind" value="sms"><span>SMS</span></label>
+          <label class="chip"><input type="radio" name="kind" value="vcard"><span>Carte de visite</span></label>
+        </div>
+        <div data-pane="url"><label class="f">Adresse web<input id="url" type="url" value="https://www.example.com/concert-frenchcore" inputmode="url"></label></div>
+        <div data-pane="text" hidden><label class="f">Texte libre<textarea id="text">Rendez-vous samedi 20 h, entrée côté quai.</textarea></label></div>
+        <div data-pane="wifi" hidden>
+          <div class="row">
+            <label class="f">Nom du réseau (SSID)<input id="ssid" type="text" value="Maison-Box"></label>
+            <label class="f">Mot de passe<input id="wpass" type="text" value="exemple-mot-de-passe"></label>
+          </div>
+          <div class="row">
+            <label class="f">Sécurité<select id="wsec"><option value="WPA">WPA / WPA2 / WPA3</option><option value="WEP">WEP</option><option value="nopass">Aucune</option></select></label>
+            <label class="toggle" style="align-self:end;padding-bottom:8px"><input id="whidden" type="checkbox">Réseau masqué</label>
+          </div>
+        </div>
+        <div data-pane="email" hidden>
+          <div class="row">
+            <label class="f">Destinataire<input id="mto" type="email" value="contact@example.com"></label>
+            <label class="f">Objet<input id="msub" type="text" value="Demande d'infos"></label>
+          </div>
+          <label class="f">Message<textarea id="mbody">Bonjour,</textarea></label>
+        </div>
+        <div data-pane="tel" hidden><label class="f">Numéro<input id="tel" type="tel" value="+33 6 12 34 56 78"></label></div>
+        <div data-pane="sms" hidden>
+          <label class="f">Numéro<input id="smsnum" type="tel" value="+33 6 12 34 56 78"></label>
+          <label class="f">Message<textarea id="smsbody">Je suis arrivé !</textarea></label>
+        </div>
+        <div data-pane="vcard" hidden>
+          <div class="row">
+            <label class="f">Prénom<input id="vfn" type="text" value="Camille"></label>
+            <label class="f">Nom<input id="vln" type="text" value="Martin"></label>
+          </div>
+          <div class="row">
+            <label class="f">Téléphone<input id="vtel" type="tel" value="+33 6 12 34 56 78"></label>
+            <label class="f">E-mail<input id="vmail" type="email" value="camille@example.com"></label>
+          </div>
+          <div class="row">
+            <label class="f">Organisation<input id="vorg" type="text" value=""></label>
+            <label class="f">Site web<input id="vurl" type="url" value=""></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Styles rapides <small>point de départ</small></h2>
+        <div class="presets" id="presets"></div>
+      </section>
+
+      <section class="card">
+        <h2>Modules <small>les petits points</small></h2>
+        <div class="shapes" id="dotShapes"></div>
+        <div class="row">
+          <label class="f">Remplissage<select id="dotFill"><option value="solid">Couleur unie</option><option value="linear">Dégradé linéaire</option><option value="radial">Dégradé radial</option></select></label>
+          <label class="f">Couleur 1<div class="color"><input type="color" id="dotC1" value="#151a2b"><input type="text" id="dotC1t" value="#151a2b" aria-label="Couleur 1 en hexadécimal"></div></label>
+          <label class="f" id="dotC2wrap" hidden>Couleur 2<div class="color"><input type="color" id="dotC2" value="#2b3fd6"><input type="text" id="dotC2t" value="#2b3fd6" aria-label="Couleur 2 en hexadécimal"></div></label>
+        </div>
+        <label class="f" id="rotWrap" hidden>Angle du dégradé <span class="rv" id="rotV">45°</span><input type="range" id="rot" min="0" max="360" value="45"></label>
+      </section>
+
+      <section class="card">
+        <h2>Repères <small>les 3 coins</small></h2>
+        <div class="row">
+          <div style="display:grid;gap:8px;min-width:0"><span class="f" style="font-size:13px;font-weight:500;color:var(--muted)">Cadre extérieur</span><div class="shapes" id="cornerShapes"></div></div>
+          <div style="display:grid;gap:8px;min-width:0"><span class="f" style="font-size:13px;font-weight:500;color:var(--muted)">Point intérieur</span><div class="shapes" id="cdotShapes"></div></div>
+        </div>
+        <div class="row">
+          <label class="f">Couleur du cadre<div class="color"><input type="color" id="csC" value="#2b3fd6"><input type="text" id="csCt" value="#2b3fd6" aria-label="Couleur du cadre en hexadécimal"></div></label>
+          <label class="f">Couleur du point<div class="color"><input type="color" id="cdC" value="#151a2b"><input type="text" id="cdCt" value="#151a2b" aria-label="Couleur du point en hexadécimal"></div></label>
+        </div>
+        <label class="toggle"><input id="cornSync" type="checkbox">Mêmes couleurs que les modules</label>
+      </section>
+
+      <section class="card">
+        <h2>Fond</h2>
+        <div class="row">
+          <label class="f">Couleur de fond<div class="color"><input type="color" id="bgC" value="#ffffff"><input type="text" id="bgCt" value="#ffffff" aria-label="Couleur de fond en hexadécimal"></div></label>
+          <label class="f">Marge autour du code <span class="rv" id="marV">16 px</span><input type="range" id="mar" min="0" max="60" value="16"></label>
+        </div>
+        <label class="toggle"><input id="bgT" type="checkbox">Fond transparent (PNG et SVG)</label>
+      </section>
+
+      <section class="card">
+        <h2>Logo central <small>optionnel</small></h2>
+        <label class="drop" id="drop" for="logo">
+          <span class="ph" id="logoPh" aria-hidden="true">+</span>
+          <img id="logoImg" alt="Logo choisi" hidden>
+          <p><b id="logoName">Choisir une image</b><br>PNG, JPG, SVG ou WebP. Glisser-déposer possible.</p>
+          <input type="file" id="logo" accept="image/*" hidden>
+        </label>
+        <div class="row">
+          <label class="f">Taille du logo <span class="rv" id="lsV">30 %</span><input type="range" id="ls" min="10" max="45" value="30"></label>
+          <label class="f">Espace autour <span class="rv" id="lmV">6 px</span><input type="range" id="lm" min="0" max="20" value="6"></label>
+        </div>
+        <div class="row">
+          <label class="toggle"><input id="lhide" type="checkbox" checked>Effacer les modules sous le logo</label>
+          <button class="btn" id="logoClear" type="button" disabled>Retirer le logo</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Robustesse</h2>
+        <label class="f">Correction d'erreur<select id="ecl">
+          <option value="L">L : 7 % (code le plus simple)</option>
+          <option value="M">M : 15 %</option>
+          <option value="Q" selected>Q : 25 %</option>
+          <option value="H">H : 30 % (conseillé avec un logo)</option>
+        </select></label>
+        <p class="hint">Plus le niveau est haut, plus le code supporte un logo, une tache ou un pli, mais plus il est dense.</p>
+      </section>
+    </div>
+
+    <aside class="preview" aria-label="Aperçu">
+      <div class="stage">
+        <div class="canvas" id="qr" role="img" aria-label="Aperçu du QR code"></div>
+        <div class="status ok" id="status">Lisible : bon contraste.</div>
+        <div class="payload" id="payload"></div>
+        <div class="row" style="grid-template-columns:1fr 1fr">
+          <label class="f">Format<select id="fmt"><option value="png">PNG</option><option value="svg">SVG (vectoriel)</option><option value="jpeg">JPG</option><option value="webp">WebP</option></select></label>
+          <label class="f">Taille<select id="size"><option value="512">512 px</option><option value="1024" selected>1024 px</option><option value="2048">2048 px</option><option value="4096">4096 px</option></select></label>
+        </div>
+        <div class="exp">
+          <button class="btn primary" id="dl" type="button">Télécharger</button>
+          <button class="btn" id="copy" type="button">Copier le contenu</button>
+          <button class="btn" id="share" type="button" hidden>Partager / Enregistrer dans Photos</button>
+        </div>
+        <p class="toast" id="toast" aria-live="polite"></p>
+        <div class="fallback" id="fallback" hidden>
+          <p class="hint">Le téléchargement direct n'est pas disponible ici. Clic droit (ou appui long) sur l'image puis « Enregistrer l'image ».</p>
+          <img id="fallbackImg" alt="QR code à enregistrer">
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+
+/* --- pictos de formes --- */
+const DOTS=[
+ ["square","Carré",'<rect x="3" y="3" width="12" height="12"/><rect x="19" y="3" width="12" height="12"/><rect x="3" y="19" width="12" height="12"/>'],
+ ["dots","Ronds",'<circle cx="9" cy="9" r="6"/><circle cx="25" cy="9" r="6"/><circle cx="9" cy="25" r="6"/>'],
+ ["rounded","Arrondi",'<rect x="3" y="3" width="28" height="12" rx="6"/><rect x="3" y="19" width="12" height="12" rx="6"/>'],
+ ["extra-rounded","Très arrondi",'<rect x="3" y="3" width="28" height="12" rx="6"/><path d="M3 19h12v12H9a6 6 0 0 1-6-6z"/>'],
+ ["classy","Élégant",'<path d="M3 3h12v6a6 6 0 0 1-6 6H3z"/><path d="M19 3h12v12h-6a6 6 0 0 1-6-6z"/><path d="M3 25a6 6 0 0 1 6-6h6v12H3z"/>'],
+ ["classy-rounded","Élégant arrondi",'<path d="M9 3h6v6a6 6 0 0 1-6 6 6 6 0 0 1-6-6 6 6 0 0 1 6-6z"/><path d="M19 3h6a6 6 0 0 1 6 6 6 6 0 0 1-6 6 6 6 0 0 1-6-6z"/><path d="M9 19a6 6 0 0 1 6 6v6H9a6 6 0 0 1-6-6 6 6 0 0 1 6-6z"/>']
+];
+const CORNERS=[
+ ["square","Carré",'<path fill-rule="evenodd" d="M3 3h28v28H3zM8 8v18h18V8z"/>'],
+ ["extra-rounded","Arrondi",'<path fill-rule="evenodd" d="M12 3h10a9 9 0 0 1 9 9v10a9 9 0 0 1-9 9H12a9 9 0 0 1-9-9V12a9 9 0 0 1 9-9zm0 5a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4V12a4 4 0 0 0-4-4z"/>'],
+ ["dot","Rond",'<path fill-rule="evenodd" d="M17 3a14 14 0 1 1 0 28 14 14 0 0 1 0-28zm0 5a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/>']
+];
+const CDOTS=[
+ ["square","Carré",'<rect x="9" y="9" width="16" height="16"/>'],
+ ["dot","Rond",'<circle cx="17" cy="17" r="8"/>']
+];
+function shapes(el,name,list,checked){
+  el.innerHTML=list.map(([v,l,p])=>`<label class="shape"><input type="radio" name="${name}" value="${v}" ${v===checked?"checked":""} aria-label="${l}"><div><svg viewBox="0 0 34 34" fill="currentColor" aria-hidden="true">${p}</svg>${l}</div></label>`).join("");
+}
+shapes($("dotShapes"),"dot",DOTS,"rounded");
+shapes($("cornerShapes"),"corner",CORNERS,"extra-rounded");
+shapes($("cdotShapes"),"cdot",CDOTS,"dot");
+
+/* --- styles rapides --- */
+const PRESETS=[
+ {n:"Classique",dot:"square",corner:"square",cdot:"square",fill:"solid",c1:"#000000",c2:"#000000",cs:"#000000",cd:"#000000",bg:"#ffffff"},
+ {n:"Outremer",dot:"rounded",corner:"extra-rounded",cdot:"dot",fill:"solid",c1:"#151a2b",c2:"#2b3fd6",cs:"#2b3fd6",cd:"#151a2b",bg:"#ffffff"},
+ {n:"Néon acide",dot:"dots",corner:"dot",cdot:"dot",fill:"linear",c1:"#1a0b2e",c2:"#5b1fa8",cs:"#3a7d00",cd:"#1a0b2e",bg:"#c6ff3d",rot:135},
+ {n:"Coucher de soleil",dot:"classy-rounded",corner:"extra-rounded",cdot:"dot",fill:"linear",c1:"#ad1457",c2:"#d84315",cs:"#ad1457",cd:"#d84315",bg:"#fff8f0",rot:45},
+ {n:"Forêt",dot:"extra-rounded",corner:"extra-rounded",cdot:"square",fill:"radial",c1:"#0b3d2e",c2:"#2e7d32",cs:"#0b3d2e",cd:"#2e7d32",bg:"#f1f7ef"},
+ {n:"Inversé",dot:"square",corner:"square",cdot:"square",fill:"solid",c1:"#ffffff",c2:"#ffffff",cs:"#ffffff",cd:"#ffffff",bg:"#111111"}
+];
+$("presets").innerHTML=PRESETS.map((p,i)=>`<button type="button" class="preset" data-i="${i}"><i style="background:linear-gradient(135deg,${p.c1} 50%,${p.fill==="solid"?p.cs:p.c2} 50%);box-shadow:0 0 0 3px ${p.bg}"></i>${p.n}</button>`).join("");
+$("presets").addEventListener("click",e=>{
+  const b=e.target.closest(".preset"); if(!b) return;
+  const p=PRESETS[+b.dataset.i];
+  setRadio("dot",p.dot);setRadio("corner",p.corner);setRadio("cdot",p.cdot);
+  $("dotFill").value=p.fill; setColor("dotC1",p.c1); setColor("dotC2",p.c2); setColor("csC",p.cs); setColor("cdC",p.cd); setColor("bgC",p.bg);
+  $("rot").value=p.rot??45;fillRanges(); $("cornSync").checked=false; $("bgT").checked=false;
+  update();
+});
+function setRadio(n,v){const r=document.querySelector(`input[name="${n}"][value="${v}"]`); if(r) r.checked=true;}
+function radio(n){return document.querySelector(`input[name="${n}"]:checked`).value;}
+
+/* --- couleurs : sélecteur + champ hex liés --- */
+function setColor(id,v){$(id).value=v;$(id+"t").value=v;}
+["dotC1","dotC2","csC","cdC","bgC"].forEach(id=>{
+  $(id).addEventListener("input",()=>{$(id+"t").value=$(id).value;update();});
+  $(id+"t").addEventListener("input",()=>{let v=$(id+"t").value.trim(); if(!v.startsWith("#")) v="#"+v;
+    if(/^#[0-9a-f]{6}$/i.test(v)){$(id).value=v.toLowerCase();update();}
+    else if(/^#[0-9a-f]{3}$/i.test(v)){$(id).value=("#"+v.slice(1).split("").map(c=>c+c).join("")).toLowerCase();update();}});
+});
+
+/* --- contenu --- */
+function kind(){return radio("kind");}
+$("kinds").addEventListener("change",()=>{
+  document.querySelectorAll("[data-pane]").forEach(p=>p.hidden=p.dataset.pane!==kind()); update();
+});
+const esc=s=>String(s).replace(/([\\;,:"])/g,"\\$1");
+const vesc=s=>String(s).replace(/([\\;,])/g,"\\$1").replace(/\n/g,"\\n");
+function payload(){
+  const v=id=>$(id).value;
+  switch(kind()){
+    case "url": return v("url").trim();
+    case "text": return v("text");
+    case "wifi": {const t=v("wsec");return `WIFI:T:${t};S:${esc(v("ssid"))};${t==="nopass"?"":`P:${esc(v("wpass"))};`}${$("whidden").checked?"H:true;":""};`;}
+    case "email": {const q=[];if(v("msub"))q.push("subject="+encodeURIComponent(v("msub")));if(v("mbody"))q.push("body="+encodeURIComponent(v("mbody")));return `mailto:${v("mto").trim()}${q.length?"?"+q.join("&"):""}`;}
+    case "tel": return "tel:"+v("tel").replace(/[^\d+]/g,"");
+    case "sms": return `SMSTO:${v("smsnum").replace(/[^\d+]/g,"")}:${v("smsbody")}`;
+    case "vcard": {const L=["BEGIN:VCARD","VERSION:3.0",`N:${vesc(v("vln"))};${vesc(v("vfn"))};;;`,`FN:${vesc((v("vfn")+" "+v("vln")).trim())}`];
+      if(v("vorg"))L.push("ORG:"+vesc(v("vorg")));if(v("vtel"))L.push("TEL;TYPE=CELL:"+v("vtel").replace(/[^\d+]/g,""));
+      if(v("vmail"))L.push("EMAIL:"+v("vmail").trim());if(v("vurl"))L.push("URL:"+v("vurl").trim());L.push("END:VCARD");return L.join("\n");}
+  }
+}
+
+/* --- logo --- */
+let logo=null;
+function loadLogo(file){
+  if(!file) return;
+  const okExt=/\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i.test(file.name||"");
+  if(!(file.type||"").startsWith("image/")&&!okExt){toast("Ce fichier n'est pas une image. Choisis un PNG, JPG, SVG ou WebP.");return;}
+  const r=new FileReader();
+  r.onload=()=>{
+    let src=r.result;
+    if(/\.svg$/i.test(file.name||"")&&!src.startsWith("data:image/svg")) src=src.replace(/^data:[^;,]*/,"data:image/svg+xml");
+    /* On redessine le logo en PNG carré : les SVG sans dimensions et les gros fichiers passent alors partout */
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.naturalWidth||512,h=img.naturalHeight||512;
+      const k=600/Math.max(w,h);w=Math.max(1,Math.round(w*k));h=Math.max(1,Math.round(h*k));
+      const c=document.createElement("canvas");c.width=w;c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      try{logo=c.toDataURL("image/png");}catch(e){logo=src;}
+      $("logoImg").src=logo;$("logoImg").hidden=false;$("logoPh").hidden=true;$("logoName").textContent=file.name;$("logoClear").disabled=false;
+      if($("ecl").value!=="H"){$("ecl").value="H";toast("Correction d'erreur passée en H pour compenser le logo.");}
+      update();
+    };
+    img.onerror=()=>toast("Impossible de lire cette image (format non pris en charge par le navigateur, ex. HEIC). Essaie un PNG ou un JPG.");
+    img.src=src;
+  };
+  r.onerror=()=>toast("Lecture du fichier impossible.");
+  r.readAsDataURL(file);
+}
+$("logo").addEventListener("change",e=>loadLogo(e.target.files[0]));
+const drop=$("drop");
+["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>loadLogo(e.dataTransfer.files[0]));
+$("logoClear").addEventListener("click",e=>{e.preventDefault();logo=null;$("logo").value="";$("logoImg").hidden=true;$("logoPh").hidden=false;$("logoName").textContent="Choisir une image";$("logoClear").disabled=true;update();});
+
+/* --- lisibilité --- */
+function lum(h){const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255).map(x=>x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2];}
+function ratio(a,b){const A=lum(a),B=lum(b);return (Math.max(A,B)+.05)/(Math.min(A,B)+.05);}
+function check(o){
+  const bg=$("bgT").checked?"#ffffff":$("bgC").value;
+  const fg=[$("dotC1").value];if($("dotFill").value!=="solid")fg.push($("dotC2").value);
+  if(!$("cornSync").checked)fg.push($("csC").value,$("cdC").value);
+  const worst=Math.min(...fg.map(c=>ratio(c,bg)));
+  const inverted=fg.some(c=>lum(c)>lum(bg));
+  const msgs=[];
+  if(worst<3) msgs.push(`Contraste trop faible (${worst.toFixed(1)}:1). Vise au moins 4:1 entre les modules et le fond.`);
+  else if(worst<4) msgs.push(`Contraste limite (${worst.toFixed(1)}:1). Teste le scan avant d'imprimer.`);
+  if(inverted) msgs.push("Modules plus clairs que le fond : certaines applis de scan ne lisent pas les codes inversés.");
+  if($("bgT").checked) msgs.push("Fond transparent : pose-le sur un support clair et uni.");
+  if(logo && $("ecl").value!=="H" && +$("ls").value>25) msgs.push("Logo grand avec une correction inférieure à H : risque d'échec au scan.");
+  if(logo && +$("ls").value>38) msgs.push("Logo très grand : garde-le sous 35 % pour un scan fiable.");
+  const s=$("status");
+  if(!o){s.className="status warn";s.textContent="Le contenu est vide : saisis quelque chose à encoder.";return;}
+  s.className="status "+(msgs.length?"warn":"ok");
+  s.textContent=msgs.length?msgs.join(" "):`Lisible : contraste ${worst.toFixed(1)}:1.`;
+}
+
+/* --- construction des options --- */
+function fillOpt(c1,c2){
+  const f=$("dotFill").value;
+  if(f==="solid") return {color:c1,gradient:undefined};
+  return {color:c1,gradient:{type:f,rotation:(+$("rot").value)*Math.PI/180,colorStops:[{offset:0,color:c1},{offset:1,color:c2}]}};
+}
+function options(size){
+  const data=payload()||" ";
+  const sync=$("cornSync").checked;
+  const dotFill=fillOpt($("dotC1").value,$("dotC2").value);
+  const bg=$("bgT").checked?"transparent":$("bgC").value;
+  const scale=size/320;
+  return {
+    width:size,height:size,data,margin:Math.round(+$("mar").value*scale),
+    qrOptions:{errorCorrectionLevel:$("ecl").value},
+    dotsOptions:{type:radio("dot"),...dotFill},
+    cornersSquareOptions:{type:radio("corner"),...(sync?dotFill:{color:$("csC").value,gradient:undefined})},
+    cornersDotOptions:{type:radio("cdot"),...(sync?dotFill:{color:$("cdC").value,gradient:undefined})},
+    backgroundOptions:{color:bg},
+    image:logo||undefined,
+    imageOptions:{hideBackgroundDots:$("lhide").checked,imageSize:(+$("ls").value)/100,margin:Math.round(+$("lm").value*scale),crossOrigin:"anonymous"}
+  };
+}
+
+/* --- rendu --- */
+let qr=null;
+function update(){
+  const grad=$("dotFill").value!=="solid";
+  $("dotC2wrap").hidden=!grad; $("rotWrap").hidden=$("dotFill").value!=="linear";
+  $("rotV").textContent=$("rot").value+"°"; $("marV").textContent=$("mar").value+" px";
+  $("lsV").textContent=$("ls").value+" %"; $("lmV").textContent=$("lm").value+" px";
+  $("bgC").disabled=$("bgT").checked; $("bgCt").disabled=$("bgT").checked;
+  ["csC","csCt","cdC","cdCt"].forEach(id=>$(id).disabled=$("cornSync").checked);
+  const p=payload(); $("payload").textContent=p||"(vide)";
+  check(p);
+  $("fallback").hidden=true;
+  if(typeof QRCodeStyling==="undefined"){$("status").className="status warn";$("status").textContent="La bibliothèque QR n'a pas pu se charger. Recharge la page.";return;}
+  const o={...options(720),type:"canvas"};
+  try{
+    if(!qr){qr=new QRCodeStyling(o);qr.append($("qr"));}
+    else qr.update(o);
+  }catch(e){$("status").className="status warn";$("status").textContent="Contenu trop long pour un QR code. Raccourcis-le ou baisse la correction d'erreur.";}
+}
+document.querySelector(".controls").addEventListener("input",e=>{if(e.target.type!=="file") update();});
+document.querySelector(".controls").addEventListener("change",e=>{if(e.target.type!=="file") update();});
+
+/* Le SVG de la bibliothèque n'a pas de viewBox : on l'ajoute pour qu'il s'adapte à la taille de l'aperçu */
+new MutationObserver(()=>{const sv=$("qr").querySelector("svg");if(sv&&!sv.getAttribute("viewBox")){const w=sv.getAttribute("width")||320,h=sv.getAttribute("height")||320;sv.setAttribute("viewBox",`0 0 ${w} ${h}`);}}).observe($("qr"),{childList:true,subtree:true});
+function fillRanges(){document.querySelectorAll('input[type=range]').forEach(r=>r.style.setProperty("--p",((r.value-r.min)/(r.max-r.min)*100)+"%"));}
+document.addEventListener("input",e=>{if(e.target.type==="range")fillRanges();});
+/* --- export --- */
+let toastT;
+function toast(m){$("toast").textContent=m;clearTimeout(toastT);toastT=setTimeout(()=>$("toast").textContent="",6000);}
+const IN_CLAUDE=!!(window.claude&&window.claude.use);
+let downloads=null;
+if(IN_CLAUDE){claude.use("downloads").then(d=>{downloads=d;}).catch(()=>{});}
+/* Partage natif (mobile) : enregistrer dans Photos, envoyer par message… */
+if(!IN_CLAUDE&&navigator.canShare&&navigator.canShare({files:[new File([""],"t.png",{type:"image/png"})]})){
+  $("share").hidden=false;
+  $("share").addEventListener("click",async()=>{
+    if(!payload()){toast("Rien à partager : le contenu est vide.");return;}
+    try{const fmt=$("fmt").value==="svg"?"png":$("fmt").value,size=+$("size").value;
+      const blob=await render(fmt,size);
+      await navigator.share({files:[new File([blob],`qr-${kind()}.${fmt==="jpeg"?"jpg":fmt}`,{type:blob.type||"image/png"})]});
+    }catch(e){if(e&&e.name!=="AbortError")toast("Partage impossible sur cet appareil.");}
+  });
+}
+/* Installation hors ligne quand la page est hébergée */
+if(!IN_CLAUDE&&!(window.chrome&&window.chrome.webview)&&"serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+async function render(fmt,size){
+  const o=options(size);
+  if(fmt==="jpeg"&&o.backgroundOptions.color==="transparent") o.backgroundOptions.color="#ffffff";
+  const q=new QRCodeStyling({...o,type:fmt==="svg"?"svg":"canvas"});
+  return q.getRawData(fmt);
+}
+$("dl").addEventListener("click",async()=>{
+  if(!payload()){toast("Rien à exporter : le contenu est vide.");return;}
+  const fmt=$("fmt").value,size=+$("size").value;
+  const btn=$("dl");btn.disabled=true;btn.textContent="Préparation…";
+  try{
+    const blob=await render(fmt,size);
+    const name=`qr-${kind()}-${fmt==="svg"?"vectoriel":size+"px"}.${fmt==="jpeg"?"jpg":fmt}`;
+    if(!IN_CLAUDE){
+      /* Version autonome : téléchargement natif du navigateur */
+      const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;
+      document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      toast("Téléchargé : "+name);
+    } else if(downloads){
+      try{await downloads.save({filename:name,data:blob});toast("Fichier enregistré : "+name);}
+      catch(err){
+        if(err&&err.code==="declined") toast("Téléchargement annulé.");
+        else if(err&&err.code==="rate_limited") toast("Une demande est déjà ouverte, réessaie dans un instant.");
+        else {showFallback(blob);toast("Enregistrement direct refusé ("+(err&&err.code||"inconnu")+"). Utilise l'image ci-dessous.");}
+      }
+    } else showFallback(blob);
+  }catch(e){toast("L'export a échoué. Essaie une taille plus petite.");}
+  finally{btn.disabled=false;btn.textContent="Télécharger";}
+});
+function showFallback(blob){
+  const r=new FileReader();r.onload=()=>{$("fallbackImg").src=r.result;$("fallback").hidden=false;};r.readAsDataURL(blob);
+}
+$("copy").addEventListener("click",()=>{
+  const p=payload();
+  navigator.clipboard.writeText(p).then(()=>toast("Contenu copié."),()=>{
+    const range=document.createRange();range.selectNodeContents($("payload"));const s=getSelection();s.removeAllRanges();s.addRange(range);toast("Texte sélectionné : fais Ctrl+C.");});
+});
+
+update();fillRanges();
+})();
+</script>

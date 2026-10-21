@@ -1,6 +1,7 @@
 <Window x:Class="Scanalyse.Desktop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="Scanalyse"
         Width="1180" Height="760" MinWidth="820" MinHeight="560"
         WindowStartupLocation="CenterScreen"
@@ -19,12 +20,26 @@
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
         <TextBlock Text="Scan" FontSize="26" FontWeight="Bold" />
         <TextBlock Text="alyse" FontSize="26" FontWeight="Bold" Foreground="{StaticResource Accent}" />
-        <TextBlock Text="Banc d'essai de lecture" Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
+        <TextBlock Text="Analyse et diagnostic de lecture des codes-barres" Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
       </StackPanel>
       <TextBlock x:Name="VersionText" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
     </DockPanel>
 
-    <Grid Grid.Row="1">
+    <TabControl x:Name="Tabs" Grid.Row="1" BorderThickness="0" Background="Transparent" Padding="0,12,0,0">
+      <TabItem x:Name="AtelierTab" Header="  Atelier : créer et analyser  " FontSize="14">
+        <Grid>
+          <wv2:WebView2 x:Name="Web" DefaultBackgroundColor="#F3F4F7" />
+          <Border x:Name="WebError" Style="{StaticResource Card}" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="560">
+            <StackPanel>
+              <TextBlock Style="{StaticResource Heading}" Text="L'Atelier ne peut pas s'afficher" />
+              <TextBlock x:Name="WebErrorText" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+        </Grid>
+      </TabItem>
+
+      <TabItem x:Name="BenchTab" Header="  Banc d'essai douchette  " FontSize="14">
+    <Grid Margin="0,12,0,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="5*" />
         <ColumnDefinition Width="16" />
@@ -46,9 +61,12 @@
 
           <TextBlock Style="{StaticResource Heading}" Text="Comparer le code et ce que l'application reçoit" TextWrapping="Wrap" />
 
-          <TextBlock Grid.Row="1" Style="{StaticResource Label}" TextWrapping="Wrap"
-                     Text="Contenu réel du code (accepte &lt;GS&gt;, &lt;CR&gt;… pour les caractères invisibles)" />
-          <TextBox x:Name="ExpectedBox" Grid.Row="2" Style="{StaticResource Input}" AcceptsReturn="True" MinHeight="80"
+          <StackPanel Grid.Row="1">
+            <TextBlock Style="{StaticResource Label}" TextWrapping="Wrap"
+                       Text="Contenu réel du code (accepte &lt;GS&gt;, &lt;CR&gt;… pour les caractères invisibles)" />
+            <TextBlock x:Name="ExpectedSource" Style="{StaticResource Label}" Foreground="{StaticResource Accent}" Visibility="Collapsed" TextWrapping="Wrap" />
+          </StackPanel>
+          <TextBox x:Name="ExpectedBox" Grid.Row="2" Style="{StaticResource Input}" AcceptsReturn="True" MinHeight="80" TextChanged="ExpectedBox_TextChanged"
                    Text="0103453120000011172712311010ABC123&lt;GS&gt;21SN7788" />
 
           <TextBlock Grid.Row="3" Style="{StaticResource Label}" Margin="0,12,0,4" TextWrapping="Wrap"
@@ -110,5 +128,7 @@
         </ScrollViewer>
       </Border>
     </Grid>
+      </TabItem>
+    </TabControl>
   </Grid>
 </Window>

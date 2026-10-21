@@ -24,3 +24,5 @@ TestResults/
 # Système
 Thumbs.db
 .DS_Store
+# Sorties de web/build.py (la version embarquée dans Desktop/Web est, elle, suivie)
+web/dist/

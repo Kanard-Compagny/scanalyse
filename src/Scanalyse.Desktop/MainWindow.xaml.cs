@@ -1,25 +1,90 @@
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
+using Microsoft.Web.WebView2.Core;
 using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
 using Scanalyse.Core.Text;
 
 namespace Scanalyse.Desktop;
 
-/// <summary>Fenêtre principale : banc d'essai « contenu du code ↔ données reçues ».</summary>
+/// <summary>Fenêtre principale : l'Atelier (création et analyse d'images) et le banc d'essai douchette.</summary>
 public partial class MainWindow : Window
 {
     private readonly ContentAnalyzer _analyzer = new();
+    private readonly AtelierHost _atelier;
+    private string? _expectedAim;
+    private bool _settingExpected;
 
     public MainWindow()
     {
         InitializeComponent();
         var version = Assembly.GetExecutingAssembly().GetName().Version;
         VersionText.Text = version is null ? string.Empty : $"version {version.Major}.{version.Minor}.{version.Build}";
-        Loaded += (_, _) => ReceivedBox.Focus();
+
+        _atelier = new AtelierHost(Web);
+        _atelier.CompareRequested += OnCompareRequested;
+        Loaded += async (_, _) => await StartAtelierAsync();
+    }
+
+    private async Task StartAtelierAsync()
+    {
+        try
+        {
+            await _atelier.InitializeAsync();
+        }
+        catch (WebView2RuntimeNotFoundException)
+        {
+            ShowWebError("Le composant Microsoft Edge WebView2 n'est pas installé sur ce PC. Il est présent d'office sur Windows 11 et sur les Windows 10 à jour ; sinon, installe le « WebView2 Runtime » depuis le site de Microsoft. Le banc d'essai reste utilisable.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or COMException)
+        {
+            ShowWebError("Impossible de démarrer l'Atelier : " + ex.Message);
+        }
+    }
+
+    private void ShowWebError(string message)
+    {
+        Web.Visibility = Visibility.Collapsed;
+        WebErrorText.Text = message;
+        WebError.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>L'Atelier envoie un code lu sur une image : on le place comme référence dans le banc d'essai.</summary>
+    private void OnCompareRequested(CompareRequest request)
+    {
+        _settingExpected = true;
+        ExpectedBox.Text = ControlCharacters.Visualize(request.Text);
+        _settingExpected = false;
+
+        _expectedAim = string.IsNullOrEmpty(request.SymbologyIdentifier) ? null : request.SymbologyIdentifier;
+        var aim = _expectedAim is null ? string.Empty : $" · identifiant {_expectedAim}";
+        ExpectedSource.Text = $"Repris de l'Atelier : {request.Format}{aim}";
+        ExpectedSource.Visibility = Visibility.Visible;
+
+        ReceivedBox.Clear();
+        FindingsList.ItemsSource = null;
+        FieldsList.ItemsSource = null;
+        ResultTitle.Text = "Scanne maintenant le même code";
+        ResultSubtitle.Text = "Avec la douchette, dans le champ « Données reçues », puis clique sur Comparer.";
+        Tabs.SelectedItem = BenchTab;
+        Dispatcher.InvokeAsync(() => ReceivedBox.Focus(), DispatcherPriority.Input);
+    }
+
+    private void ExpectedBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_settingExpected || ExpectedSource is null)
+        {
+            return;
+        }
+
+        _expectedAim = null;
+        ExpectedSource.Visibility = Visibility.Collapsed;
     }
 
     /// <summary>
@@ -72,7 +137,7 @@ public partial class MainWindow : Window
     private void Analyze_Click(object sender, RoutedEventArgs e)
     {
         var text = ControlCharacters.FromVisualized(ExpectedBox.Text);
-        var analysis = _analyzer.Analyze(new ScanInput(text));
+        var analysis = _analyzer.Analyze(new ScanInput(text, SymbologyIdentifier: _expectedAim));
         ResultTitle.Text = analysis.Title;
         ResultSubtitle.Text = $"{text.Length} caractères · {ControlCharacters.Visualize(text)}";
         FindingsList.ItemsSource = analysis.Alerts

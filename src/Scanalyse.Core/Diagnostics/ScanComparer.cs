@@ -41,6 +41,12 @@ public static class ScanComparer
         var r = ControlCharacters.FromVisualized(received);
         var findings = new List<Finding>();
 
+        // Contenu GS1 saisi sous sa forme lisible « (01)…(10)… » : on le compare à sa forme transmise.
+        if (e.StartsWith('(') && Gs1Parser.Parse(e) is { Notation: Gs1Notation.Parenthesized } readable)
+        {
+            e = readable.ToTransmitted();
+        }
+
         if (e == r)
         {
             return new ComparisonResult(true, true, [new Finding("IDENTICAL", Severity.Ok, "Lecture conforme",

@@ -96,4 +96,12 @@ public class Gs1Tests
     [InlineData("9781234567897", "ISBN (livres) / ISMN (partitions)")]
     [InlineData("2001234000004", "usage interne (poids ou prix variable, codes magasin)")]
     public void Prefix_Lookup(string gtin, string expected) => Assert.Equal(expected, Gs1Prefixes.Lookup(gtin));
+
+    [Fact]
+    public void ToTransmitted_AddsSeparatorsOnlyAfterVariableFields()
+    {
+        var msg = Gs1Parser.Parse("(01)03453120000011(17)271231(10)LOT(21)SN", FixedClock.October2026)!;
+
+        Assert.Equal("01034531200000111727123110LOT\u001D21SN", msg.ToTransmitted());
+    }
 }

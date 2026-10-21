@@ -1,0 +1,126 @@
+"""
+Assemble l'Atelier (création de QR + analyse d'images) à partir des sources de web/src.
+
+Sorties :
+  - src/Scanalyse.Desktop/Web/index.html : version embarquée dans le programme Windows (hors ligne, tout inclus)
+  - web/dist/standalone/                  : version web autonome installable (PWA)
+  - web/dist/artifact.html                : version qui charge les bibliothèques depuis un CDN (artefact Claude)
+
+Usage : python web/build.py   (depuis la racine du dépôt ou n'importe où)
+"""
+import base64
+import os
+import re
+import shutil
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(ROOT, "src")
+VENDOR = os.path.join(ROOT, "vendor")
+DIST = os.path.join(ROOT, "dist")
+DESKTOP_OUT = os.path.join(ROOT, "..", "src", "Scanalyse.Desktop", "Web", "index.html")
+
+QR_VERSION = "1.9.2"
+ZXING_VERSION = "3.1.4"
+
+
+def read(*parts, mode="r"):
+    with open(os.path.join(*parts), mode, **({} if "b" in mode else {"encoding": "utf-8"})) as f:
+        return f.read()
+
+
+def write(path, text):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+
+
+def rep(s, old, new):
+    assert old in s, "Motif introuvable : " + old[:80]
+    return s.replace(old, new, 1)
+
+
+def inline_script(code):
+    return "<script>" + code.replace("</script", "<\\/script") + "</script>"
+
+
+def assemble():
+    s = read(SRC, "atelier.html")
+    css = read(SRC, "scan.css")
+    scan_html = read(SRC, "scan.html")
+    scan_js = read(SRC, "scan.js")
+
+    s = s.replace("qr-code-styling@1.6.0-rc.1", "qr-code-styling@" + QR_VERSION)
+    s = rep(s, "--ok:#1d7a4a;", "--ok:#1d7a4a; --ok-bg:#e3f4ea; --bad:#b3261e; --bad-bg:#fde7e5;")
+    s = s.replace("--ok:#5fd59a; --check:#252a3f;", "--ok:#5fd59a; --ok-bg:#12301f; --bad:#ff8a80; --bad-bg:#3a1714; --check:#252a3f;")
+    s = rep(s, "</style>", css + "</style>")
+    s = rep(s, """  <header>
+    <h1>Atelier <span>QR</span></h1>
+    <p>Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.</p>
+  </header>""", """  <header>
+    <div class="head-l">
+      <h1>Atelier <span>QR</span></h1>
+      <div class="modes" role="tablist" aria-label="Mode">
+        <button type="button" role="tab" id="tabCreate" aria-selected="true" aria-controls="view-create">Créer</button>
+        <button type="button" role="tab" id="tabScan" aria-selected="false" aria-controls="view-scan">Analyser</button>
+      </div>
+    </div>
+    <p id="headDesc">Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.</p>
+  </header>""")
+    s = rep(s, '  <div class="grid">', '  <div id="view-create" role="tabpanel">\n  <div class="grid">')
+    s = rep(s, "    </aside>\n  </div>\n", "    </aside>\n  </div>\n  </div>\n" + scan_html)
+    s = rep(s, "\nupdate();fillRanges();\n})();", """
+window.atelierLoad=function(t){
+  const isUrl=/^https?:\\/\\/\\S+$/i.test(t.trim());
+  const k=isUrl?"url":"text";
+  document.querySelector(`input[name="kind"][value="${k}"]`).checked=true;
+  document.querySelectorAll("[data-pane]").forEach(p=>p.hidden=p.dataset.pane!==k);
+  if(isUrl)$("url").value=t.trim();else $("text").value=t;
+  update();toast("Contenu repris depuis l'analyse.");
+};
+update();fillRanges();
+})();""")
+    wasm = base64.b64encode(read(VENDOR, f"zxing_reader-{ZXING_VERSION}.wasm", mode="rb")).decode()
+    tail = f'<script type="application/octet-stream" id="zxwasm">{wasm}</script>\n<script>\n{scan_js}\n</script>\n'
+    return s, tail
+
+
+def main():
+    s, tail = assemble()
+    qr_cdn = f'<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@{QR_VERSION}/lib/qr-code-styling.js"></script>'
+    qr_inline = inline_script(read(VENDOR, f"qr-code-styling-{QR_VERSION}.js"))
+    zx_inline = inline_script(read(VENDOR, f"zxing-wasm-reader-{ZXING_VERSION}.js"))
+
+    # 1. Artefact Claude (bibliothèques sur CDN)
+    artifact = (s + f'\n<script src="https://cdn.jsdelivr.net/npm/zxing-wasm@{ZXING_VERSION}/dist/iife/reader/index.js"></script>\n'
+                + '<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>\n' + tail)
+    write(os.path.join(DIST, "artifact.html"), artifact)
+
+    # Base hors ligne (tout inclus)
+    offline = s.replace(qr_cdn, qr_inline)
+    title = re.search(r"<title>.*?</title>", offline).group(0)
+    offline = offline.replace(title, "", 1).replace('<meta name="claude:viewport-fit-sides" content="cover">\n', "", 1)
+    offline += "\n" + zx_inline + "\n" + tail
+
+    # 2. Version web autonome (PWA)
+    head = read(ROOT, "standalone", "head.html")
+    out = os.path.join(DIST, "standalone")
+    write(os.path.join(out, "index.html"), head + offline + "\n</body></html>\n")
+    for f in ("manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png"):
+        shutil.copyfile(os.path.join(ROOT, "standalone", f), os.path.join(out, f))
+
+    # 3. Version embarquée dans Scanalyse.Desktop
+    desktop_head = """<!doctype html>
+<html lang="fr"><head>
+<!-- Fichier généré par web/build.py : ne pas modifier à la main. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scanalyse · Atelier</title>
+<style>body{margin:0}img{max-width:100%}</style>
+</head><body>
+"""
+    write(DESKTOP_OUT, desktop_head + offline + "\n</body></html>\n")
+    print("OK :", os.path.normpath(DESKTOP_OUT), "et", os.path.normpath(DIST))
+
+
+if __name__ == "__main__":
+    main()
