@@ -1,0 +1,26 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]64/
+publish/
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+.idea/
+*.DotSettings.user
+# Android
+*.apk
+*.aab
+# Système
+Thumbs.db
+.DS_Store

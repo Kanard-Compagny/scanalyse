@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Scanalyse.Desktop</RootNamespace>
+    <AssemblyName>Scanalyse</AssemblyName>
+    <Description>Scanalyse : analyse et diagnostic de lecture des codes-barres.</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Scanalyse.Core\Scanalyse.Core.csproj" />
+  </ItemGroup>
+
+</Project>

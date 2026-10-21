@@ -1,0 +1,114 @@
+<Window x:Class="Scanalyse.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Scanalyse"
+        Width="1180" Height="760" MinWidth="820" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Bg}"
+        FontFamily="Segoe UI" FontSize="13"
+        Foreground="{StaticResource Ink}">
+
+  <Grid Margin="20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <!-- En-tête -->
+    <DockPanel Margin="0,0,0,16">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <TextBlock Text="Scan" FontSize="26" FontWeight="Bold" />
+        <TextBlock Text="alyse" FontSize="26" FontWeight="Bold" Foreground="{StaticResource Accent}" />
+        <TextBlock Text="Banc d'essai de lecture" Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
+      </StackPanel>
+      <TextBlock x:Name="VersionText" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
+    </DockPanel>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5*" />
+        <ColumnDefinition Width="16" />
+        <ColumnDefinition Width="6*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Saisie -->
+      <Border Style="{StaticResource Card}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Style="{StaticResource Heading}" Text="Comparer le code et ce que l'application reçoit" TextWrapping="Wrap" />
+
+          <TextBlock Grid.Row="1" Style="{StaticResource Label}" TextWrapping="Wrap"
+                     Text="Contenu réel du code (accepte &lt;GS&gt;, &lt;CR&gt;… pour les caractères invisibles)" />
+          <TextBox x:Name="ExpectedBox" Grid.Row="2" Style="{StaticResource Input}" AcceptsReturn="True" MinHeight="80"
+                   Text="0103453120000011172712311010ABC123&lt;GS&gt;21SN7788" />
+
+          <TextBlock Grid.Row="3" Style="{StaticResource Label}" Margin="0,12,0,4" TextWrapping="Wrap"
+                     Text="Données reçues : clique dans le champ puis scanne avec la douchette (Entrée et Tab sont capturés)" />
+          <TextBox x:Name="ReceivedBox" Grid.Row="4" Style="{StaticResource Input}" MinHeight="80"
+                   PreviewKeyDown="ReceivedBox_PreviewKeyDown" TextChanged="ReceivedBox_TextChanged" />
+
+          <TextBlock x:Name="ReceivedVisual" Grid.Row="5" Margin="0,6,0,0" FontFamily="Cascadia Mono, Consolas" FontSize="12"
+                     Foreground="{StaticResource Muted}" TextWrapping="Wrap" />
+
+          <WrapPanel Grid.Row="6" Margin="0,14,0,0">
+            <Button Style="{StaticResource Primary}" Content="Comparer" Click="Compare_Click" Margin="0,0,8,0" IsDefault="False" />
+            <Button Style="{StaticResource Secondary}" Content="Analyser le contenu" Click="Analyze_Click" Margin="0,0,8,0" />
+            <Button Style="{StaticResource Secondary}" Content="Effacer la lecture" Click="Clear_Click" />
+          </WrapPanel>
+        </Grid>
+      </Border>
+
+      <!-- Résultats -->
+      <Border Grid.Column="2" Style="{StaticResource Card}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel>
+            <TextBlock x:Name="ResultTitle" Style="{StaticResource Heading}" Text="Résultat" />
+            <TextBlock x:Name="ResultSubtitle" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12"
+                       Text="Saisis le contenu du code, scanne-le dans le second champ, puis clique sur Comparer." />
+
+            <ItemsControl x:Name="FindingsList">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderThickness="4,0,0,0" BorderBrush="{Binding Accent}" Background="{Binding Tint}" CornerRadius="6" Padding="12,10" Margin="0,0,0,10">
+                    <StackPanel>
+                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                      <TextBlock Text="{Binding Fix}" TextWrapping="Wrap" Margin="0,6,0,0" Foreground="{StaticResource Muted}" Visibility="{Binding FixVisibility}" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl x:Name="FieldsList" Margin="0,4,0,0">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="200" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="{Binding Label}" Foreground="{StaticResource Muted}" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding Hint}" FontSize="11" Foreground="{StaticResource Muted}" />
+                    </StackPanel>
+                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" TextWrapping="Wrap" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

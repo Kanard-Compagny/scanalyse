@@ -1,0 +1,15 @@
+<Project>
+  <!-- Réglages communs à tous les projets de la solution -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <Company>Scanalyse</Company>
+    <Product>Scanalyse</Product>
+    <Copyright>© 2026 Scanalyse. Tous droits réservés.</Copyright>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <NeutralLanguage>fr-FR</NeutralLanguage>
+    <SatelliteResourceLanguages>fr</SatelliteResourceLanguages>
+  </PropertyGroup>
+</Project>
