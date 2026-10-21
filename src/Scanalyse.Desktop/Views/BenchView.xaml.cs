@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
@@ -84,6 +85,12 @@ public partial class BenchView : UserControl
         box.Text = box.Text.Insert(caret, insert);
         box.CaretIndex = caret + insert.Length;
         e.Handled = true;
+
+        // Fin de lecture (suffixe Entrée) pendant l'agrandissement : on revient au résultat.
+        if (e.Key == Key.Enter && ZoomOverlay.Visibility == Visibility.Visible)
+        {
+            CloseZoom();
+        }
     }
 
     private void ReceivedBox_TextChanged(object sender, TextChangedEventArgs e) =>
@@ -147,6 +154,7 @@ public partial class BenchView : UserControl
             PreviewImage.Source = bmp;
             PreviewEmpty.Visibility = Visibility.Collapsed;
             PreviewSource.Text = caption;
+            SetZoomAvailable(true);
         }
         catch (Exception ex) when (ex is NotSupportedException or IOException or InvalidOperationException)
         {
@@ -163,7 +171,83 @@ public partial class BenchView : UserControl
 
         PreviewImage.Source = null;
         PreviewEmpty.Visibility = Visibility.Visible;
+        SetZoomAvailable(false);
         PreviewSource.Text = "La vignette s'affiche quand la référence vient d'une image analysée. Sinon, choisis le type et génère l'aperçu.";
+    }
+
+    // ------------------------------------------------------------------ Agrandissement
+
+    private void SetZoomAvailable(bool on)
+    {
+        ZoomButton.IsEnabled = on;
+        ZoomHint.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+        PreviewBox.Cursor = on ? Cursors.Hand : null;
+    }
+
+    private void PreviewBox_Click(object sender, MouseButtonEventArgs e) => OpenZoom();
+
+    private void Zoom_Click(object sender, RoutedEventArgs e) => OpenZoom();
+
+    private void ZoomClose_Click(object sender, RoutedEventArgs e) => CloseZoom();
+
+    /// <summary>Un clic hors de la feuille blanche ferme l'agrandissement.</summary>
+    private void ZoomOverlay_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (!ZoomSheet.IsMouseOver)
+        {
+            CloseZoom();
+        }
+    }
+
+    private void Root_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape && ZoomOverlay.Visibility == Visibility.Visible)
+        {
+            CloseZoom();
+            e.Handled = true;
+        }
+    }
+
+    private void OpenZoom()
+    {
+        if (PreviewImage.Source is not BitmapSource bmp)
+        {
+            return;
+        }
+
+        ZoomImage.Source = bmp;
+        ZoomCaption.Text = $"{PreviewSource.Text} · scanne l'écran avec la douchette : la lecture arrive directement dans « Données reçues ».";
+        ZoomOverlay.Visibility = Visibility.Visible;
+        FitZoom();
+        FocusReception();
+    }
+
+    private void CloseZoom()
+    {
+        ZoomOverlay.Visibility = Visibility.Collapsed;
+        FocusReception();
+    }
+
+    private void ZoomArea_SizeChanged(object sender, SizeChangedEventArgs e) => FitZoom();
+
+    /// <summary>
+    /// Agrandit d'un facteur entier en pixels écran : chaque module garde exactement la même largeur,
+    /// sinon les barres fines et épaisses deviennent irrégulières et le code ne se lit plus.
+    /// </summary>
+    private void FitZoom()
+    {
+        if (ZoomImage.Source is not BitmapSource bmp || ZoomArea.ActualWidth <= 0 || ZoomArea.ActualHeight <= 0)
+        {
+            return;
+        }
+
+        var dpi = VisualTreeHelper.GetDpi(this);
+        var availW = ZoomArea.ActualWidth * dpi.DpiScaleX;
+        var availH = ZoomArea.ActualHeight * dpi.DpiScaleY;
+        var fit = Math.Min(availW / bmp.PixelWidth, availH / bmp.PixelHeight);
+        var factor = fit >= 1 ? Math.Floor(fit) : fit;
+        ZoomImage.Width = bmp.PixelWidth * factor / dpi.DpiScaleX;
+        ZoomImage.Height = bmp.PixelHeight * factor / dpi.DpiScaleY;
     }
 
     /// <summary>Type le plus probable pour dessiner une référence saisie à la main.</summary>

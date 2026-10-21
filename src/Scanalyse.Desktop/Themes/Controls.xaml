@@ -279,13 +279,15 @@
   <Style x:Key="Chip" TargetType="RadioButton">
     <Setter Property="Foreground" Value="{DynamicResource Ink}" />
     <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="Medium" />
     <Setter Property="Margin" Value="0,0,6,6" />
     <Setter Property="Cursor" Value="Hand" />
     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="RadioButton">
-          <Border x:Name="Bd" CornerRadius="999" Padding="12,6" Background="{DynamicResource Surface2}" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+          <!-- Même forme que les puces de « Créer un code » : hauteur fixe, rayon = moitié de la hauteur -->
+          <Border x:Name="Bd" Height="32" CornerRadius="16" Padding="13,0" Background="{DynamicResource Bg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" SnapsToDevicePixels="True">
             <ContentPresenter VerticalAlignment="Center" />
           </Border>
           <ControlTemplate.Triggers>
