@@ -2,7 +2,7 @@
 .modes{display:inline-flex;gap:4px;padding:4px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
 .modes button{font:inherit;font-weight:600;font-size:14px;border:0;border-radius:9px;padding:8px 16px;background:transparent;color:var(--muted);cursor:pointer}
 .modes button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
-.modes button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.modes button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .head-l{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
 
 /* --- Vue Analyser --- */
@@ -79,5 +79,7 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
 .summary .btn{margin-left:auto}
 
 /* --- Intégration dans le programme Windows --- */
-.desktop header h1{display:none}
+.desktop header{display:none}
 .desktop .wrap{padding-top:4px}
+/* Dans le programme, l'import passe aussi par la barre d'outils : l'orange reste réservé à « Comparer ». */
+.desktop label[for="scanFile"].btn.primary{background:var(--panel);border-color:var(--line);color:var(--ink)}

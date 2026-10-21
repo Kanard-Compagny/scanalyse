@@ -12,5 +12,7 @@
     <File Path="README.md" />
     <File Path="THIRD-PARTY-NOTICES.md" />
     <File Path="web/build.py" />
+    <File Path="design/tokens.json" />
+    <File Path="tools/build_theme.py" />
   </Folder>
 </Solution>

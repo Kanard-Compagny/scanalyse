@@ -1,3 +1,6 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -5,32 +8,58 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
-using Scanalyse.Core.Text;
 
 namespace Scanalyse.Desktop;
 
-/// <summary>Fenêtre principale : l'Atelier (création et analyse d'images) et le banc d'essai douchette.</summary>
+/// <summary>
+/// Fenêtre principale : barre de titre, barre d'outils, menu latéral, pages et journal des lectures.
+/// </summary>
 public partial class MainWindow : Window
 {
-    private readonly ContentAnalyzer _analyzer = new();
+    private const int MaxLogEntries = 500;
+    private const double SidebarWide = 236;
+    private const double SidebarNarrow = 66;
+
     private readonly AtelierHost _atelier;
-    private string? _expectedAim;
-    private bool _settingExpected;
+    private readonly ObservableCollection<LogEntry> _log = [];
+    private readonly DispatcherTimer _captureTimer = new() { Interval = TimeSpan.FromMilliseconds(300) };
+    private uint _clipboardSequence;
+    private DateTime _captureDeadline;
+    private string _atelierMode = "scan";
+    private bool _ready;
 
     public MainWindow()
     {
         InitializeComponent();
-        var version = Assembly.GetExecutingAssembly().GetName().Version;
-        VersionText.Text = version is null ? string.Empty : $"version {version.Major}.{version.Minor}.{version.Build}";
+        var v = Assembly.GetExecutingAssembly().GetName().Version;
+        VersionText.Text = v is null ? string.Empty : $"version {v.Major}.{v.Minor}.{v.Build}";
+        LogList.ItemsSource = _log;
 
         _atelier = new AtelierHost(Web);
+        _atelier.Ready += OnAtelierReady;
         _atelier.CompareRequested += OnCompareRequested;
+        _atelier.Decoded += OnDecoded;
+        Bench.Compared += OnBenchCompared;
+        ThemeManager.Changed += OnThemeChanged;
+        _captureTimer.Tick += CaptureTimer_Tick;
+
+        InputBindings.Add(new KeyBinding(new RelayCommand(() => Paste_Click(this, new RoutedEventArgs())), Key.V, ModifierKeys.Control | ModifierKeys.Shift));
+
+        _ready = true;
+        NavAnalyse.IsChecked = true;
+        OnThemeChanged();
+        AddLog(LogKind.Info, "SCANALYSE", "Prêt. L'analyse est faite sur ce PC, rien n'est envoyé sur Internet.");
+
         Loaded += async (_, _) => await StartAtelierAsync();
+        Closed += (_, _) => ThemeManager.Changed -= OnThemeChanged;
     }
+
+    // ------------------------------------------------------------------ Atelier
 
     private async Task StartAtelierAsync()
     {
@@ -48,144 +77,304 @@ public partial class MainWindow : Window
         }
     }
 
+    private async void OnAtelierReady()
+    {
+        await _atelier.SetThemeAsync(ThemeManager.IsDark);
+        await _atelier.SetModeAsync(_atelierMode);
+    }
+
     private void ShowWebError(string message)
     {
         Web.Visibility = Visibility.Collapsed;
         WebErrorText.Text = message;
         WebError.Visibility = Visibility.Visible;
+        AddLog(LogKind.Error, "ATELIER", message);
     }
 
-    /// <summary>L'Atelier envoie un code lu sur une image : on le place comme référence dans le banc d'essai.</summary>
     private void OnCompareRequested(CompareRequest request)
     {
-        _settingExpected = true;
-        ExpectedBox.Text = ControlCharacters.Visualize(request.Text);
-        _settingExpected = false;
-
-        _expectedAim = string.IsNullOrEmpty(request.SymbologyIdentifier) ? null : request.SymbologyIdentifier;
-        var aim = _expectedAim is null ? string.Empty : $" · identifiant {_expectedAim}";
-        ExpectedSource.Text = $"Repris de l'Atelier : {request.Format}{aim}";
-        ExpectedSource.Visibility = Visibility.Visible;
-
-        ReceivedBox.Clear();
-        FindingsList.ItemsSource = null;
-        FieldsList.ItemsSource = null;
-        ResultTitle.Text = "Scanne maintenant le même code";
-        ResultSubtitle.Text = "Avec la douchette, dans le champ « Données reçues », puis clique sur Comparer.";
-        Tabs.SelectedItem = BenchTab;
-        Dispatcher.InvokeAsync(() => ReceivedBox.Focus(), DispatcherPriority.Input);
+        Bench.SetExpected(request);
+        NavBench.IsChecked = true;
+        AddLog(LogKind.Info, "COMPARER", $"Référence reprise de l'image ({request.Format}) : scanne le même code avec la douchette.");
     }
 
-    private void ExpectedBox_TextChanged(object sender, TextChangedEventArgs e)
+    private void OnDecoded(string source, IReadOnlyList<DecodedCode> codes)
     {
-        if (_settingExpected || ExpectedSource is null)
+        if (codes.Count == 0)
+        {
+            AddLog(LogKind.Warning, "IMAGE", $"{source} : aucun code détecté.");
+            return;
+        }
+
+        AddLog(LogKind.Ok, "IMAGE", $"{source} : {codes.Count} code{(codes.Count > 1 ? "s" : string.Empty)} détecté{(codes.Count > 1 ? "s" : string.Empty)}.");
+        foreach (var c in codes)
+        {
+            AddLog(LogKind.Info, c.Format.ToUpperInvariant(), c.Text);
+        }
+    }
+
+    private void OnBenchCompared(ComparisonResult result, string receivedVisual)
+    {
+        AddLog(LogKind.Info, "REÇU", receivedVisual.Length > 0 ? receivedVisual : "(rien)");
+        var main = result.Findings.FirstOrDefault();
+        if (main is null)
         {
             return;
         }
 
-        _expectedAim = null;
-        ExpectedSource.Visibility = Visibility.Collapsed;
+        var kind = result.WorstSeverity switch
+        {
+            Severity.Ok => LogKind.Ok,
+            Severity.Info => result.DataMatches ? LogKind.Ok : LogKind.Info,
+            Severity.Warning => LogKind.Warning,
+            _ => LogKind.Error,
+        };
+        AddLog(kind, "DIAGNOSTIC", main.Title);
+    }
+
+    // ------------------------------------------------------------------ Navigation
+
+    private async void Nav_Checked(object sender, RoutedEventArgs e)
+    {
+        if (!_ready)
+        {
+            return;
+        }
+
+        AtelierPage.Visibility = Visibility.Collapsed;
+        Bench.Visibility = Visibility.Collapsed;
+        Symbols.Visibility = Visibility.Collapsed;
+        SettingsPage.Visibility = Visibility.Collapsed;
+
+        if (sender == NavAnalyse || sender == NavCreate)
+        {
+            var create = sender == NavCreate;
+            _atelierMode = create ? "create" : "scan";
+            AtelierTitle.Text = create ? "Créer un code" : "Analyser une image";
+            AtelierSubtitle.Text = create
+                ? "QR codes personnalisés : contenu, couleurs, formes, logo central, contrôle de lisibilité et export."
+                : "Importe, colle ou capture une image : chaque code est lu, détaillé et peut être comparé à une lecture douchette.";
+            AtelierPage.Visibility = Visibility.Visible;
+            await _atelier.SetModeAsync(_atelierMode);
+        }
+        else if (sender == NavBench)
+        {
+            Bench.Visibility = Visibility.Visible;
+            Bench.FocusReception();
+        }
+        else if (sender == NavSymbols)
+        {
+            Symbols.Visibility = Visibility.Visible;
+        }
+        else if (sender == NavSettings)
+        {
+            SettingsPage.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void ToggleMenu_Click(object sender, RoutedEventArgs e)
+    {
+        var narrow = Sidebar.Width > SidebarNarrow;
+        Sidebar.Width = narrow ? SidebarNarrow : SidebarWide;
+        MenuLabel.Visibility = narrow ? Visibility.Collapsed : Visibility.Visible;
+        MenuChevron.RenderTransformOrigin = new Point(0.5, 0.5);
+        MenuChevron.RenderTransform = narrow ? new RotateTransform(180) : Transform.Identity;
+    }
+
+    // ------------------------------------------------------------------ Images : presse-papiers et capture
+
+    private async void Paste_Click(object sender, RoutedEventArgs e)
+    {
+        if (TryGetClipboardPng(out var png))
+        {
+            await SendImageAsync(png, "Image collée");
+        }
+        else
+        {
+            AddLog(LogKind.Warning, "PRESSE-PAPIERS", "Aucune image à coller. Fais une capture (Win + Maj + S) ou copie une image, puis réessaie.");
+        }
+    }
+
+    private void Capture_Click(object sender, RoutedEventArgs e)
+    {
+        _clipboardSequence = NativeMethods.GetClipboardSequenceNumber();
+        _captureDeadline = DateTime.Now.AddSeconds(90);
+        try
+        {
+            Process.Start(new ProcessStartInfo("ms-screenclip:") { UseShellExecute = true });
+        }
+        catch (Win32Exception)
+        {
+            AddLog(LogKind.Warning, "CAPTURE", "L'outil Capture de Windows est indisponible : fais Win + Maj + S, puis « Coller une image ».");
+            return;
+        }
+
+        AddLog(LogKind.Info, "CAPTURE", "Sélectionne la zone qui contient le code : elle sera analysée automatiquement.");
+        _captureTimer.Start();
+    }
+
+    private async void CaptureTimer_Tick(object? sender, EventArgs e)
+    {
+        if (DateTime.Now > _captureDeadline)
+        {
+            _captureTimer.Stop();
+            AddLog(LogKind.Warning, "CAPTURE", "Aucune capture reçue.");
+            return;
+        }
+
+        var sequence = NativeMethods.GetClipboardSequenceNumber();
+        if (sequence == _clipboardSequence)
+        {
+            return;
+        }
+
+        _clipboardSequence = sequence;
+        if (TryGetClipboardPng(out var png))
+        {
+            _captureTimer.Stop();
+            Activate();
+            await SendImageAsync(png, "Capture d'écran");
+        }
+    }
+
+    private async Task SendImageAsync(byte[] png, string label)
+    {
+        NavAnalyse.IsChecked = true;
+        await _atelier.LoadImageAsync(png, label);
     }
 
     /// <summary>
-    /// Entrée et Tab sont insérés tels quels (CR, HT) pour voir exactement ce que la douchette envoie,
-    /// au lieu de valider la fenêtre ou de changer de champ.
+    /// Récupère l'image du presse-papiers en PNG. Le format PNG est préféré quand il existe (outil Capture) ;
+    /// sinon l'image est convertie sans couche alpha, car certaines captures arrivent avec une transparence totale.
     /// </summary>
-    private void ReceivedBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    private static bool TryGetClipboardPng(out byte[] png)
     {
-        var insert = e.Key switch
+        png = [];
+        try
         {
-            Key.Enter => "\r",
-            Key.Tab => "\t",
-            _ => null,
-        };
+            if (Clipboard.ContainsData("PNG") && Clipboard.GetData("PNG") is MemoryStream stream)
+            {
+                png = stream.ToArray();
+                return png.Length > 0;
+            }
 
-        if (insert is null)
+            if (!Clipboard.ContainsImage() || Clipboard.GetImage() is not BitmapSource image)
+            {
+                return false;
+            }
+
+            var opaque = new FormatConvertedBitmap(image, PixelFormats.Bgr24, null, 0);
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(opaque));
+            using var output = new MemoryStream();
+            encoder.Save(output);
+            png = output.ToArray();
+            return true;
+        }
+        catch (Exception ex) when (ex is COMException or ExternalException or InvalidOperationException)
         {
-            return;
+            // Presse-papiers occupé par une autre application : on réessaiera.
+            return false;
+        }
+    }
+
+    // ------------------------------------------------------------------ Thème
+
+    private void Theme_Click(object sender, RoutedEventArgs e)
+    {
+        var next = ThemeManager.Mode switch
+        {
+            ThemeMode.System => ThemeMode.Light,
+            ThemeMode.Light => ThemeMode.Dark,
+            _ => ThemeMode.System,
+        };
+        ThemeManager.Apply(next, save: true);
+    }
+
+    private async void OnThemeChanged()
+    {
+        ThemeLabel.Text = "Thème : " + ThemeManager.Label(ThemeManager.Mode);
+        if (TryFindResource("BgColor") is Color bg)
+        {
+            Web.DefaultBackgroundColor = System.Drawing.Color.FromArgb(bg.A, bg.R, bg.G, bg.B);
         }
 
-        var box = (TextBox)sender;
-        var caret = box.CaretIndex;
-        box.Text = box.Text.Insert(caret, insert);
-        box.CaretIndex = caret + insert.Length;
-        e.Handled = true;
+        await _atelier.SetThemeAsync(ThemeManager.IsDark);
     }
 
-    private void ReceivedBox_TextChanged(object sender, TextChangedEventArgs e) =>
-        ReceivedVisual.Text = ReceivedBox.Text.Length == 0
-            ? string.Empty
-            : $"Reçu ({ReceivedBox.Text.Length} caractères) : {ControlCharacters.Visualize(ReceivedBox.Text)}";
+    // ------------------------------------------------------------------ Journal
 
-    private void Compare_Click(object sender, RoutedEventArgs e)
+    private void AddLog(LogKind kind, string tag, string text)
     {
-        var result = ScanComparer.Compare(ExpectedBox.Text, ReceivedBox.Text);
-        ResultTitle.Text = result.WorstSeverity switch
+        _log.Add(new LogEntry(DateTime.Now, kind, tag, text));
+        while (_log.Count > MaxLogEntries)
         {
-            Severity.Ok => "Lecture conforme",
-            Severity.Info => result.DataMatches ? "Données conformes, avec ajouts du scanner" : "À vérifier",
-            Severity.Warning => "À vérifier",
-            _ => "Problème de lecture",
-        };
-        ResultSubtitle.Text = result.DataMatches
-            ? "Les données utiles sont identiques au contenu du code."
-            : "Les données reçues ne correspondent pas au contenu du code.";
-        FindingsList.ItemsSource = result.Findings.Select(FindingView.From).ToList();
-        FieldsList.ItemsSource = null;
+            _log.RemoveAt(0);
+        }
+
+        LogCount.Text = $"{_log.Count} ligne{(_log.Count > 1 ? "s" : string.Empty)}";
+        LogScroll.ScrollToEnd();
     }
 
-    private void Analyze_Click(object sender, RoutedEventArgs e)
+    private void CopyLog_Click(object sender, RoutedEventArgs e)
     {
-        var text = ControlCharacters.FromVisualized(ExpectedBox.Text);
-        var analysis = _analyzer.Analyze(new ScanInput(text, SymbologyIdentifier: _expectedAim));
-        ResultTitle.Text = analysis.Title;
-        ResultSubtitle.Text = $"{text.Length} caractères · {ControlCharacters.Visualize(text)}";
-        FindingsList.ItemsSource = analysis.Alerts
-            .Select(a => FindingView.From(new Finding("ALERT", a.Severity, a.Message, string.Empty)))
-            .ToList();
-        FieldsList.ItemsSource = analysis.Fields
-            .Select(f => new FieldView(f.Label, f.Sensitive ? "•••••• (masqué)" : f.Value, f.Hint ?? string.Empty))
-            .ToList();
+        try
+        {
+            Clipboard.SetText(string.Join(Environment.NewLine, _log.Select(l => l.ToString())));
+        }
+        catch (COMException)
+        {
+            AddLog(LogKind.Warning, "JOURNAL", "Presse-papiers occupé : réessaie.");
+        }
     }
 
-    private void Clear_Click(object sender, RoutedEventArgs e)
+    private void ClearLog_Click(object sender, RoutedEventArgs e)
     {
-        ReceivedBox.Clear();
-        ReceivedBox.Focus();
+        _log.Clear();
+        LogCount.Text = string.Empty;
+    }
+
+    private void ToggleLog_Click(object sender, RoutedEventArgs e)
+    {
+        var hide = LogScroll.Visibility == Visibility.Visible;
+        LogScroll.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+        LogChevron.RenderTransform = hide ? new RotateTransform(180) : Transform.Identity;
+    }
+
+    // ------------------------------------------------------------------ Fenêtre
+
+    private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void Maximize_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+    /// <summary>Une fenêtre sans cadre agrandie déborde de l'écran : on compense par une marge.</summary>
+    private void Window_StateChanged(object? sender, EventArgs e)
+    {
+        RootBorder.Margin = WindowState == WindowState.Maximized ? new Thickness(7) : new Thickness(0);
+        MaxIcon.Data = Geometry.Parse(WindowState == WindowState.Maximized ? "M2.5 0.5h7v7M0.5 2.5h7v7h-7z" : "M0.5 0.5h9v9h-9z");
     }
 }
 
-/// <summary>Constat prêt à afficher.</summary>
-public sealed record FindingView(string Title, string Explanation, string Fix, Brush Accent, Brush Tint, Visibility FixVisibility)
+/// <summary>Commande simple pour les raccourcis clavier.</summary>
+internal sealed class RelayCommand(Action execute) : ICommand
 {
-    private static readonly Brush OkAccent = Freeze(new SolidColorBrush(Color.FromRgb(0x1D, 0x7A, 0x4A)));
-    private static readonly Brush OkTint = Freeze(new SolidColorBrush(Color.FromRgb(0xE3, 0xF4, 0xEA)));
-    private static readonly Brush InfoAccent = Freeze(new SolidColorBrush(Color.FromRgb(0x2B, 0x3F, 0xD6)));
-    private static readonly Brush InfoTint = Freeze(new SolidColorBrush(Color.FromRgb(0xE8, 0xEB, 0xFB)));
-    private static readonly Brush WarnAccent = Freeze(new SolidColorBrush(Color.FromRgb(0xA8, 0x5A, 0x00)));
-    private static readonly Brush WarnTint = Freeze(new SolidColorBrush(Color.FromRgb(0xFF, 0xF3, 0xE0)));
-    private static readonly Brush ErrorAccent = Freeze(new SolidColorBrush(Color.FromRgb(0xB3, 0x26, 0x1E)));
-    private static readonly Brush ErrorTint = Freeze(new SolidColorBrush(Color.FromRgb(0xFD, 0xE7, 0xE5)));
-
-    public static FindingView From(Finding f)
+    public event EventHandler? CanExecuteChanged
     {
-        var (accent, tint) = f.Severity switch
-        {
-            Severity.Ok => (OkAccent, OkTint),
-            Severity.Info => (InfoAccent, InfoTint),
-            Severity.Warning => (WarnAccent, WarnTint),
-            _ => (ErrorAccent, ErrorTint),
-        };
-        var fix = string.IsNullOrWhiteSpace(f.Fix) ? string.Empty : "À faire : " + f.Fix;
-        return new FindingView(f.Title, f.Explanation, fix, accent, tint, fix.Length > 0 ? Visibility.Visible : Visibility.Collapsed);
+        add { }
+        remove { }
     }
 
-    private static Brush Freeze(Brush b)
-    {
-        b.Freeze();
-        return b;
-    }
+    public bool CanExecute(object? parameter) => true;
+
+    public void Execute(object? parameter) => execute();
 }
 
-/// <summary>Information extraite prête à afficher.</summary>
-public sealed record FieldView(string Label, string Value, string Hint);
+internal static class NativeMethods
+{
+    /// <summary>Numéro qui change à chaque modification du presse-papiers.</summary>
+    [DllImport("user32.dll")]
+    internal static extern uint GetClipboardSequenceNumber();
+}

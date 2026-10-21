@@ -50,8 +50,8 @@ def assemble():
     scan_js = read(SRC, "scan.js")
 
     s = s.replace("qr-code-styling@1.6.0-rc.1", "qr-code-styling@" + QR_VERSION)
-    s = rep(s, "--ok:#1d7a4a;", "--ok:#1d7a4a; --ok-bg:#e3f4ea; --bad:#b3261e; --bad-bg:#fde7e5;")
-    s = s.replace("--ok:#5fd59a; --check:#252a3f;", "--ok:#5fd59a; --ok-bg:#12301f; --bad:#ff8a80; --bad-bg:#3a1714; --check:#252a3f;")
+    # Couleurs et polices : générées depuis design/tokens.json (tools/build_theme.py)
+    s = rep(s, "/*THEME*/", read(SRC, "theme.css"))
     s = rep(s, "</style>", css + "</style>")
     s = rep(s, """  <header>
     <h1>Atelier <span>QR</span></h1>

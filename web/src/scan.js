@@ -22,6 +22,10 @@ function setMode(m,save){
 tabs.create.addEventListener("click",()=>setMode("create",true));
 tabs.scan.addEventListener("click",()=>setMode("scan",true));
 window.atelierSetMode=setMode;
+// Appelé par le programme Windows : image venant du presse-papiers ou de l'outil Capture d'écran de Windows
+window.atelierLoadImageData=function(dataUrl,label){
+  fetch(dataUrl).then(r=>r.blob()).then(b=>{setMode("scan",false);loadBlob(b,label||"Image");}).catch(()=>showMessage("Image illisible","L'image reçue n'a pas pu être ouverte."));
+};
 
 /* ================= Moteurs de décodage ================= */
 let enginePromise=null, engineName="";
@@ -98,7 +102,7 @@ function draw(){
   if(!src) return;
   const x=cv.getContext("2d"),k=cv.width/src.width;
   x.clearRect(0,0,cv.width,cv.height);x.drawImage(src,0,0,cv.width,cv.height);
-  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#2b3fd6";
+  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#145c43";
   const sc=cv.width/((cv.getBoundingClientRect().width)||cv.width);const lw=2*sc;
   if(region){
     x.save();x.fillStyle="rgba(10,12,25,.45)";x.beginPath();x.rect(0,0,cv.width,cv.height);x.rect(region.x*k,region.y*k,region.w*k,region.h*k);x.fill("evenodd");
@@ -210,7 +214,7 @@ function vDraw(){
   const x=V.cv.getContext("2d"),d=window.devicePixelRatio||1;
   x.setTransform(1,0,0,1,0,0);x.fillStyle=getComputedStyle(document.body).getPropertyValue("--bg")||"#111";x.fillRect(0,0,V.cv.width,V.cv.height);
   x.setTransform(V.z,0,0,V.z,V.ox,V.oy);x.imageSmoothingEnabled=V.z<2;x.imageSmoothingQuality="high";x.drawImage(src,0,0);
-  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#2b3fd6";const lw=2*d/V.z;
+  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#145c43";const lw=2*d/V.z;
   results.forEach((r,i)=>{x.beginPath();r.pts.forEach((p,j)=>j?x.lineTo(p.x,p.y):x.moveTo(p.x,p.y));x.closePath();x.lineWidth=lw*2;x.strokeStyle="#fff";x.stroke();x.lineWidth=lw;x.strokeStyle=accent;x.stroke();
     const R=12*d/V.z,p=r.pts[0];x.beginPath();x.arc(p.x,p.y,R,0,7);x.fillStyle=accent;x.fill();x.fillStyle="#fff";x.font=`700 ${R*1.1}px ui-monospace,monospace`;x.textAlign="center";x.textBaseline="middle";x.fillText(String(i+1),p.x,p.y+R*.08);});
   if(V.act&&V.act.type==="sel"&&V.act.cur){const a=V.act.start,b=V.act.cur;x.save();x.setLineDash([6*d/V.z,4*d/V.z]);x.lineWidth=lw;x.strokeStyle=accent;x.fillStyle="rgba(120,140,255,.18)";
@@ -706,6 +710,7 @@ function render(ms,reg){
       <ul><li>Trace un rectangle serré autour du code, avec un peu de marge blanche.</li><li>Évite le flou, les reflets et les angles trop prononcés.</li><li>Un code trop petit à l'écran : zoome avant la capture.</li><li>Un QR très stylisé ou un logo trop grand peut empêcher toute lecture.</li></ul>
       <div class="acts"><button class="btn small primary" type="button" data-zoomsel>Agrandir et sélectionner</button>${region?"":`<button class="btn small" type="button" data-deep>Recherche approfondie</button>`}</div></div>`;
     box.querySelector("[data-zoomsel]").addEventListener("click",()=>vOpen());
+    if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,items:[]}));}catch(e){}}
     const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
     return;
   }
@@ -754,6 +759,8 @@ function render(ms,reg){
     </article>`;
   });
   box.innerHTML=html;
+  if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,
+    items:results.map(r=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||"")}))}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
   box.querySelectorAll(".res").forEach(el=>{el.addEventListener("mouseenter",()=>setFocus(+el.dataset.i,false));});
   box.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{const t=results[+b.dataset.copy].text||"";
@@ -765,6 +772,7 @@ function render(ms,reg){
     window.chrome.webview.postMessage(JSON.stringify({type:"compare",text:raw,display:r.text||"",format:FMT[r.format]||r.format||"",symbologyIdentifier:r.symId||""}));}));
   box.querySelectorAll("[data-recreate]").forEach(b=>b.addEventListener("click",()=>{if(window.atelierLoad){window.atelierLoad(results[+b.dataset.recreate].text||"");setMode("create",true);window.scrollTo({top:0});}}));
 }
+function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
 function showMessage(title,msg){$("scanResults").innerHTML=`<div class="noresult"><h3>${esc(title)}</h3><p style="margin:0">${esc(msg)}</p></div>`;}
 
 /* ================= Démarrage ================= */

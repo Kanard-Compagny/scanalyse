@@ -1,0 +1,51 @@
+<UserControl x:Class="Scanalyse.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="28,22,28,16" MaxWidth="860" HorizontalAlignment="Left">
+      <TextBlock Style="{StaticResource PageTitle}" Text="Paramètres" />
+      <TextBlock Style="{StaticResource PageSubtitle}" Text="Apparence de Scanalyse et informations sur le programme." Margin="0,4,0,20" />
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Thème" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Text="Le choix est mémorisé. « Système » suit le réglage clair ou sombre de Windows." Margin="0,4,0,14" />
+          <UniformGrid Columns="3">
+            <RadioButton x:Name="ThemeSystem" Style="{StaticResource ChoiceCard}" GroupName="Theme" Margin="0,0,10,0" Checked="Theme_Checked">
+              <StackPanel>
+                <TextBlock Text="Système" FontWeight="SemiBold" />
+                <TextBlock Text="Comme Windows" FontSize="12" Foreground="{DynamicResource Muted}" />
+              </StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="ThemeLight" Style="{StaticResource ChoiceCard}" GroupName="Theme" Margin="0,0,10,0" Checked="Theme_Checked">
+              <StackPanel>
+                <TextBlock Text="Clair" FontWeight="SemiBold" />
+                <TextBlock Text="Fond blanc, menu vert" FontSize="12" Foreground="{DynamicResource Muted}" />
+              </StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="ThemeDark" Style="{StaticResource ChoiceCard}" GroupName="Theme" Checked="Theme_Checked">
+              <StackPanel>
+                <TextBlock Text="Sombre" FontWeight="SemiBold" />
+                <TextBlock Text="Pour les longues sessions" FontSize="12" Foreground="{DynamicResource Muted}" />
+              </StackPanel>
+            </RadioButton>
+          </UniformGrid>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="À propos" />
+          <TextBlock x:Name="VersionText" Style="{StaticResource PageSubtitle}" Margin="0,4,0,12" />
+          <TextBlock TextWrapping="Wrap" Margin="0,0,0,8"
+                     Text="Toute l'analyse est faite sur ce PC : aucune image ni aucune donnée lue n'est envoyée sur Internet." />
+          <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14"
+                     Text="Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), Microsoft Edge WebView2." />
+          <WrapPanel>
+            <Button Style="{StaticResource BtnSecondary}" Content="Ouvrir le dossier des données" Click="OpenData_Click" />
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

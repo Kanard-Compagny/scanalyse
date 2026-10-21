@@ -9,7 +9,7 @@ Analyse et diagnostic de lecture des codes-barres : **ce que contient un code, �
 | Projet | Rôle | Cible |
 |---|---|---|
 | `src/Scanalyse.Core` | Cerveau de l'analyse : lecture GS1, interprétation du contenu (liens, Wi-Fi, vCard, SEPA, StageNow…), diagnostic « contenu du code ↔ données reçues ». Aucune dépendance externe. | .NET 10 (multi-plateforme) |
-| `src/Scanalyse.Desktop` | Programme Windows (WPF) : onglet **Atelier** (création de QR personnalisés, analyse d'images, captures d'écran, zoom) et onglet **Banc d'essai douchette** (comparaison et diagnostic). | .NET 10 Windows |
+| `src/Scanalyse.Desktop` | Programme Windows (WPF) : menu latéral avec **Analyser une image**, **Créer un code** (Atelier embarqué), **Banc d'essai douchette**, **Symbologies** et **Paramètres** ; barre d'outils (coller une image, capturer une zone de l'écran, thème) ; journal des lectures. | .NET 10 Windows |
 | `web/` | Sources de l'Atelier (HTML/CSS/JS) et bibliothèques figées dans `web/vendor`. `web/build.py` génère la page embarquée `src/Scanalyse.Desktop/Web/index.html`. | Navigateur / WebView2 |
 | `tests/Scanalyse.Core.Tests` | Tests automatiques du Core (xUnit). | .NET 10 |
 
@@ -17,9 +17,15 @@ Analyse et diagnostic de lecture des codes-barres : **ce que contient un code, �
 
 ## Parcours type : « le client m'envoie une photo »
 
-1. Onglet **Atelier** → *Analyser* : importer, coller (Ctrl+V) ou capturer l'image, sélectionner le code si besoin.
+1. **Coller une image** (Ctrl + Maj + V) ou **Capturer une zone** depuis la barre d'outils, ou importer un fichier dans *Analyser une image*.
 2. Sur la fiche du code : **Comparer avec une lecture douchette**.
 3. Le banc d'essai s'ouvre avec le contenu exact du code : scanner le même code avec la douchette, puis **Comparer**.
+
+## Direction artistique
+
+Direction C « Atelier » : menu latéral vert foncé, contenu sur fond neutre, **vert** pour l'identité et la sélection, **orange bec de canard** réservé à l'action principale de chaque écran (une seule fois), couleurs d'état dédiées (le jaune pour « à vérifier », jamais l'orange de marque). Polices natives Windows 11 : Segoe UI Variable et Cascadia Mono. Thèmes clair, sombre et « suivre Windows ».
+
+**Source unique : `design/tokens.json`.** Après modification, lancer `python tools/build_theme.py` (thèmes WPF + variables CSS de l'Atelier), puis `python web/build.py`.
 
 ## Modifier l'Atelier
 

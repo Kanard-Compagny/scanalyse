@@ -1,0 +1,84 @@
+<!-- Fichier généré par tools/build_theme.py depuis design/tokens.json : ne pas modifier à la main. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Color x:Key="BgColor">#F4F5F6</Color>
+  <SolidColorBrush x:Key="Bg" Color="#F4F5F6" />
+  <Color x:Key="SurfaceColor">#FFFFFF</Color>
+  <SolidColorBrush x:Key="Surface" Color="#FFFFFF" />
+  <Color x:Key="Surface2Color">#EDEFF1</Color>
+  <SolidColorBrush x:Key="Surface2" Color="#EDEFF1" />
+  <Color x:Key="LineColor">#E1E4E7</Color>
+  <SolidColorBrush x:Key="Line" Color="#E1E4E7" />
+  <Color x:Key="InkColor">#15191C</Color>
+  <SolidColorBrush x:Key="Ink" Color="#15191C" />
+  <Color x:Key="MutedColor">#5D656C</Color>
+  <SolidColorBrush x:Key="Muted" Color="#5D656C" />
+  <Color x:Key="BrandColor">#145C43</Color>
+  <SolidColorBrush x:Key="Brand" Color="#145C43" />
+  <Color x:Key="BrandTextColor">#145C43</Color>
+  <SolidColorBrush x:Key="BrandText" Color="#145C43" />
+  <Color x:Key="BrandSoftColor">#E1EEE8</Color>
+  <SolidColorBrush x:Key="BrandSoft" Color="#E1EEE8" />
+  <Color x:Key="OnBrandColor">#FFFFFF</Color>
+  <SolidColorBrush x:Key="OnBrand" Color="#FFFFFF" />
+  <Color x:Key="AccentColor">#145C43</Color>
+  <SolidColorBrush x:Key="Accent" Color="#145C43" />
+  <Color x:Key="OnAccentColor">#FFFFFF</Color>
+  <SolidColorBrush x:Key="OnAccent" Color="#FFFFFF" />
+  <Color x:Key="FocusColor">#145C43</Color>
+  <SolidColorBrush x:Key="Focus" Color="#145C43" />
+  <Color x:Key="ActionColor">#F07F13</Color>
+  <SolidColorBrush x:Key="Action" Color="#F07F13" />
+  <Color x:Key="ActionHoverColor">#E0700A</Color>
+  <SolidColorBrush x:Key="ActionHover" Color="#E0700A" />
+  <Color x:Key="OnActionColor">#1B0F02</Color>
+  <SolidColorBrush x:Key="OnAction" Color="#1B0F02" />
+  <Color x:Key="TitleBgColor">#0B3125</Color>
+  <SolidColorBrush x:Key="TitleBg" Color="#0B3125" />
+  <Color x:Key="TitleInkColor">#E6F0EB</Color>
+  <SolidColorBrush x:Key="TitleInk" Color="#E6F0EB" />
+  <Color x:Key="TitleMutedColor">#9DBFB1</Color>
+  <SolidColorBrush x:Key="TitleMuted" Color="#9DBFB1" />
+  <Color x:Key="TitleHoverColor">#174A38</Color>
+  <SolidColorBrush x:Key="TitleHover" Color="#174A38" />
+  <Color x:Key="ToolbarBgColor">#FFFFFF</Color>
+  <SolidColorBrush x:Key="ToolbarBg" Color="#FFFFFF" />
+  <Color x:Key="SideBgColor">#0F3D2E</Color>
+  <SolidColorBrush x:Key="SideBg" Color="#0F3D2E" />
+  <Color x:Key="SideInkColor">#E6F0EB</Color>
+  <SolidColorBrush x:Key="SideInk" Color="#E6F0EB" />
+  <Color x:Key="SideMutedColor">#A9C3B7</Color>
+  <SolidColorBrush x:Key="SideMuted" Color="#A9C3B7" />
+  <Color x:Key="SideHoverBgColor">#164C39</Color>
+  <SolidColorBrush x:Key="SideHoverBg" Color="#164C39" />
+  <Color x:Key="SideActiveBgColor">#1D6248</Color>
+  <SolidColorBrush x:Key="SideActiveBg" Color="#1D6248" />
+  <Color x:Key="SideActiveInkColor">#FFFFFF</Color>
+  <SolidColorBrush x:Key="SideActiveInk" Color="#FFFFFF" />
+  <Color x:Key="OkBgColor">#E1F2E8</Color>
+  <SolidColorBrush x:Key="OkBg" Color="#E1F2E8" />
+  <Color x:Key="OkFgColor">#13633F</Color>
+  <SolidColorBrush x:Key="OkFg" Color="#13633F" />
+  <Color x:Key="InfoBgColor">#E4ECF7</Color>
+  <SolidColorBrush x:Key="InfoBg" Color="#E4ECF7" />
+  <Color x:Key="InfoFgColor">#244F86</Color>
+  <SolidColorBrush x:Key="InfoFg" Color="#244F86" />
+  <Color x:Key="WarnBgColor">#FBF0C8</Color>
+  <SolidColorBrush x:Key="WarnBg" Color="#FBF0C8" />
+  <Color x:Key="WarnFgColor">#6B5000</Color>
+  <SolidColorBrush x:Key="WarnFg" Color="#6B5000" />
+  <Color x:Key="BadBgColor">#FCE5E3</Color>
+  <SolidColorBrush x:Key="BadBg" Color="#FCE5E3" />
+  <Color x:Key="BadFgColor">#A3261C</Color>
+  <SolidColorBrush x:Key="BadFg" Color="#A3261C" />
+  <Color x:Key="ConsoleBgColor">#FFFFFF</Color>
+  <SolidColorBrush x:Key="ConsoleBg" Color="#FFFFFF" />
+  <Color x:Key="ConsoleInkColor">#2A3035</Color>
+  <SolidColorBrush x:Key="ConsoleInk" Color="#2A3035" />
+  <Color x:Key="ConsoleMutedColor">#6B747B</Color>
+  <SolidColorBrush x:Key="ConsoleMuted" Color="#6B747B" />
+  <Color x:Key="CheckColor">#E6E8EA</Color>
+  <SolidColorBrush x:Key="Check" Color="#E6E8EA" />
+  <Color x:Key="ScrollThumbColor">#C3C8CD</Color>
+  <SolidColorBrush x:Key="ScrollThumb" Color="#C3C8CD" />
+</ResourceDictionary>

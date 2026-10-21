@@ -2,133 +2,203 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:views="clr-namespace:Scanalyse.Desktop.Views"
+        xmlns:local="clr-namespace:Scanalyse.Desktop"
         Title="Scanalyse"
-        Width="1180" Height="760" MinWidth="820" MinHeight="560"
+        Width="1380" Height="880" MinWidth="1000" MinHeight="640"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource Bg}"
-        FontFamily="Segoe UI" FontSize="13"
-        Foreground="{StaticResource Ink}">
+        Background="{DynamicResource Bg}" Foreground="{DynamicResource Ink}"
+        FontFamily="{StaticResource UiFont}" FontSize="14"
+        StateChanged="Window_StateChanged">
 
-  <Grid Margin="20">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="*" />
-    </Grid.RowDefinitions>
+  <WindowChrome.WindowChrome>
+    <WindowChrome CaptionHeight="38" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
+  </WindowChrome.WindowChrome>
 
-    <!-- En-tête -->
-    <DockPanel Margin="0,0,0,16">
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <TextBlock Text="Scan" FontSize="26" FontWeight="Bold" />
-        <TextBlock Text="alyse" FontSize="26" FontWeight="Bold" Foreground="{StaticResource Accent}" />
-        <TextBlock Text="Analyse et diagnostic de lecture des codes-barres" Margin="16,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
-      </StackPanel>
-      <TextBlock x:Name="VersionText" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource Muted}" />
-    </DockPanel>
+  <Border x:Name="RootBorder">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="38" />
+        <RowDefinition Height="60" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
 
-    <TabControl x:Name="Tabs" Grid.Row="1" BorderThickness="0" Background="Transparent" Padding="0,12,0,0">
-      <TabItem x:Name="AtelierTab" Header="  Atelier : créer et analyser  " FontSize="14">
-        <Grid>
-          <wv2:WebView2 x:Name="Web" DefaultBackgroundColor="#F3F4F7" />
-          <Border x:Name="WebError" Style="{StaticResource Card}" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="560">
-            <StackPanel>
-              <TextBlock Style="{StaticResource Heading}" Text="L'Atelier ne peut pas s'afficher" />
-              <TextBlock x:Name="WebErrorText" TextWrapping="Wrap" />
+      <!-- Barre de titre -->
+      <Grid Background="{DynamicResource TitleBg}">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+          <Viewbox Width="20" Height="20">
+            <Canvas Width="24" Height="24">
+              <Rectangle Canvas.Left="2" Canvas.Top="2" Width="20" Height="20" RadiusX="6" RadiusY="6" Fill="{DynamicResource Brand}" Stroke="{DynamicResource TitleInk}" StrokeThickness="0.6" />
+              <Path Data="M7 8v8M10 8v8M13 8v8M17 8v8" Stroke="White" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+              <Path Data="M5 12h14" Stroke="{DynamicResource Action}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+            </Canvas>
+          </Viewbox>
+          <TextBlock Text="Scanalyse" Margin="10,0,0,0" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource TitleInk}" VerticalAlignment="Center" />
+          <TextBlock x:Name="VersionText" Margin="10,0,0,0" FontSize="12" Foreground="{DynamicResource TitleMuted}" VerticalAlignment="Center" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Style="{StaticResource BtnCaption}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Click" ToolTip="Réduire">
+            <Path Data="M0 5h10" Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" />
+          </Button>
+          <Button Style="{StaticResource BtnCaption}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Maximize_Click" ToolTip="Agrandir / restaurer">
+            <Path x:Name="MaxIcon" Data="M0.5 0.5h9v9h-9z" Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" />
+          </Button>
+          <Button Style="{StaticResource BtnCaptionClose}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Close_Click" ToolTip="Fermer">
+            <Path Data="M0 0l10 10M10 0L0 10" Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" />
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <!-- Barre d'outils -->
+      <Border Grid.Row="1" Background="{DynamicResource ToolbarBg}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
+        <DockPanel Margin="16,0" LastChildFill="False">
+          <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="Source" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
+            <Border Height="38" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource Line}" Background="{DynamicResource Surface}" Padding="12,0">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Ellipse Width="8" Height="8" Fill="{DynamicResource OkFg}" VerticalAlignment="Center" />
+                <TextBlock Text="Douchette en mode clavier" Margin="10,0,0,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </Border>
+            <Rectangle Width="1" Height="28" Fill="{DynamicResource Line}" Margin="14,0" />
+            <Button Style="{StaticResource BtnSecondary}" Click="Paste_Click" ToolTip="Analyser l'image du presse-papiers (Ctrl + Maj + V)">
+              <StackPanel Orientation="Horizontal">
+                <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconPaste}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
+                <TextBlock Text="Coller une image" Margin="8,0,0,0" />
+              </StackPanel>
+            </Button>
+            <Button Style="{StaticResource BtnSecondary}" Click="Capture_Click" Margin="8,0,0,0" ToolTip="Sélectionner une zone de l'écran avec l'outil Capture de Windows">
+              <StackPanel Orientation="Horizontal">
+                <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconCapture}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" /></Viewbox>
+                <TextBlock Text="Capturer une zone" Margin="8,0,0,0" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
+          <Button x:Name="ThemeButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="Theme_Click" VerticalAlignment="Center" ToolTip="Changer de thème">
+            <StackPanel Orientation="Horizontal">
+              <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconTheme}" Width="24" Height="24" Stroke="{DynamicResource Muted}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
+              <TextBlock x:Name="ThemeLabel" Text="Thème : Système" Margin="8,0,0,0" />
             </StackPanel>
-          </Border>
-        </Grid>
-      </TabItem>
+          </Button>
+        </DockPanel>
+      </Border>
 
-      <TabItem x:Name="BenchTab" Header="  Banc d'essai douchette  " FontSize="14">
-    <Grid Margin="0,12,0,0">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="5*" />
-        <ColumnDefinition Width="16" />
-        <ColumnDefinition Width="6*" />
-      </Grid.ColumnDefinitions>
+      <Grid Grid.Row="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-      <!-- Saisie -->
-      <Border Style="{StaticResource Card}">
-        <Grid>
+        <!-- Menu latéral -->
+        <Border x:Name="Sidebar" Width="236" Background="{DynamicResource SideBg}" ClipToBounds="True">
+          <DockPanel Margin="12,14,12,14">
+            <StackPanel DockPanel.Dock="Bottom">
+              <RadioButton x:Name="NavSettings" Style="{StaticResource NavItem}" Tag="{StaticResource IconSettings}" Content="Paramètres" ToolTip="Paramètres" Checked="Nav_Checked" />
+            </StackPanel>
+            <StackPanel>
+              <DockPanel Margin="0,0,0,8">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnCaption}" Width="34" Height="30" Click="ToggleMenu_Click"
+                        Foreground="{DynamicResource SideMuted}" ToolTip="Réduire ou déployer le menu">
+                  <Viewbox Width="14" Height="14">
+                    <Path x:Name="MenuChevron" Data="{StaticResource IconChevronLeft}" Width="24" Height="24"
+                          Stroke="{DynamicResource SideMuted}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" />
+                  </Viewbox>
+                </Button>
+                <TextBlock x:Name="MenuLabel" Text="MENU" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource SideMuted}" VerticalAlignment="Center" Margin="12,0,0,0" />
+              </DockPanel>
+              <RadioButton x:Name="NavAnalyse" Style="{StaticResource NavItem}" Tag="{StaticResource IconAnalyse}" Content="Analyser une image" ToolTip="Analyser une image" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavCreate" Style="{StaticResource NavItem}" Tag="{StaticResource IconCreate}" Content="Créer un code" ToolTip="Créer un code" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="{StaticResource IconBench}" Content="Banc d'essai douchette" ToolTip="Banc d'essai douchette" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavSymbols" Style="{StaticResource NavItem}" Tag="{StaticResource IconSymbols}" Content="Symbologies" ToolTip="Symbologies" Checked="Nav_Checked" />
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
+        <!-- Contenu -->
+        <Grid Grid.Column="1">
           <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
 
-          <TextBlock Style="{StaticResource Heading}" Text="Comparer le code et ce que l'application reçoit" TextWrapping="Wrap" />
+          <Grid x:Name="AtelierPage">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="28,22,28,6">
+              <TextBlock x:Name="AtelierTitle" Style="{StaticResource PageTitle}" Text="Analyser une image" />
+              <TextBlock x:Name="AtelierSubtitle" Style="{StaticResource PageSubtitle}"
+                         Text="Importe, colle ou capture une image : chaque code est lu, détaillé et peut être comparé à une lecture douchette." />
+            </StackPanel>
+            <Grid Grid.Row="1">
+              <wv2:WebView2 x:Name="Web" />
+              <Border x:Name="WebError" Style="{StaticResource Card}" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="560">
+                <StackPanel>
+                  <TextBlock Style="{StaticResource CardTitle}" Text="L'Atelier ne peut pas s'afficher" Margin="0,0,0,8" />
+                  <TextBlock x:Name="WebErrorText" TextWrapping="Wrap" />
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Grid>
 
-          <StackPanel Grid.Row="1">
-            <TextBlock Style="{StaticResource Label}" TextWrapping="Wrap"
-                       Text="Contenu réel du code (accepte &lt;GS&gt;, &lt;CR&gt;… pour les caractères invisibles)" />
-            <TextBlock x:Name="ExpectedSource" Style="{StaticResource Label}" Foreground="{StaticResource Accent}" Visibility="Collapsed" TextWrapping="Wrap" />
-          </StackPanel>
-          <TextBox x:Name="ExpectedBox" Grid.Row="2" Style="{StaticResource Input}" AcceptsReturn="True" MinHeight="80" TextChanged="ExpectedBox_TextChanged"
-                   Text="0103453120000011172712311010ABC123&lt;GS&gt;21SN7788" />
+          <views:BenchView x:Name="Bench" Visibility="Collapsed" />
+          <views:SymbologiesView x:Name="Symbols" Visibility="Collapsed" />
+          <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" />
 
-          <TextBlock Grid.Row="3" Style="{StaticResource Label}" Margin="0,12,0,4" TextWrapping="Wrap"
-                     Text="Données reçues : clique dans le champ puis scanne avec la douchette (Entrée et Tab sont capturés)" />
-          <TextBox x:Name="ReceivedBox" Grid.Row="4" Style="{StaticResource Input}" MinHeight="80"
-                   PreviewKeyDown="ReceivedBox_PreviewKeyDown" TextChanged="ReceivedBox_TextChanged" />
-
-          <TextBlock x:Name="ReceivedVisual" Grid.Row="5" Margin="0,6,0,0" FontFamily="Cascadia Mono, Consolas" FontSize="12"
-                     Foreground="{StaticResource Muted}" TextWrapping="Wrap" />
-
-          <WrapPanel Grid.Row="6" Margin="0,14,0,0">
-            <Button Style="{StaticResource Primary}" Content="Comparer" Click="Compare_Click" Margin="0,0,8,0" IsDefault="False" />
-            <Button Style="{StaticResource Secondary}" Content="Analyser le contenu" Click="Analyze_Click" Margin="0,0,8,0" />
-            <Button Style="{StaticResource Secondary}" Content="Effacer la lecture" Click="Clear_Click" />
-          </WrapPanel>
+          <!-- Journal des lectures -->
+          <Border Grid.Row="1" Margin="28,4,28,18" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource Line}" Background="{DynamicResource ConsoleBg}">
+            <DockPanel>
+              <DockPanel DockPanel.Dock="Top" Height="42" Margin="14,0,8,0" LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left" Text="Journal des lectures" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource Ink}" />
+                <TextBlock x:Name="LogCount" DockPanel.Dock="Left" FontSize="12" Foreground="{DynamicResource ConsoleMuted}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Click="ToggleLog_Click" Margin="6,0,0,0" ToolTip="Réduire ou afficher le journal">
+                  <Viewbox Width="12" Height="12">
+                    <Path x:Name="LogChevron" Data="{StaticResource IconChevronDown}" Width="24" Height="24" Stroke="{DynamicResource Muted}" StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" RenderTransformOrigin="0.5,0.5" />
+                  </Viewbox>
+                </Button>
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Content="Effacer" Click="ClearLog_Click" Margin="6,0,0,0" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Content="Copier" Click="CopyLog_Click" />
+              </DockPanel>
+              <ScrollViewer x:Name="LogScroll" Height="128" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="14,0,14,10">
+                <ItemsControl x:Name="LogList">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:LogEntry}">
+                      <Grid Margin="0,1">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="74" />
+                          <ColumnDefinition Width="112" />
+                          <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding TimeText}" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Foreground="{DynamicResource ConsoleMuted}" />
+                        <TextBlock Grid.Column="1" Text="{Binding Tag}" FontFamily="{StaticResource MonoFont}" FontSize="12.5" FontWeight="SemiBold">
+                          <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                              <Setter Property="Foreground" Value="{DynamicResource BrandText}" />
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding Kind}" Value="Ok">
+                                  <Setter Property="Foreground" Value="{DynamicResource OkFg}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Kind}" Value="Warning">
+                                  <Setter Property="Foreground" Value="{DynamicResource WarnFg}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Kind}" Value="Error">
+                                  <Setter Property="Foreground" Value="{DynamicResource BadFg}" />
+                                </DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Grid.Column="2" Text="{Binding Text}" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Foreground="{DynamicResource ConsoleInk}" TextWrapping="Wrap" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </DockPanel>
+          </Border>
         </Grid>
-      </Border>
-
-      <!-- Résultats -->
-      <Border Grid.Column="2" Style="{StaticResource Card}">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-          <StackPanel>
-            <TextBlock x:Name="ResultTitle" Style="{StaticResource Heading}" Text="Résultat" />
-            <TextBlock x:Name="ResultSubtitle" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12"
-                       Text="Saisis le contenu du code, scanne-le dans le second champ, puis clique sur Comparer." />
-
-            <ItemsControl x:Name="FindingsList">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Border BorderThickness="4,0,0,0" BorderBrush="{Binding Accent}" Background="{Binding Tint}" CornerRadius="6" Padding="12,10" Margin="0,0,0,10">
-                    <StackPanel>
-                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                      <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                      <TextBlock Text="{Binding Fix}" TextWrapping="Wrap" Margin="0,6,0,0" Foreground="{StaticResource Muted}" Visibility="{Binding FixVisibility}" />
-                    </StackPanel>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <ItemsControl x:Name="FieldsList" Margin="0,4,0,0">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Grid Margin="0,0,0,8">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="200" />
-                      <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel>
-                      <TextBlock Text="{Binding Label}" Foreground="{StaticResource Muted}" TextWrapping="Wrap" />
-                      <TextBlock Text="{Binding Hint}" FontSize="11" Foreground="{StaticResource Muted}" />
-                    </StackPanel>
-                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent" TextWrapping="Wrap" />
-                  </Grid>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
-        </ScrollViewer>
-      </Border>
+      </Grid>
     </Grid>
-      </TabItem>
-    </TabControl>
-  </Grid>
+  </Border>
 </Window>

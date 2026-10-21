@@ -1,25 +1,8 @@
 <title>Atelier QR</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+/*THEME*/
 /* Layout: établi à deux colonnes — réglages à gauche, aperçu collant à droite ; une colonne sur mobile */
-:root{
-  --bg:#f3f4f7; --panel:#ffffff; --ink:#151a2b; --muted:#5c6378; --line:#dfe2ea;
-  --accent:#2b3fd6; --accent-ink:#ffffff; --soft:#e8ebfb; --warn:#a85a00; --warn-bg:#fff3e0; --ok:#1d7a4a;
-  --check:#e4e6ee;
-  --f-display:"Familjen Grotesk",ui-sans-serif,system-ui,sans-serif;
-  --f-body:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1220; --panel:#171b2c; --ink:#e9ebf3; --muted:#9aa1b8; --line:#2a3048;
-  --accent:#7d8cff; --accent-ink:#0f1220; --soft:#222a4d; --warn:#ffb35c; --warn-bg:#33240f; --ok:#5fd59a; --check:#252a3f;
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0f1220; --panel:#171b2c; --ink:#e9ebf3; --muted:#9aa1b8; --line:#2a3048;
-  --accent:#7d8cff; --accent-ink:#0f1220; --soft:#222a4d; --warn:#ffb35c; --warn-bg:#33240f; --ok:#5fd59a; --check:#252a3f;
-  color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
@@ -39,7 +22,7 @@ label.f{display:grid;gap:5px;font-size:13px;font-weight:500;color:var(--muted);m
 input[type=text],input[type=url],input[type=email],input[type=tel],input[type=password],textarea,select{
   font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
 textarea{resize:vertical;min-height:84px}
-input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--focus);outline-offset:2px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}
 .chip{position:relative}
 .chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
@@ -51,7 +34,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .shape div{display:grid;justify-items:center;gap:4px;padding:10px 4px 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:12px;color:var(--muted);cursor:pointer}
 .shape svg{width:34px;height:34px;color:var(--ink)}
 .shape input:checked+div{border-color:var(--accent);background:var(--soft);color:var(--ink)}
-.shape input:focus-visible+div{outline:2px solid var(--accent);outline-offset:2px}
+.shape input:focus-visible+div{outline:2px solid var(--focus);outline-offset:2px}
 .color{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:5px 8px}
 .color input[type=color]{width:30px;height:30px;border:0;padding:0;background:none;cursor:pointer;flex:none}
 .color input[type=text]{border:0;background:transparent;padding:4px;font-family:var(--f-mono);font-size:13px}
@@ -83,7 +66,8 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--sof
 .exp #share{grid-column:1/-1}
 [hidden]{display:none!important}
 .btn{font:inherit;font-weight:600;font-size:14px;border-radius:10px;padding:11px 14px;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--action);border-color:var(--action);color:var(--on-action)}
+.btn.primary:hover{background:var(--action-hover);border-color:var(--action-hover);filter:none}
 .btn:hover{filter:brightness(1.06)}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .drop{border:1.5px dashed var(--line);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer;background:var(--bg)}
@@ -172,8 +156,8 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--sof
         <div class="shapes" id="dotShapes"></div>
         <div class="row">
           <label class="f">Remplissage<select id="dotFill"><option value="solid">Couleur unie</option><option value="linear">Dégradé linéaire</option><option value="radial">Dégradé radial</option></select></label>
-          <label class="f">Couleur 1<div class="color"><input type="color" id="dotC1" value="#151a2b"><input type="text" id="dotC1t" value="#151a2b" aria-label="Couleur 1 en hexadécimal"></div></label>
-          <label class="f" id="dotC2wrap" hidden>Couleur 2<div class="color"><input type="color" id="dotC2" value="#2b3fd6"><input type="text" id="dotC2t" value="#2b3fd6" aria-label="Couleur 2 en hexadécimal"></div></label>
+          <label class="f">Couleur 1<div class="color"><input type="color" id="dotC1" value="#15191c"><input type="text" id="dotC1t" value="#15191c" aria-label="Couleur 1 en hexadécimal"></div></label>
+          <label class="f" id="dotC2wrap" hidden>Couleur 2<div class="color"><input type="color" id="dotC2" value="#145c43"><input type="text" id="dotC2t" value="#145c43" aria-label="Couleur 2 en hexadécimal"></div></label>
         </div>
         <label class="f" id="rotWrap" hidden>Angle du dégradé <span class="rv" id="rotV">45°</span><input type="range" id="rot" min="0" max="360" value="45"></label>
       </section>
@@ -185,8 +169,8 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--sof
           <div style="display:grid;gap:8px;min-width:0"><span class="f" style="font-size:13px;font-weight:500;color:var(--muted)">Point intérieur</span><div class="shapes" id="cdotShapes"></div></div>
         </div>
         <div class="row">
-          <label class="f">Couleur du cadre<div class="color"><input type="color" id="csC" value="#2b3fd6"><input type="text" id="csCt" value="#2b3fd6" aria-label="Couleur du cadre en hexadécimal"></div></label>
-          <label class="f">Couleur du point<div class="color"><input type="color" id="cdC" value="#151a2b"><input type="text" id="cdCt" value="#151a2b" aria-label="Couleur du point en hexadécimal"></div></label>
+          <label class="f">Couleur du cadre<div class="color"><input type="color" id="csC" value="#145c43"><input type="text" id="csCt" value="#145c43" aria-label="Couleur du cadre en hexadécimal"></div></label>
+          <label class="f">Couleur du point<div class="color"><input type="color" id="cdC" value="#15191c"><input type="text" id="cdCt" value="#15191c" aria-label="Couleur du point en hexadécimal"></div></label>
         </div>
         <label class="toggle"><input id="cornSync" type="checkbox">Mêmes couleurs que les modules</label>
       </section>
@@ -287,7 +271,7 @@ shapes($("cdotShapes"),"cdot",CDOTS,"dot");
 /* --- styles rapides --- */
 const PRESETS=[
  {n:"Classique",dot:"square",corner:"square",cdot:"square",fill:"solid",c1:"#000000",c2:"#000000",cs:"#000000",cd:"#000000",bg:"#ffffff"},
- {n:"Outremer",dot:"rounded",corner:"extra-rounded",cdot:"dot",fill:"solid",c1:"#151a2b",c2:"#2b3fd6",cs:"#2b3fd6",cd:"#151a2b",bg:"#ffffff"},
+ {n:"Scanalyse",dot:"rounded",corner:"extra-rounded",cdot:"dot",fill:"solid",c1:"#15191c",c2:"#145c43",cs:"#145c43",cd:"#15191c",bg:"#ffffff"},
  {n:"Néon acide",dot:"dots",corner:"dot",cdot:"dot",fill:"linear",c1:"#1a0b2e",c2:"#5b1fa8",cs:"#3a7d00",cd:"#1a0b2e",bg:"#c6ff3d",rot:135},
  {n:"Coucher de soleil",dot:"classy-rounded",corner:"extra-rounded",cdot:"dot",fill:"linear",c1:"#ad1457",c2:"#d84315",cs:"#ad1457",cd:"#d84315",bg:"#fff8f0",rot:45},
  {n:"Forêt",dot:"extra-rounded",corner:"extra-rounded",cdot:"square",fill:"radial",c1:"#0b3d2e",c2:"#2e7d32",cs:"#0b3d2e",cd:"#2e7d32",bg:"#f1f7ef"},

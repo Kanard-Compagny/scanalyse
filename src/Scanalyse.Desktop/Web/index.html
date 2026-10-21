@@ -7,26 +7,14 @@
 <style>body{margin:0}img{max-width:100%}</style>
 </head><body>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+/* Fichier généré par tools/build_theme.py depuis design/tokens.json : ne pas modifier à la main. */
+:root{ --bg:#F4F5F6; --panel:#FFFFFF; --surface2:#EDEFF1; --ink:#15191C; --muted:#5D656C; --line:#E1E4E7; --accent:#145C43; --accent-ink:#FFFFFF; --soft:#E1EEE8; --brand:#145C43; --brand-text:#145C43; --action:#F07F13; --action-hover:#E0700A; --on-action:#1B0F02; --focus:#145C43; --ok:#13633F; --ok-bg:#E1F2E8; --info:#244F86; --info-bg:#E4ECF7; --warn:#6B5000; --warn-bg:#FBF0C8; --bad:#A3261C; --bad-bg:#FCE5E3; --check:#E6E8EA;
+  --f-display:Segoe UI Variable Display, Segoe UI, system-ui, sans-serif; --f-body:Segoe UI Variable Text, Segoe UI, system-ui, sans-serif; --f-mono:Cascadia Mono, Consolas, ui-monospace, monospace; }
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){ --bg:#101314; --panel:#181C1E; --surface2:#1F2427; --ink:#E9ECEE; --muted:#9AA3A9; --line:#2A3033; --accent:#5FD3A1; --accent-ink:#0A2219; --soft:#173A2D; --brand:#1F7454; --brand-text:#5FD3A1; --action:#FF9A2E; --action-hover:#FFAA4F; --on-action:#1B0F02; --focus:#5FD3A1; --ok:#73D9A9; --ok-bg:#123326; --info:#9CC3F0; --info-bg:#15263B; --warn:#F5D57E; --warn-bg:#3A2E0C; --bad:#FF8A80; --bad-bg:#3A1714; --check:#24292C; color-scheme:dark }}
+:root[data-theme="dark"]{ --bg:#101314; --panel:#181C1E; --surface2:#1F2427; --ink:#E9ECEE; --muted:#9AA3A9; --line:#2A3033; --accent:#5FD3A1; --accent-ink:#0A2219; --soft:#173A2D; --brand:#1F7454; --brand-text:#5FD3A1; --action:#FF9A2E; --action-hover:#FFAA4F; --on-action:#1B0F02; --focus:#5FD3A1; --ok:#73D9A9; --ok-bg:#123326; --info:#9CC3F0; --info-bg:#15263B; --warn:#F5D57E; --warn-bg:#3A2E0C; --bad:#FF8A80; --bad-bg:#3A1714; --check:#24292C; color-scheme:dark }
+
 /* Layout: établi à deux colonnes — réglages à gauche, aperçu collant à droite ; une colonne sur mobile */
-:root{
-  --bg:#f3f4f7; --panel:#ffffff; --ink:#151a2b; --muted:#5c6378; --line:#dfe2ea;
-  --accent:#2b3fd6; --accent-ink:#ffffff; --soft:#e8ebfb; --warn:#a85a00; --warn-bg:#fff3e0; --ok:#1d7a4a; --ok-bg:#e3f4ea; --bad:#b3261e; --bad-bg:#fde7e5;
-  --check:#e4e6ee;
-  --f-display:"Familjen Grotesk",ui-sans-serif,system-ui,sans-serif;
-  --f-body:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1220; --panel:#171b2c; --ink:#e9ebf3; --muted:#9aa1b8; --line:#2a3048;
-  --accent:#7d8cff; --accent-ink:#0f1220; --soft:#222a4d; --warn:#ffb35c; --warn-bg:#33240f; --ok:#5fd59a; --ok-bg:#12301f; --bad:#ff8a80; --bad-bg:#3a1714; --check:#252a3f;
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0f1220; --panel:#171b2c; --ink:#e9ebf3; --muted:#9aa1b8; --line:#2a3048;
-  --accent:#7d8cff; --accent-ink:#0f1220; --soft:#222a4d; --warn:#ffb35c; --warn-bg:#33240f; --ok:#5fd59a; --ok-bg:#12301f; --bad:#ff8a80; --bad-bg:#3a1714; --check:#252a3f;
-  color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
@@ -46,7 +34,7 @@ label.f{display:grid;gap:5px;font-size:13px;font-weight:500;color:var(--muted);m
 input[type=text],input[type=url],input[type=email],input[type=tel],input[type=password],textarea,select{
   font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
 textarea{resize:vertical;min-height:84px}
-input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--focus);outline-offset:2px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}
 .chip{position:relative}
 .chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
@@ -58,7 +46,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .shape div{display:grid;justify-items:center;gap:4px;padding:10px 4px 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:12px;color:var(--muted);cursor:pointer}
 .shape svg{width:34px;height:34px;color:var(--ink)}
 .shape input:checked+div{border-color:var(--accent);background:var(--soft);color:var(--ink)}
-.shape input:focus-visible+div{outline:2px solid var(--accent);outline-offset:2px}
+.shape input:focus-visible+div{outline:2px solid var(--focus);outline-offset:2px}
 .color{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:5px 8px}
 .color input[type=color]{width:30px;height:30px;border:0;padding:0;background:none;cursor:pointer;flex:none}
 .color input[type=text]{border:0;background:transparent;padding:4px;font-family:var(--f-mono);font-size:13px}
@@ -90,7 +78,8 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--sof
 .exp #share{grid-column:1/-1}
 [hidden]{display:none!important}
 .btn{font:inherit;font-weight:600;font-size:14px;border-radius:10px;padding:11px 14px;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--action);border-color:var(--action);color:var(--on-action)}
+.btn.primary:hover{background:var(--action-hover);border-color:var(--action-hover);filter:none}
 .btn:hover{filter:brightness(1.06)}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .drop{border:1.5px dashed var(--line);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer;background:var(--bg)}
@@ -111,7 +100,7 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 4px var(--sof
 .modes{display:inline-flex;gap:4px;padding:4px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
 .modes button{font:inherit;font-weight:600;font-size:14px;border:0;border-radius:9px;padding:8px 16px;background:transparent;color:var(--muted);cursor:pointer}
 .modes button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
-.modes button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.modes button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .head-l{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
 
 /* --- Vue Analyser --- */
@@ -188,8 +177,10 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
 .summary .btn{margin-left:auto}
 
 /* --- Intégration dans le programme Windows --- */
-.desktop header h1{display:none}
+.desktop header{display:none}
 .desktop .wrap{padding-top:4px}
+/* Dans le programme, l'import passe aussi par la barre d'outils : l'orange reste réservé à « Comparer ». */
+.desktop label[for="scanFile"].btn.primary{background:var(--panel);border-color:var(--line);color:var(--ink)}
 </style>
 
 <div class="wrap">
@@ -269,8 +260,8 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
         <div class="shapes" id="dotShapes"></div>
         <div class="row">
           <label class="f">Remplissage<select id="dotFill"><option value="solid">Couleur unie</option><option value="linear">Dégradé linéaire</option><option value="radial">Dégradé radial</option></select></label>
-          <label class="f">Couleur 1<div class="color"><input type="color" id="dotC1" value="#151a2b"><input type="text" id="dotC1t" value="#151a2b" aria-label="Couleur 1 en hexadécimal"></div></label>
-          <label class="f" id="dotC2wrap" hidden>Couleur 2<div class="color"><input type="color" id="dotC2" value="#2b3fd6"><input type="text" id="dotC2t" value="#2b3fd6" aria-label="Couleur 2 en hexadécimal"></div></label>
+          <label class="f">Couleur 1<div class="color"><input type="color" id="dotC1" value="#15191c"><input type="text" id="dotC1t" value="#15191c" aria-label="Couleur 1 en hexadécimal"></div></label>
+          <label class="f" id="dotC2wrap" hidden>Couleur 2<div class="color"><input type="color" id="dotC2" value="#145c43"><input type="text" id="dotC2t" value="#145c43" aria-label="Couleur 2 en hexadécimal"></div></label>
         </div>
         <label class="f" id="rotWrap" hidden>Angle du dégradé <span class="rv" id="rotV">45°</span><input type="range" id="rot" min="0" max="360" value="45"></label>
       </section>
@@ -282,8 +273,8 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
           <div style="display:grid;gap:8px;min-width:0"><span class="f" style="font-size:13px;font-weight:500;color:var(--muted)">Point intérieur</span><div class="shapes" id="cdotShapes"></div></div>
         </div>
         <div class="row">
-          <label class="f">Couleur du cadre<div class="color"><input type="color" id="csC" value="#2b3fd6"><input type="text" id="csCt" value="#2b3fd6" aria-label="Couleur du cadre en hexadécimal"></div></label>
-          <label class="f">Couleur du point<div class="color"><input type="color" id="cdC" value="#151a2b"><input type="text" id="cdCt" value="#151a2b" aria-label="Couleur du point en hexadécimal"></div></label>
+          <label class="f">Couleur du cadre<div class="color"><input type="color" id="csC" value="#145c43"><input type="text" id="csCt" value="#145c43" aria-label="Couleur du cadre en hexadécimal"></div></label>
+          <label class="f">Couleur du point<div class="color"><input type="color" id="cdC" value="#15191c"><input type="text" id="cdCt" value="#15191c" aria-label="Couleur du point en hexadécimal"></div></label>
         </div>
         <label class="toggle"><input id="cornSync" type="checkbox">Mêmes couleurs que les modules</label>
       </section>
@@ -432,7 +423,7 @@ shapes($("cdotShapes"),"cdot",CDOTS,"dot");
 /* --- styles rapides --- */
 const PRESETS=[
  {n:"Classique",dot:"square",corner:"square",cdot:"square",fill:"solid",c1:"#000000",c2:"#000000",cs:"#000000",cd:"#000000",bg:"#ffffff"},
- {n:"Outremer",dot:"rounded",corner:"extra-rounded",cdot:"dot",fill:"solid",c1:"#151a2b",c2:"#2b3fd6",cs:"#2b3fd6",cd:"#151a2b",bg:"#ffffff"},
+ {n:"Scanalyse",dot:"rounded",corner:"extra-rounded",cdot:"dot",fill:"solid",c1:"#15191c",c2:"#145c43",cs:"#145c43",cd:"#15191c",bg:"#ffffff"},
  {n:"Néon acide",dot:"dots",corner:"dot",cdot:"dot",fill:"linear",c1:"#1a0b2e",c2:"#5b1fa8",cs:"#3a7d00",cd:"#1a0b2e",bg:"#c6ff3d",rot:135},
  {n:"Coucher de soleil",dot:"classy-rounded",corner:"extra-rounded",cdot:"dot",fill:"linear",c1:"#ad1457",c2:"#d84315",cs:"#ad1457",cd:"#d84315",bg:"#fff8f0",rot:45},
  {n:"Forêt",dot:"extra-rounded",corner:"extra-rounded",cdot:"square",fill:"radial",c1:"#0b3d2e",c2:"#2e7d32",cs:"#0b3d2e",cd:"#2e7d32",bg:"#f1f7ef"},
@@ -684,6 +675,10 @@ function setMode(m,save){
 tabs.create.addEventListener("click",()=>setMode("create",true));
 tabs.scan.addEventListener("click",()=>setMode("scan",true));
 window.atelierSetMode=setMode;
+// Appelé par le programme Windows : image venant du presse-papiers ou de l'outil Capture d'écran de Windows
+window.atelierLoadImageData=function(dataUrl,label){
+  fetch(dataUrl).then(r=>r.blob()).then(b=>{setMode("scan",false);loadBlob(b,label||"Image");}).catch(()=>showMessage("Image illisible","L'image reçue n'a pas pu être ouverte."));
+};
 
 /* ================= Moteurs de décodage ================= */
 let enginePromise=null, engineName="";
@@ -760,7 +755,7 @@ function draw(){
   if(!src) return;
   const x=cv.getContext("2d"),k=cv.width/src.width;
   x.clearRect(0,0,cv.width,cv.height);x.drawImage(src,0,0,cv.width,cv.height);
-  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#2b3fd6";
+  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#145c43";
   const sc=cv.width/((cv.getBoundingClientRect().width)||cv.width);const lw=2*sc;
   if(region){
     x.save();x.fillStyle="rgba(10,12,25,.45)";x.beginPath();x.rect(0,0,cv.width,cv.height);x.rect(region.x*k,region.y*k,region.w*k,region.h*k);x.fill("evenodd");
@@ -872,7 +867,7 @@ function vDraw(){
   const x=V.cv.getContext("2d"),d=window.devicePixelRatio||1;
   x.setTransform(1,0,0,1,0,0);x.fillStyle=getComputedStyle(document.body).getPropertyValue("--bg")||"#111";x.fillRect(0,0,V.cv.width,V.cv.height);
   x.setTransform(V.z,0,0,V.z,V.ox,V.oy);x.imageSmoothingEnabled=V.z<2;x.imageSmoothingQuality="high";x.drawImage(src,0,0);
-  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#2b3fd6";const lw=2*d/V.z;
+  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#145c43";const lw=2*d/V.z;
   results.forEach((r,i)=>{x.beginPath();r.pts.forEach((p,j)=>j?x.lineTo(p.x,p.y):x.moveTo(p.x,p.y));x.closePath();x.lineWidth=lw*2;x.strokeStyle="#fff";x.stroke();x.lineWidth=lw;x.strokeStyle=accent;x.stroke();
     const R=12*d/V.z,p=r.pts[0];x.beginPath();x.arc(p.x,p.y,R,0,7);x.fillStyle=accent;x.fill();x.fillStyle="#fff";x.font=`700 ${R*1.1}px ui-monospace,monospace`;x.textAlign="center";x.textBaseline="middle";x.fillText(String(i+1),p.x,p.y+R*.08);});
   if(V.act&&V.act.type==="sel"&&V.act.cur){const a=V.act.start,b=V.act.cur;x.save();x.setLineDash([6*d/V.z,4*d/V.z]);x.lineWidth=lw;x.strokeStyle=accent;x.fillStyle="rgba(120,140,255,.18)";
@@ -1368,6 +1363,7 @@ function render(ms,reg){
       <ul><li>Trace un rectangle serré autour du code, avec un peu de marge blanche.</li><li>Évite le flou, les reflets et les angles trop prononcés.</li><li>Un code trop petit à l'écran : zoome avant la capture.</li><li>Un QR très stylisé ou un logo trop grand peut empêcher toute lecture.</li></ul>
       <div class="acts"><button class="btn small primary" type="button" data-zoomsel>Agrandir et sélectionner</button>${region?"":`<button class="btn small" type="button" data-deep>Recherche approfondie</button>`}</div></div>`;
     box.querySelector("[data-zoomsel]").addEventListener("click",()=>vOpen());
+    if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,items:[]}));}catch(e){}}
     const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
     return;
   }
@@ -1416,6 +1412,8 @@ function render(ms,reg){
     </article>`;
   });
   box.innerHTML=html;
+  if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,
+    items:results.map(r=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||"")}))}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
   box.querySelectorAll(".res").forEach(el=>{el.addEventListener("mouseenter",()=>setFocus(+el.dataset.i,false));});
   box.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{const t=results[+b.dataset.copy].text||"";
@@ -1427,6 +1425,7 @@ function render(ms,reg){
     window.chrome.webview.postMessage(JSON.stringify({type:"compare",text:raw,display:r.text||"",format:FMT[r.format]||r.format||"",symbologyIdentifier:r.symId||""}));}));
   box.querySelectorAll("[data-recreate]").forEach(b=>b.addEventListener("click",()=>{if(window.atelierLoad){window.atelierLoad(results[+b.dataset.recreate].text||"");setMode("create",true);window.scrollTo({top:0});}}));
 }
+function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
 function showMessage(title,msg){$("scanResults").innerHTML=`<div class="noresult"><h3>${esc(title)}</h3><p style="margin:0">${esc(msg)}</p></div>`;}
 
 /* ================= Démarrage ================= */
