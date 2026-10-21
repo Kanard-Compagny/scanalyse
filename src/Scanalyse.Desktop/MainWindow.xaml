@@ -61,6 +61,12 @@
               </StackPanel>
             </Button>
             <Rectangle Width="1" Height="28" Fill="{DynamicResource Line}" Margin="14,0" />
+            <Button Style="{StaticResource BtnSecondary}" Click="Import_Click" Margin="0,0,8,0" ToolTip="Ouvrir une image ou une photo à analyser (Ctrl + O)">
+              <StackPanel Orientation="Horizontal">
+                <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconImport}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" /></Viewbox>
+                <TextBlock Text="Importer une image" Margin="8,0,0,0" />
+              </StackPanel>
+            </Button>
             <Button Style="{StaticResource BtnSecondary}" Click="Paste_Click" ToolTip="Analyser l'image du presse-papiers (Ctrl + Maj + V)">
               <StackPanel Orientation="Horizontal">
                 <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconPaste}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>

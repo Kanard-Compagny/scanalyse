@@ -179,8 +179,8 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
 /* --- Intégration dans le programme Windows --- */
 .desktop header{display:none}
 .desktop .wrap{padding-top:4px}
-/* Dans le programme, l'import passe aussi par la barre d'outils : l'orange reste réservé à « Comparer ». */
-.desktop label[for="scanFile"].btn.primary{background:var(--panel);border-color:var(--line);color:var(--ink)}
+/* Dans le programme, Importer / Coller / Capturer sont dans la barre d'outils, et « Analyser ce code » dans Créer. */
+.desktop .scan-grid>.card>.src-actions,.desktop #pasteHint{display:none}
 /* --- Créer : choix du type de code --- */
 .typepick{gap:12px}
 .tp-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
@@ -375,6 +375,7 @@ input[type=date]:focus-visible{outline:2px solid var(--focus);outline-offset:2px
         <div class="exp">
           <button class="btn primary" id="dl" type="button">Télécharger</button>
           <button class="btn" id="copy" type="button">Copier le contenu</button>
+          <button class="btn" id="qrAnalyse" type="button" title="Relit ce QR comme une image reçue : contenu, version, correction d'erreur…">Analyser ce code</button>
           <button class="btn" id="share" type="button" hidden>Partager / Enregistrer dans Photos</button>
         </div>
         <p class="toast" id="toast" aria-live="polite"></p>
@@ -453,6 +454,7 @@ input[type=date]:focus-visible{outline:2px solid var(--focus);outline-offset:2px
           <div class="exp">
             <button class="btn primary" id="stdDl" type="button">Télécharger</button>
             <button class="btn" id="stdCopy" type="button">Copier le contenu</button>
+            <button class="btn" id="stdAnalyse" type="button" title="Relit ce code comme une image reçue : contenu, symbologie, GS1…">Analyser ce code</button>
           </div>
           <p class="toast" id="stdToast" aria-live="polite"></p>
           <div class="fallback" id="stdFallback" hidden>
@@ -968,10 +970,12 @@ $("scanScreen").addEventListener("click",async()=>{
 });
 function loadSample(silent){
   const c=document.querySelector("#qr canvas");
-  if(c&&c.width){setSource(c,c.width,c.height,"Exemple : QR de l'onglet Créer");}
+  if(c&&c.width){setSource(c,c.width,c.height,"Code créé : QR personnalisé");}
   else if(!silent) showMessage("Aucun QR dans l'atelier","Crée d'abord un QR code dans l'onglet Créer.");
 }
 $("scanSample").addEventListener("click",()=>loadSample(false));
+$("qrAnalyse").addEventListener("click",()=>{setMode("scan",false);loadSample(false);});
+if(DESKTOP)$("scanEmpty").innerHTML="<b>Dépose une image ici</b>ou utilise Importer, Coller ou Capturer dans la barre du haut.";
 
 /* ================= Visionneuse plein écran (zoom + sélection) ================= */
 const V={el:$("viewer"),cv:$("vCanvas"),area:$("vArea"),z:1,ox:0,oy:0,pan:false,ptrs:new Map(),act:null,space:false};
@@ -1837,6 +1841,14 @@ $("stdDl").addEventListener("click",async()=>{
 });
 $("stdCopy").addEventListener("click",()=>{if(!last)return;
   (navigator.clipboard?navigator.clipboard.writeText(last.shown):Promise.reject()).then(()=>toast("Contenu copié."),()=>toast("Copie impossible ici : sélectionne le texte sous l'aperçu."));});
+
+/* Analyse complète du code créé, comme une image reçue d'un client */
+$("stdAnalyse").addEventListener("click",async()=>{
+  if(!last){toast("Rien à analyser : corrige d'abord le contenu.");return;}
+  try{const c=await svgToCanvas(last.svg,2,24,"#ffffff");
+    window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"));}
+  catch(e){toast("Analyse impossible.");}
+});
 
 /* ================= Liens avec l'analyse et le programme Windows ================= */
 const FROM_FORMAT={DataMatrix:"datamatrix",PDF417:"pdf417",CompactPDF417:"pdf417",Aztec:"aztec",AztecCode:"aztec",MicroQRCode:"microqr",RMQRCode:"rmqr",

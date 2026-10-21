@@ -81,5 +81,5 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
 /* --- Intégration dans le programme Windows --- */
 .desktop header{display:none}
 .desktop .wrap{padding-top:4px}
-/* Dans le programme, l'import passe aussi par la barre d'outils : l'orange reste réservé à « Comparer ». */
-.desktop label[for="scanFile"].btn.primary{background:var(--panel);border-color:var(--line);color:var(--ink)}
+/* Dans le programme, Importer / Coller / Capturer sont dans la barre d'outils, et « Analyser ce code » dans Créer. */
+.desktop .scan-grid>.card>.src-actions,.desktop #pasteHint{display:none}

@@ -143,9 +143,9 @@ internal sealed class AtelierHost
         }
     }
 
-    /// <summary>Envoie une image PNG à analyser.</summary>
-    public Task LoadImageAsync(byte[] png, string label) =>
-        ExecuteAsync($"window.atelierLoadImageData('data:image/png;base64,{Convert.ToBase64String(png)}',{JsonSerializer.Serialize(label)})");
+    /// <summary>Envoie une image à analyser (PNG par défaut, ou tout format lu par le navigateur).</summary>
+    public Task LoadImageAsync(byte[] image, string label, string mime = "image/png") =>
+        ExecuteAsync($"window.atelierLoadImageData('data:{mime};base64,{Convert.ToBase64String(image)}',{JsonSerializer.Serialize(label)})");
 
     private async Task ExecuteAsync(string script)
     {

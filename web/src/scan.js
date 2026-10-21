@@ -192,10 +192,12 @@ $("scanScreen").addEventListener("click",async()=>{
 });
 function loadSample(silent){
   const c=document.querySelector("#qr canvas");
-  if(c&&c.width){setSource(c,c.width,c.height,"Exemple : QR de l'onglet Créer");}
+  if(c&&c.width){setSource(c,c.width,c.height,"Code créé : QR personnalisé");}
   else if(!silent) showMessage("Aucun QR dans l'atelier","Crée d'abord un QR code dans l'onglet Créer.");
 }
 $("scanSample").addEventListener("click",()=>loadSample(false));
+$("qrAnalyse").addEventListener("click",()=>{setMode("scan",false);loadSample(false);});
+if(DESKTOP)$("scanEmpty").innerHTML="<b>Dépose une image ici</b>ou utilise Importer, Coller ou Capturer dans la barre du haut.";
 
 /* ================= Visionneuse plein écran (zoom + sélection) ================= */
 const V={el:$("viewer"),cv:$("vCanvas"),area:$("vArea"),z:1,ox:0,oy:0,pan:false,ptrs:new Map(),act:null,space:false};

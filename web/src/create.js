@@ -262,6 +262,14 @@ $("stdDl").addEventListener("click",async()=>{
 $("stdCopy").addEventListener("click",()=>{if(!last)return;
   (navigator.clipboard?navigator.clipboard.writeText(last.shown):Promise.reject()).then(()=>toast("Contenu copié."),()=>toast("Copie impossible ici : sélectionne le texte sous l'aperçu."));});
 
+/* Analyse complète du code créé, comme une image reçue d'un client */
+$("stdAnalyse").addEventListener("click",async()=>{
+  if(!last){toast("Rien à analyser : corrige d'abord le contenu.");return;}
+  try{const c=await svgToCanvas(last.svg,2,24,"#ffffff");
+    window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"));}
+  catch(e){toast("Analyse impossible.");}
+});
+
 /* ================= Liens avec l'analyse et le programme Windows ================= */
 const FROM_FORMAT={DataMatrix:"datamatrix",PDF417:"pdf417",CompactPDF417:"pdf417",Aztec:"aztec",AztecCode:"aztec",MicroQRCode:"microqr",RMQRCode:"rmqr",
   EAN13:"ean13",ISBN:"ean13",EAN8:"ean8",UPCA:"upca",UPCE:"upce",ITF14:"itf14",ITF:"itf",DataBar:"databar",DataBarOmni:"databar",DataBarExp:"databarexp",

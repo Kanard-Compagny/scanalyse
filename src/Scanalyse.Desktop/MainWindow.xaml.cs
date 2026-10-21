@@ -58,6 +58,7 @@ public partial class MainWindow : Window
         _captureTimer.Tick += CaptureTimer_Tick;
 
         InputBindings.Add(new KeyBinding(new RelayCommand(() => Paste_Click(this, new RoutedEventArgs())), Key.V, ModifierKeys.Control | ModifierKeys.Shift));
+        InputBindings.Add(new KeyBinding(new RelayCommand(() => Import_Click(this, new RoutedEventArgs())), Key.O, ModifierKeys.Control));
 
         _ready = true;
         NavAnalyse.IsChecked = true;
@@ -262,6 +263,67 @@ public partial class MainWindow : Window
         {
             AddLog(LogKind.Warning, "PRESSE-PAPIERS", "Aucune image à coller. Fais une capture (Win + Maj + S) ou copie une image, puis réessaie.");
         }
+    }
+
+    private static readonly Dictionary<string, string> ImageTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [".png"] = "image/png",
+        [".jpg"] = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
+        [".bmp"] = "image/bmp",
+        [".gif"] = "image/gif",
+        [".webp"] = "image/webp",
+        [".tif"] = "image/tiff",
+        [".tiff"] = "image/tiff",
+    };
+
+    private async void Import_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Importer une image à analyser",
+            Filter = "Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|Tous les fichiers|*.*",
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        var path = dialog.FileName;
+        try
+        {
+            byte[] data;
+            string mime;
+            if (ImageTypes.TryGetValue(Path.GetExtension(path), out var known) && known != "image/tiff")
+            {
+                data = await File.ReadAllBytesAsync(path);
+                mime = known;
+            }
+            else
+            {
+                // TIFF et formats inconnus du moteur web : Windows les décode, on transmet du PNG.
+                data = ToPng(path);
+                mime = "image/png";
+            }
+
+            NavAnalyse.IsChecked = true;
+            await _atelier.LoadImageAsync(data, Path.GetFileName(path), mime);
+            AddLog(LogKind.Info, "IMAGE", $"Analyse de {Path.GetFileName(path)}.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or FileFormatException)
+        {
+            AddLog(LogKind.Error, "IMAGE", $"Impossible d'ouvrir {Path.GetFileName(path)} : {ex.Message}");
+        }
+    }
+
+    private static byte[] ToPng(string path)
+    {
+        var frame = BitmapDecoder.Create(new Uri(path), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(frame));
+        using var output = new MemoryStream();
+        encoder.Save(output);
+        return output.ToArray();
     }
 
     private void Capture_Click(object sender, RoutedEventArgs e)
