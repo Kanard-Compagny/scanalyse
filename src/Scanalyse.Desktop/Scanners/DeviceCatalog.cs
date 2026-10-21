@@ -18,6 +18,7 @@ public sealed record DeviceEntry(ScanSourceKind Kind, string Id, string Name, Us
     {
         ScanSourceKind.Serial => Vendor is null ? $"Port série {Id}" : $"Port série {Id} · {Vendor.Name}",
         ScanSourceKind.Pos => Vendor is null ? "HID POS (Point de vente Windows)" : $"HID POS · {Vendor.Name}",
+        ScanSourceKind.Camera => "Caméra · lecture des codes en direct dans « Analyser une image »",
         _ => "La lecture arrive comme une frappe au clavier, dans le champ qui a le focus.",
     };
 
@@ -26,6 +27,7 @@ public sealed record DeviceEntry(ScanSourceKind Kind, string Id, string Name, Us
     {
         ScanSourceKind.Serial => Id,
         ScanSourceKind.Pos => "HID POS",
+        ScanSourceKind.Camera => "Caméra",
         _ => "Clavier",
     };
 }
@@ -70,12 +72,31 @@ internal static class DeviceCatalog
             list.Add(new DeviceEntry(ScanSourceKind.Serial, port, name, UsbVendors.Identify(info?.Id)));
         }
 
-        // Scanners HID POS reconnus par Windows.
+        // Scanners HID POS. Windows y range aussi les caméras (« scanner sur caméra ») : on ne garde que les
+        // vrais périphériques HID, les caméras sont listées à part.
         try
         {
             foreach (var info in await WithTimeout(DeviceInformation.FindAllAsync(BarcodeScanner.GetDeviceSelector()).AsTask()) ?? [])
             {
-                list.Add(new DeviceEntry(ScanSourceKind.Pos, info.Id, info.Name, UsbVendors.Identify(info.Id)));
+                if (info.Id.Contains("HID#", StringComparison.OrdinalIgnoreCase))
+                {
+                    list.Add(new DeviceEntry(ScanSourceKind.Pos, info.Id, info.Name, UsbVendors.Identify(info.Id)));
+                }
+            }
+        }
+        catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or UnauthorizedAccessException)
+        {
+        }
+
+        // Caméras : utilisées par la lecture en direct de l'Atelier.
+        try
+        {
+            foreach (var info in await WithTimeout(DeviceInformation.FindAllAsync(DeviceClass.VideoCapture).AsTask()) ?? [])
+            {
+                if (info.IsEnabled)
+                {
+                    list.Add(new DeviceEntry(ScanSourceKind.Camera, info.Id, info.Name, UsbVendors.Identify(info.Id)));
+                }
             }
         }
         catch (Exception ex) when (ex is System.Runtime.InteropServices.COMException or UnauthorizedAccessException)

@@ -13,6 +13,9 @@ public enum ScanSourceKind
 
     /// <summary>HID POS (USB HID Point of Sale) via Windows : octets bruts et symbologie annoncée.</summary>
     Pos,
+
+    /// <summary>Caméra (webcam, caméra document) : lecture en direct dans « Analyser une image ».</summary>
+    Camera,
 }
 
 /// <summary>Une lecture reçue d'une douchette connectée.</summary>

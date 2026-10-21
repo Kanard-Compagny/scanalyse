@@ -37,7 +37,7 @@
               </DockPanel>
               <StackPanel x:Name="DeviceList" />
               <TextBlock x:Name="DeviceHint" Style="{StaticResource FieldLabel}" Margin="0,4,0,0" Visibility="Collapsed"
-                         Text="Aucun port COM ni scanner HID POS trouvé. La douchette est sans doute en mode clavier : voir « Passer en liaison directe » plus bas." />
+                         Text="Aucun port COM, scanner HID POS ni caméra trouvé. La douchette est sans doute en mode clavier : voir « Passer en liaison directe » plus bas." />
 
               <Border Height="1" Background="{DynamicResource Line}" Margin="0,14" />
               <DockPanel LastChildFill="True">

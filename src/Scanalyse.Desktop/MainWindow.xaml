@@ -79,6 +79,12 @@
                 <TextBlock Text="Capturer une zone" Margin="8,0,0,0" />
               </StackPanel>
             </Button>
+            <Button Style="{StaticResource BtnSecondary}" Click="Camera_Click" Margin="8,0,0,0" ToolTip="Lire les codes en direct avec une webcam ou une caméra document">
+              <StackPanel Orientation="Horizontal">
+                <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconCamera}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
+                <TextBlock Text="Caméra" Margin="8,0,0,0" />
+              </StackPanel>
+            </Button>
           </StackPanel>
           <Button x:Name="ThemeButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="Theme_Click" VerticalAlignment="Center" ToolTip="Changer de thème">
             <StackPanel Orientation="Horizontal">

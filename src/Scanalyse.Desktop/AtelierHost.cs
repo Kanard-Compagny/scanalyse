@@ -61,6 +61,17 @@ internal sealed class AtelierHost
 #endif
         core.SetVirtualHostNameToFolderMapping(Host, webFolder, CoreWebView2HostResourceAccessKind.DenyCors);
         core.WebMessageReceived += OnWebMessage;
+
+        // Caméra : autorisée pour la page de l'Atelier uniquement (lecture en direct). Windows garde le dernier mot
+        // via ses réglages de confidentialité.
+        core.PermissionRequested += (_, e) =>
+        {
+            if (e.PermissionKind == CoreWebView2PermissionKind.Camera
+                && e.Uri.StartsWith($"https://{Host}/", StringComparison.OrdinalIgnoreCase))
+            {
+                e.State = CoreWebView2PermissionState.Allow;
+            }
+        };
         core.NavigationCompleted += (_, e) =>
         {
             _ready = e.IsSuccess;
@@ -142,6 +153,13 @@ internal sealed class AtelierHost
             return null;
         }
     }
+
+    /// <summary>Ouvre la lecture en direct ; <paramref name="cameraName"/> choisit la caméra par son nom Windows.</summary>
+    public Task StartCameraAsync(string? cameraName = null) =>
+        ExecuteAsync($"window.atelierStartCamera&&window.atelierStartCamera({JsonSerializer.Serialize(cameraName ?? string.Empty)})");
+
+    /// <summary>Coupe la caméra (on quitte la page d'analyse).</summary>
+    public Task StopCameraAsync() => ExecuteAsync("window.atelierStopCamera&&window.atelierStopCamera()");
 
     /// <summary>Envoie une image à analyser (PNG par défaut, ou tout format lu par le navigateur).</summary>
     public Task LoadImageAsync(byte[] image, string label, string mime = "image/png") =>

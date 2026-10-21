@@ -1,0 +1,14 @@
+/* --- Analyser : caméra en direct --- */
+.cam-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.cam-pick{flex:1 1 220px;min-width:0}
+.cam-pick select{width:100%}
+.cam-auto{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);padding-bottom:9px;cursor:pointer}
+.cam-auto input{accent-color:var(--accent);width:16px;height:16px}
+.cam-acts{display:flex;gap:8px;margin-left:auto}
+.scan-stage.live{border-style:solid;background:#000}
+.scan-stage video{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
+.scan-stage #camOverlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cam-live{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.cam-live span{font-family:var(--f-mono);font-size:12px;padding:5px 9px;border-radius:8px;background:rgba(0,0,0,.72);color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cam-live span b{color:#7EE2B8;font-weight:600;margin-right:6px}
+.cam-live .wait{color:#d9dde0}

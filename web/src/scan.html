@@ -7,10 +7,22 @@
           <input type="file" id="scanFile" accept="image/*" hidden>
           <button class="btn" id="scanScreen" type="button">Capturer l'écran</button>
           <button class="btn" id="scanPaste" type="button" hidden>Coller</button>
+          <button class="btn" id="scanCam" type="button">Caméra</button>
           <button class="btn" id="scanSample" type="button">Analyser le QR de l'atelier</button>
         </div>
         <p class="hint" id="pasteHint">Capture rapide : <kbd>Win</kbd> + <kbd>Maj</kbd> + <kbd>S</kbd> (Mac : <kbd>Cmd</kbd> + <kbd>Maj</kbd> + <kbd>4</kbd>), puis <kbd>Ctrl</kbd> + <kbd>V</kbd> sur cette page. Le glisser-déposer marche aussi.</p>
+        <div class="cam-bar" id="camBar" hidden>
+          <label class="f cam-pick">Caméra<select id="camSelect"></select></label>
+          <label class="cam-auto"><input type="checkbox" id="camAuto" checked> Analyser dès qu'un code est lu</label>
+          <div class="cam-acts">
+            <button class="btn small" id="camFreeze" type="button">Figer et analyser</button>
+            <button class="btn small" id="camStop" type="button">Arrêter</button>
+          </div>
+        </div>
         <div class="scan-stage" id="scanStage">
+          <video id="camVideo" hidden muted playsinline></video>
+          <canvas id="camOverlay" hidden aria-hidden="true"></canvas>
+          <div class="cam-live" id="camLive" hidden aria-live="polite"></div>
           <div class="scan-empty" id="scanEmpty"><b>Dépose une image ici</b>Photo, capture d'écran, scan d'étiquette, PDF exporté en image…</div>
           <canvas id="scanCanvas" hidden aria-label="Image analysée, avec les codes détectés encadrés"></canvas>
         </div>

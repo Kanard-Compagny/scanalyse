@@ -39,6 +39,9 @@ public partial class DevicesView : UserControl
     /// <summary>La liaison a changé (thread de l'interface).</summary>
     public event Action<ScannerStatus>? StatusChanged;
 
+    /// <summary>Ouvrir une caméra en lecture directe (nom Windows de la caméra).</summary>
+    public event Action<string>? CameraRequested;
+
     /// <summary>Message pour le journal (gravité, texte).</summary>
     public event Action<LogKind, string>? Log;
 
@@ -51,7 +54,7 @@ public partial class DevicesView : UserControl
     {
         var prefs = AppSettings.Load().Scanner;
         await RefreshAsync(prefs.DeviceId);
-        if (prefs.Kind != ScanSourceKind.Keyboard && Selected is { } entry && entry.Id == prefs.DeviceId)
+        if (prefs.Kind is ScanSourceKind.Serial or ScanSourceKind.Pos && Selected is { } entry && entry.Id == prefs.DeviceId)
         {
             await ConnectAsync(entry, silent: true);
         }
@@ -143,9 +146,12 @@ public partial class DevicesView : UserControl
         var sel = Selected;
         SerialCard.Visibility = sel?.Kind == ScanSourceKind.Serial ? Visibility.Visible : Visibility.Collapsed;
         DisconnectButton.Visibility = _source is null ? Visibility.Collapsed : Visibility.Visible;
-        ConnectButton.Content = sel?.Kind == ScanSourceKind.Keyboard
-            ? "Utiliser le mode clavier"
-            : _connected is not null && sel?.Id == _connected.Id ? "Reconnecter" : "Connecter";
+        ConnectButton.Content = sel?.Kind switch
+        {
+            ScanSourceKind.Keyboard => "Utiliser le mode clavier",
+            ScanSourceKind.Camera => "Lire en direct",
+            _ => _connected is not null && sel?.Id == _connected.Id ? "Reconnecter" : "Connecter",
+        };
         ConnectButton.IsEnabled = !_busy && sel is not null;
     }
 
@@ -153,7 +159,11 @@ public partial class DevicesView : UserControl
 
     private async void Connect_Click(object sender, RoutedEventArgs e)
     {
-        if (Selected is { } entry)
+        if (Selected is { Kind: ScanSourceKind.Camera } camera)
+        {
+            CameraRequested?.Invoke(camera.Name);
+        }
+        else if (Selected is { } entry)
         {
             await ConnectAsync(entry, silent: false);
         }

@@ -54,6 +54,7 @@ public partial class MainWindow : Window
         Devices.Scanned += OnDeviceScanned;
         Devices.StatusChanged += OnScannerStatus;
         Devices.Log += (kind, text) => AddLog(kind, "DOUCHETTE", text);
+        Devices.CameraRequested += async name => await StartCameraAsync(name);
         ThemeManager.Changed += OnThemeChanged;
         _captureTimer.Tick += CaptureTimer_Tick;
 
@@ -210,6 +211,15 @@ public partial class MainWindow : Window
 
     private void Source_Click(object sender, RoutedEventArgs e) => NavDevices.IsChecked = true;
 
+    private async void Camera_Click(object sender, RoutedEventArgs e) => await StartCameraAsync(null);
+
+    private async Task StartCameraAsync(string? name)
+    {
+        NavAnalyse.IsChecked = true;
+        await _atelier.StartCameraAsync(name);
+        AddLog(LogKind.Info, "CAMÉRA", "Lecture en direct : présente le code devant la caméra, il est analysé dès qu'il est lu.");
+    }
+
     // ------------------------------------------------------------------ Navigation
 
     private async void Nav_Checked(object sender, RoutedEventArgs e)
@@ -217,6 +227,11 @@ public partial class MainWindow : Window
         if (!_ready)
         {
             return;
+        }
+
+        if (sender != NavAnalyse)
+        {
+            await _atelier.StopCameraAsync();
         }
 
         AtelierPage.Visibility = Visibility.Collapsed;

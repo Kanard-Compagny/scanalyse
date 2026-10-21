@@ -10,6 +10,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const tabs={create:$("tabCreate"),scan:$("tabScan")};
 function setMode(m,save){
   const scan=m==="scan";
+  if(!scan&&CAM.stream)camStop(false);
   $("view-create").hidden=scan; $("view-scan").hidden=!scan;
   tabs.create.setAttribute("aria-selected",String(!scan)); tabs.scan.setAttribute("aria-selected",String(scan));
   $("headDesc").textContent=scan
@@ -89,6 +90,7 @@ let srcBlob=null, srcOrigW=1, src=null, srcLabel="", lum=null, region=null, resu
 const cv=$("scanCanvas"), stage=$("scanStage");
 const MAXSRC=4096;
 function setSource(drawable,w,h,label,keepBlob){
+  if(CAM.stream)camStop(true);
   if(!keepBlob)srcBlob=null;
   const k=Math.min(1,MAXSRC/Math.max(w,h));
   const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w*k));c.height=Math.max(1,Math.round(h*k));
