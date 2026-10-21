@@ -4,7 +4,7 @@ using Microsoft.Win32;
 namespace Scanalyse.Desktop;
 
 /// <summary>Choix du thème.</summary>
-public enum ThemeMode
+public enum AppTheme
 {
     System,
     Light,
@@ -22,7 +22,7 @@ public static class ThemeManager
     private static bool _initialized;
 
     /// <summary>Thème choisi par l'utilisateur.</summary>
-    public static ThemeMode Mode { get; private set; } = ThemeMode.System;
+    public static AppTheme Mode { get; private set; } = AppTheme.System;
 
     /// <summary>Le thème réellement affiché est sombre.</summary>
     public static bool IsDark { get; private set; }
@@ -31,16 +31,16 @@ public static class ThemeManager
     public static event Action? Changed;
 
     /// <summary>À appeler une fois au démarrage.</summary>
-    public static void Initialize(ThemeMode mode)
+    public static void Initialize(AppTheme mode)
     {
         if (!_initialized)
         {
             _initialized = true;
             SystemEvents.UserPreferenceChanged += (_, e) =>
             {
-                if (e.Category == UserPreferenceCategory.General && Mode == ThemeMode.System)
+                if (e.Category == UserPreferenceCategory.General && Mode == AppTheme.System)
                 {
-                    Application.Current?.Dispatcher.InvokeAsync(() => Apply(ThemeMode.System));
+                    Application.Current?.Dispatcher.InvokeAsync(() => Apply(AppTheme.System));
                 }
             };
         }
@@ -49,10 +49,10 @@ public static class ThemeManager
     }
 
     /// <summary>Applique un thème ; <paramref name="save"/> le mémorise pour les prochains lancements.</summary>
-    public static void Apply(ThemeMode mode, bool save = false)
+    public static void Apply(AppTheme mode, bool save = false)
     {
         Mode = mode;
-        var dark = mode == ThemeMode.Dark || (mode == ThemeMode.System && WindowsUsesDarkTheme());
+        var dark = mode == AppTheme.Dark || (mode == AppTheme.System && WindowsUsesDarkTheme());
         var dictionaries = Application.Current.Resources.MergedDictionaries;
         var theme = new ResourceDictionary { Source = dark ? DarkUri : LightUri };
         if (dictionaries.Count > 0)
@@ -76,10 +76,10 @@ public static class ThemeManager
     }
 
     /// <summary>Libellé court du thème choisi.</summary>
-    public static string Label(ThemeMode mode) => mode switch
+    public static string Label(AppTheme mode) => mode switch
     {
-        ThemeMode.Light => "Clair",
-        ThemeMode.Dark => "Sombre",
+        AppTheme.Light => "Clair",
+        AppTheme.Dark => "Sombre",
         _ => "Système",
     };
 

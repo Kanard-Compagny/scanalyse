@@ -7,7 +7,7 @@ namespace Scanalyse.Desktop;
 public sealed class AppSettings
 {
     /// <summary>Thème choisi.</summary>
-    public ThemeMode Theme { get; set; } = ThemeMode.System;
+    public AppTheme Theme { get; set; } = AppTheme.System;
 
     /// <summary>Dossier des données de Scanalyse (réglages, cache de l'Atelier).</summary>
     public static string DataFolder =>

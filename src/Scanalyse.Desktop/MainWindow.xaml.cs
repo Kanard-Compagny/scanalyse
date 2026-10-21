@@ -284,9 +284,9 @@ public partial class MainWindow : Window
     {
         var next = ThemeManager.Mode switch
         {
-            ThemeMode.System => ThemeMode.Light,
-            ThemeMode.Light => ThemeMode.Dark,
-            _ => ThemeMode.System,
+            AppTheme.System => AppTheme.Light,
+            AppTheme.Light => AppTheme.Dark,
+            _ => AppTheme.System,
         };
         ThemeManager.Apply(next, save: true);
     }

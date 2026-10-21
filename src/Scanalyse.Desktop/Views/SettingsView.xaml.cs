@@ -30,9 +30,9 @@ public partial class SettingsView : UserControl
     private void SyncTheme()
     {
         _syncing = true;
-        ThemeSystem.IsChecked = ThemeManager.Mode == ThemeMode.System;
-        ThemeLight.IsChecked = ThemeManager.Mode == ThemeMode.Light;
-        ThemeDark.IsChecked = ThemeManager.Mode == ThemeMode.Dark;
+        ThemeSystem.IsChecked = ThemeManager.Mode == AppTheme.System;
+        ThemeLight.IsChecked = ThemeManager.Mode == AppTheme.Light;
+        ThemeDark.IsChecked = ThemeManager.Mode == AppTheme.Dark;
         _syncing = false;
     }
 
@@ -43,7 +43,7 @@ public partial class SettingsView : UserControl
             return;
         }
 
-        var mode = sender == ThemeLight ? ThemeMode.Light : sender == ThemeDark ? ThemeMode.Dark : ThemeMode.System;
+        var mode = sender == ThemeLight ? AppTheme.Light : sender == ThemeDark ? AppTheme.Dark : AppTheme.System;
         if (mode != ThemeManager.Mode)
         {
             ThemeManager.Apply(mode, save: true);
