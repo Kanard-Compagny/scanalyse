@@ -1,5 +1,12 @@
 # Scanalyse — Quoi de neuf
 
+## 0.10.1 — octobre 2026
+
+- **Premier lancement** : choix de la langue (français / English) avant l'accueil et la visite guidée ; le programme démarre directement dans la langue choisie. Langue proposée d'office : celle de Windows.
+- **Anglais** : traduction complète de l'interface (certains écrans restaient en français), des titres des fenêtres d'ouverture et d'enregistrement, et de « Créer un code » (styles du QR, alertes, export).
+- **Visite guidée** : l'encadré et la bulle se placent sur l'élément présenté (ils restaient au centre de l'écran).
+- **Fermeture** : Scanalyse s'arrête complètement (douchettes, relais, moteur web libérés) ; Scanalyse.exe peut être supprimé ou remplacé juste après.
+
 ## 0.10.0 — octobre 2026
 
 ### Code imprimante (nouvel onglet)

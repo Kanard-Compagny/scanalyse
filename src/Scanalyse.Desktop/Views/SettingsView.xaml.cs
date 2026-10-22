@@ -138,6 +138,7 @@ public partial class SettingsView : UserControl
 
         var s = AppSettings.Load();
         s.Language = lang;
+        s.LanguageChosen = true;
         s.Save();
         RestartButton.Visibility = lang == Localization.Language ? Visibility.Collapsed : Visibility.Visible;
     }

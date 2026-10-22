@@ -11,6 +11,9 @@ public sealed class AppSettings
     /// <summary>Langue de l'interface : « fr » ou « en » (appliquée au démarrage).</summary>
     public string Language { get; set; } = "fr";
 
+    /// <summary>Langue choisie au premier lancement (ou dans Paramètres) : la fenêtre de choix ne revient plus.</summary>
+    public bool LanguageChosen { get; set; }
+
     /// <summary>Thème choisi.</summary>
     public AppTheme Theme { get; set; } = AppTheme.System;
 

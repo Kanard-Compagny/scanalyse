@@ -65,10 +65,22 @@ public partial class App : Application
         { IsBackground = true, Name = "Scanalyse - activation" };
         listener.Start();
 
+        ThemeManager.Initialize(AppSettings.Load().Theme);
+        var settings = AppSettings.Load();
+        if (!settings.LanguageChosen && !settings.WelcomeDone)
+        {
+            // Premier lancement : la langue d'abord, avant l'accueil et la visite guidée.
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var picker = new LanguageWindow();
+            picker.ShowDialog();
+            settings.Language = picker.Choice;
+            settings.LanguageChosen = true;
+            settings.Save();
+        }
+
         // La fermeture de la fenêtre principale arrête le programme, même si une autre fenêtre est restée ouverte.
         ShutdownMode = ShutdownMode.OnMainWindowClose;
-        Localization.Initialize(AppSettings.Load().Language);
-        ThemeManager.Initialize(AppSettings.Load().Theme);
+        Localization.Initialize(settings.Language);
         base.OnStartup(e);
         MainWindow = new MainWindow();
         MainWindow.Show();
