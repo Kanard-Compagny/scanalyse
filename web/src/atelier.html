@@ -22,7 +22,10 @@ label.f{display:grid;gap:5px;font-size:13px;font-weight:500;color:var(--muted);m
 input[type=text],input[type=url],input[type=email],input[type=tel],input[type=password],textarea,select{
   font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
 textarea{resize:vertical;min-height:84px}
-input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--focus);outline-offset:2px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Pastilles : contour arrondi, seulement au clavier (rien au clic de souris) */
+.chip:has(input:focus-visible) span{outline:2px solid var(--focus);outline-offset:2px}
+.chip input:focus{outline:none}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}
 .chip{position:relative}
 .chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}

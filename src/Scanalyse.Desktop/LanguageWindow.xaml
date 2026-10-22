@@ -16,6 +16,8 @@
     <Style x:Key="LangCard" TargetType="RadioButton">
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Focusable" Value="True" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="RadioButton">
@@ -27,7 +29,7 @@
                 </Grid.ColumnDefinitions>
                 <ContentPresenter />
                 <Border x:Name="Dot" Grid.Column="1" Width="20" Height="20" CornerRadius="10" BorderThickness="2" BorderBrush="{DynamicResource Line}" VerticalAlignment="Top">
-                  <Ellipse x:Name="Inner" Width="10" Height="10" Fill="{DynamicResource Brand}" Visibility="Collapsed" />
+                  <Ellipse x:Name="Inner" Width="10" Height="10" Fill="{DynamicResource BrandText}" Visibility="Collapsed" />
                 </Border>
               </Grid>
             </Border>
@@ -36,13 +38,12 @@
                 <Setter TargetName="Card" Property="Background" Value="{DynamicResource Surface2}" />
               </Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Brand}" />
-                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource Brand}" />
+                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource BrandText}" />
+                <Setter TargetName="Card" Property="Background" Value="{DynamicResource BrandSoft}" />
+                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource BrandText}" />
                 <Setter TargetName="Inner" Property="Visibility" Value="Visible" />
               </Trigger>
-              <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="Card" Property="BorderThickness" Value="2.5" />
-              </Trigger>
+
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>

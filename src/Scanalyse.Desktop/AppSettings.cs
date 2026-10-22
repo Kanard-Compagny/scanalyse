@@ -78,17 +78,29 @@ public sealed class AppSettings
     /// <summary>Dossier proposé pour ouvrir et enregistrer les programmes d'étiquettes ; vide = Documents\Scanalyse\Étiquettes.</summary>
     public string LabelsFolder { get; set; } = string.Empty;
 
-    /// <summary>Dossier des rapports en vigueur (créé au besoin).</summary>
-    public string ReportsFolderOrDefault => Ensure(ReportsFolder, "Rapports");
+    /// <summary>Dossier des rapports en vigueur (simple chemin : rien n'est créé tant qu'aucun rapport n'est enregistré).</summary>
+    public string ReportsFolderOrDefault => Resolve(ReportsFolder, "Rapports");
 
-    /// <summary>Dossier des programmes d'étiquettes en vigueur (créé au besoin).</summary>
-    public string LabelsFolderOrDefault => Ensure(LabelsFolder, "Étiquettes");
+    /// <summary>Dossier des programmes d'étiquettes en vigueur (simple chemin, rien n'est créé).</summary>
+    public string LabelsFolderOrDefault => Resolve(LabelsFolder, "Étiquettes");
 
-    private static string Ensure(string chosen, string name)
-    {
-        var folder = string.IsNullOrWhiteSpace(chosen)
+    /// <summary>Dossier des rapports, créé au moment d'en enregistrer un.</summary>
+    public string ReportsFolderForSave() => Ensure(ReportsFolderOrDefault);
+
+    /// <summary>Dossier des programmes d'étiquettes, créé au moment d'en enregistrer un.</summary>
+    public string LabelsFolderForSave() => Ensure(LabelsFolderOrDefault);
+
+    /// <summary>Dossier où ouvrir un fichier : le dossier choisi s'il existe, sinon Documents.</summary>
+    public static string ExistingOrDocuments(string folder) =>
+        Directory.Exists(folder) ? folder : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+    private static string Resolve(string chosen, string name) =>
+        string.IsNullOrWhiteSpace(chosen)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Scanalyse", name)
             : chosen;
+
+    private static string Ensure(string folder)
+    {
         try
         {
             Directory.CreateDirectory(folder);

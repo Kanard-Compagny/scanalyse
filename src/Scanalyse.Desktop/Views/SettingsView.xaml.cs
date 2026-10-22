@@ -317,12 +317,12 @@ public partial class SettingsView : UserControl
         }
     }
 
-    private void Changelog_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.Changelog.md", "Scanalyse - Quoi de neuf.txt");
+    private void Changelog_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.Changelog.md", "Quoi de neuf");
 
-    private void Licenses_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.ThirdParty.md", "Scanalyse - Composants tiers.txt");
+    private void Licenses_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.ThirdParty.md", "Composants tiers et licences");
 
-    /// <summary>Ouvre un texte embarqué dans le programme (Bloc-notes), sans dépendre d'un fichier à côté de l'exe.</summary>
-    private static void OpenEmbedded(string resource, string fileName)
+    /// <summary>Ouvre un texte embarqué dans le programme, mis en forme dans une fenêtre aux couleurs de Scanalyse.</summary>
+    private void OpenEmbedded(string resource, string title)
     {
         using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource);
         if (stream is null)
@@ -331,9 +331,158 @@ public partial class SettingsView : UserControl
         }
 
         using var reader = new StreamReader(stream);
-        var path = Path.Combine(Path.GetTempPath(), fileName);
-        File.WriteAllText(path, reader.ReadToEnd());
-        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        new DocWindow(title, reader.ReadToEnd()) { Owner = Window.GetWindow(this) }.Show();
+    }
+
+    // ------------------------------------------------------------------ Désinstallation
+
+    /// <summary>Dossiers de données supprimés avec l'option : seulement les emplacements par défaut de Scanalyse.</summary>
+    private static (List<string> Removed, List<string> Kept) UserDataFolders(AppSettings s)
+    {
+        var documents = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Scanalyse");
+        var removed = new List<string>();
+        var kept = new List<string>();
+        void Add(string folder, bool isDefault)
+        {
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                return;
+            }
+
+            // Un dossier choisi à la main (partage réseau de l'équipe, dossier personnel…) n'est jamais effacé.
+            (isDefault ? removed : kept).Add(folder);
+        }
+
+        Add(HistoryLocation.Current(s), string.IsNullOrWhiteSpace(s.HistoryFolder));
+        Add(s.ReportsFolderOrDefault, string.IsNullOrWhiteSpace(s.ReportsFolder));
+        Add(s.LabelsFolderOrDefault, string.IsNullOrWhiteSpace(s.LabelsFolder));
+        removed.Add(documents);
+        return (removed, kept);
+    }
+
+    private void UninstallData_Click(object sender, RoutedEventArgs e)
+    {
+        if (UninstallData.IsChecked != true)
+        {
+            UninstallFolders.Text = string.Empty;
+            return;
+        }
+
+        var (removed, kept) = UserDataFolders(AppSettings.Load());
+        var text = string.Join(Environment.NewLine, removed.Where(Directory.Exists).Select(f => "✕ " + f));
+        if (kept.Count > 0)
+        {
+            text += (text.Length > 0 ? Environment.NewLine : string.Empty)
+                + string.Join(Environment.NewLine, kept.Select(f => Localization.T("conservé (dossier choisi) : ") + f));
+        }
+
+        UninstallFolders.Text = text.Length > 0 ? text : Localization.T("Aucune donnée enregistrée pour l'instant.");
+    }
+
+    private void UninstallCancel_Click(object sender, RoutedEventArgs e)
+    {
+        UninstallWarning.Visibility = Visibility.Collapsed;
+        UninstallCancel.Visibility = Visibility.Collapsed;
+        UninstallButton.Content = Localization.T("Désinstaller…");
+        UninstallButton.Style = (Style)FindResource("BtnSecondary");
+    }
+
+    private void Uninstall_Click(object sender, RoutedEventArgs e)
+    {
+        if (UninstallWarning.Visibility != Visibility.Visible)
+        {
+            // Premier clic : on demande confirmation sur place.
+            UninstallWarning.Visibility = Visibility.Visible;
+            UninstallCancel.Visibility = Visibility.Visible;
+            UninstallButton.Content = Localization.T("Confirmer la désinstallation");
+            UninstallButton.Style = (Style)FindResource("BtnAction");
+            return;
+        }
+
+        var s = AppSettings.Load();
+        var targets = new List<string>
+        {
+            AppSettings.DataFolder,
+            // Bibliothèques extraites par l'exécutable autonome au premier lancement.
+            Path.Combine(Path.GetTempPath(), ".net", "Scanalyse"),
+        };
+        if (UninstallData.IsChecked == true)
+        {
+            targets.AddRange(UserDataFolders(s).Removed);
+        }
+
+        RemoveFirewallRule();
+
+        // Un script PowerShell attend la fermeture de Scanalyse puis efface tout, l'exécutable compris.
+        static string Q(string v) => "'" + v.Replace("'", "''", StringComparison.Ordinal) + "'";
+        var exe = Environment.ProcessPath ?? string.Empty;
+        var script = $$"""
+            $p = {{Environment.ProcessId}}
+            while (Get-Process -Id $p -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
+            Start-Sleep -Seconds 1
+            $items = @({{string.Join(",", targets.Select(Q))}})
+            $exe = {{Q(exe)}}
+            foreach ($i in 1..8) {
+              foreach ($f in $items) { if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f -Recurse -Force -ErrorAction SilentlyContinue } }
+              if ($exe -and (Test-Path -LiteralPath $exe)) { Remove-Item -LiteralPath $exe -Force -ErrorAction SilentlyContinue }
+              if (-not (($items + $exe) | Where-Object { $_ -and (Test-Path -LiteralPath $_) })) { break }
+              Start-Sleep -Seconds 1
+            }
+            """;
+        try
+        {
+            Process.Start(new ProcessStartInfo("powershell.exe",
+                "-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand "
+                + Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(script)))
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            });
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            UninstallWarning.Text = Localization.T("Désinstallation impossible : ") + ex.Message;
+            return;
+        }
+
+        Application.Current.MainWindow?.Close();
+    }
+
+    /// <summary>Règle de pare-feu du relais Wi-Fi (créée seulement si on l'a demandée) : retirée avec l'accord de Windows.</summary>
+    private static void RemoveFirewallRule()
+    {
+        const string name = "Scanalyse - relais terminal";
+        try
+        {
+            using var check = Process.Start(new ProcessStartInfo("netsh", $"advfirewall firewall show rule name=\"{name}\"")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+            });
+            if (check is null)
+            {
+                return;
+            }
+
+            check.StandardOutput.ReadToEnd();
+            check.WaitForExit(5000);
+            if (check.ExitCode != 0)
+            {
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo("netsh", $"advfirewall firewall delete rule name=\"{name}\"")
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+            })?.WaitForExit(15000);
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            // Refusé ou indisponible : la règle reste, sans gêne (elle n'ouvre que le réseau local).
+        }
     }
 
     private void OpenData_Click(object sender, RoutedEventArgs e)

@@ -94,3 +94,15 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
 .desktop .wrap{padding-top:4px}
 /* Dans le programme, Importer / Coller / Capturer sont dans la barre d'outils, et « Analyser ce code » dans Créer. */
 .desktop .scan-grid>.card>.src-actions,.desktop #pasteHint{display:none}
+/* Programme Windows sur grand écran : toute la largeur est utilisée. La source reste visible pendant qu'on
+   parcourt les résultats, et les fiches des codes se rangent sur plusieurs colonnes. */
+@media (min-width:1400px){
+  .desktop .wrap{max-width:none}
+  .desktop .scan-grid{grid-template-columns:minmax(420px,.75fr) minmax(0,1.6fr)}
+  .desktop .scan-grid>.card{position:sticky;top:8px}
+  .desktop .results{grid-template-columns:repeat(auto-fit,minmax(540px,1fr));align-items:start}
+  .desktop .results>:not(.res){grid-column:1/-1}
+  .desktop #view-create{width:100%;max-width:1640px;margin-inline:auto}
+  .desktop .grid{grid-template-columns:minmax(0,1fr) 460px}
+}
+@media (min-width:2100px){.desktop .scan-grid{grid-template-columns:minmax(480px,.6fr) minmax(0,1.8fr)}}

@@ -14,22 +14,28 @@ const TYPES=[
   {id:"aztec",cat:"2d",label:"Aztec",fmt:"Aztec",input:"text",info:"<b>Sans zone de silence.</b> Billets de transport, cartes d'embarquement."},
   {id:"microqr",cat:"2d",label:"Micro QR Code",fmt:"MicroQRCode",input:"text",info:"<b>35 chiffres au plus.</b> Marquage de très petites pièces."},
   {id:"rmqr",cat:"2d",label:"rMQR (QR rectangulaire)",fmt:"RMQRCode",input:"text",info:"<b>Format allongé.</b> Bords de cartons, tubes, surfaces étroites."},
+  {id:"micropdf417",cat:"2d",label:"MicroPDF417",fmt:"MicroPDF417",input:"text",info:"<b>PDF417 compact (jusqu'à 250 caractères).</b> Petites étiquettes, pièces, santé."},
+  {id:"maxicode",cat:"2d",label:"MaxiCode",fmt:"MaxiCode",input:"text",info:"<b>Taille fixe, 93 caractères au plus.</b> Tri automatique des colis (UPS)."},
   {id:"ean13",cat:"retail",label:"EAN-13",fmt:"EAN13",input:"digits",len:[12,13],hrt:true,info:"<b>12 chiffres + clé.</b> Articles en point de vente (GTIN-13). Clé calculée automatiquement."},
   {id:"ean8",cat:"retail",label:"EAN-8",fmt:"EAN8",input:"digits",len:[7,8],hrt:true,info:"<b>7 chiffres + clé.</b> Petits articles en point de vente."},
   {id:"upca",cat:"retail",label:"UPC-A",fmt:"UPCA",input:"digits",len:[11,12],hrt:true,info:"<b>11 chiffres + clé.</b> Articles en point de vente (Amérique du Nord)."},
   {id:"upce",cat:"retail",label:"UPC-E",fmt:"UPCE",input:"digits",len:[7,8],hrt:true,info:"<b>Forme courte d'un UPC-A</b> (commence par 0 ou 1). Petits articles."},
   {id:"itf14",cat:"retail",label:"ITF-14",fmt:"ITF14",input:"digits",len:[13,14],hrt:true,info:"<b>13 chiffres + clé.</b> Cartons d'expédition (GTIN-14)."},
   {id:"databar",cat:"retail",label:"GS1 DataBar",fmt:"DataBar",input:"digits",len:[13,14],info:"<b>GTIN-14 compact.</b> Fruits et légumes, petits articles."},
+  {id:"databarltd",cat:"retail",label:"GS1 DataBar Limited",fmt:"DataBarLimited",input:"digits",len:[13,14],info:"<b>GTIN-14 commençant par 0 ou 1.</b> Petits articles de santé, très petites étiquettes."},
   {id:"databarexp",cat:"retail",label:"GS1 DataBar Expanded",fmt:"DataBarExp",input:"gs1",gs1:true,info:"<b>GTIN + poids, prix, dates.</b> Produits frais à poids variable, coupons."},
   {id:"code128",cat:"ind",label:"Code 128",fmt:"Code128",input:"text",hrt:true,info:"<b>ASCII complet.</b> Étiquettes internes, logistique, inventaire."},
   {id:"gs1128",cat:"ind",label:"GS1-128",fmt:"Code128",input:"gs1",gs1:true,hrt:true,info:"<b>Données GS1 (AI).</b> Étiquettes logistiques (SSCC, lot, dates, poids)."},
   {id:"code39",cat:"ind",label:"Code 39",fmt:"Code39",input:"text",hrt:true,upper:true,info:"<b>Majuscules, chiffres, - . espace $ / + %.</b> Industrie, automobile, badges."},
   {id:"code93",cat:"ind",label:"Code 93",fmt:"Code93",input:"text",hrt:true,info:"<b>ASCII complet, plus compact que le Code 39.</b> Industrie."},
   {id:"codabar",cat:"ind",label:"Codabar",fmt:"Codabar",input:"text",hrt:true,info:"<b>Chiffres et - $ : / . +, encadrés par A, B, C ou D.</b> Bibliothèques, banques du sang."},
+  {id:"code32",cat:"ind",label:"Code 32 (pharmacie Italie)",fmt:"Code32",input:"digits",hrt:true,info:"<b>8 chiffres, clé ajoutée automatiquement.</b> Médicaments vendus en Italie (code AIC)."},
+  {id:"pzn",cat:"ind",label:"PZN (pharmacie Allemagne)",fmt:"PZN",input:"digits",hrt:true,info:"<b>Numéro PZN (7 ou 8 chiffres).</b> Médicaments vendus en Allemagne."},
   {id:"itf",cat:"ind",label:"ITF (2 parmi 5 entrelacé)",fmt:"ITF",input:"digits",hrt:true,even:true,info:"<b>Nombre pair de chiffres.</b> Cartons, entrepôts."}
 ];
 const DEFAULTS={datamatrix:"SCANALYSE-0001",pdf417:"Scanalyse · PDF417 · exemple",aztec:"SCANALYSE-AZTEC",microqr:"12345",rmqr:"SCANALYSE",
   ean13:"300123456789",ean8:"9638507",upca:"03600029145",upce:"0123456",itf14:"1345312000001",databar:"0950600013435",
+  micropdf417:"SCANALYSE-MPDF",maxicode:"SCANALYSE MAXICODE 0001",databarltd:"0950110153001",code32:"12345678",pzn:"1234562",
   code128:"LOT-2026-ABC",code39:"ABC-123",code93:"CODE93",codabar:"A12345B",itf:"12345678"};
 const byId=Object.fromEntries(TYPES.map(t=>[t.id,t]));
 /* Caractères invisibles écrits <GS>, <RS>, <EOT>… dans le champ texte (comme au banc d'essai) */

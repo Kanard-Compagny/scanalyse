@@ -143,6 +143,11 @@ public sealed record SymbologyCard(string Name, string Family, string FamilyKey,
         Symbology.Codabar => "codabar",
         Symbology.Itf => "itf",
         Symbology.Itf14 => "itf14",
+        Symbology.MicroPdf417 => "micropdf417",
+        Symbology.MaxiCode => "maxicode",
+        Symbology.DataBarLimited => "databarltd",
+        Symbology.Code32 => "code32",
+        Symbology.Pzn => "pzn",
         _ => string.Empty,
     };
 }

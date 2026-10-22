@@ -54,12 +54,25 @@ internal static class HistoryLocation
         return n;
     }
 
+    /// <summary>
+    /// Le dossier (ou, s'il n'existe pas encore, son dossier parent) accepte l'écriture. Rien n'est créé : le dossier
+    /// d'historique n'apparaît qu'à la première analyse enregistrée.
+    /// </summary>
     public static bool IsWritable(string folder)
     {
         try
         {
-            Directory.CreateDirectory(folder);
-            var probe = Path.Combine(folder, ".scanalyse-test");
+            var existing = folder;
+            while (!Directory.Exists(existing))
+            {
+                existing = Path.GetDirectoryName(existing.TrimEnd('\\', '/'));
+                if (string.IsNullOrEmpty(existing))
+                {
+                    return false;
+                }
+            }
+
+            var probe = Path.Combine(existing, ".scanalyse-test-" + Environment.ProcessId);
             File.WriteAllText(probe, string.Empty);
             File.Delete(probe);
             return true;

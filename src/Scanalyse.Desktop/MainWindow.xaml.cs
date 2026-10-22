@@ -646,7 +646,7 @@ public partial class MainWindow : Window
             FileName = name + ".pdf",
             DefaultExt = ".pdf",
             Filter = Localization.T("Rapport PDF|*.pdf|Page web (HTML)|*.html"),
-            InitialDirectory = AppSettings.Load().ReportsFolderOrDefault,
+            InitialDirectory = AppSettings.Load().ReportsFolderForSave(),
         };
         if (dialog.ShowDialog(this) != true)
         {
