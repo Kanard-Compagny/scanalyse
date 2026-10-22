@@ -42,12 +42,27 @@ public partial class TourOverlay : UserControl
         }
 
         var step = _steps[_index];
+        // L'élément n'est pas un enfant de la visite : position calculée par rapport à elle via la fenêtre.
         Rect target;
         try
         {
-            target = step.Target.TransformToAncestor(this).TransformBounds(new Rect(step.Target.RenderSize));
+            target = step.Target.IsVisible && step.Target.ActualWidth > 0
+                ? step.Target.TransformToVisual(this).TransformBounds(new Rect(step.Target.RenderSize))
+                : Rect.Empty;
         }
         catch (InvalidOperationException)
+        {
+            target = Rect.Empty;
+        }
+
+        if (target.IsEmpty)
+        {
+            target = new Rect(ActualWidth / 2 - 50, ActualHeight / 2 - 20, 100, 40);
+        }
+
+        // Ne pas sortir de la zone couverte (la barre de titre n'en fait pas partie).
+        target.Intersect(new Rect(0, 0, ActualWidth, ActualHeight));
+        if (target.IsEmpty)
         {
             target = new Rect(ActualWidth / 2 - 50, ActualHeight / 2 - 20, 100, 40);
         }
