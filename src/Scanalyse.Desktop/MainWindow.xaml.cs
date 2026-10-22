@@ -82,6 +82,7 @@ public partial class MainWindow : Window
         };
         SettingsPage.WelcomeRequested += () => Welcome.Show();
         SettingsPage.TourRequested += StartTour;
+        SettingsPage.UninstallRequested += async folders => await UninstallAsync(folders);
         HistoryPage.ActiveCaseChanged += OnActiveCaseChanged;
         HistoryPage.ReopenRequested += OnReopenRequested;
         HistoryPage.ReportRequested = GenerateReportAsync;
@@ -824,6 +825,110 @@ public partial class MainWindow : Window
             new(CaseButton, "Dossier SAV en cours",
                 "Chaque analyse est rangée dans le dossier choisi ici. Retrouve-les dans « Historique » pour les renommer, les commenter et produire le rapport PDF du client."),
         ]);
+    }
+
+    // ------------------------------------------------------------------ Désinstallation
+
+    /// <summary>
+    /// Désinstallation sans script caché : Scanalyse libère ses appareils et son moteur web, efface lui-même ses dossiers,
+    /// ouvre l'Explorateur sur Scanalyse.exe (et son dossier temporaire) pour que l'utilisateur les supprime, puis se ferme.
+    /// </summary>
+    private async Task UninstallAsync(IReadOnlyList<string> folders)
+    {
+        AppSettings.Frozen = true;
+        _cleanedUp = true;
+        ThemeManager.Changed -= OnThemeChanged;
+        try
+        {
+            await Devices.ShutdownAsync().WaitAsync(TimeSpan.FromSeconds(2));
+        }
+        catch (Exception ex) when (ex is TimeoutException or IOException or InvalidOperationException or ObjectDisposedException or COMException)
+        {
+        }
+
+        // Le moteur web garde son cache ouvert tant que ses processus tournent : on attend leur fin.
+        try
+        {
+            var env = Web.CoreWebView2?.Environment;
+            var exited = new TaskCompletionSource();
+            if (env is not null)
+            {
+                env.BrowserProcessExited += (_, _) => exited.TrySetResult();
+            }
+
+            Web.Dispose();
+            if (env is not null)
+            {
+                await Task.WhenAny(exited.Task, Task.Delay(TimeSpan.FromSeconds(6)));
+            }
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or COMException)
+        {
+        }
+
+        Views.SettingsView.RemoveFirewallRule();
+        var failed = new List<string>();
+        foreach (var folder in folders.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (!await DeleteFolderAsync(folder))
+            {
+                failed.Add(folder);
+            }
+        }
+
+        try
+        {
+            if (Environment.ProcessPath is { } exe)
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{exe}\"") { UseShellExecute = true });
+            }
+
+            var extract = Path.Combine(Path.GetTempPath(), ".net", "Scanalyse");
+            if (Directory.Exists(extract))
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{extract}\"") { UseShellExecute = true });
+            }
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+        }
+
+        if (failed.Count > 0)
+        {
+            MessageBox.Show(this,
+                Localization.T("Ces dossiers n'ont pas pu être effacés (fichier ouvert ailleurs ?) ; supprime-les à la main :") + Environment.NewLine + Environment.NewLine + string.Join(Environment.NewLine, failed),
+                "Scanalyse", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        Close();
+    }
+
+    private static async Task<bool> DeleteFolderAsync(string folder)
+    {
+        for (var attempt = 0; attempt < 8; attempt++)
+        {
+            try
+            {
+                if (Directory.Exists(folder))
+                {
+                    // Fichiers en lecture seule : sinon Windows refuse de les effacer.
+                    foreach (var file in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
+                    {
+                        File.SetAttributes(file, FileAttributes.Normal);
+                    }
+
+                    Directory.Delete(folder, recursive: true);
+                }
+
+                return true;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                await Task.Delay(500);
+            }
+        }
+
+        return !Directory.Exists(folder);
     }
 
     /// <summary>Appareils et moteur web déjà libérés : la fenêtre peut se fermer.</summary>

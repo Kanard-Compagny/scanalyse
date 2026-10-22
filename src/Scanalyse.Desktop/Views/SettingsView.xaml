@@ -230,7 +230,7 @@
           <StackPanel>
             <TextBlock Style="{StaticResource CardTitle}" Text="Désinstaller Scanalyse" />
             <TextBlock Style="{StaticResource PageSubtitle}" TextWrapping="Wrap" Margin="0,4,0,12"
-                       Text="Retire Scanalyse de ce poste sans laisser de trace : programme, réglages, cache et fichiers temporaires. Scanalyse se ferme pour terminer." />
+                       Text="Efface les réglages, le cache et, si tu le coches, tes données, puis ferme Scanalyse. L'Explorateur s'ouvre ensuite sur Scanalyse.exe et son dossier temporaire : il ne reste qu'à les supprimer (Suppr)." />
             <CheckBox x:Name="UninstallData" Style="{StaticResource CheckLine}" Margin="0,0,0,6" Click="UninstallData_Click">
               <TextBlock TextWrapping="Wrap" Text="Supprimer aussi mes données : historique des analyses, rapports PDF et programmes d'étiquettes enregistrés" />
             </CheckBox>
@@ -240,7 +240,7 @@
               <Button x:Name="UninstallCancel" Style="{StaticResource BtnGhost}" Content="Annuler" Click="UninstallCancel_Click" Visibility="Collapsed" />
             </WrapPanel>
             <TextBlock x:Name="UninstallWarning" TextWrapping="Wrap" Margin="0,10,0,0" Foreground="{DynamicResource BadFg}" Visibility="Collapsed"
-                       Text="Confirmer ? Scanalyse va se fermer puis être supprimé de ce poste. Cette action est définitive." />
+                       Text="Confirmer ? Les réglages (et les données cochées) seront effacés définitivement, puis Scanalyse se fermera." />
           </StackPanel>
         </Border>
       </local:MasonryPanel>

@@ -288,6 +288,7 @@ Ce que contient le code	What the code contains
 Ce que la douchette transmet comparé au vrai contenu : préfixes, GS perdus, clavier mal réglé…	What the scanner transmits compared with the real content: prefixes, lost GS, wrong keyboard layout…
 Certificat	Certificate
 Certificat sanitaire européen (EU DCC)	EU Digital COVID Certificate (EU DCC)
+Ces dossiers n'ont pas pu être effacés (fichier ouvert ailleurs ?) ; supprime-les à la main :	These folders could not be erased (file open elsewhere?); delete them manually:
 Champ	Field
 Champ ({0}) : {1}.	Field ({0}): {1}.
 Champs tournés : position à vérifier, chaque langage tourne les champs autour d'un point différent.	Rotated fields: check their position, each language rotates fields around a different point.
@@ -406,6 +407,7 @@ Compatibles GS1	GS1 compatible
 Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.	Third-party components: zxing-cpp (Apache 2.0), zxing-wasm and qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.
 Composants tiers et licences	Third-party components and licenses
 Compte	Account
+Confirmer ? Les réglages (et les données cochées) seront effacés définitivement, puis Scanalyse se fermera.	Confirm? The settings (and the ticked data) will be permanently erased, then Scanalyse will close.
 Confirmer ? Scanalyse va se fermer puis être supprimé de ce poste. Cette action est définitive.	Confirm? Scanalyse will close and then be removed from this computer. This cannot be undone.
 Confirmer la désinstallation	Confirm uninstall
 Conforme	Compliant
@@ -604,6 +606,7 @@ EAN-13 transmis au format UPC-A	EAN-13 transmitted as UPC-A
 ECI déclaré (jeu de caractères explicite)	Declared ECI (explicit character set)
 EPL2 : les caractères de contrôle ne sont pas pris en charge ici. Utilise le ZPL.	EPL2: control characters are not supported here. Use ZPL.
 Efface la référence, la lecture, l'aperçu et le résultat	Clears the reference, the reading, the preview and the result
+Efface les réglages, le cache et, si tu le coches, tes données, puis ferme Scanalyse. L'Explorateur s'ouvre ensuite sur Scanalyse.exe et son dossier temporaire : il ne reste qu'à les supprimer (Suppr).	Erases the settings, the cache and, if ticked, your data, then closes Scanalyse. File Explorer then opens on Scanalyse.exe and its temporary folder: just delete them (Del).
 Effacer	Clear
 Effacer la lecture	Clear the reading
 Effacer le journal	Clear the log
@@ -1039,6 +1042,7 @@ Médicaments vendus en Italie (code AIC).	Medicines sold in Italy (AIC code).
 Méthode de production	Production method
 Mêmes couleurs que les modules	Same colors as the modules
 N (normal, sous-ensembles par >…)	N (normal, subsets with >…)
+Nettoyage en cours…	Cleaning up…
 Nom	Name
 Nom de domaine internationalisé (punycode) : vérifie qu'il n'imite pas un site connu.	Internationalized domain name (punycode): check it doesn't imitate a well-known site.
 Nom du réseau (SSID)	Network name (SSID)

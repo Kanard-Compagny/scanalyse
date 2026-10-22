@@ -127,6 +127,9 @@ public sealed class AppSettings
 
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 
+    /// <summary>Désinstallation en cours : plus aucun réglage n'est écrit (le dossier des données vient d'être effacé).</summary>
+    public static bool Frozen { get; set; }
+
     /// <summary>Lit les préférences ; valeurs par défaut si le fichier est absent ou illisible.</summary>
     public static AppSettings Load()
     {
@@ -145,6 +148,11 @@ public sealed class AppSettings
     /// <summary>Enregistre les préférences (silencieux en cas d'échec : ce n'est qu'un confort).</summary>
     public void Save()
     {
+        if (Frozen)
+        {
+            return;
+        }
+
         try
         {
             Directory.CreateDirectory(DataFolder);

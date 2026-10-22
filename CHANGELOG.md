@@ -10,7 +10,7 @@
 - **Lire un programme TSPL, EPL2 ou DPL** : aperçu de l'étiquette (textes, cadres, codes-barres), clic sur un élément pour retrouver sa ligne.
 - **Créer un code** : MicroPDF417, MaxiCode, GS1 DataBar Limited, Code 32 (pharmacie Italie) et PZN (pharmacie Allemagne) ; « Créer ce type de code » disponible pour toutes les symbologies.
 - **Grands écrans** : « Analyser une image » utilise toute la largeur (source fixe, fiches des codes en colonnes) ; les cartes des Paramètres se rangent en colonnes.
-- **Paramètres** : « Quoi de neuf » et les licences s'ouvrent dans une fenêtre aux couleurs de Scanalyse ; **désinstallation** sans trace (programme, réglages, cache, et en option historique, rapports et étiquettes — jamais un dossier choisi à la main).
+- **Paramètres** : « Quoi de neuf » et les licences s'ouvrent dans une fenêtre aux couleurs de Scanalyse ; **désinstallation** : Scanalyse efface lui-même ses réglages, son cache et, en option, l'historique, les rapports et les étiquettes (jamais un dossier choisi à la main), puis ouvre l'Explorateur sur Scanalyse.exe et son dossier temporaire à supprimer. Aucun script caché : rien qui alerte un antivirus.
 - **Dossiers** : plus aucun dossier créé au démarrage ; Rapports, Étiquettes et Historique apparaissent au premier enregistrement.
 - Fenêtre de choix de langue lisible en thème sombre ; plus de petit cadre carré autour des pastilles au clic.
 

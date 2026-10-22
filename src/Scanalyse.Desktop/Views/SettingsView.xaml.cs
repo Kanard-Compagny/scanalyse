@@ -400,56 +400,26 @@ public partial class SettingsView : UserControl
         }
 
         var s = AppSettings.Load();
-        var targets = new List<string>
-        {
-            AppSettings.DataFolder,
-            // Bibliothèques extraites par l'exécutable autonome au premier lancement.
-            Path.Combine(Path.GetTempPath(), ".net", "Scanalyse"),
-        };
+        var folders = new List<string> { AppSettings.DataFolder };
         if (UninstallData.IsChecked == true)
         {
-            targets.AddRange(UserDataFolders(s).Removed);
+            folders.AddRange(UserDataFolders(s).Removed);
         }
 
-        RemoveFirewallRule();
-
-        // Un script PowerShell attend la fermeture de Scanalyse puis efface tout, l'exécutable compris.
-        static string Q(string v) => "'" + v.Replace("'", "''", StringComparison.Ordinal) + "'";
-        var exe = Environment.ProcessPath ?? string.Empty;
-        var script = $$"""
-            $p = {{Environment.ProcessId}}
-            while (Get-Process -Id $p -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }
-            Start-Sleep -Seconds 1
-            $items = @({{string.Join(",", targets.Select(Q))}})
-            $exe = {{Q(exe)}}
-            foreach ($i in 1..8) {
-              foreach ($f in $items) { if (Test-Path -LiteralPath $f) { Remove-Item -LiteralPath $f -Recurse -Force -ErrorAction SilentlyContinue } }
-              if ($exe -and (Test-Path -LiteralPath $exe)) { Remove-Item -LiteralPath $exe -Force -ErrorAction SilentlyContinue }
-              if (-not (($items + $exe) | Where-Object { $_ -and (Test-Path -LiteralPath $_) })) { break }
-              Start-Sleep -Seconds 1
-            }
-            """;
-        try
-        {
-            Process.Start(new ProcessStartInfo("powershell.exe",
-                "-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand "
-                + Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(script)))
-            {
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            });
-        }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
-        {
-            UninstallWarning.Text = Localization.T("Désinstallation impossible : ") + ex.Message;
-            return;
-        }
-
-        Application.Current.MainWindow?.Close();
+        UninstallButton.IsEnabled = false;
+        UninstallCancel.IsEnabled = false;
+        UninstallWarning.Text = Localization.T("Nettoyage en cours…");
+        UninstallRequested?.Invoke(folders);
     }
 
+    /// <summary>
+    /// Désinstallation confirmée : la fenêtre principale libère les appareils et le moteur web, efface ces dossiers elle-même,
+    /// puis montre Scanalyse.exe dans l'Explorateur pour que l'utilisateur le supprime (aucun script caché).
+    /// </summary>
+    public event Action<IReadOnlyList<string>>? UninstallRequested;
+
     /// <summary>Règle de pare-feu du relais Wi-Fi (créée seulement si on l'a demandée) : retirée avec l'accord de Windows.</summary>
-    private static void RemoveFirewallRule()
+    public static void RemoveFirewallRule()
     {
         const string name = "Scanalyse - relais terminal";
         try
