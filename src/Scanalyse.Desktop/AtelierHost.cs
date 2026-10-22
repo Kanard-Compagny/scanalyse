@@ -170,6 +170,23 @@ internal sealed class AtelierHost
         return done == tcs.Task ? tcs.Task.Result : (null, "Délai dépassé.");
     }
 
+    /// <summary>Dessine une étiquette décrite en JSON (programme ZPL lu) ; renvoie l'image PNG ou un message d'erreur.</summary>
+    public async Task<(byte[]? Png, string? Error)> RenderLabelAsync(string json)
+    {
+        if (!_ready || _view.CoreWebView2 is null)
+        {
+            return (null, "L'Atelier n'est pas encore prêt.");
+        }
+
+        var id = Guid.NewGuid().ToString("N");
+        var tcs = new TaskCompletionSource<(byte[]? Png, string? Error)>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _renders[id] = tcs;
+        await ExecuteAsync($"window.atelierRenderLabel&&window.atelierRenderLabel({JsonSerializer.Serialize(id)},{json})");
+        var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(20)));
+        _renders.Remove(id);
+        return done == tcs.Task ? tcs.Task.Result : (null, "Délai dépassé.");
+    }
+
     /// <summary>Convertit une image « data:image/png;base64,… » en octets.</summary>
     public static byte[]? FromDataUrl(string dataUrl)
     {

@@ -57,10 +57,15 @@ public partial class PrintView : UserControl
         }
 
         DataBox.Text = "SCANALYSE-0001";
+        _readTimer.Tick += async (_, _) =>
+        {
+            _readTimer.Stop();
+            await ReadProgramAsync();
+        };
         _loaded = true;
         IsVisibleChanged += (_, _) =>
         {
-            if (IsVisible)
+            if (IsVisible && !_readMode)
             {
                 _ = RefreshAsync();
             }
@@ -225,7 +230,7 @@ public partial class PrintView : UserControl
 
     private async Task RefreshAsync()
     {
-        if (!_loaded)
+        if (!_loaded || _readMode)
         {
             return;
         }
@@ -374,6 +379,27 @@ public partial class PrintView : UserControl
             return;
         }
 
+        if (_readMode)
+        {
+            _readTimer.Stop();
+            _readTimer.Start();
+            return;
+        }
+
+        // Un programme ZPL collé (et non une retouche du programme généré) : on passe en lecture.
+        var pasted = e.Changes.Sum(c => c.AddedLength);
+        if (pasted > 20 && ZplReader.LooksLikeZpl(CodeBox.Text) && (_output is null || !CodeBox.Text.Contains(_output.Code.Trim(), StringComparison.Ordinal)))
+        {
+            var program = CodeBox.Text;
+            _updating = true;
+            CodeBox.Text = _output?.Code ?? string.Empty;
+            _updating = false;
+            _edited = false;
+            LoadProgram(program);
+            Log?.Invoke(LogKind.Info, "Programme ZPL collé : lecture de l'étiquette (onglet « Lire un programme ZPL »).");
+            return;
+        }
+
         _edited = _output is null || CodeBox.Text != _output.Code;
         EditedNote.Visibility = _edited ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -386,8 +412,17 @@ public partial class PrintView : UserControl
 
     // ------------------------------------------------------------------ Sortie
 
-    private byte[] Bytes() =>
-        (Language == PrinterLanguage.Epl2 ? Encoding.Latin1 : new UTF8Encoding(false)).GetBytes(CodeBox.Text);
+    /// <summary>
+    /// Octets envoyés : UTF-8 pour un programme ^CI28 (ou TSPL), sinon octet par octet (Latin-1), comme le fichier d'origine d'un client.
+    /// </summary>
+    private byte[] Bytes()
+    {
+        var text = CodeBox.Text;
+        var utf8 = _readMode
+            ? text.Contains("^CI28", StringComparison.OrdinalIgnoreCase)
+            : Language == PrinterLanguage.Tspl || (Language == PrinterLanguage.Zpl && text.Contains("^CI28", StringComparison.OrdinalIgnoreCase));
+        return (utf8 ? new UTF8Encoding(false) : Encoding.Latin1).GetBytes(text);
+    }
 
     private void Copy_Click(object sender, RoutedEventArgs e)
     {
@@ -414,7 +449,7 @@ public partial class PrintView : UserControl
             return;
         }
 
-        var ext = LabelCode.Extension(Language);
+        var ext = _readMode ? ".zpl" : LabelCode.Extension(Language);
         var name = new string(ControlCharacters.FromVisualized(DataBox.Text).Where(char.IsAsciiLetterOrDigit).Take(30).ToArray());
         var dialog = new SaveFileDialog
         {
@@ -448,7 +483,7 @@ public partial class PrintView : UserControl
         }
 
         var data = Bytes();
-        var lang = Language.ToString().ToUpperInvariant();
+        var lang = _readMode ? "ZPL" : Language.ToString().ToUpperInvariant();
         try
         {
             if (ModeQueue.IsChecked == true)
@@ -499,7 +534,9 @@ public partial class PrintView : UserControl
 
     // ------------------------------------------------------------------ Choix de l'imprimante
 
-    private string? SelectedQueue => QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string;
+    private string? SelectedQueue => QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? NullIfEmpty(_savedQueue);
+
+    private static string? NullIfEmpty(string s) => s.Length == 0 ? null : s;
 
     private void Mode_Changed(object sender, RoutedEventArgs e)
     {
@@ -519,43 +556,35 @@ public partial class PrintView : UserControl
 
     private void RefreshQueues_Click(object sender, RoutedEventArgs e) => LoadQueues();
 
-    // ------------------------------------------------------------------ Programme agrandi
-
-    private bool _expanded;
-
-    private void Expand_Click(object sender, RoutedEventArgs e) => SetExpanded(!_expanded);
-
-    /// <summary>Programme sur toute la page : réglages et aperçu masqués, la zone de code prend toute la place.</summary>
-    private void SetExpanded(bool on)
+    private void QueueButton_Click(object sender, RoutedEventArgs e)
     {
-        _expanded = on;
-        SettingsCard.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
-        PreviewCard.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
-        Grid.SetColumn(RightPane, on ? 0 : 2);
-        Grid.SetColumnSpan(RightPane, on ? 3 : 1);
-        ExpandButton.Content = on ? "Réduire" : "Agrandir";
-        CodeBox.FontSize = on ? 14 : 13;
-        if (on)
+        if (QueueChips.Children.Count == 0)
         {
-            CodeBox.Focus();
+            LoadQueues();
         }
+
+        QueueSearch.Text = string.Empty;
+        QueuePopup.IsOpen = true;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            QueueSearch.Focus();
+            QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.BringIntoView();
+        }), DispatcherPriority.Loaded);
     }
 
-    protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+    private void QueueSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
-        if (e.Key == System.Windows.Input.Key.Escape && _expanded)
+        var q = QueueSearch.Text.Trim();
+        QueueSearchHint.Visibility = q.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var chip in QueueChips.Children.OfType<RadioButton>())
         {
-            SetExpanded(false);
-            e.Handled = true;
-            return;
+            chip.Visibility = q.Length == 0 || ((string)chip.Tag).Contains(q, StringComparison.CurrentCultureIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
         }
-
-        base.OnPreviewKeyDown(e);
     }
 
     private void LoadQueues()
     {
-        var current = SelectedQueue ?? _savedQueue;
+        var current = SelectedQueue;
         QueueChips.Children.Clear();
         foreach (var q in PrinterTransport.Queues())
         {
@@ -567,26 +596,566 @@ public partial class PrintView : UserControl
                 Tag = q,
                 IsChecked = string.Equals(q, current, StringComparison.OrdinalIgnoreCase),
             };
-            chip.Checked += (_, _) => _savedQueue = q;
+            chip.Checked += (_, _) =>
+            {
+                _savedQueue = q;
+                QueueSelected.Text = q;
+                QueuePopup.IsOpen = false;
+                SavePreferences();
+            };
             QueueChips.Children.Add(chip);
         }
 
         var n = QueueChips.Children.Count;
         QueueCount.Text = n switch
         {
-            0 => "Aucune imprimante trouvée",
-            1 => "1 imprimante installée",
-            _ => $"{n} imprimantes installées" + (n > 6 ? " (fais défiler la liste)" : string.Empty),
+            0 => "aucune imprimante installée",
+            1 => "1 imprimante",
+            _ => $"{n} imprimantes",
         };
+        QueueSelected.Text = QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? "Choisir une imprimante…";
         QueueScroll.ScrollToTop();
-        var selected = QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true);
-        if (selected is not null)
-        {
-            Dispatcher.BeginInvoke(new Action(() => selected.BringIntoView()), DispatcherPriority.Loaded);
-        }
         if (n == 0)
         {
             QueueHint.Text = "Aucune imprimante installée sur ce PC. Utilise l'envoi réseau, ou installe le pilote de l'imprimante d'étiquettes.";
         }
+    }
+
+    // ------------------------------------------------------------------ Agrandir le programme ou l'aperçu
+
+    private enum Zoom
+    {
+        None,
+        Program,
+        Preview,
+    }
+
+    private Zoom _zoom;
+
+    private void Expand_Click(object sender, RoutedEventArgs e) => SetZoom(_zoom == Zoom.Program ? Zoom.None : Zoom.Program);
+
+    private void ExpandPreview_Click(object sender, RoutedEventArgs e) => SetZoom(_zoom == Zoom.Preview ? Zoom.None : Zoom.Preview);
+
+    /// <summary>Programme ou aperçu sur toute la page ; les autres cartes sont masquées le temps de la lecture.</summary>
+    private void SetZoom(Zoom zoom)
+    {
+        _zoom = zoom;
+        var any = zoom != Zoom.None;
+        SettingsCard.Visibility = !any && !_readMode ? Visibility.Visible : Visibility.Collapsed;
+        ReadCard.Visibility = !any && _readMode ? Visibility.Visible : Visibility.Collapsed;
+        PreviewCard.Visibility = zoom == Zoom.Program ? Visibility.Collapsed : Visibility.Visible;
+        ProgramCard.Visibility = zoom == Zoom.Preview ? Visibility.Collapsed : Visibility.Visible;
+        PreviewCard.Margin = new Thickness(0, 0, 0, zoom == Zoom.Preview ? 0 : 14);
+        Grid.SetColumn(RightPane, any ? 0 : 2);
+        Grid.SetColumnSpan(RightPane, any ? 3 : 1);
+        RightPane.RowDefinitions[0].Height = zoom == Zoom.Preview ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        PreviewBox.Height = zoom == Zoom.Preview ? double.NaN : _readMode ? 330 : 170;
+        ExpandButton.Content = zoom == Zoom.Program ? "Réduire" : "Agrandir";
+        ExpandPreviewButton.Content = zoom == Zoom.Preview ? "Réduire" : "Agrandir";
+        CodeBox.FontSize = zoom == Zoom.Program ? 14 : 13;
+        if (zoom == Zoom.Program)
+        {
+            CodeBox.Focus();
+        }
+    }
+
+    protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Escape && _zoom != Zoom.None)
+        {
+            SetZoom(Zoom.None);
+            e.Handled = true;
+            return;
+        }
+
+        base.OnPreviewKeyDown(e);
+    }
+
+    // ------------------------------------------------------------------ Lecture d'un programme ZPL
+
+    private readonly DispatcherTimer _readTimer = new() { Interval = TimeSpan.FromMilliseconds(450) };
+    private bool _readMode;
+    private ZplLabel? _label;
+    private byte[]? _labelPng;
+    private int _readSeq;
+    private string _createProgram = string.Empty;
+    private string _readProgram = string.Empty;
+
+    /// <summary>Dessine une étiquette ZPL (description JSON) : fourni par la fenêtre principale.</summary>
+    public Func<string, Task<(byte[]? Png, string? Error)>>? LabelRenderer { get; set; }
+
+    /// <summary>« Analyse complète de l'étiquette » : l'aperçu part dans « Analyser une image ».</summary>
+    public event Action<byte[], string>? AnalyzeRequested;
+
+    private int ReadDpi => int.TryParse(Selected(ReadDpiChips, "203"), out var d) ? d : 203;
+
+    private void PageMode_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        SetReadMode(ModeRead.IsChecked == true);
+    }
+
+    private void SetReadMode(bool on)
+    {
+        if (_readMode == on)
+        {
+            return;
+        }
+
+        // Chaque mode garde son programme : on retrouve l'étiquette générée en revenant à « Créer ».
+        if (on)
+        {
+            _createProgram = CodeBox.Text;
+        }
+        else
+        {
+            _readProgram = CodeBox.Text;
+        }
+
+        _readMode = on;
+        _updating = true;
+        ModeRead.IsChecked = on;
+        ModeCreate.IsChecked = !on;
+        CodeBox.Text = on ? _readProgram : _createProgram;
+        _updating = false;
+
+        PageSubtitle.Text = on
+            ? "Colle le programme ZPL d'un client : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou analyse complète."
+            : "Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
+        LangChips.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        RegenerateButton.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        WarningsList.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        EditedNote.Visibility = Visibility.Collapsed;
+        CreateViewbox.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        SetZoom(Zoom.None);
+        if (on)
+        {
+            _ = ReadProgramAsync();
+        }
+        else
+        {
+            ZplFrame.Visibility = ZplEmpty.Visibility = Visibility.Collapsed;
+            PreviewNote.Text = "Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante.";
+            _renderedKey = string.Empty;
+            _ = RefreshAsync();
+        }
+    }
+
+    /// <summary>Ouvre un programme ZPL en lecture (collé, ou reçu d'un autre onglet).</summary>
+    public void LoadProgram(string zpl)
+    {
+        _readProgram = zpl;
+        if (_readMode)
+        {
+            _updating = true;
+            CodeBox.Text = zpl;
+            _updating = false;
+            _ = ReadProgramAsync();
+        }
+        else
+        {
+            SetReadMode(true);
+        }
+    }
+
+    private void ReadDpi_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_loaded && _readMode)
+        {
+            ShowLabelSize();
+        }
+    }
+
+    private async Task ReadProgramAsync()
+    {
+        var seq = ++_readSeq;
+        var text = CodeBox.Text;
+        ReadPanel.Children.Clear();
+        if (!ZplReader.LooksLikeZpl(text))
+        {
+            _label = null;
+            _labelPng = null;
+            ZplFrame.Visibility = Visibility.Collapsed;
+            ZplEmpty.Visibility = Visibility.Visible;
+            ReadSummary.Text = text.Trim().Length == 0
+                ? "Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ou le texte capturé sur son poste."
+                : "Ce texte ne ressemble pas à un programme ZPL (pas de ^XA … ^FD). Les programmes TSPL, EPL2, DPL ou SBPL ne sont pas lus.";
+            PreviewInfo.Text = string.Empty;
+            return;
+        }
+
+        var label = ZplReader.Read(text);
+        _label = label;
+        BuildReadPanel(label);
+        ZplEmpty.Visibility = Visibility.Collapsed;
+        if (LabelRenderer is null)
+        {
+            return;
+        }
+
+        PreviewNote.Text = "Dessin de l'étiquette…";
+        var (png, error) = await LabelRenderer(ZplReader.RenderJson(label));
+        if (seq != _readSeq)
+        {
+            return;
+        }
+
+        _labelPng = png;
+        if (png is null)
+        {
+            ZplFrame.Visibility = Visibility.Collapsed;
+            PreviewNote.Text = "Aperçu impossible : " + (error ?? "erreur inconnue.");
+            return;
+        }
+
+        var img = new BitmapImage();
+        img.BeginInit();
+        img.CacheOption = BitmapCacheOption.OnLoad;
+        img.StreamSource = new MemoryStream(png);
+        img.EndInit();
+        img.Freeze();
+        ZplImage.Source = img;
+        ZplFrame.Visibility = Visibility.Visible;
+        PreviewNote.Text = "Aperçu indicatif dessiné par Scanalyse (polices approchées)"
+            + (label.Inverted ? " ; l'étiquette est montrée telle que dessinée, l'imprimante la sort tournée de 180° (^POI)." : ".");
+        ShowLabelSize();
+    }
+
+    private void ShowLabelSize()
+    {
+        if (_label is null)
+        {
+            return;
+        }
+
+        var dpi = ReadDpi;
+        var w = _label.WidthDots ?? (ZplImage.Source as BitmapSource)?.PixelWidth ?? 0;
+        var h = _label.LengthDots ?? (ZplImage.Source as BitmapSource)?.PixelHeight ?? 0;
+        string Mm(int dots) => (dots * 25.4 / dpi).ToString("0", CultureInfo.CurrentCulture);
+        var sized = _label.WidthDots is not null && _label.LengthDots is not null;
+        PreviewInfo.Text = w > 0 ? $"{(sized ? string.Empty : "≈ ")}{Mm(w)} × {Mm(h)} mm · {dpi} dpi" : string.Empty;
+        var codes = _label.Barcodes.Count();
+        var texts = _label.Texts.Count();
+        ReadSummary.Text = $"{codes} code{(codes > 1 ? "s" : string.Empty)}-barres{(codes > 1 ? string.Empty : string.Empty)}, {texts} texte{(texts > 1 ? "s" : string.Empty)}, "
+            + $"{_label.Elements.OfType<ZplBox>().Count()} cadre(s) ou trait(s) · {(sized ? "taille fixée par le programme" : "taille réglée dans l'imprimante")}"
+            + $" · {(_label.Utf8 ? "UTF-8 (^CI28)" : "page de codes 850")} · {_label.Copies} exemplaire{(_label.Copies > 1 ? "s" : string.Empty)}."
+            + " Choisis la résolution de l'imprimante du client pour avoir les tailles en mm.";
+        foreach (var t in ReadPanel.Children.OfType<FrameworkElement>().Where(c => c.Tag is ZplBarcode))
+        {
+            if (t is Border { Child: StackPanel sp } && sp.Children.Count > 1 && sp.Children[1] is TextBlock meta)
+            {
+                meta.Text = BarcodeMeta((ZplBarcode)t.Tag, dpi);
+            }
+        }
+    }
+
+    private static string BarcodeMeta(ZplBarcode c, int dpi)
+    {
+        var mm = c.ModuleWidth * 25.4 / dpi;
+        var rot = c.Orientation switch { ZplOrientation.R => " · tourné 90°", ZplOrientation.I => " · tourné 180°", ZplOrientation.B => " · tourné 270°", _ => string.Empty };
+        var size = c.Command is "^BQ" or "^BX" or "^B0" or "^BO"
+            ? $"module {c.ModuleWidth} points ({mm.ToString("0.###", CultureInfo.CurrentCulture)} mm)"
+            : $"module {c.ModuleWidth} points ({mm.ToString("0.###", CultureInfo.CurrentCulture)} mm) · hauteur {(c.Height * 25.4 / dpi).ToString("0.#", CultureInfo.CurrentCulture)} mm";
+        var gs1 = c.Gs1 && c.Command is "^BC" or "^B2" && mm < 0.495 ? " · trop fin pour la logistique GS1 (0,495 mm min.)" : string.Empty;
+        return $"{c.Command} · ligne {c.Line} · x {c.X}, y {c.Y} ({(c.Typeset ? "^FT" : "^FO")}){rot} · {size}{gs1}";
+    }
+
+    private void BuildReadPanel(ZplLabel label)
+    {
+        ReadPanel.Children.Clear();
+        var dpi = ReadDpi;
+
+        // Constats sur le programme
+        var issues = label.Issues.OrderByDescending(i => i.Severity).ToList();
+        if (issues.Count > 0)
+        {
+            ReadPanel.Children.Add(Section("Points à vérifier"));
+            foreach (var i in issues)
+            {
+                ReadPanel.Children.Add(AlertBox(i));
+            }
+        }
+
+        // Codes-barres
+        var codes = label.Barcodes.ToList();
+        ReadPanel.Children.Add(Section(codes.Count == 0 ? "Aucun code-barres" : codes.Count == 1 ? "Code-barres" : $"Codes-barres ({codes.Count})"));
+        var n = 0;
+        foreach (var c in codes)
+        {
+            n++;
+            var card = new StackPanel();
+            var head = new DockPanel();
+            var again = new Button
+            {
+                Style = (Style)FindResource("BtnGhost"),
+                Content = "Réimprimer ce code",
+                Padding = new Thickness(8, 2, 8, 2),
+                ToolTip = "Reprend ce code dans « Créer une étiquette » (même type, même contenu, même module) pour générer un programme propre",
+            };
+            DockPanel.SetDock(again, Dock.Right);
+            again.Click += (_, _) => Recreate(c);
+            head.Children.Add(again);
+            head.Children.Add(new TextBlock { Text = $"Code {n} · {c.Symbology}", FontWeight = FontWeights.SemiBold, FontSize = 14, VerticalAlignment = VerticalAlignment.Center });
+            card.Children.Add(head);
+            card.Children.Add(new TextBlock { Text = BarcodeMeta(c, dpi), FontSize = 12, Foreground = Res("Muted"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 8) });
+
+            card.Children.Add(FieldCaption("Données lues par une douchette"));
+            card.Children.Add(Mono(ControlCharacters.Visualize(c.Content)));
+            if (c.Readable != c.Content && c.Interpretation)
+            {
+                card.Children.Add(FieldCaption("Texte imprimé sous le code"));
+                card.Children.Add(Mono(c.Readable));
+            }
+
+            if (c.Gs1 && Scanalyse.Core.Gs1.Gs1Parser.Parse(c.Content) is { Elements.Count: > 0 } g)
+            {
+                card.Children.Add(FieldCaption("Données GS1"));
+                var grid = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                var row = 0;
+                foreach (var el in g.Elements)
+                {
+                    grid.RowDefinitions.Add(new RowDefinition());
+                    var k = new TextBlock { Text = $"({el.Ai}) {el.Name}", FontSize = 12.5, Foreground = Res("Muted"), Margin = new Thickness(0, 1, 14, 1), TextWrapping = TextWrapping.Wrap, MaxWidth = 260 };
+                    var v = new TextBlock { Text = el.Display + (el.IsValid ? string.Empty : "  ⚠ " + string.Join(" ; ", el.Issues)), FontSize = 12.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 1, 0, 1) };
+                    v.Foreground = Res(el.IsValid ? "Ink" : "BadFg");
+                    Grid.SetRow(k, row);
+                    Grid.SetRow(v, row);
+                    Grid.SetColumn(v, 1);
+                    grid.Children.Add(k);
+                    grid.Children.Add(v);
+                    row++;
+                }
+
+                card.Children.Add(grid);
+            }
+
+            if (c.Parameters.Count > 0)
+            {
+                card.Children.Add(new TextBlock
+                {
+                    Text = string.Join(" · ", c.Parameters.Select(x => $"{x.Label} : {x.Value}")),
+                    FontSize = 12,
+                    Foreground = Res("Muted"),
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 6),
+                });
+            }
+
+            foreach (var note in c.Notes.OrderByDescending(x => x.Severity))
+            {
+                card.Children.Add(AlertBox(note));
+            }
+
+            ReadPanel.Children.Add(new Border
+            {
+                Child = card,
+                Tag = c,
+                BorderBrush = Res("Line"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(12, 10, 12, 6),
+                Margin = new Thickness(0, 0, 0, 10),
+            });
+        }
+
+        // Textes
+        var texts = label.Texts.ToList();
+        if (texts.Count > 0)
+        {
+            var toggle = new System.Windows.Controls.Primitives.ToggleButton
+            {
+                Style = (Style)FindResource("HexToggle"),
+                Content = $"Textes de l'étiquette ({texts.Count})",
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(0, 6, 0, 4),
+            };
+            var list = new TextBox
+            {
+                Visibility = Visibility.Collapsed,
+                IsReadOnly = true,
+                BorderThickness = new Thickness(0),
+                Background = Res("Surface2"),
+                Padding = new Thickness(10, 8, 10, 8),
+                FontFamily = (FontFamily)FindResource("MonoFont"),
+                FontSize = 12,
+                Foreground = Res("Ink"),
+                TextWrapping = TextWrapping.NoWrap,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Text = string.Join(Environment.NewLine, texts.Select(t =>
+                    $"l.{t.Line,-4} {t.Font}{t.Orientation} {t.Height,3}×{t.Width,-3} {(t.Reverse ? "inversé " : string.Empty)}« {t.Text.TrimEnd()} »")),
+            };
+            toggle.Checked += (_, _) => list.Visibility = Visibility.Visible;
+            toggle.Unchecked += (_, _) => list.Visibility = Visibility.Collapsed;
+            ReadPanel.Children.Add(toggle);
+            ReadPanel.Children.Add(list);
+        }
+
+        ShowLabelSize();
+    }
+
+    /// <summary>Reprend un code lu dans le générateur, avec ses réglages, pour produire un programme propre.</summary>
+    private void Recreate(ZplBarcode c)
+    {
+        var sym = c.Command switch
+        {
+            "^BC" => c.Gs1 ? LabelSymbology.Gs1_128 : LabelSymbology.Code128,
+            "^BE" => LabelSymbology.Ean13,
+            "^B8" => LabelSymbology.Ean8,
+            "^BU" => LabelSymbology.UpcA,
+            "^B3" => LabelSymbology.Code39,
+            "^B2" => LabelSymbology.Itf,
+            "^BQ" => LabelSymbology.QrCode,
+            "^BX" => c.Gs1 ? LabelSymbology.Gs1DataMatrix : LabelSymbology.DataMatrix,
+            "^B7" => LabelSymbology.Pdf417,
+            "^B0" or "^BO" => LabelSymbology.Aztec,
+            _ => LabelSymbology.Code128,
+        };
+        var dpi = ReadDpi;
+        SetReadMode(false);
+        _updating = true;
+        Check(DpiChips, dpi.ToString(CultureInfo.InvariantCulture));
+        ModuleBox.Text = c.ModuleWidth.ToString(CultureInfo.InvariantCulture);
+        if (!Is2D(sym))
+        {
+            BarsBox.Text = (c.Height * 25.4 / dpi).ToString("0.#", CultureInfo.CurrentCulture);
+            HriCheck.IsChecked = c.Interpretation;
+        }
+
+        Check(RotChips, c.Orientation switch { ZplOrientation.R => "90", ZplOrientation.I => "180", ZplOrientation.B => "270", _ => "0" });
+        _updating = false;
+        Load(c.Content, sym, $"programme ZPL lu, ligne {c.Line}");
+    }
+
+    private void OpenProgram_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Ouvrir le programme d'étiquette du client",
+            Filter = "Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl)|*.zpl;*.prn;*.txt;*.lbl|Tous les fichiers (*.*)|*.*",
+        };
+        if (dialog.ShowDialog(Window.GetWindow(this)) == true)
+        {
+            OpenFile(dialog.FileName);
+        }
+    }
+
+    private void Root_DragOver(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            e.Effects = DragDropEffects.Copy;
+            e.Handled = true;
+        }
+    }
+
+    private void Root_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } files)
+        {
+            OpenFile(files[0]);
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>
+    /// Lit le fichier du client avec ses octets d'origine : UTF-8 s'il l'est, sinon octet par octet (Latin-1),
+    /// pour que l'aperçu montre ce que l'imprimante imprime vraiment.
+    /// </summary>
+    private void OpenFile(string path)
+    {
+        try
+        {
+            var info = new FileInfo(path);
+            if (info.Length > 4 * 1024 * 1024)
+            {
+                Log?.Invoke(LogKind.Warning, "Fichier trop gros pour un programme d'étiquette (plus de 4 Mo) : il contient sans doute des images.");
+                return;
+            }
+
+            var bytes = File.ReadAllBytes(path);
+            string text;
+            try
+            {
+                text = new UTF8Encoding(false, true).GetString(bytes);
+            }
+            catch (DecoderFallbackException)
+            {
+                text = Encoding.Latin1.GetString(bytes);
+            }
+
+            LoadProgram(text.TrimStart('﻿'));
+            Log?.Invoke(LogKind.Info, $"Programme ouvert : {Path.GetFileName(path)} ({bytes.Length} octets).");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log?.Invoke(LogKind.Error, "Lecture du fichier impossible : " + ex.Message);
+        }
+    }
+
+    private void AnalyzeLabel_Click(object sender, RoutedEventArgs e)
+    {
+        if (_labelPng is null)
+        {
+            return;
+        }
+
+        AnalyzeRequested?.Invoke(_labelPng, "Programme ZPL" + (_label?.Barcodes.FirstOrDefault() is { } c ? " · " + c.Symbology : string.Empty));
+    }
+
+    private Brush Res(string key) => (Brush)FindResource(key);
+
+    private static TextBlock Section(string text) => new()
+    {
+        Text = text,
+        FontWeight = FontWeights.SemiBold,
+        FontSize = 13,
+        Margin = new Thickness(0, 10, 0, 8),
+    };
+
+    private TextBlock FieldCaption(string text) => new()
+    {
+        Text = text,
+        FontSize = 12,
+        Foreground = Res("Muted"),
+        Margin = new Thickness(0, 0, 0, 3),
+    };
+
+    private TextBox Mono(string text) => new()
+    {
+        Text = text,
+        IsReadOnly = true,
+        BorderThickness = new Thickness(0),
+        Background = Res("Surface2"),
+        Padding = new Thickness(8, 6, 8, 6),
+        Margin = new Thickness(0, 0, 0, 8),
+        FontFamily = (FontFamily)FindResource("MonoFont"),
+        FontSize = 12.5,
+        Foreground = Res("Ink"),
+        TextWrapping = TextWrapping.Wrap,
+    };
+
+    private Border AlertBox(Scanalyse.Core.Content.Alert a)
+    {
+        var (bg, fg) = a.Severity switch
+        {
+            Scanalyse.Core.Content.Severity.Ok => ("OkBg", "OkFg"),
+            Scanalyse.Core.Content.Severity.Warning => ("WarnBg", "WarnFg"),
+            Scanalyse.Core.Content.Severity.Error => ("BadBg", "BadFg"),
+            _ => ("InfoBg", "InfoFg"),
+        };
+        return new Border
+        {
+            Background = Res(bg),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(10, 7, 10, 7),
+            Margin = new Thickness(0, 0, 0, 6),
+            Child = new TextBlock { Text = a.Message, Foreground = Res(fg), TextWrapping = TextWrapping.Wrap, FontSize = 12.5 },
+        };
     }
 }

@@ -2356,6 +2356,70 @@ window.atelierRender=async function(reqId,text,typeId){
   }catch(e){reply({error:"Aperçu impossible."});}
 };
 
+/* ================= Aperçu d'un programme ZPL (lu par le programme Windows) ================= */
+// lbl : {width,height,elements:[{k:"t"|"b"|"c",…}]} en points d'imprimante. Renvoie l'image PNG de l'étiquette.
+window.atelierRenderLabel=async function(reqId,lbl){
+  const reply=o=>{if(DESKTOP)window.chrome.webview.postMessage(JSON.stringify({type:"rendered",id:reqId,...o}));};
+  try{
+    const W=lbl.width||3000,H=lbl.height||4000;
+    const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+    const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,H);x.imageSmoothingEnabled=false;
+    let maxX=0,maxY=0;
+    const track=(px,py,w,h)=>{const m=x.getTransform();[[px,py],[px+w,py],[px,py+h],[px+w,py+h]].forEach(([a,b])=>{const p=m.transformPoint(new DOMPoint(a,b));maxX=Math.max(maxX,p.x);maxY=Math.max(maxY,p.y);});};
+    const ANG={N:0,R:90,I:180,B:270};
+    /* Place le repère sur le champ : ^FT = ligne de base (texte) ou bas gauche (code) ; ^FO = coin haut gauche du champ tourné. */
+    const frame=(e,w,h)=>{
+      x.translate(e.x,e.y);
+      if(!e.ft){const o=e.o||"N";if(o==="R")x.translate(h,0);else if(o==="I")x.translate(w,h);else if(o==="B")x.translate(0,w);}
+      x.rotate((ANG[e.o||"N"]||0)*Math.PI/180);
+    };
+    const paint=(e,white)=>{if(e.rev){x.globalCompositeOperation="difference";x.fillStyle="#fff";}else{x.globalCompositeOperation="source-over";x.fillStyle=white?"#fff":"#000";}};
+    const Z=await engine();
+    // Police vectorielle ZPL (^A0) : étroite. Arial Narrow si le PC l'a, sinon Arial resserré.
+    x.font='bold 100px "Arial Narrow"';const nW=x.measureText("0123456789").width;x.font="bold 100px Arial";const aW=x.measureText("0123456789").width;
+    const narrow=Math.abs(nW-aW)>1;
+    for(const e of lbl.elements){
+      x.save();
+      try{
+        if(e.k==="b"){
+          const t=Math.min(e.t,e.w,e.h);paint(e,e.white);
+          x.translate(e.x,e.ft?e.y-e.h:e.y);
+          x.beginPath();x.rect(0,0,e.w,e.h);if(t*2<e.w&&t*2<e.h)x.rect(t,t,e.w-2*t,e.h-2*t);x.fill("evenodd");track(0,0,e.w,e.h);
+        }else if(e.k==="t"){
+          const bitmap=e.font!=="0";
+          const fam=bitmap?'Consolas,"Courier New",monospace':'"Arial Narrow","Roboto Condensed","Liberation Sans Narrow",Arial,sans-serif';
+          x.font=`${bitmap?"":"bold "}${e.h}px ${fam}`;
+          const sx=bitmap?Math.max(.3,e.w/e.h*1.6):Math.max(.3,e.w/e.h*(narrow?1:0.82));
+          const tw=x.measureText(e.text).width*sx;
+          const bw=e.bw||0;const w=Math.max(tw,bw);
+          frame(e,w,e.h);
+          let dx=0;if(bw>0&&e.ba==="C")dx=(bw-tw)/2;else if(bw>0&&e.ba==="R")dx=bw-tw;
+          x.textBaseline=e.ft?"alphabetic":"top";x.scale(sx,1);paint(e,false);
+          x.fillText(e.text,dx/sx,0);
+          track(dx/sx,e.ft?-e.h*0.8:0,tw/sx,e.h);
+        }else if(e.k==="c"&&e.format){
+          const r=await Z.writeBarcode(e.draw,{format:e.format,scale:1,withQuietZones:false,withHRT:false,options:e.gs1?"gs1":"",forceSquareDataMatrix:e.format==="DataMatrix"});
+          if(r.error)throw new Error(r.error);
+          const img=await svgToCanvas(r.svg,1,0,"#ffffff");
+          const twoD=/QR|DataMatrix|Aztec/.test(e.format);
+          const w=img.width*e.module,h=twoD?img.height*e.module:(e.format==="PDF417"?img.height*Math.max(1,Math.round(e.height/3)):e.height);
+          const hriPx=e.hri?Math.max(12,Math.round(e.module*6.5)):0;
+          frame(e,w,h+(e.above?0:hriPx));
+          const top=e.ft&&!twoD?-h:0;
+          x.drawImage(img,0,top,w,h);track(0,top,w,h);
+          if(e.hri){x.font=`${hriPx}px Consolas,"Courier New",monospace`;x.textAlign="center";x.textBaseline=e.above?"bottom":"top";x.fillStyle="#000";
+            const ty=e.above?top-2:top+h+2;x.fillText(e.readable,w/2,ty);track(0,e.above?ty-hriPx:ty,w,hriPx);}
+        }
+      }catch(err){/* champ non dessinable : ignoré */}
+      x.restore();
+    }
+    const outW=lbl.width||Math.min(W,Math.ceil(maxX)+16),outH=lbl.height||Math.min(H,Math.ceil(maxY)+16);
+    const out=document.createElement("canvas");out.width=Math.max(outW,40);out.height=Math.max(outH,40);
+    const o=out.getContext("2d");o.fillStyle="#fff";o.fillRect(0,0,out.width,out.height);o.drawImage(cv,0,0);
+    reply({image:out.toDataURL("image/png")});
+  }catch(e){reply({error:"Aperçu de l'étiquette impossible."});}
+};
+
 selectType("qr");
 })();
 

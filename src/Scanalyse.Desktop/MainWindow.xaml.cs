@@ -82,6 +82,13 @@ public partial class MainWindow : Window
         Bench.PrintRequested += (text, type) => OpenPrint(text, PrintView.SymbologyFor(type, text), "banc d'essai");
         PrintPage.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         PrintPage.Log += (kind, text) => AddLog(kind, "IMPRESSION", text);
+        PrintPage.LabelRenderer = json => _atelier.RenderLabelAsync(json);
+        PrintPage.AnalyzeRequested += async (png, source) =>
+        {
+            NavAnalyse.IsChecked = true;
+            await _atelier.LoadImageAsync(png, source);
+            AddLog(LogKind.Info, "IMPRESSION", "Étiquette du programme ZPL envoyée à l'analyse : chaque code est relu comme sur une photo.");
+        };
         _atelier.PrintRequested += r => OpenPrint(r.Text, PrintView.SymbologyFor(r.Format, r.Text, r.Gs1), r.Source);
         _atelier.ModeChanged += OnAtelierModeChanged;
         Symbols.CreateRequested += OnCreateRequested;
