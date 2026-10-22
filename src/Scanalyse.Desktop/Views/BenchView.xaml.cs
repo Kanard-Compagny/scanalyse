@@ -68,6 +68,12 @@ public partial class BenchView : UserControl
     /// </summary>
     public void ReceiveScan(ScanEvent scan)
     {
+        // Lecture vide (touches de modification seules, déclenchement sans code) : rien à comparer.
+        if (string.IsNullOrEmpty(scan.Text))
+        {
+            return;
+        }
+
         if (ZoomOverlay.Visibility == Visibility.Visible)
         {
             ZoomOverlay.Visibility = Visibility.Collapsed;
@@ -87,9 +93,82 @@ public partial class BenchView : UserControl
         }
         else
         {
-            ResultTitle.Text = "Lecture reçue";
-            ResultSubtitle.Text = "Saisis ou reprends le contenu réel du code pour lancer la comparaison, ou clique sur « Analyser le contenu ».";
+            // Pas de référence : on n'invente pas d'écart, on montre ce que contient la lecture.
+            AnalyzeText(scan.Text, null, "Lecture reçue");
         }
+    }
+
+    /// <summary>Analyse le contenu d'une lecture (ou de la référence) et l'affiche comme résultat.</summary>
+    private void AnalyzeText(string text, string? aim, string prefix)
+    {
+        var payload = text.TrimEnd('\r', '\n', '\t');
+        var analysis = _analyzer.Analyze(new ScanInput(payload, SymbologyIdentifier: aim));
+        ResultTitle.Text = $"{prefix} : {analysis.Title}";
+        ResultSubtitle.Text = $"{payload.Length} caractères · {ControlCharacters.Visualize(text)}";
+        FindingsList.ItemsSource = analysis.Alerts
+            .Select(a => FindingView.From(new Finding("ALERT", a.Severity, a.Message, string.Empty)))
+            .ToList();
+        FieldsList.ItemsSource = analysis.Fields
+            .Select(f => new FieldView(f.Label, f.Sensitive ? "•••••• (masqué)" : f.Value, f.Hint ?? string.Empty))
+            .ToList();
+        ResultActions.Visibility = ReceivedBox.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        AnalyzeReceivedButton.Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>La lecture devient la référence : on rescanne ensuite pour vérifier la régularité.</summary>
+    private void UseAsReference_Click(object sender, RoutedEventArgs e)
+    {
+        var received = ReceivedBox.Text;
+        if (received.Length == 0)
+        {
+            return;
+        }
+
+        // Les suffixes du scanner (Entrée, Tab) ne font pas partie du code.
+        var reference = received.TrimEnd('\r', '\n', '\t');
+        _settingExpected = true;
+        ExpectedBox.Text = ControlCharacters.Visualize(reference);
+        _settingExpected = false;
+        _expectedAim = null;
+        ExpectedSource.Text = "Référence reprise d'une lecture : scanne à nouveau le code pour vérifier qu'il se lit toujours pareil.";
+        ExpectedSource.Visibility = Visibility.Visible;
+        ExpectedHint.Visibility = Visibility.Collapsed;
+        ClearPreview();
+        _ = GeneratePreviewAsync();
+        ClearReception();
+        ResultTitle.Text = "Référence enregistrée";
+        ResultSubtitle.Text = "Scanne le même code : la lecture sera comparée à cette référence.";
+        FocusReception();
+    }
+
+    private void AnalyzeReceived_Click(object sender, RoutedEventArgs e) => AnalyzeText(ReceivedBox.Text, null, "Lecture reçue");
+
+    /// <summary>Tout effacer pour un nouveau code.</summary>
+    private void NewTest_Click(object sender, RoutedEventArgs e)
+    {
+        _settingExpected = true;
+        ExpectedBox.Clear();
+        _settingExpected = false;
+        _expectedAim = null;
+        ExpectedSource.Visibility = Visibility.Collapsed;
+        ExpectedHint.Visibility = Visibility.Visible;
+        ClearPreview();
+        ClearReception();
+        ResultTitle.Text = "Résultat";
+        ResultSubtitle.Text = "Scanne un code : il est analysé. Avec une référence, la lecture est comparée au contenu attendu.";
+        FocusReception();
+    }
+
+    private void ClearReception()
+    {
+        _settingReceived = true;
+        ReceivedBox.Clear();
+        _settingReceived = false;
+        _lastScan = null;
+        ReceivedOrigin.Visibility = Visibility.Collapsed;
+        FindingsList.ItemsSource = null;
+        FieldsList.ItemsSource = null;
+        ResultActions.Visibility = Visibility.Collapsed;
     }
 
     /// <summary>Donne le focus au champ de réception, prêt pour un scan.</summary>
@@ -142,6 +221,11 @@ public partial class BenchView : UserControl
 
     private void ExpectedBox_TextChanged(object sender, TextChangedEventArgs e)
     {
+        if (ExpectedHint is not null)
+        {
+            ExpectedHint.Visibility = ExpectedBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         if (_settingExpected || ExpectedSource is null)
         {
             return;
@@ -332,15 +416,29 @@ public partial class BenchView : UserControl
 
     private async void Compare_Click(object sender, RoutedEventArgs e)
     {
+        if (string.IsNullOrWhiteSpace(ExpectedBox.Text))
+        {
+            if (ReceivedBox.Text.Length > 0)
+            {
+                AnalyzeText(ReceivedBox.Text, null, "Lecture reçue");
+            }
+
+            return;
+        }
+
         var result = ScanComparer.Compare(ExpectedBox.Text, ReceivedBox.Text);
-        ResultTitle.Text = result.WorstSeverity switch
+        ResultActions.Visibility = result.OtherCode ? Visibility.Visible : Visibility.Collapsed;
+        AnalyzeReceivedButton.Visibility = Visibility.Visible;
+        ResultTitle.Text = result.OtherCode ? "Lecture d'un autre code" : result.WorstSeverity switch
         {
             Severity.Ok => "Lecture conforme",
             Severity.Info => result.DataMatches ? "Données conformes, avec ajouts du scanner" : "À vérifier",
             Severity.Warning => "À vérifier",
             _ => "Problème de lecture",
         };
-        ResultSubtitle.Text = result.DataMatches
+        ResultSubtitle.Text = result.OtherCode
+            ? "La lecture ne correspond pas à la référence affichée : vérifie le code scanné, ou prends cette lecture comme nouvelle référence."
+            : result.DataMatches
             ? "Les données utiles sont identiques au contenu du code."
             : "Les données reçues ne correspondent pas au contenu du code.";
         FindingsList.ItemsSource = result.Findings.Select(FindingView.From).ToList();
@@ -394,7 +492,7 @@ public partial class BenchView : UserControl
 
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
-        ReceivedBox.Clear();
+        ClearReception();
         ReceivedBox.Focus();
     }
 }

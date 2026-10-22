@@ -77,7 +77,9 @@
             <TextBlock x:Name="ExpectedSource" Style="{StaticResource FieldLabel}" Foreground="{DynamicResource BrandText}" FontWeight="SemiBold" Visibility="Collapsed" />
           </StackPanel>
           <TextBox x:Name="ExpectedBox" Grid.Row="1" Style="{StaticResource Input}" AcceptsReturn="True" MinHeight="90"
-                   TextChanged="ExpectedBox_TextChanged" Text="0103453120000011172712311010ABC123&lt;GS&gt;21SN7788" />
+                   TextChanged="ExpectedBox_TextChanged" />
+          <TextBlock x:Name="ExpectedHint" Grid.Row="1" Margin="12,10,12,0" IsHitTestVisible="False" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Muted}"
+                     Text="Pas de référence : chaque lecture est simplement analysée. Colle ici le contenu attendu, envoie un code depuis « Analyser une image », ou prends une lecture comme référence." />
 
           <TextBlock Grid.Row="2" Style="{StaticResource FieldLabel}" Margin="0,16,0,5"
                      Text="Données reçues : clique dans le champ puis scanne avec la douchette (Entrée et Tab sont capturés)" />
@@ -93,7 +95,9 @@
           <WrapPanel Grid.Row="5" Margin="0,16,0,0">
             <Button Style="{StaticResource BtnAction}" Content="Comparer" Click="Compare_Click" Margin="0,0,8,8" />
             <Button Style="{StaticResource BtnSecondary}" Content="Analyser le contenu" Click="Analyze_Click" Margin="0,0,8,8" />
-            <Button Style="{StaticResource BtnGhost}" Content="Effacer la lecture" Click="Clear_Click" Margin="0,0,0,8" />
+            <Button Style="{StaticResource BtnGhost}" Content="Effacer la lecture" Click="Clear_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnGhost}" Content="Nouveau test" Click="NewTest_Click" Margin="0,0,0,8"
+                    ToolTip="Efface la référence, la lecture, l'aperçu et le résultat" />
           </WrapPanel>
         </Grid>
       </Border>
@@ -151,7 +155,11 @@
           <StackPanel>
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Résultat" />
             <TextBlock x:Name="ResultSubtitle" Style="{StaticResource PageSubtitle}" Margin="0,4,0,14"
-                       Text="Saisis le contenu du code, scanne-le dans le second champ, puis clique sur Comparer." />
+                       Text="Scanne un code : il est analysé. Avec une référence, la lecture est comparée au contenu attendu." />
+            <WrapPanel x:Name="ResultActions" Margin="0,-4,0,12" Visibility="Collapsed">
+              <Button Style="{StaticResource BtnSecondary}" Content="Prendre cette lecture comme référence" Click="UseAsReference_Click" Margin="0,0,8,8" />
+              <Button x:Name="AnalyzeReceivedButton" Style="{StaticResource BtnSecondary}" Content="Analyser cette lecture" Click="AnalyzeReceived_Click" Margin="0,0,0,8" />
+            </WrapPanel>
 
             <ItemsControl x:Name="FindingsList">
               <ItemsControl.ItemTemplate>

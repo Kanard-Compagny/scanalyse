@@ -117,4 +117,27 @@ public class ScanComparerTests
     [Fact]
     public void ReadableGs1DetectsLostSeparator() =>
         Assert.Equal("GS_LOST", MainCode("(01)03453120000011(10)LOT(21)SN", "010345312000001110LOT21SN"));
+
+    [Fact]
+    public void Unrelated_read_is_reported_as_another_code()
+    {
+        var r = ScanComparer.Compare("0103453120000011172712311010ABC123<GS>21SN7788", "XXRAN261701571");
+        Assert.True(r.OtherCode);
+        Assert.Equal(Severity.Warning, r.WorstSeverity);
+    }
+
+    [Fact]
+    public void Close_read_is_still_a_read_error()
+    {
+        var r = ScanComparer.Compare("0103453120000011172712311010ABC123", "0103453120000012172712311010ABC123");
+        Assert.False(r.OtherCode);
+        Assert.Contains(r.Findings, f => f.Code == "DIFFERENT");
+    }
+
+    [Fact]
+    public void Similarity_ignores_case_and_controls()
+    {
+        Assert.Equal(1, ScanComparer.Similarity("abc<GS>def", "ABCDEF<CR>"));
+        Assert.True(ScanComparer.Similarity("ABCDEF", "XYZ123") < 0.2);
+    }
 }

@@ -349,6 +349,12 @@ public partial class MainWindow : Window
     /// <summary>Enregistre une comparaison ; la même comparaison relancée dans les 2 minutes met à jour l'entrée.</summary>
     private void RecordComparison(BenchSnapshot s)
     {
+        // Lecture d'un autre code que la référence : ce n'est pas un résultat de test, on ne l'archive pas.
+        if (s.Result.OtherCode)
+        {
+            return;
+        }
+
         try
         {
             var findings = s.Result.Findings.Select(f => new HistoryFinding(f.Severity, f.Title, f.Explanation, f.Fix)).ToList();

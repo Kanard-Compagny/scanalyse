@@ -180,7 +180,11 @@ internal sealed partial class RelayServer : IAsyncDisposable
                 var ua = root.TryGetProperty("userAgent", out var u) ? u.GetString() ?? string.Empty : string.Empty;
                 var model = ModelPattern().Match(ua) is { Success: true } m && m.Groups[1].Value.Trim().Length > 2 ? m.Groups[1].Value.Trim() : "Terminal Android";
                 var detail = DescribeKeys(root);
-                Scanned?.Invoke(new ScanEvent(DateTime.Now, $"{model} · relais {Origin(client)}", Encoding.UTF8.GetBytes(text), text, null, detail));
+                if (text.Length > 0)
+                {
+                    Scanned?.Invoke(new ScanEvent(DateTime.Now, $"{model} · relais {Origin(client)}", Encoding.UTF8.GetBytes(text), text, null, detail));
+                }
+
                 await RespondAsync(stream, 200, "text/plain; charset=utf-8", "ok"u8.ToArray());
             }
             catch (JsonException)

@@ -21,6 +21,9 @@ public sealed record ComparisonResult(bool Identical, bool DataMatches, IReadOnl
 {
     /// <summary>Gravité la plus élevée parmi les constats.</summary>
     public Severity WorstSeverity => Findings.Count == 0 ? Severity.Ok : Findings.Max(f => f.Severity);
+
+    /// <summary>La lecture n'a presque rien en commun avec la référence : c'est sans doute un autre code.</summary>
+    public bool OtherCode => Findings.Any(f => f.Code == "OTHER_CODE");
 }
 
 /// <summary>
@@ -288,8 +291,58 @@ public static class ScanComparer
         return null;
     }
 
+    /// <summary>
+    /// Ressemblance entre deux contenus, de 0 (rien en commun) à 1 (identiques), sans tenir compte de la casse
+    /// ni des caractères de contrôle (préfixes, suffixes, séparateurs).
+    /// </summary>
+    public static double Similarity(string expected, string received)
+    {
+        static string Core(string s) => new([.. ControlCharacters.FromVisualized(s).Where(c => c >= ' ').Select(char.ToUpperInvariant)]);
+        var a = Core(expected);
+        var b = Core(received);
+        if (a.Length == 0 || b.Length == 0)
+        {
+            return a.Length == b.Length ? 1 : 0;
+        }
+
+        if (a.Contains(b, StringComparison.Ordinal) || b.Contains(a, StringComparison.Ordinal))
+        {
+            return Math.Min(1, 0.5 + 0.5 * Math.Min(a.Length, b.Length) / Math.Max(a.Length, b.Length));
+        }
+
+        a = a.Length > 2000 ? a[..2000] : a;
+        b = b.Length > 2000 ? b[..2000] : b;
+        var prev = new int[b.Length + 1];
+        var cur = new int[b.Length + 1];
+        for (var j = 0; j <= b.Length; j++)
+        {
+            prev[j] = j;
+        }
+
+        for (var i = 1; i <= a.Length; i++)
+        {
+            cur[0] = i;
+            for (var j = 1; j <= b.Length; j++)
+            {
+                cur[j] = Math.Min(Math.Min(prev[j] + 1, cur[j - 1] + 1), prev[j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1));
+            }
+
+            (prev, cur) = (cur, prev);
+        }
+
+        return 1 - (double)prev[b.Length] / Math.Max(a.Length, b.Length);
+    }
+
     private static Finding GenericDifference(string e, string r)
     {
+        // Presque rien en commun : ce n'est pas un défaut de lecture, c'est un autre code (ou une référence périmée).
+        if (Similarity(e, r) < 0.35)
+        {
+            return new Finding("OTHER_CODE", Severity.Warning, "Ce n'est pas le même code",
+                $"La lecture n'a presque rien en commun avec la référence ({r.Length} caractères reçus, {e.Length} attendus) : un autre code a sans doute été scanné (code voisin sur l'étiquette), ou la référence vient d'un test précédent.",
+                "Scanne le bon code, ou prends cette lecture comme nouvelle référence.");
+        }
+
         var first = 0;
         while (first < Math.Min(e.Length, r.Length) && e[first] == r[first])
         {
