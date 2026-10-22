@@ -45,7 +45,7 @@
         </WrapPanel>
         <Rectangle Width="1" Height="26" Fill="{DynamicResource Line}" Margin="10,0,16,6" VerticalAlignment="Center" />
         <RadioButton x:Name="ModeCreate" Style="{StaticResource Chip}" GroupName="PageMode" Content="Créer une étiquette" IsChecked="True" Checked="PageMode_Changed" />
-        <RadioButton x:Name="ModeRead" Style="{StaticResource Chip}" GroupName="PageMode" Content="Lire un programme ZPL" Checked="PageMode_Changed"
+        <RadioButton x:Name="ModeRead" Style="{StaticResource Chip}" GroupName="PageMode" Content="Lire un programme" Checked="PageMode_Changed"
                      ToolTip="Colle le programme d'un client : aperçu de l'étiquette, codes-barres et ce qu'ils contiennent, points à corriger" />
       </WrapPanel>
       <StackPanel>
@@ -323,7 +323,9 @@
                              ToolTip="Anciennes Zebra (LP/TLP 2844…), codes 1D" />
               </WrapPanel>
               <Button x:Name="PasteProgramButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Coller un programme client" Click="PasteProgram_Click" Margin="10,0,0,6"
-                      VerticalAlignment="Center" ToolTip="Colle le programme ZPL du presse-papiers et l'affiche en lecture (aperçu, codes, points à corriger)" />
+                      VerticalAlignment="Center" ToolTip="Colle le programme du presse-papiers (ZPL, TSPL, EPL2…) et l'affiche en lecture" />
+              <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="OpenProgram_Click" Margin="10,0,0,6"
+                      VerticalAlignment="Center" ToolTip="Ouvre un fichier du PC (.zpl, .prn, .txt, .epl…) : le programme s'affiche en lecture. Tu peux aussi glisser le fichier sur la page." />
               <StackPanel VerticalAlignment="Center">
                 <TextBlock x:Name="ProgramTitle" Style="{StaticResource CardTitle}" Text="Programme ZPL" />
                 <TextBlock x:Name="ProgramHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"

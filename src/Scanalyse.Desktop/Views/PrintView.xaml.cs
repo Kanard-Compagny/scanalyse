@@ -399,7 +399,7 @@ public partial class PrintView : UserControl
 
         // Un programme ZPL collé (et non une retouche du programme généré) : on passe en lecture.
         var pasted = e.Changes.Sum(c => c.AddedLength);
-        if (pasted > 20 && ZplReader.LooksLikeZpl(CodeBox.Text) && (_output is null || !CodeBox.Text.Contains(_output.Code.Trim(), StringComparison.Ordinal)))
+        if (pasted > 20 && ProgramFile.Detect(CodeBox.Text) != ProgramKind.Unknown && (_output is null || !CodeBox.Text.Contains(_output.Code.Trim(), StringComparison.Ordinal)))
         {
             var program = CodeBox.Text;
             _updating = true;
@@ -407,7 +407,7 @@ public partial class PrintView : UserControl
             _updating = false;
             _edited = false;
             LoadProgram(program);
-            Log?.Invoke(LogKind.Info, "Programme ZPL collé : lecture de l'étiquette (onglet « Lire un programme ZPL »).");
+            Log?.Invoke(LogKind.Info, $"Programme {ProgramFile.Name(ProgramFile.Detect(program))} collé : affiché en lecture (« Lire un programme »).");
             return;
         }
 
@@ -430,7 +430,7 @@ public partial class PrintView : UserControl
     {
         var text = CodeBox.Text;
         var utf8 = _readMode
-            ? text.Contains("^CI28", StringComparison.OrdinalIgnoreCase)
+            ? text.Contains("^CI28", StringComparison.OrdinalIgnoreCase) || text.Contains("CODEPAGE UTF-8", StringComparison.OrdinalIgnoreCase)
             : Language == PrinterLanguage.Tspl || (Language == PrinterLanguage.Zpl && text.Contains("^CI28", StringComparison.OrdinalIgnoreCase));
         return (utf8 ? new UTF8Encoding(false) : Encoding.Latin1).GetBytes(text);
     }
@@ -460,7 +460,9 @@ public partial class PrintView : UserControl
             return;
         }
 
-        var ext = _readMode ? ".zpl" : LabelCode.Extension(Language);
+        var ext = _readMode
+            ? ProgramFile.Detect(CodeBox.Text) switch { ProgramKind.Zpl => ".zpl", ProgramKind.Epl2 => ".epl", ProgramKind.Unknown => ".txt", _ => ".prn" }
+            : LabelCode.Extension(Language);
         var name = new string(ControlCharacters.FromVisualized(DataBox.Text).Where(char.IsAsciiLetterOrDigit).Take(30).ToArray());
         var dialog = new SaveFileDialog
         {
@@ -967,11 +969,9 @@ public partial class PrintView : UserControl
             text = string.Empty;
         }
 
-        if (!ZplReader.LooksLikeZpl(text))
+        if (text.Trim().Length == 0)
         {
-            Status(text.Length == 0
-                ? "Le presse-papiers ne contient pas de texte : copie d'abord le programme du client (Ctrl + A puis Ctrl + C dans son fichier)."
-                : "Le presse-papiers ne contient pas de programme ZPL (pas de ^XA … ^FD).", ok: false);
+            Status("Le presse-papiers ne contient pas de texte : copie d'abord le programme du client (Ctrl + A puis Ctrl + C dans son fichier), ou utilise « Ouvrir un fichier ».", ok: false);
             return;
         }
 
@@ -1004,11 +1004,11 @@ public partial class PrintView : UserControl
         _updating = false;
 
         PageSubtitle.Text = on
-            ? "Colle le programme ZPL d'un client : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou analyse complète."
+            ? "Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi."
             : "Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
         LangChips.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         ZplTools.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-        ProgramTitle.Text = on ? "Programme ZPL du client" : "Programme ZPL";
+        ProgramTitle.Text = on ? "Programme du client" : "Programme ZPL";
         ProgramHint.Text = on
             ? "Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne."
             : "Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire.";
@@ -1064,18 +1064,28 @@ public partial class PrintView : UserControl
         var seq = ++_readSeq;
         var text = CodeBox.Text;
         ReadPanel.Children.Clear();
-        if (!ZplReader.LooksLikeZpl(text))
+        var kind = ProgramFile.Detect(text);
+        ProgramTitle.Text = kind is ProgramKind.Unknown ? "Programme du client" : $"Programme {ProgramFile.Name(kind)} du client";
+        if (kind != ProgramKind.Zpl || !ZplReader.LooksLikeZpl(text))
         {
             _label = null;
             _labelPng = null;
+            _boxes = [];
             ZplScroll.Visibility = Visibility.Collapsed;
             ZplEmpty.Visibility = Visibility.Visible;
-            ReadSummary.Text = text.Trim().Length == 0
-                ? "Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ou le texte capturé sur son poste."
-                : "Ce texte ne ressemble pas à un programme ZPL (pas de ^XA … ^FD). Les programmes TSPL, EPL2, DPL ou SBPL ne sont pas lus.";
             PreviewInfo.Text = string.Empty;
+            if (text.Trim().Length == 0)
+            {
+                ZplEmpty.Text = "Colle le programme du client dans la zone « Programme », ou ouvre son fichier (.zpl, .prn, .txt…) : l'étiquette s'affiche ici.";
+                ReadSummary.Text = "Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ouvre-le avec « Ouvrir un fichier », ou glisse-le sur la page.";
+                return;
+            }
+
+            ShowOtherProgram(text, kind);
             return;
         }
+
+        ZplEmpty.Text = string.Empty;
 
         var label = ZplReader.Read(text);
         _label = label;
@@ -1126,6 +1136,92 @@ public partial class PrintView : UserControl
         PreviewNote.Text = "Aperçu indicatif (polices approchées). Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer."
             + (label.Inverted ? " L'imprimante sort cette étiquette tournée de 180° (^POI)." : string.Empty);
         ShowLabelSize();
+    }
+
+    /// <summary>
+    /// Programme TSPL, EPL2, DPL, SBPL… : pas d'aperçu (dessiné pour le ZPL seulement), mais le langage, les codes-barres
+    /// trouvés (TSPL, EPL2) et ce qu'ils contiennent ; le fichier peut être envoyé tel quel.
+    /// </summary>
+    private void ShowOtherProgram(string text, ProgramKind kind)
+    {
+        var name = ProgramFile.Name(kind);
+        ZplEmpty.Text = kind == ProgramKind.Unknown
+            ? "Langage non reconnu : ce texte n'est pas un programme ZPL, TSPL, EPL2, DPL, SBPL ou Fingerprint connu."
+            : $"Programme {name} : l'aperçu de l'étiquette est dessiné pour le ZPL uniquement. Les codes-barres du programme sont listés à gauche.";
+        var lines = text.Split('\n').Length;
+        ReadSummary.Text = kind == ProgramKind.Unknown
+            ? $"{lines} ligne{(lines > 1 ? "s" : string.Empty)} · langage non reconnu. Vérifie que c'est bien le fichier d'impression (et non un export PDF ou image)."
+            : $"Programme {name} · {lines} lignes. Il peut être envoyé tel quel à une imprimante qui parle {name}.";
+
+        if (kind is ProgramKind.Dpl or ProgramKind.Sbpl or ProgramKind.Fingerprint)
+        {
+            ReadPanel.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Info,
+                $"{name} : lecture détaillée non disponible. Pour retrouver le contenu des codes, imprime l'étiquette et passe-la dans « Analyser une image » (photo ou capture), ou scanne-la au banc d'essai.")));
+            return;
+        }
+
+        var codes = ProgramFile.Barcodes(text, kind);
+        ReadPanel.Children.Add(Section(codes.Count == 0 ? "Aucun code-barres trouvé" : codes.Count == 1 ? "Code-barres" : $"Codes-barres ({codes.Count})"));
+        var n = 0;
+        foreach (var c in codes)
+        {
+            n++;
+            var card = new StackPanel();
+            var head = new DockPanel();
+            var again = new Button
+            {
+                Style = (Style)FindResource("BtnGhost"),
+                Content = "Réimprimer en ZPL",
+                Padding = new Thickness(8, 2, 8, 2),
+                ToolTip = "Reprend ce code dans « Créer une étiquette » pour générer un programme ZPL, TSPL ou EPL2",
+            };
+            DockPanel.SetDock(again, Dock.Right);
+            again.Click += (_, _) =>
+            {
+                SetReadMode(false);
+                Load(ProgramFile.ScannerContent(c), LabelCode.FromFormat(c.Symbology, c.Data), $"programme {name} lu, ligne {c.Line}");
+            };
+            var show = new Button
+            {
+                Style = (Style)FindResource("BtnGhost"),
+                Content = $"Voir la ligne {c.Line}",
+                Padding = new Thickness(8, 2, 8, 2),
+            };
+            DockPanel.SetDock(show, Dock.Right);
+            show.Click += (_, _) => GoToLine(c.Line);
+            head.Children.Add(again);
+            head.Children.Add(show);
+            head.Children.Add(new TextBlock { Text = $"Code {n} · {c.Symbology}", FontWeight = FontWeights.SemiBold, FontSize = 14, VerticalAlignment = VerticalAlignment.Center });
+            card.Children.Add(head);
+            card.Children.Add(new TextBlock { Text = $"{c.Command} · ligne {c.Line} · x {c.X}, y {c.Y}", FontSize = 12, Foreground = Res("Muted"), Margin = new Thickness(0, 2, 0, 8) });
+            card.Children.Add(FieldCaption("Données lues par une douchette"));
+            var content = ProgramFile.ScannerContent(c);
+            card.Children.Add(Mono(ControlCharacters.Visualize(content)));
+            if (c.Gs1 && Scanalyse.Core.Gs1.Gs1Parser.Parse(content) is { Elements.Count: > 0 } g)
+            {
+                foreach (var el in g.Elements)
+                {
+                    card.Children.Add(new TextBlock
+                    {
+                        Text = $"({el.Ai}) {el.Name} : {el.Display}" + (el.IsValid ? string.Empty : "  ⚠ " + string.Join(" ; ", el.Issues)),
+                        FontSize = 12.5,
+                        TextWrapping = TextWrapping.Wrap,
+                        Foreground = Res(el.IsValid ? "Ink" : "BadFg"),
+                        Margin = new Thickness(0, 0, 0, 2),
+                    });
+                }
+            }
+
+            ReadPanel.Children.Add(new Border
+            {
+                Child = card,
+                BorderBrush = Res("Line"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(12, 10, 12, 8),
+                Margin = new Thickness(0, 0, 0, 10),
+            });
+        }
     }
 
     private void ShowLabelSize()
@@ -1607,7 +1703,7 @@ public partial class PrintView : UserControl
         var dialog = new OpenFileDialog
         {
             Title = "Ouvrir le programme d'étiquette du client",
-            Filter = "Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl)|*.zpl;*.prn;*.txt;*.lbl|Tous les fichiers (*.*)|*.*",
+            Filter = "Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|Tous les fichiers (*.*)|*.*",
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {

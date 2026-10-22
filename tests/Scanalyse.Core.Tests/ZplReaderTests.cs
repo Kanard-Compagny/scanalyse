@@ -106,3 +106,31 @@ public class ProgramSyntaxTests
         Assert.Equal(3, t.Count(x => x.Kind == SyntaxKind.Structure));
     }
 }
+
+public class ProgramFileTests
+{
+    [Fact]
+    public void Detects_languages()
+    {
+        Assert.Equal(ProgramKind.Zpl, ProgramFile.Detect("^XA^FDx^FS^XZ"));
+        Assert.Equal(ProgramKind.Tspl, ProgramFile.Detect("SIZE 100 mm,50 mm\r\nGAP 2 mm,0\r\nCLS\r\nPRINT 1\r\n"));
+        Assert.Equal(ProgramKind.Epl2, ProgramFile.Detect("\r\nN\r\nq812\r\nB40,40,0,1,2,4,100,B,\"ABC\"\r\nP1\r\n"));
+        Assert.Equal(ProgramKind.Dpl, ProgramFile.Detect("\u0002L\r\nD11\r\nE\r\n"));
+        Assert.Equal(ProgramKind.Unknown, ProgramFile.Detect("bonjour"));
+    }
+
+    [Fact]
+    public void Lists_tspl_and_epl_barcodes()
+    {
+        var t = ProgramFile.Barcodes("CLS\r\nBARCODE 40,40,\"EAN128\",120,1,0,3,3,\"(01)03453120000011(10)LOT42\"\r\nQRCODE 300,40,M,4,A,0,\"https://a.b\"\r\nPRINT 1\r\n", ProgramKind.Tspl);
+        Assert.Equal(2, t.Count);
+        Assert.Equal("GS1-128", t[0].Symbology);
+        Assert.Equal("010345312000001110LOT42", ProgramFile.ScannerContent(t[0]));
+        Assert.Equal("https://a.b", t[1].Data);
+        Assert.Equal(3, t[1].Line);
+
+        var e = ProgramFile.Barcodes("N\r\nB40,40,0,E30,2,4,100,B,\"345312000001\"\r\nP1\r\n", ProgramKind.Epl2);
+        Assert.Equal("EAN-13", e.Single().Symbology);
+        Assert.Equal(40, e.Single().X);
+    }
+}
