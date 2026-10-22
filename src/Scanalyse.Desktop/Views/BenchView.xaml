@@ -41,7 +41,9 @@
   </UserControl.Resources>
 
   <Grid>
-  <Grid Margin="28,22,28,16">
+  <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
+  <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : rien n'est jamais coupé. -->
+  <Grid x:Name="PageGrid" MinHeight="700" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -217,6 +219,7 @@
       </Grid>
     </Grid>
   </Grid>
+  </ScrollViewer>
 
   <!-- Agrandissement : le code en grand, sur fond blanc, pour le scanner directement à l'écran -->
   <Grid x:Name="ZoomOverlay" Visibility="Collapsed" Background="#B3000000" MouseLeftButtonUp="ZoomOverlay_Click">

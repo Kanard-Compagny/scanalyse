@@ -57,6 +57,9 @@ public partial class PrintView : UserControl
         }
 
         DataBox.Text = "SCANALYSE-0001";
+        // Numéros de ligne : ils suivent le défilement du programme.
+        CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, e) =>
+            LineNumbers.RenderTransform = new TranslateTransform(0, -e.VerticalOffset)));
         _readTimer.Tick += async (_, _) =>
         {
             _readTimer.Stop();
@@ -272,6 +275,7 @@ public partial class PrintView : UserControl
         }
 
         WarningsList.ItemsSource = warnings;
+        ProgramTitle.Text = Language switch { PrinterLanguage.Tspl => "Programme TSPL", PrinterLanguage.Epl2 => "Programme EPL2", _ => "Programme ZPL" };
         if (!_edited)
         {
             _updating = true;
@@ -374,6 +378,7 @@ public partial class PrintView : UserControl
 
     private void CodeBox_TextChanged(object sender, TextChangedEventArgs e)
     {
+        UpdateEditorChrome();
         if (_updating || !_loaded)
         {
             return;
@@ -699,6 +704,58 @@ public partial class PrintView : UserControl
         SetReadMode(ModeRead.IsChecked == true);
     }
 
+    /// <summary>Numéros de ligne et invitation à coller quand la zone est vide.</summary>
+    private void UpdateEditorChrome()
+    {
+        var count = Math.Max(1, CodeBox.Text.Count(c => c == '\n') + 1);
+        LineNumbers.Text = string.Join("\n", Enumerable.Range(1, count));
+        CodeHint.Visibility = CodeBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>Sélectionne une ligne du programme et la fait défiler à l'écran.</summary>
+    private void GoToLine(int line)
+    {
+        if (_zoom == Zoom.Preview)
+        {
+            SetZoom(Zoom.None);
+        }
+
+        var index = Math.Clamp(line - 1, 0, Math.Max(0, CodeBox.LineCount - 1));
+        var start = CodeBox.GetCharacterIndexFromLineIndex(index);
+        if (start < 0)
+        {
+            return;
+        }
+
+        CodeBox.Focus();
+        CodeBox.Select(start, Math.Max(0, CodeBox.GetLineLength(index) - Environment.NewLine.Length));
+        CodeBox.ScrollToLine(index);
+    }
+
+    private void PasteProgram_Click(object sender, RoutedEventArgs e)
+    {
+        string text;
+        try
+        {
+            text = Clipboard.ContainsText() ? Clipboard.GetText() : string.Empty;
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            text = string.Empty;
+        }
+
+        if (!ZplReader.LooksLikeZpl(text))
+        {
+            Status(text.Length == 0
+                ? "Le presse-papiers ne contient pas de texte : copie d'abord le programme du client (Ctrl + A puis Ctrl + C dans son fichier)."
+                : "Le presse-papiers ne contient pas de programme ZPL (pas de ^XA … ^FD).", ok: false);
+            return;
+        }
+
+        SendStatus.Visibility = Visibility.Collapsed;
+        LoadProgram(text);
+    }
+
     private void SetReadMode(bool on)
     {
         if (_readMode == on)
@@ -727,6 +784,12 @@ public partial class PrintView : UserControl
             ? "Colle le programme ZPL d'un client : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou analyse complète."
             : "Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
         LangChips.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        ProgramTitle.Text = on ? "Programme ZPL du client" : "Programme ZPL";
+        ProgramHint.Text = on
+            ? "Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne."
+            : "Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire.";
+        PasteProgramButton.Content = on ? "Coller un autre programme" : "Coller un programme client";
+        PageGrid.MinHeight = on ? 840 : 780;
         RegenerateButton.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         WarningsList.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         EditedNote.Visibility = Visibility.Collapsed;
@@ -899,6 +962,16 @@ public partial class PrintView : UserControl
             DockPanel.SetDock(again, Dock.Right);
             again.Click += (_, _) => Recreate(c);
             head.Children.Add(again);
+            var show = new Button
+            {
+                Style = (Style)FindResource("BtnGhost"),
+                Content = $"Voir la ligne {c.Line}",
+                Padding = new Thickness(8, 2, 8, 2),
+                ToolTip = "Sélectionne la ligne de ce code dans le programme, pour la lire ou la corriger",
+            };
+            DockPanel.SetDock(show, Dock.Right);
+            show.Click += (_, _) => GoToLine(c.Line);
+            head.Children.Add(show);
             head.Children.Add(new TextBlock { Text = $"Code {n} · {c.Symbology}", FontWeight = FontWeights.SemiBold, FontSize = 14, VerticalAlignment = VerticalAlignment.Center });
             card.Children.Add(head);
             card.Children.Add(new TextBlock { Text = BarcodeMeta(c, dpi), FontSize = 12, Foreground = Res("Muted"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 8) });

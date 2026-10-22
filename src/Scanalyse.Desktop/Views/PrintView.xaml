@@ -15,7 +15,9 @@
     </Style>
   </UserControl.Resources>
 
-  <Grid Margin="28,22,28,16">
+<ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
+  <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : rien n'est jamais coupé. -->
+  <Grid x:Name="PageGrid" MinHeight="780" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -228,7 +230,13 @@
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Epl2" Content="EPL2" Checked="Any_Changed"
                              ToolTip="Anciennes Zebra (LP/TLP 2844…), codes 1D" />
               </WrapPanel>
-              <TextBlock Style="{StaticResource CardTitle}" Text="Programme" VerticalAlignment="Center" />
+              <Button x:Name="PasteProgramButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Coller un programme client" Click="PasteProgram_Click" Margin="10,0,0,6"
+                      VerticalAlignment="Center" ToolTip="Colle le programme ZPL du presse-papiers et l'affiche en lecture (aperçu, codes, points à corriger)" />
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock x:Name="ProgramTitle" Style="{StaticResource CardTitle}" Text="Programme ZPL" />
+                <TextBlock x:Name="ProgramHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"
+                           Text="Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire." />
+              </StackPanel>
             </DockPanel>
             <ItemsControl x:Name="WarningsList" Grid.Row="1" Margin="0,8,0,0">
               <ItemsControl.ItemTemplate>
@@ -239,9 +247,23 @@
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <TextBox x:Name="CodeBox" Grid.Row="2" Style="{StaticResource Input}" AcceptsReturn="True" TextWrapping="NoWrap" Margin="0,4,0,0"
-                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Top" MinHeight="120"
-                     TextChanged="CodeBox_TextChanged" ToolTip="Modifiable : tes retouches sont envoyées telles quelles" />
+            <!-- Éditeur : numéros de ligne + programme modifiable -->
+            <Grid Grid.Row="2" Margin="0,4,0,0" MinHeight="170">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Background="{DynamicResource Surface2}" CornerRadius="8,0,0,8" BorderBrush="{DynamicResource Line}" BorderThickness="1,1,0,1" ClipToBounds="True">
+                <TextBlock x:Name="LineNumbers" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Muted}" TextAlignment="Right"
+                           MinWidth="34" Padding="8,0,8,0" Margin="0,9,0,0" Text="1" />
+              </Border>
+              <TextBox x:Name="CodeBox" Grid.Column="1" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
+                       VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Top"
+                       TextChanged="CodeBox_TextChanged" ToolTip="Modifiable : chaque ligne peut être retouchée, l'envoi part tel quel" />
+              <TextBlock x:Name="CodeHint" Grid.Column="1" Margin="14,10,14,0" IsHitTestVisible="False" TextWrapping="Wrap" Visibility="Collapsed"
+                         FontSize="13" Foreground="{DynamicResource Muted}"
+                         Text="Colle ici le programme ZPL du client (Ctrl + V), ouvre son fichier, ou glisse-le sur la page." />
+            </Grid>
             <TextBlock x:Name="EditedNote" Grid.Row="3" FontSize="12" Foreground="{DynamicResource BrandText}" Margin="0,6,0,0" Visibility="Collapsed" TextWrapping="Wrap"
                        Text="Programme retouché à la main : il n'est plus régénéré tant que tu ne changes pas un réglage." />
 
@@ -301,4 +323,5 @@
       </Grid>
     </Grid>
   </Grid>
+  </ScrollViewer>
 </UserControl>
