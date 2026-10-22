@@ -2393,13 +2393,18 @@ window.atelierRenderLabel=async function(reqId,lbl){
           const fam=bitmap?'Consolas,"Courier New",monospace':'"Arial Narrow","Roboto Condensed","Liberation Sans Narrow",Arial,sans-serif';
           x.font=`${bitmap?"":"bold "}${e.h}px ${fam}`;
           const sx=bitmap?Math.max(.3,e.w/e.h*1.6):Math.max(.3,e.w/e.h*(narrow?1:0.82));
-          const tw=x.measureText(e.text).width*sx;
+          // Bloc ^FB : une ligne par retour à la ligne, alignée dans la largeur du bloc
+          let lines=String(e.text).split("\n");const lh=e.h*1.15;
+          // ^FB : l'imprimante coupe les lignes trop longues entre les mots
+          if(e.bw>0){const out=[];lines.forEach(l=>{let cur="";l.split(" ").forEach(wd=>{const t=cur?cur+" "+wd:wd;
+            if(cur&&x.measureText(t).width*sx>e.bw){out.push(cur);cur=wd;}else cur=t;});out.push(cur);});lines=out;}
+          const widths=lines.map(l=>x.measureText(l).width*sx);
+          const tw=Math.max(...widths);
           const bw=e.bw||0;const w=Math.max(tw,bw);
-          frame(e,w,e.h);
-          let dx=0;if(bw>0&&e.ba==="C")dx=(bw-tw)/2;else if(bw>0&&e.ba==="R")dx=bw-tw;
+          frame(e,w,e.h+lh*(lines.length-1));
           x.textBaseline=e.ft?"alphabetic":"top";x.scale(sx,1);paint(e,false);
-          x.fillText(e.text,dx/sx,0);
-          track(dx/sx,e.ft?-e.h*0.8:0,tw/sx,e.h);
+          lines.forEach((l,i)=>{let dx=0;const lw=widths[i];if(bw>0&&e.ba==="C")dx=(bw-lw)/2;else if(bw>0&&e.ba==="R")dx=bw-lw;
+            x.fillText(l,dx/sx,i*lh);track(dx/sx,(e.ft?-e.h*0.8:0)+i*lh,lw/sx,e.h);});
         }else if(e.k==="c"&&e.format){
           const r=await Z.writeBarcode(e.draw,{format:e.format,scale:1,withQuietZones:false,withHRT:false,options:e.gs1?"gs1":"",forceSquareDataMatrix:e.format==="DataMatrix"});
           if(r.error)throw new Error(r.error);

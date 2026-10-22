@@ -91,3 +91,34 @@ public class DplTests
         Assert.False(LabelCode.Generate(PrinterLanguage.Dpl, new LabelJob("(01)03453120000011", LabelSymbology.Gs1_128)).Supported);
     }
 }
+
+public class LabelTemplateTests
+{
+    [Fact]
+    public void Every_template_builds_a_readable_label()
+    {
+        foreach (var t in LabelTemplates.All)
+        {
+            var o = LabelTemplates.Build(t, LabelTemplates.Defaults(t));
+            var label = ZplReader.Read(o.Zpl);
+            Assert.DoesNotContain(label.Issues, i => i.Severity == Scanalyse.Core.Content.Severity.Error);
+            Assert.True(label.Barcodes.Any());
+            foreach (var c in label.Barcodes)
+            {
+                Assert.DoesNotContain(c.Notes, n => n.Severity == Scanalyse.Core.Content.Severity.Error);
+            }
+        }
+    }
+
+    [Fact]
+    public void Pallet_sscc_key_is_computed_and_gs1_is_valid()
+    {
+        var t = LabelTemplates.Get("pallet")!;
+        var o = LabelTemplates.Build(t, LabelTemplates.Defaults(t));
+        var codes = ZplReader.Read(o.Zpl).Barcodes.ToList();
+        Assert.Equal(3, codes.Count);
+        Assert.Equal("00331093001690418057", codes[2].Content);
+        Assert.Contains("10LOT42", codes[1].Content);
+        Assert.Contains("3102051240", codes[1].Content);
+    }
+}

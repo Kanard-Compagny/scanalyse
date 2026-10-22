@@ -708,7 +708,8 @@ public partial class PrintView : UserControl
         var zoom = _zoom;
         var any = zoom != Zoom.None;
         SettingsCard.Visibility = !any && !_readMode ? Visibility.Visible : Visibility.Collapsed;
-        ReadCard.Visibility = !any && _readMode ? Visibility.Visible : Visibility.Collapsed;
+        ReadCard.Visibility = !any && _readMode && !_templateMode ? Visibility.Visible : Visibility.Collapsed;
+        TemplateCard.Visibility = !any && _templateMode ? Visibility.Visible : Visibility.Collapsed;
 
         var showPreview = zoom == Zoom.Preview || (zoom == Zoom.None && (Detached || _view != PaneView.Program));
         var showProgram = !Detached && (zoom == Zoom.Program || (zoom == Zoom.None && _view != PaneView.Preview));
@@ -756,7 +757,7 @@ public partial class PrintView : UserControl
         ProgramCard.Visibility = Visibility.Visible;
         var w = new ProgramWindow
         {
-            Heading = _readMode ? "Programme ZPL du client" : ProgramTitle.Text,
+            Heading = ProgramTitle.Text,
             Owner = owner,
             Width = Math.Max(720, (owner?.ActualWidth ?? 1400) * 0.5),
             Height = Math.Max(600, (owner?.ActualHeight ?? 900) * 0.85),
@@ -822,7 +823,7 @@ public partial class PrintView : UserControl
             return;
         }
 
-        SetReadMode(ModeRead.IsChecked == true);
+        SetPageMode(ModeRead.IsChecked == true ? PageMode.Read : ModeTemplate.IsChecked == true ? PageMode.Template : PageMode.Create);
     }
 
     /// <summary>Numéros de ligne et invitation à coller quand la zone est vide.</summary>
@@ -991,47 +992,88 @@ public partial class PrintView : UserControl
         LoadProgram(text);
     }
 
-    private void SetReadMode(bool on)
+    private enum PageMode
     {
-        if (_readMode == on)
+        Create,
+        Template,
+        Read,
+    }
+
+    private PageMode _pageMode = PageMode.Create;
+    private bool _templateMode;
+    private string _templateProgram = string.Empty;
+
+    private void SetReadMode(bool on) => SetPageMode(on ? PageMode.Read : PageMode.Create);
+
+    /// <summary>
+    /// Trois façons d'utiliser la page : créer une étiquette (un code), partir d'un modèle (étiquette complète), lire un programme.
+    /// Chaque mode garde son propre programme : on le retrouve en revenant.
+    /// </summary>
+    private void SetPageMode(PageMode mode)
+    {
+        if (_pageMode == mode)
         {
             return;
         }
 
-        // Chaque mode garde son programme : on retrouve l'étiquette générée en revenant à « Créer ».
-        if (on)
+        switch (_pageMode)
         {
-            _createProgram = CodeBox.Text;
-        }
-        else
-        {
-            _readProgram = CodeBox.Text;
+            case PageMode.Create:
+                _createProgram = CodeBox.Text;
+                break;
+            case PageMode.Template:
+                _templateProgram = CodeBox.Text;
+                break;
+            default:
+                _readProgram = CodeBox.Text;
+                break;
         }
 
+        _pageMode = mode;
+        var on = mode != PageMode.Create; // modèle et lecture : programme ZPL complet dessiné par l'Atelier
         _readMode = on;
+        _templateMode = mode == PageMode.Template;
         _updating = true;
-        ModeRead.IsChecked = on;
-        ModeCreate.IsChecked = !on;
-        CodeBox.Text = on ? _readProgram : _createProgram;
+        ModeRead.IsChecked = mode == PageMode.Read;
+        ModeTemplate.IsChecked = mode == PageMode.Template;
+        ModeCreate.IsChecked = mode == PageMode.Create;
+        CodeBox.Text = mode switch { PageMode.Create => _createProgram, PageMode.Template => _templateProgram, _ => _readProgram };
         _updating = false;
 
-        PageSubtitle.Text = on
-            ? "Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi."
-            : "Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
+        PageSubtitle.Text = mode switch
+        {
+            PageMode.Read => "Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2, DPL…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi.",
+            PageMode.Template => "Étiquettes complètes prêtes à l'emploi : remplis les champs, les clés de contrôle et les codes GS1 sont calculés, le programme ZPL est prêt à envoyer.",
+            _ => "Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.",
+        };
         LangChips.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         ZplTools.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-        ProgramTitle.Text = on ? "Programme du client" : "Programme ZPL";
-        ProgramHint.Text = on
-            ? "Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne."
-            : "Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire.";
-        PasteProgramButton.Content = on ? "Coller un autre programme" : "Coller un programme client";
+        ProgramTitle.Text = mode switch { PageMode.Read => "Programme du client", PageMode.Template => "Programme ZPL du modèle", _ => "Programme ZPL" };
+        ProgramHint.Text = mode switch
+        {
+            PageMode.Read => "Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne.",
+            PageMode.Template => "Généré depuis le modèle : modifie les champs à gauche, ou retouche les lignes ici (un changement de champ régénère le programme).",
+            _ => "Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire.",
+        };
+        PasteProgramButton.Content = mode == PageMode.Read ? "Coller un autre programme" : "Coller un programme client";
         PageGrid.MinHeight = on ? 910 : 850;
-        RegenerateButton.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        RegenerateButton.Visibility = mode == PageMode.Create ? Visibility.Visible : Visibility.Collapsed;
         WarningsList.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         EditedNote.Visibility = Visibility.Collapsed;
         CreateViewbox.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         SetZoom(Zoom.None);
-        if (on)
+        if (mode == PageMode.Template)
+        {
+            if (TemplateChips.Children.Count == 0)
+            {
+                BuildTemplateChips();
+            }
+            else
+            {
+                RegenerateTemplate();
+            }
+        }
+        else if (on)
         {
             _ = ReadProgramAsync();
         }
@@ -1044,13 +1086,130 @@ public partial class PrintView : UserControl
         }
     }
 
+    // ------------------------------------------------------------------ Modèles d'étiquettes
+
+    private LabelTemplate _template = LabelTemplates.All[0];
+    private readonly Dictionary<string, Dictionary<string, string>> _templateValues = [];
+    private readonly DispatcherTimer _templateTimer = new() { Interval = TimeSpan.FromMilliseconds(350) };
+
+    private void BuildTemplateChips()
+    {
+        _templateTimer.Tick += (_, _) =>
+        {
+            _templateTimer.Stop();
+            RegenerateTemplate();
+        };
+        foreach (var t in LabelTemplates.All)
+        {
+            var chip = new RadioButton
+            {
+                Style = (Style)FindResource("Chip"),
+                GroupName = "Template",
+                Content = t.Name,
+                Tag = t.Id,
+                ToolTip = $"{t.Description} ({t.WidthMm:0} × {t.HeightMm:0} mm)",
+            };
+            chip.Checked += (_, _) => SelectTemplate(t);
+            TemplateChips.Children.Add(chip);
+        }
+
+        ((RadioButton)TemplateChips.Children[0]).IsChecked = true;
+    }
+
+    private void SelectTemplate(LabelTemplate t)
+    {
+        _template = t;
+        if (!_templateValues.TryGetValue(t.Id, out var values))
+        {
+            values = LabelTemplates.Defaults(t);
+            _templateValues[t.Id] = values;
+        }
+
+        TemplateDescription.Text = $"{t.Description} Étiquette {t.WidthMm:0} × {t.HeightMm:0} mm, valeurs d'exemple à remplacer.";
+        TemplateFields.Children.Clear();
+        foreach (var f in t.Fields)
+        {
+            TemplateFields.Children.Add(new TextBlock
+            {
+                Text = f.Label + (f.Required ? string.Empty : " (facultatif)"),
+                FontSize = 12.5,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 10, 0, 4),
+            });
+            var multi = f.Kind == TemplateFieldKind.MultiLine;
+            var box = new TextBox
+            {
+                Style = (Style)FindResource("FieldInput"),
+                Text = values.TryGetValue(f.Key, out var v) ? v : f.Default,
+                AcceptsReturn = multi,
+                TextWrapping = multi ? TextWrapping.Wrap : TextWrapping.NoWrap,
+                MinHeight = multi ? 74 : 0,
+                VerticalContentAlignment = multi ? VerticalAlignment.Top : VerticalAlignment.Center,
+            };
+            box.TextChanged += (_, _) =>
+            {
+                values[f.Key] = box.Text;
+                _templateTimer.Stop();
+                _templateTimer.Start();
+            };
+            TemplateFields.Children.Add(box);
+            if (f.Hint.Length > 0)
+            {
+                TemplateFields.Children.Add(new TextBlock { Text = f.Hint, FontSize = 11.5, Foreground = Res("Muted"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 0) });
+            }
+        }
+
+        _newProgram = true;
+        RegenerateTemplate();
+    }
+
+    private void Template_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_loaded && _templateMode)
+        {
+            _templateTimer.Stop();
+            _templateTimer.Start();
+        }
+    }
+
+    /// <summary>Produit le programme du modèle avec les valeurs saisies, puis le dessine comme un programme client.</summary>
+    private void RegenerateTemplate()
+    {
+        if (!_templateMode)
+        {
+            return;
+        }
+
+        var dpi = int.TryParse(Selected(TemplateDpiChips, "203"), out var d) ? d : 203;
+        var values = _templateValues.TryGetValue(_template.Id, out var v) ? v : LabelTemplates.Defaults(_template);
+        var output = LabelTemplates.Build(_template, values, dpi, Math.Clamp(Int(TemplateCopies, 1), 1, 9999));
+        _updating = true;
+        Check(ReadDpiChips, dpi.ToString(CultureInfo.InvariantCulture));
+        CodeBox.Text = output.Zpl;
+        _updating = false;
+        UpdateEditorChrome();
+        TemplateWarnings.Children.Clear();
+        foreach (var w in output.Warnings)
+        {
+            TemplateWarnings.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Warning, w)));
+        }
+
+        if (output.Warnings.Count == 0)
+        {
+            TemplateWarnings.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Ok,
+                "Données vérifiées : clés de contrôle et codes GS1 conformes.")));
+        }
+
+        _ = ReadProgramAsync();
+    }
+
     /// <summary>Ouvre un programme ZPL en lecture (collé, ou reçu d'un autre onglet).</summary>
     public void LoadProgram(string zpl)
     {
         _readProgram = zpl;
         _newProgram = true;
         _selected = -1;
-        if (_readMode)
+        if (_pageMode == PageMode.Read)
         {
             _updating = true;
             CodeBox.Text = zpl;
@@ -1077,7 +1236,10 @@ public partial class PrintView : UserControl
         var text = CodeBox.Text;
         ReadPanel.Children.Clear();
         var kind = ProgramFile.Detect(text);
-        ProgramTitle.Text = kind is ProgramKind.Unknown ? "Programme du client" : $"Programme {ProgramFile.Name(kind)} du client";
+        if (!_templateMode)
+        {
+            ProgramTitle.Text = kind is ProgramKind.Unknown ? "Programme du client" : $"Programme {ProgramFile.Name(kind)} du client";
+        }
         if (kind != ProgramKind.Zpl || !ZplReader.LooksLikeZpl(text))
         {
             _label = null;

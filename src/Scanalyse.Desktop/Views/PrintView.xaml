@@ -59,6 +59,8 @@
         </WrapPanel>
         <Rectangle Width="1" Height="26" Fill="{DynamicResource Line}" Margin="10,0,16,6" VerticalAlignment="Center" />
         <RadioButton x:Name="ModeCreate" Style="{StaticResource Chip}" GroupName="PageMode" Content="Créer une étiquette" IsChecked="True" Checked="PageMode_Changed" />
+        <RadioButton x:Name="ModeTemplate" Style="{StaticResource Chip}" GroupName="PageMode" Content="Modèles" Checked="PageMode_Changed"
+                     ToolTip="Étiquettes prêtes à l'emploi : palette GS1 (SSCC), colis, produit, emplacement, inventaire" />
         <RadioButton x:Name="ModeRead" Style="{StaticResource Chip}" GroupName="PageMode" Content="Lire un programme" Checked="PageMode_Changed"
                      ToolTip="Colle le programme d'un client : aperçu de l'étiquette, codes-barres et ce qu'ils contiennent, points à corriger" />
       </WrapPanel>
@@ -228,6 +230,32 @@
             </StackPanel>
           </StackPanel>
         </ScrollViewer>
+      </Border>
+
+      <!-- Modèles d'étiquettes -->
+      <Border x:Name="TemplateCard" Style="{StaticResource Card}" Visibility="Collapsed">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <TextBlock Style="{StaticResource CardTitle}" Text="Modèle d'étiquette" />
+            <WrapPanel x:Name="TemplateChips" Margin="0,8,0,0" />
+            <TextBlock x:Name="TemplateDescription" FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
+            <WrapPanel Margin="0,10,0,0">
+              <WrapPanel x:Name="TemplateDpiChips" Margin="0,0,12,0">
+                <RadioButton Style="{StaticResource Chip}" GroupName="TplDpi" Tag="203" Content="203 dpi" IsChecked="True" Checked="Template_Changed" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="TplDpi" Tag="300" Content="300 dpi" Checked="Template_Changed" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="TplDpi" Tag="600" Content="600 dpi" Checked="Template_Changed" />
+              </WrapPanel>
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <TextBlock Text="Exemplaires" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBox x:Name="TemplateCopies" Style="{StaticResource Num}" Text="1" TextChanged="Template_Changed" />
+              </StackPanel>
+            </WrapPanel>
+          </StackPanel>
+          <StackPanel x:Name="TemplateWarnings" DockPanel.Dock="Bottom" Margin="0,8,0,0" />
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,-8,0" Padding="0,0,8,0">
+            <StackPanel x:Name="TemplateFields" />
+          </ScrollViewer>
+        </DockPanel>
       </Border>
 
       <!-- Lecture d'un programme ZPL -->

@@ -360,6 +360,10 @@ public static class ZplReader
             }
 
             var printed = utf8 ? data : ToCp850(data);
+            if (f.BlockWidth > 0)
+            {
+                printed = printed.Replace("\\&", "\n", StringComparison.Ordinal); // retour à la ligne d'un bloc ^FB
+            }
             if (!f.HasOrigin)
             {
                 issues.Add(new Alert(Severity.Warning, $"Ligne {line} : champ sans position (^FO ou ^FT) : il s'imprime en haut à gauche."));
