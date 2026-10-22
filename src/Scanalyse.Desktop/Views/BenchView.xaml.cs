@@ -26,6 +26,7 @@ public partial class BenchView : UserControl
     {
         InitializeComponent();
         HintAligner.Attach(ExpectedBox, ExpectedHint);
+        ScrollChaining.Enable(PageScroll);
     }
 
     /// <summary>Dessine un code (texte, type de l'Atelier) : fourni par la fenêtre principale.</summary>

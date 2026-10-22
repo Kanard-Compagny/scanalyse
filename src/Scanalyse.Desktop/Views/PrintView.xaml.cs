@@ -62,6 +62,7 @@ public partial class PrintView : UserControl
         CodeBox.SizeChanged += (_, _) => AlignOverlay();
         CodeBox.Loaded += (_, _) => Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
         _colorTimer.Tick += (_, _) => Recolor();
+        ScrollChaining.Enable(PageScroll);
         HintAligner.Attach(AddressBox, AddressHint);
         HintAligner.Attach(QueueSearch, QueueSearchHint);
         HintAligner.Attach(CodeBox, CodeHint);
@@ -658,6 +659,17 @@ public partial class PrintView : UserControl
         {
             CodeBox.Focus();
         }
+    }
+
+    /// <summary>Fenêtre étroite : les choix de l'en-tête passent sous le titre au lieu de l'écraser.</summary>
+    private void PageGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var narrow = e.NewSize.Width < 1180;
+        Grid.SetRow(HeaderChips, narrow ? 1 : 0);
+        Grid.SetColumn(HeaderChips, narrow ? 0 : 1);
+        Grid.SetColumnSpan(HeaderChips, narrow ? 2 : 1);
+        HeaderChips.Margin = narrow ? new Thickness(0, 12, 0, 0) : new Thickness(16, 0, 0, 0);
+        HeaderChips.HorizontalAlignment = narrow ? HorizontalAlignment.Left : HorizontalAlignment.Right;
     }
 
     // ------------------------------------------------------------------ Affichage : aperçu, programme, ou les deux

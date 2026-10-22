@@ -24,15 +24,29 @@
 
 <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
   <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : rien n'est jamais coupé. -->
-  <Grid x:Name="PageGrid" MinHeight="850" Height="{Binding ViewportHeight, ElementName=PageScroll}">
+  <Grid x:Name="PageGrid" SizeChanged="PageGrid_SizeChanged" MinHeight="850" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <DockPanel Margin="0,0,0,18">
-      <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="16,0,0,0">
+    <!-- En-tête : titre à gauche, choix à droite ; sous le titre quand la fenêtre est étroite (voir PageGrid_SizeChanged) -->
+    <Grid x:Name="HeaderGrid" Margin="0,0,0,18">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MinWidth="260" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <StackPanel>
+        <TextBlock Style="{StaticResource PageTitle}" Text="Code imprimante" />
+        <TextBlock x:Name="PageSubtitle" Style="{StaticResource PageSubtitle}" TextWrapping="Wrap"
+                   Text="Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement." />
+      </StackPanel>
+      <WrapPanel x:Name="HeaderChips" Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
         <!-- Ce qu'on affiche à droite : l'aperçu, le programme, ou les deux l'un sous l'autre -->
         <WrapPanel x:Name="ViewChips" VerticalAlignment="Center">
           <TextBlock Text="Afficher" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,8,6" />
@@ -48,12 +62,7 @@
         <RadioButton x:Name="ModeRead" Style="{StaticResource Chip}" GroupName="PageMode" Content="Lire un programme" Checked="PageMode_Changed"
                      ToolTip="Colle le programme d'un client : aperçu de l'étiquette, codes-barres et ce qu'ils contiennent, points à corriger" />
       </WrapPanel>
-      <StackPanel>
-        <TextBlock Style="{StaticResource PageTitle}" Text="Code imprimante" />
-        <TextBlock x:Name="PageSubtitle" Style="{StaticResource PageSubtitle}" TextWrapping="Wrap"
-                   Text="Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement." />
-      </StackPanel>
-    </DockPanel>
+    </Grid>
 
     <!-- Imprimante : toujours au même endroit, en haut de la page -->
     <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
@@ -225,14 +234,12 @@
       <Border x:Name="ReadCard" Style="{StaticResource Card}" Visibility="Collapsed">
         <DockPanel>
           <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
-            <DockPanel>
-              <WrapPanel x:Name="ReadDpiChips" DockPanel.Dock="Right">
+            <TextBlock Style="{StaticResource CardTitle}" Text="Contenu du programme" />
+            <WrapPanel x:Name="ReadDpiChips" Margin="0,8,0,0">
                 <RadioButton Style="{StaticResource Chip}" GroupName="ReadDpi" Tag="203" Content="203 dpi" IsChecked="True" Checked="ReadDpi_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="ReadDpi" Tag="300" Content="300 dpi" Checked="ReadDpi_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="ReadDpi" Tag="600" Content="600 dpi" Checked="ReadDpi_Changed" />
               </WrapPanel>
-              <TextBlock Style="{StaticResource CardTitle}" Text="Contenu du programme" VerticalAlignment="Center" />
-            </DockPanel>
             <TextBlock x:Name="ReadSummary" FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
           </StackPanel>
           <WrapPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
@@ -256,8 +263,13 @@
 
         <Border x:Name="PreviewCard" Style="{StaticResource Card}" Margin="0,0,0,14">
           <DockPanel>
-            <DockPanel DockPanel.Dock="Top">
-              <StackPanel x:Name="ZplTools" DockPanel.Dock="Right" Orientation="Horizontal" Visibility="Collapsed" Margin="10,-4,0,0">
+            <StackPanel DockPanel.Dock="Top">
+              <DockPanel>
+                <TextBlock x:Name="PreviewInfo" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                <TextBlock Style="{StaticResource CardTitle}" Text="Aperçu de l'étiquette" />
+              </DockPanel>
+              <WrapPanel Margin="0,6,0,0">
+              <StackPanel x:Name="ZplTools" Orientation="Horizontal" Visibility="Collapsed" Margin="0,0,10,0">
                 <Button Style="{StaticResource BtnGhost}" Content="↺" Click="RotateLeft_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à gauche" />
                 <Button Style="{StaticResource BtnGhost}" Content="↻" Click="RotateRight_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à droite" />
                 <Rectangle Width="1" Height="18" Fill="{DynamicResource Line}" Margin="6,0" />
@@ -265,11 +277,10 @@
                 <Button x:Name="ZoomFitButton" Style="{StaticResource BtnGhost}" Content="Ajuster" Click="ZoomFit_Click" Padding="8,2" ToolTip="Toute l'étiquette dans le cadre" />
                 <Button Style="{StaticResource BtnGhost}" Content="+" Click="ZoomIn_Click" Padding="9,2" FontSize="15" ToolTip="Zoomer (Ctrl + molette)" />
               </StackPanel>
-              <Button x:Name="ExpandPreviewButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="ExpandPreview_Click" Margin="10,-4,0,0" Padding="8,2"
+              <Button x:Name="ExpandPreviewButton" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="ExpandPreview_Click" Margin="0" Padding="8,2"
                       ToolTip="Affiche l'aperçu sur toute la page (Échap pour revenir)" />
-              <TextBlock x:Name="PreviewInfo" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
-              <TextBlock Style="{StaticResource CardTitle}" Text="Aperçu de l'étiquette" />
-            </DockPanel>
+              </WrapPanel>
+            </StackPanel>
             <TextBlock x:Name="PreviewNote" DockPanel.Dock="Bottom" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"
                        Text="Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante." />
             <Border x:Name="PreviewBox" Margin="0,10,0,0" Height="170" Background="{DynamicResource Surface2}" CornerRadius="10" Padding="14">
@@ -308,13 +319,14 @@
               <RowDefinition Height="Auto" />
               <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <DockPanel>
-              <Button x:Name="ExpandButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="Expand_Click" Margin="10,0,0,6"
-                      VerticalAlignment="Center" ToolTip="Affiche le programme sur toute la page (Échap pour revenir)" />
-              <Button x:Name="DetachButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Détacher" Click="Detach_Click" Margin="10,0,0,6"
-                      VerticalAlignment="Center"
-                      ToolTip="Ouvre le programme dans une fenêtre à part (idéal sur un deuxième écran) : l'aperçu prend toute la place ici" />
-              <WrapPanel x:Name="LangChips" DockPanel.Dock="Right">
+            <StackPanel>
+              <StackPanel VerticalAlignment="Center">
+                <TextBlock x:Name="ProgramTitle" Style="{StaticResource CardTitle}" Text="Programme ZPL" />
+                <TextBlock x:Name="ProgramHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"
+                           Text="Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire." />
+              </StackPanel>
+              <WrapPanel Margin="0,8,0,0">
+              <WrapPanel x:Name="LangChips">
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Zpl" Content="ZPL II" IsChecked="True" Checked="Any_Changed"
                              ToolTip="Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Citizen…)" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Tspl" Content="TSPL" Checked="Any_Changed"
@@ -322,16 +334,17 @@
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Epl2" Content="EPL2" Checked="Any_Changed"
                              ToolTip="Anciennes Zebra (LP/TLP 2844…), codes 1D" />
               </WrapPanel>
-              <Button x:Name="PasteProgramButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Coller un programme client" Click="PasteProgram_Click" Margin="10,0,0,6"
-                      VerticalAlignment="Center" ToolTip="Colle le programme du presse-papiers (ZPL, TSPL, EPL2…) et l'affiche en lecture" />
-              <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="OpenProgram_Click" Margin="10,0,0,6"
+              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="OpenProgram_Click" Margin="0,0,12,6"
                       VerticalAlignment="Center" ToolTip="Ouvre un fichier du PC (.zpl, .prn, .txt, .epl…) : le programme s'affiche en lecture. Tu peux aussi glisser le fichier sur la page." />
-              <StackPanel VerticalAlignment="Center">
-                <TextBlock x:Name="ProgramTitle" Style="{StaticResource CardTitle}" Text="Programme ZPL" />
-                <TextBlock x:Name="ProgramHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0"
-                           Text="Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire." />
-              </StackPanel>
-            </DockPanel>
+              <Button x:Name="PasteProgramButton" Style="{StaticResource BtnGhost}" Content="Coller un programme client" Click="PasteProgram_Click" Margin="0,0,12,6"
+                      VerticalAlignment="Center" ToolTip="Colle le programme du presse-papiers (ZPL, TSPL, EPL2…) et l'affiche en lecture" />
+              <Button x:Name="DetachButton" Style="{StaticResource BtnGhost}" Content="Détacher" Click="Detach_Click" Margin="0,0,12,6"
+                      VerticalAlignment="Center"
+                      ToolTip="Ouvre le programme dans une fenêtre à part (idéal sur un deuxième écran) : l'aperçu prend toute la place ici" />
+              <Button x:Name="ExpandButton" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="Expand_Click" Margin="0,0,12,6"
+                      VerticalAlignment="Center" ToolTip="Affiche le programme sur toute la page (Échap pour revenir)" />
+              </WrapPanel>
+            </StackPanel>
             <ItemsControl x:Name="WarningsList" Grid.Row="1" Margin="0,8,0,0">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
