@@ -5,3 +5,7 @@
 *.slnx   text
 *.png    binary
 *.ico    binary
+*.wasm   binary
+*.jpg    binary
+*.pdf    binary
+*.y4m    binary
