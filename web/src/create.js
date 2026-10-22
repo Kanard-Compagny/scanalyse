@@ -353,6 +353,10 @@ window.atelierRenderLabel=async function(reqId,lbl){
     const ANG={N:0,R:90,I:180,B:270};
     /* Place le repère sur le champ : ^FT = ligne de base (texte) ou bas gauche (code) ; ^FO = coin haut gauche du champ tourné. */
     const frame=(e,w,h)=>{
+      // TSPL, EPL2 (pv « tl ») : le champ tourne autour de son point d'origine. DPL (« bl ») : le point est le coin bas gauche.
+      if(e.pv==="tl"){x.translate(e.x,e.y);x.rotate((ANG[e.o||"N"]||0)*Math.PI/180);return;}
+      const o=e.o||"N";
+      if(e.pv==="bl"){x.translate(e.x,e.y-((o==="R"||o==="B")?w:h));if(o==="R")x.translate(h,0);else if(o==="I")x.translate(w,h);else if(o==="B")x.translate(0,w);x.rotate((ANG[o]||0)*Math.PI/180);return;}
       x.translate(e.x,e.y);
       if(!e.ft){const o=e.o||"N";if(o==="R")x.translate(h,0);else if(o==="I")x.translate(w,h);else if(o==="B")x.translate(0,w);}
       x.rotate((ANG[e.o||"N"]||0)*Math.PI/180);
@@ -368,7 +372,7 @@ window.atelierRenderLabel=async function(reqId,lbl){
       try{
         if(e.k==="b"){
           const t=Math.min(e.t,e.w,e.h);paint(e,e.white);
-          x.translate(e.x,e.ft?e.y-e.h:e.y);
+          x.translate(e.x,e.ft?e.y-e.h:(e.pv==="bl"?e.y-e.h:e.y));
           x.beginPath();x.rect(0,0,e.w,e.h);if(t*2<e.w&&t*2<e.h)x.rect(t,t,e.w-2*t,e.h-2*t);x.fill("evenodd");track(0,0,e.w,e.h);
         }else if(e.k==="t"){
           const bitmap=e.font!=="0";
@@ -391,7 +395,7 @@ window.atelierRenderLabel=async function(reqId,lbl){
           const r=await Z.writeBarcode(e.draw,{format:e.format,scale:1,withQuietZones:false,withHRT:false,options:e.gs1?"gs1":"",forceSquareDataMatrix:e.format==="DataMatrix"});
           if(r.error)throw new Error(r.error);
           const img=await svgToCanvas(r.svg,1,0,"#ffffff");
-          const twoD=/QR|DataMatrix|Aztec/.test(e.format);
+          const twoD=/QR|DataMatrix|Aztec|MaxiCode/.test(e.format);
           const w=img.width*e.module,h=twoD?img.height*e.module:(e.format==="PDF417"?img.height*Math.max(1,Math.round(e.height/3)):e.height);
           const hriPx=e.hri?Math.max(12,Math.round(e.module*6.5)):0;
           frame(e,w,h+(e.above?0:hriPx));

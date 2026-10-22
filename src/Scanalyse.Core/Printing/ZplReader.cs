@@ -457,13 +457,23 @@ public static class ZplReader
     }
 
     /// <summary>Description de l'étiquette pour le dessin par l'Atelier (JSON, coordonnées en points).</summary>
-    public static string RenderJson(ZplLabel label)
+    public static string RenderJson(ZplLabel label) => RenderJson(label, null);
+
+    /// <summary>Description de l'étiquette pour le dessin par l'Atelier, avec le repère des champs tournés d'un autre langage.</summary>
+    /// <param name="label">Étiquette.</param>
+    /// <param name="pivot">« tl » : le champ tourne autour de son point d'origine (TSPL, EPL2) ; « bl » : le point est le coin bas gauche (DPL) ; <c>null</c> : règles ZPL.</param>
+    public static string RenderJson(ZplLabel label, string? pivot)
     {
         ArgumentNullException.ThrowIfNull(label);
         var items = new List<Dictionary<string, object?>>();
         foreach (var e in label.Elements)
         {
             var d = new Dictionary<string, object?> { ["x"] = e.X, ["y"] = e.Y, ["ft"] = e.Typeset, ["o"] = e.Orientation.ToString() };
+            if (pivot is not null)
+            {
+                d["pv"] = pivot;
+            }
+
             switch (e)
             {
                 case ZplBox b:

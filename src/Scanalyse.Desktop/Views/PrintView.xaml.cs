@@ -44,6 +44,7 @@ public partial class PrintView : UserControl
 
         var p = AppSettings.Load().Print;
         Check(LangChips, p.Language);
+        Check(TemplateLangChips, p.Language);
         Check(DpiChips, p.Dpi.ToString(CultureInfo.InvariantCulture));
         WidthBox.Text = p.WidthMm.ToString("0.#", CultureInfo.CurrentCulture);
         HeightBox.Text = p.HeightMm.ToString("0.#", CultureInfo.CurrentCulture);
@@ -1183,16 +1184,25 @@ public partial class PrintView : UserControl
 
         var dpi = int.TryParse(Selected(TemplateDpiChips, "203"), out var d) ? d : 203;
         var values = _templateValues.TryGetValue(_template.Id, out var v) ? v : LabelTemplates.Defaults(_template);
-        var output = LabelTemplates.Build(_template, values, dpi, Math.Clamp(Int(TemplateCopies, 1), 1, 9999));
+        var copies = Math.Clamp(Int(TemplateCopies, 1), 1, 9999);
+        var output = LabelTemplates.Build(_template, values, dpi, copies);
+        var language = Enum.TryParse<PrinterLanguage>(Selected(TemplateLangChips, "Zpl"), out var l) ? l : PrinterLanguage.Zpl;
+        var converted = LabelConverter.Convert(output.Zpl, language, dpi, copies);
         _updating = true;
         Check(ReadDpiChips, dpi.ToString(CultureInfo.InvariantCulture));
-        CodeBox.Text = output.Zpl;
+        CodeBox.Text = converted.Program;
+        ProgramTitle.Text = language switch { PrinterLanguage.Tspl => "Programme TSPL du modèle", PrinterLanguage.Epl2 => "Programme EPL2 du modèle", PrinterLanguage.Dpl => "Programme DPL du modèle", _ => "Programme ZPL du modèle" };
         _updating = false;
         UpdateEditorChrome();
         TemplateWarnings.Children.Clear();
         foreach (var w in output.Warnings)
         {
             TemplateWarnings.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Warning, w)));
+        }
+
+        foreach (var w in converted.Warnings)
+        {
+            TemplateWarnings.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Info, w)));
         }
 
         if (output.Warnings.Count == 0)
@@ -1227,7 +1237,15 @@ public partial class PrintView : UserControl
     {
         if (_loaded && _readMode)
         {
-            ShowLabelSize();
+            // TSPL / DPL : tailles en millimètres ou pouces, converties selon la résolution : on relit.
+            if (ProgramFile.Detect(CodeBox.Text) is ProgramKind.Tspl or ProgramKind.Dpl)
+            {
+                _ = ReadProgramAsync();
+            }
+            else
+            {
+                ShowLabelSize();
+            }
         }
     }
 
@@ -1258,7 +1276,18 @@ public partial class PrintView : UserControl
             }
 
             ZplEmptyActions.Visibility = Visibility.Collapsed;
+            _rows.Clear();
+            _cards.Clear();
+            _selected = -1;
             ShowOtherProgram(text, kind);
+
+            // TSPL, EPL2, DPL : l'aperçu est dessiné à partir des mêmes éléments qu'une étiquette ZPL.
+            if (ForeignLabelReader.Read(text, kind, ReadDpi) is { Label.Elements.Count: > 0 } foreign && LabelRenderer is not null)
+            {
+                ZplEmptyBox.Visibility = Visibility.Collapsed;
+                await DrawLabelAsync(foreign.Label, foreign.RenderJson(), seq, ProgramFile.Name(kind));
+            }
+
             return;
         }
 
@@ -1273,8 +1302,15 @@ public partial class PrintView : UserControl
             return;
         }
 
+        await DrawLabelAsync(label, ZplReader.RenderJson(label), seq, null);
+    }
+
+    /// <summary>Dessine l'aperçu d'une étiquette lue (ZPL, ou TSPL / EPL2 / DPL convertis) et l'affiche.</summary>
+    private async Task DrawLabelAsync(ZplLabel label, string json, int seq, string? otherLanguage)
+    {
+        _label = label;
         PreviewNote.Text = "Dessin de l'étiquette…";
-        var render = await LabelRenderer(ZplReader.RenderJson(label));
+        var render = await LabelRenderer!(json);
         var (png, error) = (render.Png, render.Error);
         if (seq != _readSeq)
         {
@@ -1310,8 +1346,12 @@ public partial class PrintView : UserControl
 
         ApplyZplTransform();
         ShowSelection();
-        PreviewNote.Text = "Aperçu indicatif (polices approchées). Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer."
-            + (label.Inverted ? " L'imprimante sort cette étiquette tournée de 180° (^POI)." : string.Empty);
+        // Phrases traduites une à une (interface en anglais).
+        PreviewNote.Text = Localization.T(otherLanguage is null
+                ? "Aperçu indicatif (polices approchées)."
+                : $"Aperçu indicatif du programme {otherLanguage} (polices et positions approchées : le rendu exact dépend de l'imprimante).")
+            + " " + Localization.T("Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer.")
+            + (label.Inverted ? " " + Localization.T("L'imprimante sort cette étiquette tournée de 180°.") : string.Empty);
         ShowLabelSize();
     }
 
@@ -1349,7 +1389,7 @@ public partial class PrintView : UserControl
             var again = new Button
             {
                 Style = (Style)FindResource("BtnGhost"),
-                Content = "Réimprimer en ZPL",
+                Content = "Reprendre dans Créer une étiquette",
                 Padding = new Thickness(8, 2, 8, 2),
                 ToolTip = "Reprend ce code dans « Créer une étiquette » pour générer un programme ZPL, TSPL ou EPL2",
             };

@@ -520,7 +520,7 @@ public static class LabelCode
     }
 
     /// <summary>Côté d'un QR Code (modèle 2, correction M, octets) selon la longueur des données.</summary>
-    private static int QrModules(int length)
+    internal static int QrModules(int length)
     {
         int[] capacity = [14, 26, 42, 62, 84, 106, 122, 152, 180, 213, 251, 287, 331, 362, 412, 450, 504, 560, 624, 666];
         var version = Array.FindIndex(capacity, c => c >= length) + 1;
@@ -528,7 +528,7 @@ public static class LabelCode
     }
 
     /// <summary>Côté d'un Data Matrix carré (ECC 200, caractères ASCII) selon la longueur des données.</summary>
-    private static int DataMatrixModules(int length)
+    internal static int DataMatrixModules(int length)
     {
         (int Size, int Capacity)[] sizes = [(10, 3), (12, 5), (14, 8), (16, 12), (18, 18), (20, 22), (22, 30), (24, 36), (26, 44), (32, 62), (36, 86), (40, 114), (44, 144), (48, 174), (52, 204), (64, 280), (72, 368), (80, 456)];
         foreach (var (size, cap) in sizes)

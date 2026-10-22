@@ -6,6 +6,13 @@
 - **Anglais** : traduction complète de l'interface (certains écrans restaient en français), des titres des fenêtres d'ouverture et d'enregistrement, et de « Créer un code » (styles du QR, alertes, export).
 - **Visite guidée** : l'encadré et la bulle se placent sur l'élément présenté (ils restaient au centre de l'écran).
 - **Fermeture** : Scanalyse s'arrête complètement (douchettes, relais, moteur web libérés) ; Scanalyse.exe peut être supprimé ou remplacé juste après.
+- **Modèles d'étiquettes en TSPL, EPL2 et DPL** : choix du langage dans « Modèles » ; le programme est converti et l'aperçu dessiné. Les données GS1 (FNC1) restent à valider à l'impression hors ZPL.
+- **Lire un programme TSPL, EPL2 ou DPL** : aperçu de l'étiquette (textes, cadres, codes-barres), clic sur un élément pour retrouver sa ligne.
+- **Créer un code** : MicroPDF417, MaxiCode, GS1 DataBar Limited, Code 32 (pharmacie Italie) et PZN (pharmacie Allemagne) ; « Créer ce type de code » disponible pour toutes les symbologies.
+- **Grands écrans** : « Analyser une image » utilise toute la largeur (source fixe, fiches des codes en colonnes) ; les cartes des Paramètres se rangent en colonnes.
+- **Paramètres** : « Quoi de neuf » et les licences s'ouvrent dans une fenêtre aux couleurs de Scanalyse ; **désinstallation** sans trace (programme, réglages, cache, et en option historique, rapports et étiquettes — jamais un dossier choisi à la main).
+- **Dossiers** : plus aucun dossier créé au démarrage ; Rapports, Étiquettes et Historique apparaissent au premier enregistrement.
+- Fenêtre de choix de langue lisible en thème sombre ; plus de petit cadre carré autour des pastilles au clic.
 
 ## 0.10.0 — octobre 2026
 

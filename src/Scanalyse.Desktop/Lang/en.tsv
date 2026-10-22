@@ -56,10 +56,16 @@
 8 chiffres	8 digits
 8 chiffres (clé incluse)	8 digits (check digit included)
 8 chiffres (forme compressée d'un UPC-A)	8 digits (compressed form of a UPC-A)
+8 chiffres, clé ajoutée automatiquement.	8 digits, check digit added automatically.
 9 chiffres	9 digits
 9 modules de chaque côté	9 modules on each side
 9 modules à gauche, 7 à droite	9 modules left, 7 right
 93 caractères	93 characters
+<b>8 chiffres, clé ajoutée automatiquement.</b> Médicaments vendus en Italie (code AIC).	<b>8 digits, check digit added automatically.</b> Medicines sold in Italy (AIC code).
+<b>GTIN-14 commençant par 0 ou 1.</b> Petits articles de santé, très petites étiquettes.	<b>GTIN-14 starting with 0 or 1.</b> Small healthcare items, very small labels.
+<b>Numéro PZN (7 ou 8 chiffres).</b> Médicaments vendus en Allemagne.	<b>PZN number (7 or 8 digits).</b> Medicines sold in Germany.
+<b>PDF417 compact (jusqu'à 250 caractères).</b> Petites étiquettes, pièces, santé.	<b>Compact PDF417 (up to 250 characters).</b> Small labels, parts, healthcare.
+<b>Taille fixe, 93 caractères au plus.</b> Tri automatique des colis (UPS).	<b>Fixed size, 93 characters at most.</b> Automatic parcel sorting (UPS).
 >8 en tête : FNC1, le code est un GS1-128.	>8 at the start: FNC1, the code is a GS1-128.
 A (automatique)	A (automatic)
 ADB introuvable : indique où se trouve adb.exe (Platform Tools, outil SAV…). Le Wi-Fi fonctionne sans ADB.	ADB not found: indicate where adb.exe is (Platform Tools, service tool…). Wi-Fi works without ADB.
@@ -142,7 +148,9 @@ Aperçu généré · {0} (type choisi automatiquement)	Preview generated · {0} 
 Aperçu impossible :	Preview impossible:
 Aperçu impossible en {0} : {1}	Preview impossible as {0}: {1}
 Aperçu impossible.	Preview impossible.
+Aperçu indicatif (polices approchées).	Indicative preview (approximate fonts).
 Aperçu indicatif (polices approchées). Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer.	Indicative preview (approximate fonts). Click an element to see its line; ↺ ↻ to rotate, Ctrl + wheel to zoom.
+Aperçu indicatif du programme {0} (polices et positions approchées : le rendu exact dépend de l'imprimante).	Indicative preview of the {0} program (approximate fonts and positions: the exact output depends on the printer).
 Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante.	Indicative preview drawn by Scanalyse: the final rendering depends on the printer firmware.
 Appareils de lecture	Reading devices
 Appareils de lecture : douchettes, terminaux Android, caméras	Reading devices: scanners, Android terminals, cameras
@@ -184,6 +192,7 @@ Aucune anomalie relevée sur les analyses de ce dossier.	No anomaly found in thi
 Aucune caméra détectée.	No camera detected.
 Aucune caméra trouvée. Branche une webcam ou une caméra document, puis réessaie.	No camera found. Plug in a webcam or a document camera, then try again.
 Aucune capture reçue.	No capture received.
+Aucune donnée enregistrée pour l'instant.	No data saved yet.
 Aucune donnée reçue	No data received
 Aucune image à coller. Fais une capture (Win + Maj + S) ou copie une image, puis réessaie.	No image to paste. Take a screenshot (Win + Shift + S) or copy an image, then try again.
 Aucune imprimante installée sur ce PC. Utilise l'envoi réseau, ou installe le pilote de l'imprimante d'étiquettes.	No printer installed on this PC. Use network sending, or install the label printer driver.
@@ -281,6 +290,7 @@ Certificat	Certificate
 Certificat sanitaire européen (EU DCC)	EU Digital COVID Certificate (EU DCC)
 Champ	Field
 Champ ({0}) : {1}.	Field ({0}): {1}.
+Champs tournés : position à vérifier, chaque langage tourne les champs autour d'un point différent.	Rotated fields: check their position, each language rotates fields around a different point.
 Changement de dossier impossible :	Unable to change folder:
 Changer de dossier…	Change folder…
 Changer de thème	Change theme
@@ -318,6 +328,7 @@ Clavier	Keyboard
 Client / site	Customer / site
 Clique pour renommer l'analyse (problème rencontré, repère…). Vide : nom automatique.	Click to rename the analysis (problem found, marker…). Empty: automatic name.
 Clique sur un élément de l'étiquette pour voir sa ligne et son détail	Click an element of the label to see its line and details
+Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer.	Click an element to see its line; ↺ ↻ to rotate, Ctrl + wheel to zoom.
 Clé de contrôle fausse ({0}) : l'imprimante calculera la bonne ({1}).	Wrong check digit ({0}): the printer will compute the correct one ({1}).
 Clé de contrôle invalide : le numéro a été mal généré ou mal lu.	Invalid check digit: the number was badly generated or badly read.
 Clé de contrôle invalide : {0} au lieu de {1}.	Invalid check digit: {0} instead of {1}.
@@ -333,6 +344,7 @@ Code 128 concaténé	Concatenated Code 128
 Code 128 standard	Standard Code 128
 Code 2D	2D code
 Code 32 (pharma italien)	Code 32 (Italian pharma)
+Code 32 (pharmacie Italie)	Code 32 (Italian pharmacy)
 Code 32 (pharmacie italienne)	Code 32 (Italian pharmacy)
 Code 39 : seuls A-Z, 0-9 et - . espace $ / + % sont permis.	Code 39: only A-Z, 0-9 and - . space $ / + % are allowed.
 Code 39 ASCII étendu	Extended ASCII Code 39
@@ -394,6 +406,8 @@ Compatibles GS1	GS1 compatible
 Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.	Third-party components: zxing-cpp (Apache 2.0), zxing-wasm and qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.
 Composants tiers et licences	Third-party components and licenses
 Compte	Account
+Confirmer ? Scanalyse va se fermer puis être supprimé de ce poste. Cette action est définitive.	Confirm? Scanalyse will close and then be removed from this computer. This cannot be undone.
+Confirmer la désinstallation	Confirm uninstall
 Conforme	Compliant
 Conforme aux recommandations GS1 pour la distribution (0,264 à 0,66 mm).	Meets GS1 retail recommendations (0.264 to 0.66 mm).
 Conforme pour la logistique (au moins 0,495 mm).	Compliant for logistics (at least 0.495 mm).
@@ -471,7 +485,9 @@ D (UCC/EAN : GS1 automatique)	D (UCC/EAN: automatic GS1)
 DOUCHETTE	SCANNER
 DPL : la rotation tourne le code autour de son point d'ancrage ; vérifie sa position sur l'étiquette.	DPL: rotation turns the code around its anchor point; check its position on the label.
 DPL : les caractères de contrôle (<GS>, <RS>…) ne sont pas transmis de façon fiable. Utilise le ZPL pour ce contenu.	DPL: control characters (<GS>, <RS>…) are not transmitted reliably. Use ZPL for this content.
+DPL : textes inversés (blanc sur noir) imprimés en noir ; à reprendre si besoin.	DPL: reversed texts (white on black) are printed in black; adjust if needed.
 DPL généré d'après le manuel Honeywell / Datamax (unités 0,1 mm, origine en bas à gauche) : valide l'étiquette sur l'imprimante.	DPL generated from the Honeywell / Datamax manual (0.1 mm units, origin bottom left): validate the label on the printer.
+DPL produit d'après le manuel Honeywell / Datamax (unités 0,1 mm, origine en bas à gauche) : valide l'étiquette sur l'imprimante.	DPL produced from the Honeywell / Datamax manual (0.1 mm units, origin at bottom left): validate the label on the printer.
 Danemark	Denmark
 Dans Claude, la page n'a pas accès à l'écran. Fais Win + Maj + S, sélectionne la zone, puis Ctrl + V sur cette page.	In Claude, the page has no access to the screen. Press Win + Shift + S, select the area, then Ctrl + V on this page.
 Dans Claude, la page n'a pas accès à la caméra. Prends une photo du code, puis importe-la.	In Claude, the page has no access to the camera. Take a photo of the code, then import it.
@@ -571,7 +587,10 @@ Désactiver	Disable
 Désactivé	Off
 Désignation	Description
 Désignation, EAN-13 de vente et GS1 DataMatrix avec GTIN, lot et date limite.	Description, retail EAN-13 and GS1 DataMatrix with GTIN, lot and expiry date.
+Désinstallation impossible :	Uninstall failed:
 Désinstaller	Uninstall
+Désinstaller Scanalyse	Uninstall Scanalyse
+Désinstaller…	Uninstall…
 Détacher	Detach
 Détail des analyses	Analysis details
 Détaillé	Detailed
@@ -688,6 +707,7 @@ GTIN de l'article de base	GTIN of the base item
 GTIN des articles contenus	GTIN of contained items
 GTIN des articles contenus (02)	GTIN of contained items (02)
 GTIN-14 (indicateur 0 ou 1)	GTIN-14 (indicator 0 or 1)
+GTIN-14 commençant par 0 ou 1.	GTIN-14 starting with 0 or 1.
 GTIN-14 compact.	Compact GTIN-14.
 Graphique (^GB)	Graphics (^GB)
 Grossissement	Magnification
@@ -812,6 +832,7 @@ L'image reçue n'a pas pu être ouverte.	The received image could not be opened.
 L'impression a été refusée par « {0} » : {1}	Printing was refused by “{0}”: {1}
 L'imprimante (adresse IP ou imprimante Windows) et la taille d'étiquette utilisées en dernier sont retenues automatiquement.	The printer (IP address or Windows printer) and label size used last are remembered automatically.
 L'imprimante sort cette étiquette tournée de 180° (^POI).	The printer outputs this label rotated 180° (^POI).
+L'imprimante sort cette étiquette tournée de 180°.	The printer outputs this label rotated 180°.
 L'outil Capture de Windows est indisponible : fais Win + Maj + S, puis « Coller une image ».	The Windows Snipping Tool is unavailable: press Win + Shift + S, then “Paste an image”.
 L'étiquette en grand	The label, large
 La barre du haut	The top bar
@@ -836,6 +857,7 @@ La vignette s'affiche quand la référence vient d'une image analysée. Sinon, c
 Lancer la visite	Start the tour
 Lancer la visite guidée	Start the guided tour
 Langage d'imprimante par défaut (Code imprimante)	Default printer language (Printer code)
+Langage du programme produit : celui que parle l'imprimante du client	Language of the generated program: the one the customer's printer speaks
 Langage non reconnu : ce texte n'est pas un programme ZPL, TSPL, EPL2, DPL, SBPL ou Fingerprint connu.	Language not recognized: this text is not a known ZPL, TSPL, EPL2, DPL, SBPL or Fingerprint program.
 Largeur	Width
 Largeur de la barre la plus fine (1D) ou d'un carré (2D), en points de la tête	Width of the narrowest bar (1D) or of a square (2D), in print head dots
@@ -979,6 +1001,7 @@ MaxiCode mode 2 ou 3	MaxiCode mode 2 or 3
 MaxiCode mode 4 ou 5	MaxiCode mode 4 or 5
 Message	Message
 Mexique	Mexico
+MicroPDF417	MicroPDF417
 Ministère de la santé italien	Italian Ministry of Health
 Mode D : les données ne forment pas une chaîne GS1 valide « (AI)valeur ».	Mode D: the data doesn't form a valid GS1 string “(AI)value”.
 Mode clavier	Keyboard mode
@@ -1011,6 +1034,8 @@ Moteur de lecture indisponible	Reading engine unavailable
 Motif	Purpose
 Médicaments en Allemagne	Drugs in Germany
 Médicaments en Italie	Drugs in Italy
+Médicaments vendus en Allemagne.	Medicines sold in Germany.
+Médicaments vendus en Italie (code AIC).	Medicines sold in Italy (AIC code).
 Méthode de production	Production method
 Mêmes couleurs que les modules	Same colors as the modules
 N (normal, sous-ensembles par >…)	N (normal, subsets with >…)
@@ -1038,6 +1063,7 @@ Numérique, alphanumérique, octets, kanji	Numeric, alphanumeric, bytes, kanji
 Numéro	Number
 Numéro (nombre pair de chiffres)	Number (even number of digits)
 Numéro ({0} chiffres, ou {1} avec la clé)	Number ({0} digits, or {1} with the check digit)
+Numéro PZN (7 ou 8 chiffres).	PZN number (7 or 8 digits).
 Numéro de lot	Batch / lot number
 Numéro de série	Serial number
 Numéro de série (21) sans GTIN (01) : un numéro de série n'a de sens que rattaché à un article.	Serial number (21) without GTIN (01): a serial number only makes sense attached to an item.
@@ -1075,9 +1101,11 @@ PDF417 (codage de base)	PDF417 (basic encoding)
 PDF417 (codage étendu)	PDF417 (extended encoding)
 PDF417 (interprétation de base)	PDF417 (basic interpretation)
 PDF417 (interprétation étendue)	PDF417 (extended interpretation)
+PDF417 compact (jusqu'à 250 caractères).	Compact PDF417 (up to 250 characters).
 PNG, JPG, SVG ou WebP. Glisser-déposer possible.	PNG, JPG, SVG or WebP. Drag and drop works.
 PRESSE-PAPIERS	CLIPBOARD
 PZN (pharma allemand)	PZN (German pharma)
+PZN (pharmacie Allemagne)	PZN (German pharmacy)
 PZN (pharmacie allemande)	PZN (German pharmacy)
 Page de relais absente.	Relay page missing.
 Page de relais ouverte sur {0} ({1}).	Relay page opened on {0} ({1}).
@@ -1112,8 +1140,10 @@ Pays-Bas	Netherlands
 Pense à remettre la douchette dans son mode d'origine avant de la rendre au client.	Remember to put the scanner back in its original mode before returning it to the customer.
 Permis de conduire, cartes d'embarquement, profils de configuration (StageNow)	Driving licenses, boarding passes, configuration profiles (StageNow)
 Petites étiquettes	Small labels
+Petites étiquettes, pièces, santé.	Small labels, parts, healthcare.
 Petits articles (Amérique du Nord)	Small items (North America)
 Petits articles de santé	Small healthcare items
+Petits articles de santé, très petites étiquettes.	Small healthcare items, very small labels.
 Petits articles en point de vente	Small point-of-sale items
 Petits articles en point de vente.	Small point-of-sale items.
 Pharmacie (sérialisation), industrie, marquage direct, santé (UDI)	Pharmacy (serialization), industry, direct marking, healthcare (UDI)
@@ -1174,8 +1204,11 @@ Profil réparti sur plusieurs codes : scanne toutes les parties avec StageNow su
 Programmation lecteur	Scanner programming
 Programme	Program
 Programme DPL	DPL program
+Programme DPL du modèle	Template DPL program
 Programme EPL2	EPL2 program
+Programme EPL2 du modèle	Template EPL2 program
 Programme TSPL	TSPL program
+Programme TSPL du modèle	Template TSPL program
 Programme ZPL	ZPL program
 Programme ZPL / TSPL / EPL2 de ce QR (sans couleurs ni logo : une imprimante thermique imprime en noir)	ZPL / TSPL / EPL2 program for this QR (no colors or logo: a thermal printer prints in black)
 Programme ZPL / TSPL / EPL2 de ce code pour une imprimante d'étiquettes	ZPL / TSPL / EPL2 program of this code for a label printer
@@ -1261,10 +1294,12 @@ Remplissage	Fill
 Rendez-vous samedi 20 h, entrée côté quai.	See you Saturday 8 pm, entrance on the quay side.
 Reprend ce code dans « Créer une étiquette » (même type, même contenu, même module) pour générer un programme propre	Takes this code into “Create a label” (same type, same content, same module) to generate a clean program
 Reprend ce code dans « Créer une étiquette » pour générer un programme ZPL, TSPL ou EPL2	Takes this code into “Create a label” to generate a ZPL, TSPL or EPL2 program
+Reprendre dans Créer une étiquette	Reuse in Create a label
 Repris de :	Taken from:
 Repris de : {0}	Taken from: {0}
 Repris de l'analyse d'image : {0}{1}	Taken from the image analysis: {0}{1}
 Repères	Finder patterns
+Retire Scanalyse de ce poste sans laisser de trace : programme, réglages, cache et fichiers temporaires. Scanalyse se ferme pour terminer.	Removes Scanalyse from this computer without leaving any trace: program, settings, cache and temporary files. Scanalyse closes to finish.
 Retire ce préfixe dans le scanner si l'application ne l'attend pas.	Remove this prefix in the scanner if the application doesn't expect it.
 Retire ces préfixes et suffixes dans le scanner, ou configure l'application pour les ignorer.	Remove these prefixes and suffixes in the scanner, or configure the application to ignore them.
 Retirer	Remove
@@ -1372,6 +1407,7 @@ Supplément	Add-on
 Suppression	Delete
 Supprime toutes les analyses de ce dossier ; le dossier et sa fiche sont conservés	Deletes all analyses in this case; the case and its record are kept
 Supprimer	Delete
+Supprimer aussi mes données : historique des analyses, rapports PDF et programmes d'étiquettes enregistrés	Also delete my data: analysis history, PDF reports and saved label programs
 Supprimer automatiquement les analyses plus anciennes que	Automatically delete analyses older than
 Supprimer ce dossier ?	Delete this case?
 Supprimer cette analyse ?	Delete this analysis?
@@ -1407,6 +1443,7 @@ Taille d'un module	Module size
 Taille dans l'image	Size in the image
 Taille de l'interface	Interface size
 Taille du logo	Logo size
+Taille fixe, 93 caractères au plus.	Fixed size, 93 characters at most.
 Taille à l'impression	Printed size
 Taïwan	Taiwan
 Tchéquie	Czechia
@@ -1446,6 +1483,7 @@ Trait horizontal {0} points	Horizontal line {0} dots
 Trait vertical {0} points	Vertical line {0} dots
 Travailler sur ce dossier	Work on this case
 Traçabilité lisible par smartphone.	Traceability readable by smartphone.
+Tri automatique des colis (UPS).	Automatic parcel sorting (UPS).
 Tri de colis (UPS)	Parcel sorting (UPS)
 Trop petit pour la grande distribution : GS1 recommande 0,33 mm (0,264 mm au minimum).	Too small for retail: GS1 recommends 0.33 mm (0.264 mm minimum).
 Très arrondi	Extra rounded
@@ -1475,6 +1513,8 @@ Une lecture est terminée quand la ligne reste silencieuse ce temps-là. Augment
 Une partie de l'écran	Part of the screen
 Une visite guidée ?	A guided tour?
 Unité logistique identifiée par le SSCC {0}.	Logistic unit identified by SSCC {0}.
+Unités DPL : 0,01 pouce (pas de commande « m » pour le mode métrique).	DPL units: 0.01 inch (no “m” command for metric mode).
+Unités DPL : 0,1 mm (mode métrique « m »).	DPL units: 0.1 mm (metric mode “m”).
 Usages typiques	Typical uses
 Utilise Ctrl + V directement sur la page.	Use Ctrl + V directly on the page.
 Utiliser le mode clavier	Use keyboard mode
@@ -1555,6 +1595,7 @@ comparaisons douchette	scanner comparisons
 conforme (≥ {0} module)	compliant (≥ {0} module)
 conforme (≥ {0} modules)	compliant (≥ {0} modules)
 conforme (≥ {0} module{1})	compliant (≥ {0} module{1})
+conservé (dossier choisi) :	kept (folder you chose):
 contenu refusé pour ce type de code.	content refused for this code type.
 couleurs inversées (clair sur foncé)	inverted colors (light on dark)
 coupons (États-Unis)	coupons (United States)
@@ -1654,6 +1695,9 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0}  (en cours)	{0}  (current)
 {0} (GS1-128) porte {1} caractères de données : la norme en autorise 48 au maximum par symbole. Répartis les données sur deux codes.	{0} (GS1-128) carries {1} data characters: the standard allows 48 at most per symbol. Spread the data over two codes.
 {0} (devise ISO {1})	{0} (ISO currency {1})
+{0} (ligne {1}) n'a pas d'équivalent DPL ici : champ omis.	{0} (line {1}) has no DPL equivalent here: field skipped.
+{0} (ligne {1}) n'a pas d'équivalent EPL2 ici : champ omis.	{0} (line {1}) has no EPL2 equivalent here: field skipped.
+{0} (ligne {1}) n'a pas d'équivalent TSPL ici : champ omis.	{0} (line {1}) has no TSPL equivalent here: field skipped.
 {0} ({1}) postérieure à la {2} ({3}).	{0} ({1}) later than the {2} ({3}).
 {0} : aucun code détecté.	{0}: no code detected.
 {0} : clé de contrôle fausse ({1}), corrigée en {2}.	{0}: wrong check digit ({1}), corrected to {2}.
@@ -1698,6 +1742,8 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} dossiers	{0} cases
 {0} débranché : liaison terminée.	{0} unplugged: link ended.
 {0} dépassée : {1}.	{0} passed: {1}.
+{0} en EPL2 : pris en charge seulement par certaines imprimantes (LP/TLP 2844-Z, GK…). Vérifie à l'impression.	{0} in EPL2: supported by some printers only (LP/TLP 2844-Z, GK…). Check when printing.
+{0} en {1} : l'écriture des données GS1 (FNC1, séparateurs) varie selon les firmwares. Scanne l'étiquette imprimée au banc d'essai pour vérifier.	{0} in {1}: how GS1 data is written (FNC1, separators) varies between firmwares. Scan the printed label on the test bench to check.
 {0} est déjà ouvert par un autre programme (logiciel du scanner, terminal série, autre instance de Scanalyse…). Ferme-le puis réessaie.	{0} is already open in another program (scanner software, serial terminal, another Scanalyse instance…). Close it and try again.
 {0} est déjà utilisée par une autre application (logiciel de caisse, utilitaire du fabricant…) ou ne répond pas.	{0} is already used by another application (POS software, manufacturer's utility…) or doesn't answer.
 {0} est hors ligne (débranchée ou éteinte).	{0} is offline (unplugged or switched off).
