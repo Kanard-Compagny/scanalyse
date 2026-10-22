@@ -54,17 +54,34 @@ public partial class MainWindow : Window
         _atelier.CompareRequested += OnCompareRequested;
         _atelier.Analyzed += OnAnalyzed;
         // Le moteur web s'affiche toujours au-dessus des éléments WPF : on le masque le temps d'une confirmation.
-        Confirm.IsVisibleChanged += (_, _) =>
+        // Le moteur web s'affiche toujours au-dessus : masqué tant qu'une fenêtre intérieure (confirmation, accueil, visite) est ouverte.
+        void Airspace()
         {
-            if (Confirm.IsVisible && Web.Visibility == Visibility.Visible)
+            var covered = Confirm.IsVisible || Welcome.IsVisible || Tour.IsVisible;
+            if (covered && Web.Visibility == Visibility.Visible)
             {
                 Web.Visibility = Visibility.Hidden;
             }
-            else if (!Confirm.IsVisible && Web.Visibility == Visibility.Hidden)
+            else if (!covered && Web.Visibility == Visibility.Hidden)
             {
                 Web.Visibility = Visibility.Visible;
             }
+        }
+
+        Confirm.IsVisibleChanged += (_, _) => Airspace();
+        Welcome.IsVisibleChanged += (_, _) => Airspace();
+        Tour.IsVisibleChanged += (_, _) => Airspace();
+        Welcome.HistoryFolder = () => _history.Folder;
+        Welcome.HistoryFolderChangeRequested += ChangeHistoryFolderAsync;
+        Welcome.Finished += tour =>
+        {
+            if (tour)
+            {
+                StartTour();
+            }
         };
+        SettingsPage.WelcomeRequested += () => Welcome.Show();
+        SettingsPage.TourRequested += StartTour;
         HistoryPage.ActiveCaseChanged += OnActiveCaseChanged;
         HistoryPage.ReopenRequested += OnReopenRequested;
         HistoryPage.ReportRequested = GenerateReportAsync;
@@ -91,6 +108,24 @@ public partial class MainWindow : Window
         };
         _atelier.PrintRequested += r => OpenPrint(r.Text, PrintView.SymbologyFor(r.Format, r.Text, r.Gs1), r.Source);
         _atelier.ModeChanged += OnAtelierModeChanged;
+        _atelier.ActionRequested += action =>
+        {
+            switch (action)
+            {
+                case "paste":
+                    Paste_Click(this, new RoutedEventArgs());
+                    break;
+                case "capture":
+                    Capture_Click(this, new RoutedEventArgs());
+                    break;
+                case "import":
+                    Import_Click(this, new RoutedEventArgs());
+                    break;
+                case "camera":
+                    Camera_Click(this, new RoutedEventArgs());
+                    break;
+            }
+        };
         Symbols.CreateRequested += OnCreateRequested;
         Devices.Scanned += OnDeviceScanned;
         Devices.StatusChanged += OnScannerStatus;
@@ -109,6 +144,11 @@ public partial class MainWindow : Window
 
         Loaded += async (_, _) =>
         {
+            if (!AppSettings.Load().WelcomeDone)
+            {
+                Welcome.Show();
+            }
+
             // L'Atelier d'abord ; la recherche des douchettes tourne à côté sans jamais le bloquer.
             _ = InitializeDevicesAsync();
             await LoadHistoryAsync();
@@ -487,7 +527,7 @@ public partial class MainWindow : Window
             FileName = name + ".pdf",
             DefaultExt = ".pdf",
             Filter = "Rapport PDF|*.pdf|Page web (HTML)|*.html",
-            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            InitialDirectory = AppSettings.Load().ReportsFolderOrDefault,
         };
         if (dialog.ShowDialog(this) != true)
         {
@@ -644,6 +684,25 @@ public partial class MainWindow : Window
         {
             SettingsPage.Visibility = Visibility.Visible;
         }
+    }
+
+    /// <summary>Visite guidée : la barre du haut, les outils principaux et le dossier SAV.</summary>
+    private void StartTour()
+    {
+        NavAnalyse.IsChecked = true;
+        Tour.Start(
+        [
+            new(ToolbarLeft, "La barre du haut",
+                "« Source » indique comment la douchette est reliée au PC. Importer, Coller (Ctrl + Maj + V), Capturer une zone ou Caméra : l'image part dans « Analyser une image », où chaque code est lu et détaillé."),
+            new(NavBench, "Banc d'essai douchette",
+                "Scanne un code avec la douchette du client : Scanalyse compare ce qu'elle transmet au vrai contenu et explique chaque écart (préfixe, GS perdu, clavier mal réglé…)."),
+            new(NavPrint, "Code imprimante",
+                "Lis le programme ZPL d'un client (aperçu de l'étiquette, contenu des codes, erreurs), pars d'un modèle (palette SSCC, colis…) ou recrée un code, puis envoie-le à l'imprimante."),
+            new(NavDevices, "Appareils de lecture",
+                "Douchettes en port série ou HID POS, terminaux Android et caméras : leurs lectures arrivent directement au banc d'essai, octet par octet."),
+            new(CaseButton, "Dossier SAV en cours",
+                "Chaque analyse est rangée dans le dossier choisi ici. Retrouve-les dans « Historique » pour les renommer, les commenter et produire le rapport PDF du client."),
+        ]);
     }
 
     /// <summary>Le menu a été replié ou déplié à la main : on ne le change plus selon la largeur.</summary>

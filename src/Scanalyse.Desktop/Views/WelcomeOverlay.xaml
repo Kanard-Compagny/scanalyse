@@ -1,0 +1,124 @@
+<UserControl x:Class="Scanalyse.Desktop.Views.WelcomeOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Visibility="Collapsed" KeyboardNavigation.TabNavigation="Cycle">
+  <UserControl.Resources>
+    <Style x:Key="Tile" TargetType="Border">
+      <Setter Property="Background" Value="{DynamicResource Surface2}" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Padding" Value="14,12" />
+      <Setter Property="Margin" Value="0,0,10,10" />
+      <Setter Property="Width" Value="268" />
+    </Style>
+    <Style x:Key="TileTitle" TargetType="TextBlock">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    </Style>
+    <Style x:Key="TileText" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+  </UserControl.Resources>
+
+  <!-- Accueil du premier lancement : présentation, dossiers de rangement, visite guidée -->
+  <Grid Background="#B3000000">
+    <Border Width="640" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}" HorizontalAlignment="Center" VerticalAlignment="Center"
+            Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="16" Padding="28,24" Margin="20">
+      <Border.Effect>
+        <DropShadowEffect BlurRadius="34" ShadowDepth="6" Opacity="0.4" Color="#000000" />
+      </Border.Effect>
+      <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+          <TextBlock x:Name="StepText" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
+          <StackPanel Orientation="Horizontal">
+            <Image Source="/Assets/logo-64.png" Width="34" Height="34" RenderOptions.BitmapScalingMode="HighQuality" />
+            <TextBlock x:Name="TitleText" Style="{StaticResource PageTitle}" FontSize="22" Margin="12,0,0,0" VerticalAlignment="Center" />
+          </StackPanel>
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,20,0,0" LastChildFill="False">
+          <Button x:Name="SkipButton" DockPanel.Dock="Left" Style="{StaticResource BtnGhost}" Content="Passer" Click="Skip_Click" />
+          <Button x:Name="NextButton" DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Click="Next_Click" MinWidth="150" />
+          <Button x:Name="BackButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Retour" Click="Back_Click" Margin="0,0,10,0" />
+        </DockPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <Grid>
+            <!-- 1. Ce que fait Scanalyse -->
+            <StackPanel x:Name="Page1">
+              <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource Ink}" Margin="0,0,0,16"
+                         Text="L'atelier du technicien pour les codes-barres : comprendre ce qu'un client voit, ce que sa douchette envoie et ce que son imprimante imprime. Tout reste sur ce PC." />
+              <WrapPanel>
+                <Border Style="{StaticResource Tile}">
+                  <StackPanel>
+                    <TextBlock Style="{StaticResource TileTitle}" Text="Analyser une image" />
+                    <TextBlock Style="{StaticResource TileText}" Text="Photo ou capture d'un client : chaque code lu, détaillé (GS1, contenu caché) et l'étiquette vérifiée." />
+                  </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tile}">
+                  <StackPanel>
+                    <TextBlock Style="{StaticResource TileTitle}" Text="Banc d'essai douchette" />
+                    <TextBlock Style="{StaticResource TileText}" Text="Ce que la douchette transmet comparé au vrai contenu : préfixes, GS perdus, clavier mal réglé…" />
+                  </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tile}">
+                  <StackPanel>
+                    <TextBlock Style="{StaticResource TileTitle}" Text="Code imprimante" />
+                    <TextBlock Style="{StaticResource TileText}" Text="Lire le programme ZPL d'un client, partir d'un modèle ou recréer un code, et l'envoyer à l'imprimante." />
+                  </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tile}">
+                  <StackPanel>
+                    <TextBlock Style="{StaticResource TileTitle}" Text="Dossiers SAV et rapports" />
+                    <TextBlock Style="{StaticResource TileText}" Text="Chaque analyse rangée dans le dossier du client, rapport PDF en un clic." />
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </StackPanel>
+
+            <!-- 2. Où ranger les fichiers -->
+            <StackPanel x:Name="Page2" Visibility="Collapsed">
+              <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource Ink}" Margin="0,0,0,14"
+                         Text="Choisis où Scanalyse range ce qu'il produit. Un dossier réseau permet de partager les dossiers SAV avec toute l'équipe. Modifiable à tout moment dans Paramètres." />
+              <TextBlock Style="{StaticResource TileTitle}" Text="Historique et dossiers SAV" />
+              <TextBlock Style="{StaticResource TileText}" Text="Analyses, images, fiches des dossiers clients." />
+              <DockPanel Margin="0,6,0,14">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Changer…" Click="PickHistory_Click" Margin="8,0,0,0" />
+                <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="10,8">
+                  <TextBlock x:Name="HistoryPath" FontFamily="{StaticResource MonoFont}" FontSize="12" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Ink}" />
+                </Border>
+              </DockPanel>
+              <TextBlock Style="{StaticResource TileTitle}" Text="Rapports PDF" />
+              <TextBlock Style="{StaticResource TileText}" Text="Dossier proposé quand tu enregistres un rapport." />
+              <DockPanel Margin="0,6,0,14">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Changer…" Click="PickReports_Click" Margin="8,0,0,0" />
+                <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="10,8">
+                  <TextBlock x:Name="ReportsPath" FontFamily="{StaticResource MonoFont}" FontSize="12" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Ink}" />
+                </Border>
+              </DockPanel>
+              <TextBlock Style="{StaticResource TileTitle}" Text="Programmes d'étiquettes" />
+              <TextBlock Style="{StaticResource TileText}" Text="Dossier proposé pour ouvrir les fichiers des clients et enregistrer les programmes ZPL." />
+              <DockPanel Margin="0,6,0,0">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Changer…" Click="PickLabels_Click" Margin="8,0,0,0" />
+                <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="10,8">
+                  <TextBlock x:Name="LabelsPath" FontFamily="{StaticResource MonoFont}" FontSize="12" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Ink}" />
+                </Border>
+              </DockPanel>
+            </StackPanel>
+
+            <!-- 3. Visite guidée -->
+            <StackPanel x:Name="Page3" Visibility="Collapsed">
+              <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource Ink}" Margin="0,0,0,12"
+                         Text="C'est prêt. Une visite de 30 secondes montre où se trouve chaque outil : la barre du haut, le menu, le dossier SAV en cours." />
+              <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Muted}"
+                         Text="Tu pourras la relancer à tout moment depuis Paramètres → Prise en main." />
+            </StackPanel>
+          </Grid>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

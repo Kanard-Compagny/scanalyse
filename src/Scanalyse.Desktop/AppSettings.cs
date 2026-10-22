@@ -29,6 +29,38 @@ public sealed class AppSettings
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 
+    /// <summary>L'accueil du premier lancement a été vu (terminé ou passé).</summary>
+    public bool WelcomeDone { get; set; }
+
+    /// <summary>Dossier proposé pour enregistrer les rapports PDF ; vide = Documents\Scanalyse\Rapports.</summary>
+    public string ReportsFolder { get; set; } = string.Empty;
+
+    /// <summary>Dossier proposé pour ouvrir et enregistrer les programmes d'étiquettes ; vide = Documents\Scanalyse\Étiquettes.</summary>
+    public string LabelsFolder { get; set; } = string.Empty;
+
+    /// <summary>Dossier des rapports en vigueur (créé au besoin).</summary>
+    public string ReportsFolderOrDefault => Ensure(ReportsFolder, "Rapports");
+
+    /// <summary>Dossier des programmes d'étiquettes en vigueur (créé au besoin).</summary>
+    public string LabelsFolderOrDefault => Ensure(LabelsFolder, "Étiquettes");
+
+    private static string Ensure(string chosen, string name)
+    {
+        var folder = string.IsNullOrWhiteSpace(chosen)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Scanalyse", name)
+            : chosen;
+        try
+        {
+            Directory.CreateDirectory(folder);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        }
+
+        return folder;
+    }
+
     /// <summary>Réglages de l'onglet Impression (étiquette, langage, imprimante).</summary>
     public PrintPreferences Print { get; set; } = new();
 

@@ -17,6 +17,7 @@ public partial class SettingsView : UserControl
         var v = Assembly.GetExecutingAssembly().GetName().Version;
         VersionText.Text = v is null ? "Scanalyse" : $"Version {v.Major}.{v.Minor}.{v.Build} · analyse et diagnostic de lecture des codes-barres";
         Loaded += (_, _) => DiagBox.Text = Diagnostic();
+        Loaded += (_, _) => ShowFolders();
         SyncTheme();
         ThemeManager.Changed += SyncTheme;
         Unloaded += (_, _) => ThemeManager.Changed -= SyncTheme;
@@ -53,6 +54,49 @@ public partial class SettingsView : UserControl
 
     /// <summary>L'utilisateur choisit un autre dossier d'historique (chaîne vide : emplacement par défaut).</summary>
     public event Action<string>? HistoryFolderChangeRequested;
+
+    /// <summary>« Revoir l'accueil » (Prise en main).</summary>
+    public event Action? WelcomeRequested;
+
+    /// <summary>« Lancer la visite guidée » (Prise en main).</summary>
+    public event Action? TourRequested;
+
+    private void Welcome_Click(object sender, RoutedEventArgs e) => WelcomeRequested?.Invoke();
+
+    private void Tour_Click(object sender, RoutedEventArgs e) => TourRequested?.Invoke();
+
+    private void ShowFolders()
+    {
+        var s = AppSettings.Load();
+        ReportsPath.Text = s.ReportsFolderOrDefault;
+        LabelsPath.Text = s.LabelsFolderOrDefault;
+    }
+
+    private void PickReports_Click(object sender, RoutedEventArgs e) => PickFolder("Dossier des rapports PDF", ReportsPath.Text, (s, f) => s.ReportsFolder = f);
+
+    private void PickLabels_Click(object sender, RoutedEventArgs e) => PickFolder("Dossier des programmes d'étiquettes", LabelsPath.Text, (s, f) => s.LabelsFolder = f);
+
+    private void PickFolder(string title, string current, Action<AppSettings, string> apply)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = title, InitialDirectory = current };
+        if (dialog.ShowDialog(Window.GetWindow(this)) == true)
+        {
+            var s = AppSettings.Load();
+            apply(s, dialog.FolderName);
+            s.Save();
+            ShowFolders();
+        }
+    }
+
+    private void OpenReports_Click(object sender, RoutedEventArgs e) => OpenFolder(ReportsPath.Text);
+
+    private void OpenLabels_Click(object sender, RoutedEventArgs e) => OpenFolder(LabelsPath.Text);
+
+    private static void OpenFolder(string path)
+    {
+        Directory.CreateDirectory(path);
+        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+    }
 
     /// <summary>Affiche le dossier d'historique en vigueur.</summary>
     public void ShowHistoryFolder(string path, bool isDefault)

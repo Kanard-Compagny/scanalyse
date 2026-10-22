@@ -18,7 +18,8 @@ function setMode(m,save){
     :"Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.";
   if(save){try{localStorage.setItem("atelier-mode",m);}catch(e){}}
   try{history.replaceState(null,"",scan?"#analyser":"#creer");}catch(e){}
-  if(scan&&!src) loadSample(true);
+  // Démonstration (QR de l'atelier) seulement sur la page web : le programme Windows garde l'invite vide et ses boutons.
+  if(scan&&!src&&!DESKTOP) loadSample(true);
   if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"mode",mode:scan?"scan":"create"}));}catch(e){}}
 }
 tabs.create.addEventListener("click",()=>setMode("create",true));
@@ -203,7 +204,18 @@ function loadSample(silent){
 }
 $("scanSample").addEventListener("click",()=>loadSample(false));
 $("qrAnalyse").addEventListener("click",()=>{setMode("scan",false);nextNoRecord=true;loadSample(false);});
-if(DESKTOP)$("scanEmpty").innerHTML="<b>Dépose une image ici</b>ou utilise Importer, Coller ou Capturer dans la barre du haut.";
+/* Programme Windows : l'invite vide propose directement les quatre façons d'apporter une image */
+if(DESKTOP){
+  $("scanEmpty").innerHTML=`<b>Quelle image analyser ?</b><span>Photo envoyée par un client, capture de son écran, étiquette scannée… ou glisse un fichier ici.</span>
+  <div class="empty-acts">
+    <button type="button" class="empty-act" data-act="paste"><b>Coller</b><span>Image copiée (Ctrl + Maj + V)</span></button>
+    <button type="button" class="empty-act" data-act="capture"><b>Capturer une zone</b><span>Une partie de l'écran</span></button>
+    <button type="button" class="empty-act" data-act="import"><b>Importer</b><span>Fichier image ou photo</span></button>
+    <button type="button" class="empty-act" data-act="camera"><b>Caméra</b><span>Lecture en direct</span></button>
+  </div>`;
+  $("scanEmpty").querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click",()=>{
+    try{window.chrome.webview.postMessage(JSON.stringify({type:"action",action:b.dataset.act}));}catch(e){}}));
+}
 
 /* ================= Visionneuse plein écran (zoom + sélection) ================= */
 const V={el:$("viewer"),cv:$("vCanvas"),area:$("vArea"),z:1,ox:0,oy:0,pan:false,ptrs:new Map(),act:null,space:false};

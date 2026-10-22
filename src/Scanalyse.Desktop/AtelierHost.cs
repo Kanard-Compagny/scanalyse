@@ -69,6 +69,9 @@ internal sealed class AtelierHost
     /// <summary>L'utilisateur demande une comparaison depuis l'Atelier.</summary>
     public event Action<CompareRequest>? CompareRequested;
 
+    /// <summary>Bouton de l'invite vide d'« Analyser une image » : « import », « paste », « capture » ou « camera ».</summary>
+    public event Action<string>? ActionRequested;
+
     /// <summary>L'utilisateur veut le programme d'impression d'un code (ZPL…).</summary>
     public event Action<PrintRequest>? PrintRequested;
 
@@ -259,6 +262,10 @@ internal sealed class AtelierHost
                 case "compare":
                     CompareRequested?.Invoke(new CompareRequest(Get(root, "text"), Get(root, "format"), Get(root, "symbologyIdentifier"),
                         FromDataUrl(Get(root, "image"))));
+                    break;
+
+                case "action":
+                    ActionRequested?.Invoke(Get(root, "action"));
                     break;
 
                 case "print":

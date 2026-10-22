@@ -4,7 +4,7 @@
   <ScrollViewer VerticalScrollBarVisibility="Auto">
     <StackPanel Margin="28,22,28,16" MaxWidth="860" HorizontalAlignment="Left">
       <TextBlock Style="{StaticResource PageTitle}" Text="Paramètres" />
-      <TextBlock Style="{StaticResource PageSubtitle}" Text="Apparence de Scanalyse et informations sur le programme." Margin="0,4,0,20" />
+      <TextBlock Style="{StaticResource PageSubtitle}" Text="Apparence, dossiers de rangement, prise en main et informations sur le programme." Margin="0,4,0,20" />
 
       <Border Style="{StaticResource Card}" Margin="0,0,0,16">
         <StackPanel>
@@ -45,6 +45,40 @@
             <Button Style="{StaticResource BtnSecondary}" Content="Changer de dossier…" Click="ChangeHistory_Click" Margin="0,0,8,8" />
             <Button Style="{StaticResource BtnSecondary}" Content="Ouvrir le dossier" Click="OpenHistory_Click" Margin="0,0,8,8" />
             <Button x:Name="ResetHistoryButton" Style="{StaticResource BtnGhost}" Content="Revenir à côté du programme" Click="ResetHistory_Click" Margin="0,0,0,8" />
+          </WrapPanel>
+
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Dossier proposé pour enregistrer les rapports PDF" Margin="0,14,0,5" />
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
+              <Button Style="{StaticResource BtnSecondary}" Content="Changer…" Click="PickReports_Click" Margin="0,0,8,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir" Click="OpenReports_Click" />
+            </StackPanel>
+            <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,9">
+              <TextBlock x:Name="ReportsPath" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Foreground="{DynamicResource Ink}" TextTrimming="CharacterEllipsis" />
+            </Border>
+          </DockPanel>
+
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Dossier des programmes d'étiquettes (ouvrir les fichiers clients, enregistrer les ZPL)" Margin="0,14,0,5" />
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="8,0,0,0">
+              <Button Style="{StaticResource BtnSecondary}" Content="Changer…" Click="PickLabels_Click" Margin="0,0,8,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir" Click="OpenLabels_Click" />
+            </StackPanel>
+            <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,9">
+              <TextBlock x:Name="LabelsPath" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Foreground="{DynamicResource Ink}" TextTrimming="CharacterEllipsis" />
+            </Border>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Prise en main" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
+                     Text="L'accueil présente Scanalyse et le choix des dossiers ; la visite guidée montre où se trouve chaque outil." />
+          <WrapPanel>
+            <Button Style="{StaticResource BtnSecondary}" Content="Revoir l'accueil" Click="Welcome_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Lancer la visite guidée" Click="Tour_Click" Margin="0,0,8,8" />
           </WrapPanel>
         </StackPanel>
       </Border>

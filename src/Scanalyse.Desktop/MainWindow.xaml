@@ -47,7 +47,7 @@
       <!-- Barre d'outils -->
       <Border Grid.Row="1" Background="{DynamicResource ToolbarBg}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
         <DockPanel Margin="16,0" LastChildFill="False">
-          <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+          <StackPanel x:Name="ToolbarLeft" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock Text="Source" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
             <Button Style="{StaticResource BtnSecondary}" Click="Source_Click" ToolTip="Choisir comment la douchette est reliée au PC">
               <StackPanel Orientation="Horizontal">
@@ -87,7 +87,7 @@
               <TextBlock x:Name="ThemeLabel" Text="Thème : Système" Margin="8,0,0,0" />
             </StackPanel>
           </Button>
-          <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="CaseButton_Click" VerticalAlignment="Center" Margin="0,0,8,0"
+          <Button x:Name="CaseButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="CaseButton_Click" VerticalAlignment="Center" Margin="0,0,8,0"
                   ToolTip="Dossier SAV dans lequel les analyses sont enregistrées">
             <StackPanel Orientation="Horizontal">
               <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconFolder}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
@@ -222,6 +222,9 @@
 
       <!-- Confirmations (suppression, actions irréversibles) : par-dessus la barre d'outils et les pages -->
       <views:ConfirmOverlay x:Name="Confirm" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="100" />
+      <!-- Premier lancement : accueil, puis visite guidée -->
+      <views:WelcomeOverlay x:Name="Welcome" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="101" />
+      <views:TourOverlay x:Name="Tour" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="102" />
     </Grid>
   </Border>
 </Window>

@@ -331,8 +331,15 @@
                     </Grid>
                   </Border>
                 </ScrollViewer>
-                <TextBlock x:Name="ZplEmpty" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                <StackPanel x:Name="ZplEmptyBox" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="520">
+                  <TextBlock x:Name="ZplEmpty" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
                            Foreground="{DynamicResource Muted}" Text="Colle le programme ZPL du client dans la zone « Programme » : l'étiquette s'affiche ici." />
+                  <WrapPanel x:Name="ZplEmptyActions" HorizontalAlignment="Center" Margin="0,14,0,0">
+                    <Button Style="{StaticResource BtnSecondary}" Content="Coller un programme client" Click="PasteProgram_Click" Margin="0,0,8,8" />
+                    <Button Style="{StaticResource BtnSecondary}" Content="Ouvrir un fichier…" Click="OpenProgram_Click" Margin="0,0,8,8" />
+                    <Button Style="{StaticResource BtnGhost}" Content="Partir d'un modèle" Click="GoTemplates_Click" Margin="0,0,0,8" />
+                  </WrapPanel>
+                </StackPanel>
               </Grid>
             </Border>
           </DockPanel>

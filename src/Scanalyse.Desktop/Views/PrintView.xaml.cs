@@ -468,6 +468,7 @@ public partial class PrintView : UserControl
         var dialog = new SaveFileDialog
         {
             Title = "Enregistrer le programme d'étiquette",
+            InitialDirectory = AppSettings.Load().LabelsFolderOrDefault,
             FileName = $"etiquette-{(name.Length > 0 ? name : "code")}{ext}",
             Filter = $"Programme {Language.ToString().ToUpperInvariant()} (*{ext})|*{ext}|Fichier d'impression (*.prn)|*.prn|Tous les fichiers (*.*)|*.*",
         };
@@ -1079,7 +1080,7 @@ public partial class PrintView : UserControl
         }
         else
         {
-            ZplScroll.Visibility = ZplEmpty.Visibility = Visibility.Collapsed;
+            ZplScroll.Visibility = ZplEmptyBox.Visibility = Visibility.Collapsed;
             PreviewNote.Text = "Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante.";
             _renderedKey = string.Empty;
             _ = RefreshAsync();
@@ -1246,15 +1247,17 @@ public partial class PrintView : UserControl
             _labelPng = null;
             _boxes = [];
             ZplScroll.Visibility = Visibility.Collapsed;
-            ZplEmpty.Visibility = Visibility.Visible;
+            ZplEmptyBox.Visibility = Visibility.Visible;
             PreviewInfo.Text = string.Empty;
             if (text.Trim().Length == 0)
             {
                 ZplEmpty.Text = "Colle le programme du client dans la zone « Programme », ou ouvre son fichier (.zpl, .prn, .txt…) : l'étiquette s'affiche ici.";
+                ZplEmptyActions.Visibility = Visibility.Visible;
                 ReadSummary.Text = "Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ouvre-le avec « Ouvrir un fichier », ou glisse-le sur la page.";
                 return;
             }
 
+            ZplEmptyActions.Visibility = Visibility.Collapsed;
             ShowOtherProgram(text, kind);
             return;
         }
@@ -1264,7 +1267,7 @@ public partial class PrintView : UserControl
         var label = ZplReader.Read(text);
         _label = label;
         BuildReadPanel(label);
-        ZplEmpty.Visibility = Visibility.Collapsed;
+        ZplEmptyBox.Visibility = Visibility.Collapsed;
         if (LabelRenderer is null)
         {
             return;
@@ -1873,11 +1876,14 @@ public partial class PrintView : UserControl
         Load(c.Content, sym, $"programme ZPL lu, ligne {c.Line}");
     }
 
+    private void GoTemplates_Click(object sender, RoutedEventArgs e) => SetPageMode(PageMode.Template);
+
     private void OpenProgram_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
         {
             Title = "Ouvrir le programme d'étiquette du client",
+            InitialDirectory = AppSettings.Load().LabelsFolderOrDefault,
             Filter = "Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|Tous les fichiers (*.*)|*.*",
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)

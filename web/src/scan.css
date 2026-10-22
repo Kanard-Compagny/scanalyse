@@ -17,6 +17,10 @@ kbd{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:5px;b
 .scan-stage.selecting canvas{touch-action:none}
 .scan-empty{display:grid;gap:6px;justify-items:center;text-align:center;padding:24px;color:var(--muted);font-size:14px}
 .scan-empty b{color:var(--ink);font-size:15px}
+.empty-acts{display:grid;grid-template-columns:repeat(2,minmax(150px,210px));gap:10px;margin-top:14px}
+.empty-act{display:grid;gap:3px;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}
+.empty-act:hover{border-color:var(--brand);background:var(--soft)}
+.empty-act b{font-size:14px}.empty-act span{font-size:12px;color:var(--muted)}
 .scan-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
 .btn.small{padding:7px 11px;font-size:13px}
 .btn.on{background:var(--soft);border-color:var(--accent);color:var(--ink)}
