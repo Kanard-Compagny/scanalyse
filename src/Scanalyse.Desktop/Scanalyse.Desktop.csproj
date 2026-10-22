@@ -32,6 +32,8 @@
     <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Scanalyse.Changelog.md" />
     <!-- Page ouverte dans le navigateur du terminal Android par le relais. -->
     <EmbeddedResource Include="Relay\relais.html" LogicalName="Scanalyse.Relay.relais.html" />
+    <EmbeddedResource Include="..\..\web\vendor\zxing-wasm-full-3.1.4.js" LogicalName="Scanalyse.Relay.zxing.js" />
+    <EmbeddedResource Include="..\..\web\vendor\zxing_full-3.1.4.wasm" LogicalName="Scanalyse.Relay.zxing.wasm" />
     <!-- Traductions de l'interface (français → anglais), voir Localization.cs. -->
     <EmbeddedResource Include="Lang\en.tsv" LogicalName="Scanalyse.Lang.en.tsv" />
   </ItemGroup>

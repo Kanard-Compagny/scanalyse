@@ -1272,6 +1272,7 @@ Pologne	Poland
 Port COM virtuel :	Virtual COM port:
 Port série {0}	Serial port {0}
 Port série {0} · {1}	Serial port {0} · {1}
+Port {0} indisponible ({1}) : la caméra des terminaux en Wi-Fi ne sera pas utilisable.	Port {0} unavailable ({1}): the camera of Wi-Fi terminals won't be usable.
 Ports {0}/{1} indisponibles ({2}) : une autre instance de Scanalyse ou un autre programme les utilise.	Ports {0}/{1} unavailable ({2}): another Scanalyse instance or another program is using them.
 Position géographique	Geographic location
 Poste configuré en QWERTY US.	Computer set to US QWERTY.
@@ -1494,6 +1495,7 @@ Scanalyse - Composants tiers.txt	Scanalyse - Third-party components.txt
 Scanalyse - Quoi de neuf.txt	Scanalyse - What's new.txt
 Scanalyse cherche une version plus récente dans le dossier de diffusion de l'équipe (partage réseau où l'on dépose le dernier Scanalyse.exe) et sur GitHub si le dépôt est public.	Scanalyse looks for a newer version in the team distribution folder (network share holding the latest Scanalyse.exe) and on GitHub if the repository is public.
 Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {0} et {1}, uniquement depuis ton réseau local. Windows va demander les droits administrateur.	Scanalyse will add a rule allowing incoming connections on ports {0} and {1}, only from your local network. Windows will ask for administrator rights.
+Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {0} à {1} (relais, données brutes, caméra en HTTPS), uniquement depuis ton réseau local. Windows va demander les droits administrateur.	Scanalyse will add a rule allowing incoming connections on ports {0} to {1} (relay, raw data, camera over HTTPS), from your local network only. Windows will ask for administrator rights.
 Scanalyse {0} est à jour.	Scanalyse {0} is up to date.
 Scanalyse · PDF417 · exemple	Scanalyse · PDF417 · sample
 Scanne le bon code, ou prends cette lecture comme nouvelle référence.	Scan the right code, or use this reading as the new reference.
@@ -1580,6 +1582,7 @@ Taïwan	Taiwan
 Tchéquie	Czechia
 Technicien (si le dossier n'en indique pas)	Technician (if the case doesn't name one)
 Terminal Android	Android terminal
+Terminal sans lecteur intégré :	Terminal without a built-in scanner:
 Terminal · sortie IP {0}	Terminal · IP output {0}
 Terminaux Android (relais)	Android terminals (relay)
 Terminaux reliés en ce moment	Terminals connected right now
@@ -1716,6 +1719,7 @@ aucune imprimante installée	no printer installed
 aucune requise	none required
 banc d'essai	test bench
 bons de remboursement	refund vouchers
+caméra du terminal	terminal camera
 ce que le code contient	what the code contains
 ce que le code ouvre	what the code opens
 chiffres attendus	digits expected
@@ -1816,6 +1820,8 @@ référence de commande	order reference
 réseau	network
 réseau {0}	network {0}
 sur cette page. Le glisser-déposer marche aussi.	on this page. Drag and drop works too.
+sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai. En USB, rien à régler ; en Wi-Fi, la page passe en HTTPS (accepter une fois l'avertissement de sécurité).	on the relay page, “Use the camera”: the terminal's camera reads the code and sends it to the test bench. Over USB nothing to set up; over Wi-Fi the page switches to HTTPS (accept the security warning once).
+sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai. En USB, rien à régler ; en Wi-Fi, la page s'ouvre en HTTPS	on the relay page, “Use the camera”: the terminal's camera reads the code and sends it to the test bench. Over USB nothing to set up; over Wi-Fi the page opens in HTTPS
 symbole {0} sur {1}	symbol {0} of {1}
 tableau de {0} éléments	array of {0} items
 taille fixée par le programme	size set by the program
@@ -1988,6 +1994,7 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 ×1 (taille réglée)	×1 (size as set)
 à autoriser : accepte le débogage USB sur l'écran du terminal	to authorize: accept USB debugging on the terminal's screen
 à vérifier	to check
+— accepter une fois l'avertissement de sécurité.	— accept the security warning once.
 •••••• (masqué)	•••••• (hidden)
 … et {0} autres	… and {0} more
 … {0} octets supplémentaires	… {0} more bytes

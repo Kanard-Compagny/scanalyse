@@ -7,6 +7,7 @@
 - **Maintenance de l'imprimante** (Code imprimante) : lire l'état (papier, ruban, tête ouverte, pause…), calibrer, imprimer la page de configuration, redémarrer, en ZPL, TSPL, EPL2 et DPL. L'état se lit par le réseau (adresse IP, ou file Windows reliée à un port TCP/IP).
 - **Mises à jour** : Scanalyse cherche une version plus récente dans le dossier de diffusion de l'équipe (et sur GitHub si le dépôt devient public) ; un bouton dans la barre de titre propose de l'installer et redémarre, sans script.
 - **Profil d'équipe** : exporter / importer les réglages communs (en-tête et logo des rapports, dossiers partagés, mises à jour, impression) ; import proposé dès l'accueil.
+- **Caméra des terminaux sans lecteur** : sur la page de relais, « Utiliser la caméra » lit les codes avec la caméra du terminal (décodeur servi par le PC, séparateurs GS1 conservés) et les envoie au banc d'essai. En USB, rien à régler ; en Wi-Fi, la page passe en HTTPS (certificat créé par Scanalyse, avertissement à accepter une fois ; pare-feu : ports 8765 à 8767).
 - **Analyse en lot** : plusieurs images ou un PDF (une image par page) importés ou déposés d'un coup ; chaque image est enregistrée dans le dossier SAV puis le rapport du dossier est proposé.
 
 ### Corrections et améliorations

@@ -150,6 +150,8 @@ public partial class DevicesView : UserControl
         var url = $"http://{address}:{Relay.RelayServer.HttpPort}/relais";
         WifiUrl.Text = url;
         RawHint.Text = $"dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {Relay.RelayServer.RawPort} pour un terminal relié en USB (après « Ouvrir le relais »), ou vers {address} port {Relay.RelayServer.RawPort} en Wi-Fi.";
+        CameraHint.Text = Localization.T("sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai. En USB, rien à régler ; en Wi-Fi, la page s'ouvre en HTTPS")
+            + $" (https://{address}:{Relay.RelayServer.HttpsPort}/relais) " + Localization.T("— accepter une fois l'avertissement de sécurité.");
         await ShowQrAsync(url);
     }
 
@@ -161,7 +163,7 @@ public partial class DevicesView : UserControl
     {
         if (!await Dialogs.ConfirmAsync(
                 "Modifier le pare-feu Windows ?",
-                $"Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {Relay.RelayServer.HttpPort} et {Relay.RelayServer.RawPort}, uniquement depuis ton réseau local. Windows va demander les droits administrateur.",
+                $"Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {Relay.RelayServer.HttpPort} à {Relay.RelayServer.HttpsPort} (relais, données brutes, caméra en HTTPS), uniquement depuis ton réseau local. Windows va demander les droits administrateur.",
                 "Autoriser",
                 null,
                 danger: false))
@@ -170,7 +172,7 @@ public partial class DevicesView : UserControl
         }
 
         const string name = "Scanalyse - relais terminal";
-        var ports = $"{Relay.RelayServer.HttpPort}-{Relay.RelayServer.RawPort}";
+        var ports = $"{Relay.RelayServer.HttpPort}-{Relay.RelayServer.HttpsPort}";
         var command = $"/c netsh advfirewall firewall delete rule name=\"{name}\" >nul 2>&1 & "
             + $"netsh advfirewall firewall add rule name=\"{name}\" dir=in action=allow protocol=TCP localport={ports} remoteip=localsubnet profile=any";
         try

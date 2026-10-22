@@ -31,6 +31,14 @@ textarea:focus{outline:none}
 .stopped .banner{display:block}
 .again{display:none;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:0;background:var(--brand);color:#fff}
 .stopped .again{display:block}.stopped .stop{display:none}
+.cam{display:block;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:0;background:#F07F13;color:#1B0F02}
+.cam.off{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+.camwrap{position:relative;margin-top:10px;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:4/3}
+.camwrap video{width:100%;height:100%;object-fit:cover;display:block}
+.aim{position:absolute;inset:18% 10%;border:3px solid rgba(255,255,255,.85);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.25);transition:border-color .15s}
+.aim.hit{border-color:#5FD3A1}
+.camstate{margin-top:8px;font-size:13px;color:var(--muted)}
+.stopped #camCard{opacity:.5;pointer-events:none}
 </style>
 </head>
 <body>
@@ -44,6 +52,13 @@ textarea:focus{outline:none}
     <button class="stop" id="stop" type="button">Arrêter la liaison</button>
     <button class="again" id="again" type="button">Reprendre la liaison</button>
   </section>
+  <section class="card" id="camCard">
+    <h1>Scanner avec la caméra</h1>
+    <p>Pour les terminaux sans lecteur intégré : la caméra lit le code et l'envoie au PC, comme une douchette.</p>
+    <button class="cam" id="camBtn" type="button">Utiliser la caméra</button>
+    <div class="camwrap" id="camWrap" hidden><video id="vid" playsinline muted></video><div class="aim" id="aim"></div></div>
+    <p class="camstate" id="camState"></p>
+  </section>
   <section class="card"><h1 style="font-size:15px">Dernières lectures</h1><div id="log" class="last"><p>Aucune lecture pour l'instant.</p></div></section>
 </main>
 <script>
@@ -55,7 +70,7 @@ function stop(msg){stopped=true;document.body.classList.add("stopped");box.disab
 function ping(){if(stopped)return;fetch("/ping",{cache:"no-store"}).then(r=>{if(r.status===410){stop("arrêtée par le PC");return;}state(r.ok,r.ok?"relié au PC":"PC injoignable");}).catch(()=>state(false,"PC injoignable"));}
 ping();setInterval(ping,2500);
 // Garder le champ actif : la douchette intégrée tape là où se trouve le curseur.
-setInterval(()=>{if(!stopped&&document.activeElement!==box)box.focus();},800);
+setInterval(()=>{if(!stopped&&!camStream&&document.activeElement!==box)box.focus();},800);
 document.getElementById("stop").addEventListener("click",()=>{
   stop("liaison arrêtée");
   fetch("/bye",{method:"POST"}).catch(()=>{});
@@ -63,18 +78,76 @@ document.getElementById("stop").addEventListener("click",()=>{
 document.getElementById("again").addEventListener("click",()=>location.reload());
 function vis(t){return t.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)])+">");}
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function send(payload,detail){
+  const div=document.createElement("div");div.className="item";
+  div.innerHTML=`${esc(vis(payload.text))}<small>${new Date().toLocaleTimeString("fr-FR")} · ${payload.text.length} caractères · ${esc(detail)} · <span>envoi…</span></small>`;
+  if(!count++)log.innerHTML="";log.prepend(div);while(log.children.length>8)log.lastChild.remove();
+  const s=div.querySelector("span");
+  fetch("/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+    .then(r=>{if(r.status===410){stop("arrêtée par le PC");}s.textContent=r.ok?"reçu par le PC":"refusé";s.className=r.ok?"sent":"err";})
+    .catch(()=>{s.textContent="PC injoignable";s.className="err";});
+}
 function flush(){
   clearTimeout(timer);timer=0;
   if(stopped||!text){text="";keys=[];box.value="";return;}
   const payload={text,keys,userAgent:navigator.userAgent};text="";keys=[];box.value="";
-  const div=document.createElement("div");div.className="item";
-  div.innerHTML=`${esc(vis(payload.text))}<small>${new Date().toLocaleTimeString("fr-FR")} · ${payload.text.length} caractères · ${payload.keys.length} touches · <span>envoi…</span></small>`;
-  if(!count++)log.innerHTML="";log.prepend(div);while(log.children.length>8)log.lastChild.remove();
-  const s=div.querySelector("span");
-  fetch("/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
-    .then(r=>{s.textContent=r.ok?"reçu par le PC":"refusé";s.className=r.ok?"sent":"err";})
-    .catch(()=>{s.textContent="PC injoignable";s.className="err";});
+  send(payload,payload.keys.length+" touches");
 }
+/* ---------- Caméra du terminal (terminaux sans lecteur intégré) ---------- */
+const camBtn=document.getElementById("camBtn"),camWrap=document.getElementById("camWrap"),vid=document.getElementById("vid"),aim=document.getElementById("aim"),camState=document.getElementById("camState");
+let camStream=null,camTimer=0,decoder=null,lastText="",lastAt=0,canvas=null;
+const FORMATS={QRCode:"QR Code",DataMatrix:"Data Matrix",Code128:"Code 128",EAN13:"EAN-13",EAN8:"EAN-8",UPCA:"UPC-A",UPCE:"UPC-E",ITF:"ITF",Code39:"Code 39",Code93:"Code 93",Codabar:"Codabar",PDF417:"PDF417",Aztec:"Aztec",DataBar:"GS1 DataBar",DataBarExpanded:"GS1 DataBar Expanded",MicroQRCode:"Micro QR Code",
+  qr_code:"QR Code",data_matrix:"Data Matrix",code_128:"Code 128",ean_13:"EAN-13",ean_8:"EAN-8",upc_a:"UPC-A",upc_e:"UPC-E",itf:"ITF",code_39:"Code 39",code_93:"Code 93",codabar:"Codabar",pdf417:"PDF417",aztec:"Aztec"};
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+// Décodeur : ZXing servi par le PC (mêmes résultats qu'au PC, séparateurs GS1 compris), sinon celui du navigateur.
+async function getDecoder(){
+  if(decoder)return decoder;
+  try{
+    await loadScript("/zxing.js");
+    await ZXingWASM.prepareZXingModule({fireImmediately:true,overrides:{locateFile:(p,prefix)=>p.endsWith(".wasm")?"/zxing.wasm":prefix+p}});
+    canvas=document.createElement("canvas");
+    decoder=async()=>{const w=vid.videoWidth,h=vid.videoHeight;if(!w)return null;const k=Math.min(1,1280/Math.max(w,h));canvas.width=Math.round(w*k);canvas.height=Math.round(h*k);
+      const x=canvas.getContext("2d",{willReadFrequently:true});x.drawImage(vid,0,0,canvas.width,canvas.height);
+      const r=await ZXingWASM.readBarcodes(x.getImageData(0,0,canvas.width,canvas.height),{tryHarder:true,maxNumberOfSymbols:1,textMode:"Plain"});
+      return r&&r[0]&&r[0].isValid!==false&&r[0].text?{text:r[0].text,format:r[0].format}:null;};
+    return decoder;
+  }catch(e){}
+  if("BarcodeDetector" in window){
+    const det=new BarcodeDetector();
+    decoder=async()=>{const r=await det.detect(vid);return r&&r[0]?{text:r[0].rawValue,format:r[0].format}:null;};
+    return decoder;
+  }
+  throw new Error("Aucun décodeur disponible sur ce terminal.");
+}
+async function camStart(){
+  if(!window.isSecureContext){
+    // En Wi-Fi, le navigateur n'ouvre la caméra que sur une page sécurisée (HTTPS).
+    camState.innerHTML="En Wi-Fi, la caméra demande la page sécurisée. Ouverture… Si un avertissement s'affiche, touche « Paramètres avancés » puis « Continuer » (une seule fois).";
+    setTimeout(()=>{location.href="https://"+location.hostname+":8767/relais?camera=1";},1500);
+    return;
+  }
+  try{
+    camState.textContent="Démarrage de la caméra…";
+    const d=await getDecoder();
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:960}},audio:false});
+    vid.srcObject=camStream;await vid.play();
+    camWrap.hidden=false;camBtn.textContent="Arrêter la caméra";camBtn.classList.add("off");
+    camState.textContent="Vise le code dans le cadre : il part au PC dès qu'il est lu.";
+    const tick=async()=>{if(!camStream)return;try{const r=await d();if(r)found(r);}catch(e){}camTimer=setTimeout(tick,180);};
+    tick();
+  }catch(e){camStop();camState.textContent=(e&&e.name==="NotAllowedError")?"Accès à la caméra refusé : autorise-le dans les réglages du navigateur pour cette page.":"Caméra indisponible : "+(e&&e.message||e);}
+}
+function camStop(){clearTimeout(camTimer);if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}camWrap.hidden=true;camBtn.textContent="Utiliser la caméra";camBtn.classList.remove("off");}
+function found(r){
+  // Un même code gardé devant la caméra n'est envoyé qu'une fois : il doit sortir du cadre (1,5 s) pour repartir.
+  const now=Date.now();const same=r.text===lastText&&now-lastAt<1500;lastText=r.text;lastAt=now;if(stopped||same)return;
+  aim.classList.add("hit");setTimeout(()=>aim.classList.remove("hit"),400);if(navigator.vibrate)navigator.vibrate(60);
+  const name=FORMATS[r.format]||r.format||"";
+  send({text:r.text,keys:[],camera:true,format:name,userAgent:navigator.userAgent},"caméra"+(name?" · "+name:""));
+}
+camBtn.addEventListener("click",()=>{camStream?camStop():camStart();});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)camStop();});
+if(/[?&]camera=1/.test(location.search)&&window.isSecureContext)setTimeout(camStart,300);
 // Les codes longs arrivent parfois en plusieurs morceaux (saisie par le clavier virtuel) : on attend 300 ms de silence.
 function arm(){clearTimeout(timer);timer=setTimeout(flush,300);}
 // Chaque touche est notée telle que le terminal l'envoie : c'est ce qui permet de voir un GS perdu ou un mauvais clavier.
