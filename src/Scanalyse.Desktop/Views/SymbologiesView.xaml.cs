@@ -9,6 +9,29 @@ public partial class SymbologiesView : UserControl
 {
     private readonly List<SymbologyCard> _all;
 
+    /// <summary>Largeur d'une fiche : autant de colonnes que la place le permet (fiches de 320 à 460 points).</summary>
+    public static readonly DependencyProperty CardWidthProperty =
+        DependencyProperty.Register(nameof(CardWidth), typeof(double), typeof(SymbologiesView), new PropertyMetadata(380.0));
+
+    public double CardWidth
+    {
+        get => (double)GetValue(CardWidthProperty);
+        set => SetValue(CardWidthProperty, value);
+    }
+
+    private void List_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        const double gap = 16;
+        var available = e.NewSize.Width - 2;
+        if (available <= 0)
+        {
+            return;
+        }
+
+        var columns = Math.Max(1, (int)((available + gap) / (320 + gap)));
+        CardWidth = Math.Floor(Math.Min(460, (available + gap) / columns - gap));
+    }
+
     public SymbologiesView()
     {
         InitializeComponent();

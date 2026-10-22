@@ -14,9 +14,9 @@
                  Text="Fiche de référence de chaque type de code : ce qu'il sait encoder, sa capacité, ses usages et sa norme." />
       <Grid Margin="0,16,0,0">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="340" />
+          <ColumnDefinition Width="*" MinWidth="240" MaxWidth="340" />
           <ColumnDefinition Width="16" />
-          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="2*" />
         </Grid.ColumnDefinitions>
         <Grid VerticalAlignment="Top">
           <TextBox x:Name="SearchBox" Style="{StaticResource SearchInput}" TextChanged="Filter_Changed" AutomationProperties.Name="Rechercher une symbologie" />
@@ -39,7 +39,7 @@
     </StackPanel>
 
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-      <ItemsControl x:Name="List">
+      <ItemsControl x:Name="List" SizeChanged="List_SizeChanged">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
             <WrapPanel Orientation="Horizontal" />
@@ -47,7 +47,7 @@
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
           <DataTemplate DataType="{x:Type views:SymbologyCard}">
-            <Border Style="{StaticResource Card}" Width="380" Margin="0,0,16,16">
+            <Border Style="{StaticResource Card}" Width="{Binding CardWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,16,16">
               <StackPanel>
                 <WrapPanel Margin="0,0,0,12">
                   <TextBlock Style="{StaticResource CardTitle}" Text="{Binding Name}" Margin="0,0,10,0" VerticalAlignment="Center" />

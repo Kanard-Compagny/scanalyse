@@ -50,9 +50,9 @@
 
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="300" />
+        <ColumnDefinition Width="*" MinWidth="220" MaxWidth="300" />
         <ColumnDefinition Width="18" />
-        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="3*" />
       </Grid.ColumnDefinitions>
 
       <!-- Dossiers -->
@@ -127,23 +127,23 @@
                 <RadioButton Style="{StaticResource Chip}" GroupName="ReportContent" Tag="Both" Content="Les deux" Checked="ReportContent_Checked" />
               </WrapPanel>
             </StackPanel>
-            <DockPanel Margin="0,8,0,0" LastChildFill="False">
-              <Button x:Name="UseCaseButton" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Content="Travailler sur ce dossier" Click="UseCase_Click" />
-              <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Rapport du dossier (PDF)" Click="Report_Click" />
-              <Button x:Name="ClientReportButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="ClientReport_Click" Margin="0,0,8,0" Visibility="Collapsed" />
-              <Button x:Name="DeleteCaseButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Supprimer le dossier" Click="DeleteCase_Click" Margin="0,0,8,0" />
-              <Button x:Name="EmptyCaseButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Vider le dossier" Click="EmptyCase_Click" Margin="0,0,4,0"
+            <WrapPanel Margin="0,8,0,0">
+              <Button Margin="0,0,8,8" x:Name="UseCaseButton" Style="{StaticResource BtnSecondary}" Content="Travailler sur ce dossier" Click="UseCase_Click" />
+              <Button Margin="0,0,8,8" Style="{StaticResource BtnAction}" Content="Rapport du dossier (PDF)" Click="Report_Click" />
+              <Button Margin="0,0,8,8" x:Name="ClientReportButton" Style="{StaticResource BtnSecondary}" Click="ClientReport_Click"  Visibility="Collapsed" />
+              <Button Margin="0,0,8,8" x:Name="EmptyCaseButton" Style="{StaticResource BtnGhost}" Content="Vider le dossier" Click="EmptyCase_Click" 
                       ToolTip="Supprime toutes les analyses de ce dossier ; le dossier et sa fiche sont conservés" />
-            </DockPanel>
+              <Button Margin="0,0,8,8" x:Name="DeleteCaseButton" Style="{StaticResource BtnGhost}" Content="Supprimer le dossier" Click="DeleteCase_Click"  />
+            </WrapPanel>
           </StackPanel>
         </Border>
 
         <!-- Recherche et filtres -->
         <Grid Grid.Row="1" Margin="0,0,0,12">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="*" MinWidth="220" MaxWidth="300" />
             <ColumnDefinition Width="14" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*" />
           </Grid.ColumnDefinitions>
           <Grid VerticalAlignment="Center">
             <TextBox x:Name="SearchBox" Style="{StaticResource SearchInput}" TextChanged="Filter_Changed" AutomationProperties.Name="Rechercher dans le dossier" />

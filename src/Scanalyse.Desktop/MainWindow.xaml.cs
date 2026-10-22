@@ -646,9 +646,43 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>Le menu a été replié ou déplié à la main : on ne le change plus selon la largeur.</summary>
+    private bool _menuManual;
+
+    /// <summary>
+    /// Fenêtre étroite : la barre d'outils garde ses icônes (avec bulles d'aide) sans les libellés, et le menu se replie,
+    /// pour que rien ne se chevauche ni ne disparaisse.
+    /// </summary>
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var w = e.NewSize.Width;
+        var compact = w < 1320;
+        foreach (var label in new FrameworkElement[] { ImportLabel, PasteLabel, CaptureLabel, CameraLabel, ThemeLabel })
+        {
+            label.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        CaseLabel.MaxWidth = w < 1180 ? 150 : 260;
+        SourceText.MaxWidth = w < 1180 ? 140 : double.PositiveInfinity;
+        SourceText.TextTrimming = TextTrimming.CharacterEllipsis;
+        if (!_menuManual && e.WidthChanged)
+        {
+            var wantNarrow = w < 1180;
+            if (wantNarrow != Sidebar.Width <= SidebarNarrow)
+            {
+                SetMenuNarrow(wantNarrow);
+            }
+        }
+    }
+
     private void ToggleMenu_Click(object sender, RoutedEventArgs e)
     {
-        var narrow = Sidebar.Width > SidebarNarrow;
+        _menuManual = true;
+        SetMenuNarrow(Sidebar.Width > SidebarNarrow);
+    }
+
+    private void SetMenuNarrow(bool narrow)
+    {
         Sidebar.Width = narrow ? SidebarNarrow : SidebarWide;
         MenuLabel.Visibility = narrow ? Visibility.Collapsed : Visibility.Visible;
         MenuChevron.RenderTransformOrigin = new Point(0.5, 0.5);

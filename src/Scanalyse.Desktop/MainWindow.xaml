@@ -10,7 +10,7 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Bg}" Foreground="{DynamicResource Ink}"
         FontFamily="{StaticResource UiFont}" FontSize="14"
-        StateChanged="Window_StateChanged">
+        StateChanged="Window_StateChanged" SizeChanged="Window_SizeChanged">
 
   <WindowChrome.WindowChrome>
     <WindowChrome CaptionHeight="38" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
@@ -59,25 +59,25 @@
             <Button Style="{StaticResource BtnSecondary}" Click="Import_Click" Margin="0,0,8,0" ToolTip="Ouvrir une image ou une photo à analyser (Ctrl + O)">
               <StackPanel Orientation="Horizontal">
                 <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconImport}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" /></Viewbox>
-                <TextBlock Text="Importer une image" Margin="8,0,0,0" />
+                <TextBlock x:Name="ImportLabel" Text="Importer une image" Margin="8,0,0,0" />
               </StackPanel>
             </Button>
             <Button Style="{StaticResource BtnSecondary}" Click="Paste_Click" ToolTip="Analyser l'image du presse-papiers (Ctrl + Maj + V)">
               <StackPanel Orientation="Horizontal">
                 <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconPaste}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
-                <TextBlock Text="Coller une image" Margin="8,0,0,0" />
+                <TextBlock x:Name="PasteLabel" Text="Coller une image" Margin="8,0,0,0" />
               </StackPanel>
             </Button>
             <Button Style="{StaticResource BtnSecondary}" Click="Capture_Click" Margin="8,0,0,0" ToolTip="Sélectionner une zone de l'écran avec l'outil Capture de Windows">
               <StackPanel Orientation="Horizontal">
                 <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconCapture}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" /></Viewbox>
-                <TextBlock Text="Capturer une zone" Margin="8,0,0,0" />
+                <TextBlock x:Name="CaptureLabel" Text="Capturer une zone" Margin="8,0,0,0" />
               </StackPanel>
             </Button>
             <Button Style="{StaticResource BtnSecondary}" Click="Camera_Click" Margin="8,0,0,0" ToolTip="Lire les codes en direct avec une webcam ou une caméra document">
               <StackPanel Orientation="Horizontal">
                 <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconCamera}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
-                <TextBlock Text="Caméra" Margin="8,0,0,0" />
+                <TextBlock x:Name="CameraLabel" Text="Caméra" Margin="8,0,0,0" />
               </StackPanel>
             </Button>
           </StackPanel>
