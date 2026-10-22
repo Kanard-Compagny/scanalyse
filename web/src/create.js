@@ -84,7 +84,7 @@ function renderTypes(){
   document.querySelectorAll(".tp-cats button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.cat===cat)));
   const list=TYPES.filter(t=>t.cat===cat&&cat!=="qr");
   $("tpTypes").innerHTML=list.map(t=>`<label class="chip"><input type="radio" name="ctype" value="${t.id}" ${t.id===current?"checked":""}><span>${esc(t.label)}</span></label>`).join("");
-  const t=byId[current];$("tpInfo").innerHTML=(t&&t.cat===cat)?`${esc(t.label)} · ${t.info}`:"";
+  const t=byId[current];$("tpInfo").innerHTML=(t&&t.cat===cat)?`<span>${esc(t.label)}</span><span> · ${t.info}</span>`:"";
 }
 document.querySelectorAll(".tp-cats button").forEach(b=>b.addEventListener("click",()=>{
   cat=b.dataset.cat;
@@ -239,11 +239,13 @@ function printInfo(sym){
   const dpi=+$("stdDpi").value,dots=+$("stdDots").value,t=byId[current];
   const mm=dots/dpi*25.4;const w=sym.width*mm,h=sym.height*mm;
   const f=v=>v.toLocaleString("fr-FR",{maximumFractionDigits:2});
+  // Chaque phrase est traduite à part (programme Windows en anglais).
+  const T=window.atelierT||(x=>x);
   let txt=`Module : ${f(mm)} mm (${dots} point${dots>1?"s":""} à ${dpi} dpi). Code : ${f(w)} × ${f(h)} mm hors marges (${sym.width} × ${sym.height} modules).`;
-  if(t.cat==="retail"&&/EAN|UPC/.test(t.fmt)){txt+=mm<0.264?" Trop petit pour la grande distribution : GS1 recommande 0,33 mm (0,264 mm au minimum).":" Conforme aux recommandations GS1 pour la distribution (0,264 à 0,66 mm).";}
-  if(t.id==="gs1128"||t.id==="itf14"){txt+=mm<0.495?" Pour la logistique, GS1 demande au moins 0,495 mm par module.":" Conforme pour la logistique (au moins 0,495 mm).";}
-  if(t.id==="gs1datamatrix"){txt+=mm<0.255?" Module très petit : GS1 recommande au moins 0,255 mm (santé).":"";}
-  el.textContent=txt;
+  if(t.cat==="retail"&&/EAN|UPC/.test(t.fmt)){txt=T(txt)+" "+T(mm<0.264?"Trop petit pour la grande distribution : GS1 recommande 0,33 mm (0,264 mm au minimum).":"Conforme aux recommandations GS1 pour la distribution (0,264 à 0,66 mm).");}
+  if(t.id==="gs1128"||t.id==="itf14"){txt=T(txt)+" "+T(mm<0.495?"Pour la logistique, GS1 demande au moins 0,495 mm par module.":"Conforme pour la logistique (au moins 0,495 mm).");}
+  if(t.id==="gs1datamatrix"){if(mm<0.255)txt=T(txt)+" "+T("Module très petit : GS1 recommande au moins 0,255 mm (santé).");}
+  el.textContent=T(txt);
 }
 
 /* ================= Export ================= */

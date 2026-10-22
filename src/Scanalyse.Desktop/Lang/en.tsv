@@ -1,4 +1,5 @@
 # Traductions de l'interface : français (clé) → anglais. {0}, {1}… : parties variables. Une ligne par texte.
+(Mac :	(Mac:
 (commence par 0 ou 1). Petits articles.	(starts with 0 or 1). Small items.
 (devise ISO {0})	(ISO currency {0})
 (devise ISO {1})	(ISO currency {1})
@@ -151,6 +152,7 @@ Appliqué à chaque démarrage. Les dossiers SAV et leurs fiches sont conservés
 Arabie saoudite	Saudi Arabia
 Argentine	Argentina
 Arménie	Armenia
+Arrondi	Rounded
 Arrêter	Stop
 Arrêter la liaison	Stop the link
 Article (GTIN)	Item (GTIN)
@@ -210,6 +212,7 @@ Bits d'arrêt	Stop bits
 Bits de données	Data bits
 Biélorussie	Belarus
 Bloc	Block
+Bloc {0}	Block {0}
 Bonjour,	Hello,
 Bords de cartons, tubes, surfaces étroites.	Box edges, tubes, narrow surfaces.
 Bosnie-Herzégovine	Bosnia and Herzegovina
@@ -251,6 +254,7 @@ Caractères de contrôle encodés en hexadécimal (^FH) : ils sont bien transmis
 Caractères invisibles : écris	Invisible characters: write
 Caractères invisibles : écris <GS>, <RS>, <EOT>, <CR>…	Invisible characters: write <GS>, <RS>, <EOT>, <CR>…
 Caractéristiques techniques	Technical characteristics
+Carré	Square
 Carré plein {0} points	Solid square {0} dots
 Carte de visite	Business card
 Carte de visite (MeCard)	Business card (MeCard)
@@ -266,6 +270,7 @@ Catégorie	Category
 Ce code contient un mot de passe Wi-Fi lisible par n'importe quel lecteur : ne le diffuse pas au-delà des personnes qui préparent les terminaux.	This code contains a Wi-Fi password readable by any reader: don't share it beyond the people preparing the terminals.
 Ce code contient une clé secrète de connexion. Ne le partage pas et ne le publie pas.	This code contains a secret login key. Don't share or publish it.
 Ce dossier ne contient encore aucune analyse.	This case doesn't contain any analysis yet.
+Ce fichier n'est pas une image. Choisis un PNG, JPG, SVG ou WebP.	This file is not an image. Choose a PNG, JPG, SVG or WebP.
 Ce format n'est pas pris en charge par le navigateur (par exemple HEIC). Convertis l'image en PNG ou JPG, ou fais une capture d'écran.	This format is not supported by the browser (for example HEIC). Convert the image to PNG or JPG, or take a screenshot.
 Ce n'est pas le même code	It's not the same code
 Ce navigateur ne donne pas accès à la caméra.	This browser doesn't give access to the camera.
@@ -308,6 +313,7 @@ Chypre	Cyprus
 Clair	Light
 Classification carcasse (UN/ECE)	Carcass classification (UN/ECE)
 Classification de carcasse (UN/ECE)	Carcass classification (UN/ECE)
+Classique	Classic
 Clavier	Keyboard
 Client / site	Customer / site
 Clique pour renommer l'analyse (problème rencontré, repère…). Vide : nom automatique.	Click to rename the analysis (problem found, marker…). Empty: automatic name.
@@ -408,14 +414,18 @@ Contenu du code	Code content
 Contenu du code détaillé	Detailed code content
 Contenu du programme	Program content
 Contenu refusé par le	Content refused by the
+Contenu refusé par le {0} : {1}	Content refused by the {0}: {1}
 Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.	Content taken from the test bench: choose the code type if needed, then export or print.
 Contenu tel que lu et octets en hexadécimal : pour un intégrateur ou un éditeur de logiciel	Content as read and bytes in hexadecimal: for an integrator or software vendor
+Contenu trop long pour un QR code. Raccourcis-le ou baisse la correction d'erreur.	Content too long for a QR code. Shorten it or lower the error correction.
 Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.	Content, colors, module and finder shapes, central logo. The preview updates live and checks that the code stays readable.
 Contient des caractères invisibles : {0}.	Contains invisible characters: {0}.
 Continuer	Continue
 Contraste de symbole	Symbol contrast
 Contraste faible	Low contrast
 Contraste insuffisant ({0}:1) entre barres et fond.	Insufficient contrast ({0}:1) between bars and background.
+Contraste limite ({0}:1). Teste le scan avant d'imprimer.	Borderline contrast ({0}:1). Test the scan before printing.
+Contraste trop faible ({0}:1). Vise au moins 4:1 entre les modules et le fond.	Contrast too low ({0}:1). Aim for at least 4:1 between modules and background.
 Contrôle de flux	Flow control
 Coordonnées (téléphone, e-mail…)	Contact details (phone, e-mail…)
 Copie	Copy
@@ -426,7 +436,9 @@ Copier le contenu	Copy the content
 Copier le diagnostic	Copy diagnostics
 Copié	Copied
 Correction d'erreur	Error correction
+Correction d'erreur passée en H pour compenser le logo.	Error correction raised to H to make up for the logo.
 Corée du Sud	South Korea
+Coucher de soleil	Sunset
 Couleur 1	Color 1
 Couleur 1 en hexadécimal	Color 1 in hexadecimal
 Couleur 2	Color 2
@@ -587,6 +599,7 @@ En-tête des rapports remis aux clients : ta société, ton nom et tes coordonn�
 Encodage	Encoding
 Encodage du texte	Text encoding
 Enregistrement des analyses	Saving analyses
+Enregistrement direct refusé ({0}). Utilise l'image ci-dessous.	Direct save refused ({0}). Use the image below.
 Enregistrement impossible :	Unable to save:
 Enregistrer automatiquement chaque analyse et chaque comparaison dans le dossier SAV en cours	Automatically save every analysis and every comparison in the current service case
 Enregistrer le programme d'étiquette	Save the label program
@@ -632,14 +645,19 @@ Fin de transmission (séparateur de format 06)	End of transmission (format 06 se
 Fin de transmission <EOT> absente : le message est peut-être tronqué.	End of transmission <EOT> missing: the message may be truncated.
 Finlande	Finland
 Fonction	Job title
+Fond	Background
 Fond blanc, menu vert	White background, green menu
 Fond transparent	Transparent background
 Fond transparent (PNG et SVG)	Transparent background (PNG and SVG)
+Fond transparent : pose-le sur un support clair et uni.	Transparent background: place it on a light, plain surface.
+Format	Format
 Format allongé.	Elongated format.
 Format suisse de paiement (Swiss QR Code).	Swiss payment format (Swiss QR Code).
+Format {0}	Format {0}
 Format {0} : {1}	Format {0}: {1}
 Forme courte d'un UPC-A	Short form of a UPC-A
 Formes	Shapes
+Forêt	Forest
 France et Monaco	France and Monaco
 Fruits et légumes, petits articles	Fruit and vegetables, small items
 Fruits et légumes, petits articles.	Fruit and vegetables, small items.
@@ -742,6 +760,7 @@ Impossible d'ouvrir l'imprimante « {0} » : {1}	Unable to open printer “{0}�
 Impossible d'ouvrir {0} : {1}	Unable to open {0}: {1}
 Impossible d'écrire dans {0} : choisis un dossier où tu as les droits d'écriture.	Unable to write to {0}: choose a folder where you have write access.
 Impossible de démarrer l'Atelier :	Unable to start the Workshop:
+Impossible de lire cette image (format non pris en charge par le navigateur, ex. HEIC). Essaie un PNG ou un JPG.	Cannot read this image (format not supported by the browser, e.g. HEIC). Try a PNG or a JPG.
 Imprimante	Printer
 Incohérences	Inconsistencies
 Incohérences entre les codes de l'étiquette :	Inconsistencies between the codes of the label:
@@ -765,6 +784,7 @@ Installer	Install
 Installée sur ce PC	Installed on this PC
 Intervenant	Technician
 Inventaire / matériel	Inventory / equipment
+Inversé	Inverted
 Irlande	Ireland
 Islande	Iceland
 Israël	Israel
@@ -786,6 +806,7 @@ L'accès à la caméra a été refusé. Autorise-le dans les réglages du naviga
 L'aperçu au-dessus du programme	The preview above the program
 L'atelier du technicien pour les codes-barres : comprendre ce qu'un client voit, ce que sa douchette envoie et ce que son imprimante imprime. Tout reste sur ce PC.	The technician's workshop for barcodes: understand what a customer sees, what their scanner sends and what their printer prints. Everything stays on this PC.
 L'export a échoué.	Export failed.
+L'export a échoué. Essaie une taille plus petite.	Export failed. Try a smaller size.
 L'image de cette analyse n'est plus disponible.	The image of this analysis is no longer available.
 L'image reçue n'a pas pu être ouverte.	The received image could not be opened.
 L'impression a été refusée par « {0} » : {1}	Printing was refused by “{0}”: {1}
@@ -794,6 +815,7 @@ L'imprimante sort cette étiquette tournée de 180° (^POI).	The printer outputs
 L'outil Capture de Windows est indisponible : fais Win + Maj + S, puis « Coller une image ».	The Windows Snipping Tool is unavailable: press Win + Shift + S, then “Paste an image”.
 L'étiquette en grand	The label, large
 La barre du haut	The top bar
+La bibliothèque QR n'a pas pu se charger. Recharge la page.	The QR library could not load. Reload the page.
 La caméra est déjà utilisée par une autre application (Teams, Zoom, l'appli Caméra…). Ferme-la puis réessaie.	The camera is already used by another application (Teams, Zoom, the Camera app…). Close it and try again.
 La caméra n'a pas pu démarrer.	The camera could not start.
 La clé de contrôle de l'IBAN est invalide.	The IBAN check digits are invalid.
@@ -832,6 +854,7 @@ Le code n'a rien transmis. Causes probables : symbologie désactivée dans le sc
 Le composant Microsoft Edge WebView2 n'est pas installé sur ce PC. Il est présent d'office sur Windows 11 et sur les Windows 10 à jour ; sinon, installe le « WebView2 Runtime » depuis le site de Microsoft. Le banc d'essai reste utilisable.	The Microsoft Edge WebView2 component is not installed on this PC. It comes with Windows 11 and up-to-date Windows 10; otherwise, install the “WebView2 Runtime” from Microsoft's website. The test bench remains usable.
 Le contenu contient « _ », caractère d'échappement choisi pour FNC1 : vérifie le code imprimé.	The content contains “_”, the escape character chosen for FNC1: check the printed code.
 Le contenu du code est vide.	The code content is empty.
+Le contenu est vide : saisis quelque chose à encoder.	The content is empty: type something to encode.
 Le contenu est vide.	The content is empty.
 Le dernier chiffre ({0}) est la clé de contrôle : le scanner la lit mais ne l'envoie pas.	The last digit ({0}) is the check digit: the scanner reads it but doesn't send it.
 Le dossier « {0} » est déjà vide.	The case “{0}” is already empty.
@@ -864,6 +887,7 @@ Le {0} ({1}) reprend le {2} du {3}.	The {0} ({1}) repeats the {2} of the {3}.
 Lecture conforme	Reading compliant
 Lecture d'un autre code	Reading of another code
 Lecture du fichier impossible :	Unable to read the file:
+Lecture du fichier impossible.	Cannot read the file.
 Lecture en direct	Live reading
 Lecture en direct : présente le code devant la caméra, il est analysé dès qu'il est lu.	Live reading: hold the code in front of the camera, it is analyzed as soon as it is read.
 Lecture fiable	Reliable reading
@@ -894,6 +918,7 @@ Liaison avec {0} ({1}) arrêtée.	Link with {0} ({1}) stopped.
 Liaison avec {0} arrêtée.	Link with {0} stopped.
 Liaison perdue	Link lost
 Liban	Lebanon
+Lien	Link
 Lien GS1 Digital Link	GS1 Digital Link
 Lien GS1 Digital Link : la même étiquette sert au passage en caisse et à une page web produit.	GS1 Digital Link: the same label works at checkout and for a product web page.
 Lien de suivi marketing ({0}).	Marketing tracking link ({0}).
@@ -916,6 +941,7 @@ Lire un programme	Read a program
 Lis le programme ZPL d'un client (aperçu de l'étiquette, contenu des codes, erreurs), pars d'un modèle (palette SSCC, colis…) ou recrée un code, puis envoie-le à l'imprimante.	Read a customer's ZPL program (label preview, code content, errors), start from a template (SSCC pallet, parcel…) or recreate a code, then send it to the printer.
 Lis un QR code ou un code-barres depuis une image, une capture d'écran ou un collage, et obtiens son contenu détaillé et ses caractéristiques techniques.	Read a QR code or a barcode from an image, a screenshot or a paste, and get its detailed content and technical characteristics.
 Lisible : bon contraste.	Readable: good contrast.
+Lisible : contraste {0}:1.	Readable: contrast {0}:1.
 Lituanie	Lithuania
 Livre (ISBN)	Book (ISBN)
 Livrer à (GLN)	Ship to (GLN)
@@ -923,6 +949,8 @@ Livres	Books
 Logistique, colis (GS1-128), étiquettes internes	Logistics, parcels (GS1-128), internal labels
 Logo central	Central logo
 Logo de la société (en-tête des rapports)	Company logo (report header)
+Logo grand avec une correction inférieure à H : risque d'échec au scan.	Large logo with error correction below H: the scan may fail.
+Logo très grand : garde-le sous 35 % pour un scan fiable.	Very large logo: keep it under 35% for a reliable scan.
 Longueur	Length
 Longueur incorrecte : {0} caractères au lieu de {1}.	Incorrect length: {0} characters instead of {1}.
 Longueur logistique	Logistic length
@@ -931,6 +959,7 @@ Lu seulement après accentuation de l'image : la photo est floue. Une douchette 
 Macao	Macao
 Macédoine du Nord	North Macedonia
 Main (déplacer)	Hand (move)
+Maj	Shift
 Majuscules et minuscules modifiées	Uppercase and lowercase changed
 Majuscules, chiffres, - . espace $ / + %	Uppercase, digits, - . space $ / + %
 Majuscules, chiffres, - . espace $ / + %.	Uppercase, digits, - . space $ / + %.
@@ -948,6 +977,7 @@ Mauvaise langue de clavier (scanner en QWERTY, PC en AZERTY)	Wrong keyboard layo
 MaxiCode : contenu lu, mais pas dessiné dans l'aperçu.	MaxiCode: content read, but not drawn in the preview.
 MaxiCode mode 2 ou 3	MaxiCode mode 2 or 3
 MaxiCode mode 4 ou 5	MaxiCode mode 4 or 5
+Message	Message
 Mexique	Mexico
 Ministère de la santé italien	Italian Ministry of Health
 Mode D : les données ne forment pas une chaîne GS1 valide « (AI)valeur ».	Mode D: the data doesn't form a valid GS1 string “(AI)value”.
@@ -959,9 +989,12 @@ Modifier le pare-feu Windows ?	Change the Windows firewall?
 Module (^BY)	Module (^BY)
 Module : {0} mm ({1} point à {2} dpi). Code : {3} × {4} mm hors marges ({5} × {6} modules).	Module: {0} mm ({1} dot at {2} dpi). Code: {3} × {4} mm without margins ({5} × {6} modules).
 Module : {0} mm ({1} points à {2} dpi). Code : {3} × {4} mm hors marges ({5} × {6} modules).	Module: {0} mm ({1} dots at {2} dpi). Code: {3} × {4} mm without margins ({5} × {6} modules).
+Module : {0} mm ({1} point{2} à {3} dpi). Code : {4} × {5} mm hors marges ({6} × {7} modules).	Module: {0} mm ({1} dot{2} at {3} dpi). Code: {4} × {5} mm without margins ({6} × {7} modules).
 Module de {0} mm : GS1 demande au moins 0,264 mm en point de vente (0,33 mm recommandé).	Module of {0} mm: GS1 requires at least 0.264 mm at point of sale (0.33 mm recommended).
 Module de {0} mm : pour la logistique, GS1 demande au moins 0,495 mm.	Module of {0} mm: for logistics, GS1 requires at least 0.495 mm.
 Module très petit : GS1 recommande au moins 0,255 mm (santé).	Very small module: GS1 recommends at least 0.255 mm (healthcare).
+Modules	Modules
+Modules plus clairs que le fond : certaines applis de scan ne lisent pas les codes inversés.	Modules lighter than the background: some scanning apps can't read inverted codes.
 Modules très petits dans l'image (≈ {0} px). Pour une impression, prévois au moins 0,3 mm par module.	Very small modules in the image (≈ {0} px). For printing, allow at least 0.3 mm per module.
 Modèle d'étiquette	Label template
 Modèles	Templates
@@ -981,6 +1014,7 @@ Médicaments en Italie	Drugs in Italy
 Méthode de production	Production method
 Mêmes couleurs que les modules	Same colors as the modules
 N (normal, sous-ensembles par >…)	N (normal, subsets with >…)
+Nom	Name
 Nom de domaine internationalisé (punycode) : vérifie qu'il n'imite pas un site connu.	Internationalized domain name (punycode): check it doesn't imitate a well-known site.
 Nom du réseau (SSID)	Network name (SSID)
 Nom structuré	Structured name
@@ -1019,6 +1053,7 @@ N° de suivi	Tracking number
 N° de série CPID	CPID serial number
 N° de série du composant	Component serial number
 N° de téléphone mobile	Mobile phone number
+Néon acide	Acid neon
 Objet	Subject
 Octets reçus (hexadécimal)	Received bytes (hexadecimal)
 Organisation	Organization
@@ -1054,6 +1089,7 @@ Par défaut, l'historique est rangé à côté de Scanalyse.exe : il suit le pro
 Paramètres	Settings
 Pare-feu : ports {0} ouverts pour le réseau local. Recharge la page sur le terminal.	Firewall: ports {0} open for the local network. Reload the page on the terminal.
 Parité	Parity
+Partage impossible sur cet appareil.	Sharing is not available on this device.
 Partager / Enregistrer dans Photos	Share / Save to Photos
 Partie	Part
 Partie (GLN)	Party (GLN)
@@ -1141,6 +1177,7 @@ Programme DPL	DPL program
 Programme EPL2	EPL2 program
 Programme TSPL	TSPL program
 Programme ZPL	ZPL program
+Programme ZPL / TSPL / EPL2 de ce QR (sans couleurs ni logo : une imprimante thermique imprime en noir)	ZPL / TSPL / EPL2 program for this QR (no colors or logo: a thermal printer prints in black)
 Programme ZPL / TSPL / EPL2 de ce code pour une imprimante d'étiquettes	ZPL / TSPL / EPL2 program of this code for a label printer
 Programme ZPL / TSPL / EPL2 pour réimprimer ce code sur une imprimante d'étiquettes	ZPL / TSPL / EPL2 program to reprint this code on a label printer
 Programme ZPL du modèle	Template ZPL program
@@ -1164,6 +1201,7 @@ Préfixe 2 : code interne au magasin, souvent pour les produits pesés ou à pri
 Préfixe <STX> ajouté	<STX> prefix added
 Préfixe GS1	GS1 prefix
 Prénom	First name
+Préparation…	Preparing…
 Présente un code devant la caméra…	Hold a code in front of the camera…
 Prêt.	Ready.
 Prêt. L'analyse est faite sur ce PC, rien n'est envoyé sur Internet.	Ready. Analysis is done on this PC, nothing is sent to the Internet.
@@ -1219,6 +1257,7 @@ Relit ce QR comme une image reçue : contenu, version, correction d'erreur…	Re
 Relit ce code comme une image reçue : contenu, symbologie, GS1…	Reads this code again like a received image: content, symbology, GS1…
 Remet le programme dans la page (ou ferme simplement cette fenêtre)	Puts the program back in the page (or just close this window)
 Remise du coupon	Coupon discount
+Remplissage	Fill
 Rendez-vous samedi 20 h, entrée côté quai.	See you Saturday 8 pm, entrance on the quay side.
 Reprend ce code dans « Créer une étiquette » (même type, même contenu, même module) pour générer un programme propre	Takes this code into “Create a label” (same type, same content, same module) to generate a clean program
 Reprend ce code dans « Créer une étiquette » pour générer un programme ZPL, TSPL ou EPL2	Takes this code into “Create a label” to generate a ZPL, TSPL or EPL2 program
@@ -1241,8 +1280,14 @@ Reçu en direct · {0} · {1} octets	Received live · {0} · {1} bytes
 Rien à analyser : corrige d'abord le contenu.	Nothing to analyze: fix the content first.
 Rien à envoyer : la combinaison langage / symbologie n'est pas prise en charge.	Nothing to send: this language / symbology combination is not supported.
 Rien à exporter : corrige d'abord le contenu.	Nothing to export: fix the content first.
+Rien à exporter : le contenu est vide.	Nothing to export: the content is empty.
 Rien à imprimer : corrige d'abord le contenu.	Nothing to print: fix the content first.
 Rien à installer sur le terminal : Scanalyse ouvre une page de relais dans son navigateur, la douchette intégrée y tape la lecture, et elle arrive ici avec le détail des touches. Zebra, Honeywell, Datalogic… toutes marques.	Nothing to install on the terminal: Scanalyse opens a relay page in its browser, the built-in scanner types the reading there, and it arrives here with the key details. Zebra, Honeywell, Datalogic… all brands.
+Rien à partager : le contenu est vide.	Nothing to share: the content is empty.
+Robustesse	Robustness
+Rond	Round
+Ronds	Dots
+Rotation	Rotation
 Roumanie	Romania
 Rouvrir	Reopen
 Royaume-Uni	United Kingdom
@@ -1314,6 +1359,7 @@ Slovaquie	Slovakia
 Slovénie	Slovenia
 Société	Company
 Sombre	Dark
+Source	Source
 Structure GS1 reconnue, mais le code n'est pas marqué GS1 (identifiant {0} sans FNC1 en tête). Les systèmes GS1 risquent de le refuser : active le mode GS1 dans le logiciel d'étiquetage.	GS1 structure recognized, but the code isn't flagged as GS1 (identifier {0} without leading FNC1). GS1 systems may reject it: enable GS1 mode in the labeling software.
 Structure GS1 reconnue, mais le code n'est pas marqué GS1 ({0}, sans FNC1 en tête).	GS1 structure recognized, but the code isn't flagged as GS1 ({0}, without leading FNC1).
 Styles rapides	Quick styles
@@ -1356,6 +1402,7 @@ Séquence (structured append)	Sequence (structured append)
 TSC et nombreuses imprimantes d'entrée de gamme	TSC and many entry-level printers
 TSPL : les caractères de contrôle (<GS>, <RS>…) ne sont pas transmis de façon fiable. Utilise le ZPL pour ce contenu.	TSPL: control characters (<GS>, <RS>…) are not transmitted reliably. Use ZPL for this content.
 Tabulation	Tab
+Taille	Size
 Taille d'un module	Module size
 Taille dans l'image	Size in the image
 Taille de l'interface	Interface size
@@ -1376,6 +1423,7 @@ Texte libre sous le code (facultatif : référence, n° de dossier…)	Free text
 Texte lisible sous le code	Human-readable text under the code
 Texte lisible sous le code (codes 1D)	Human-readable text under the code (1D codes)
 Texte sélectionné : Ctrl+C	Text selected: Ctrl+C
+Texte sélectionné : fais Ctrl+C.	Text selected: press Ctrl+C.
 Texte, numérique, octets	Text, numeric, bytes
 Thaïlande	Thailand
 Thème	Theme
@@ -1400,6 +1448,7 @@ Travailler sur ce dossier	Work on this case
 Traçabilité lisible par smartphone.	Traceability readable by smartphone.
 Tri de colis (UPS)	Parcel sorting (UPS)
 Trop petit pour la grande distribution : GS1 recommande 0,33 mm (0,264 mm au minimum).	Too small for retail: GS1 recommends 0.33 mm (0.264 mm minimum).
+Très arrondi	Extra rounded
 Tu pourras la relancer à tout moment depuis Paramètres → Prise en main.	You can start it again at any time from Settings → Getting started.
 Tunisie	Tunisia
 Turquie	Turkey
@@ -1420,6 +1469,7 @@ Un code trop petit à l'écran : zoome avant la capture.	Code too small on scree
 Un paiement en cryptomonnaie est irréversible. Vérifie l'adresse.	A cryptocurrency payment is irreversible. Check the address.
 Un peu floue : tiens le code immobile	A bit blurry: hold the code still
 Une adresse du profil contient un identifiant ({0}) et un mot de passe en clair.	An address in the profile contains a username ({0}) and a password in clear text.
+Une demande est déjà ouverte, réessaie dans un instant.	A request is already open, try again in a moment.
 Une douchette USB sort d'usine en mode clavier. Pour une liaison directe, scanne dans le guide de programmation du fabricant le code qui change l'interface USB :	A USB scanner ships in keyboard mode. For a direct link, scan the code that changes the USB interface in the manufacturer's programming guide:
 Une lecture est terminée quand la ligne reste silencieuse ce temps-là. Augmente-le si une lecture arrive coupée en deux.	A reading is complete when the line stays silent for this long. Increase it if a reading arrives split in two.
 Une partie de l'écran	Part of the screen
@@ -1471,6 +1521,7 @@ Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Ci
 Zone de capture	Catch area
 Zone de silence	Quiet zone
 Zones de silence (marges blanches)	Quiet zones (white margins)
+Zoomer	Zoom
 Zoomer (Ctrl + molette)	Zoom in (Ctrl + wheel)
 Zéros de tête supprimés	Leading zeros removed
 ^POI : l'étiquette est imprimée tête-bêche (tournée de 180°). L'aperçu la montre telle qu'elle a été dessinée.	^POI: the label is printed upside down (rotated 180°). The preview shows it as designed.
@@ -1492,6 +1543,7 @@ chiffres attendus	digits expected
 chiffres uniquement	digits only
 chiffré	encrypted
 clé	check digit
+clé : {0}	key: {0}
 clé invalide	invalid check digit
 clé invalide (attendue	invalid check digit (expected
 clé valide	valid check digit
@@ -1502,6 +1554,7 @@ comparaison douchette	scanner comparison
 comparaisons douchette	scanner comparisons
 conforme (≥ {0} module)	compliant (≥ {0} module)
 conforme (≥ {0} modules)	compliant (≥ {0} modules)
+conforme (≥ {0} module{1})	compliant (≥ {0} module{1})
 contenu refusé pour ce type de code.	content refused for this code type.
 couleurs inversées (clair sur foncé)	inverted colors (light on dark)
 coupons (États-Unis)	coupons (United States)
@@ -1518,6 +1571,7 @@ erreur inconnue.	unknown error.
 estimation indicative, pas une vérification ISO 15415/15416	indicative estimate, not an ISO 15415/15416 verification
 etiquette-{0}	label-{0}
 ex. 192.168.1.50 ou 192.168.1.50:6101	e.g. 192.168.1.50 or 192.168.1.50:6101
+générateur absent	generator missing
 hors ligne : débranche et rebranche le câble	offline: unplug and plug the cable back in
 identifiants d'application GS1	GS1 application identifiers
 identifiants d'éléments texte	text element identifiers
@@ -1542,6 +1596,7 @@ module {0} points ({1} mm) · hauteur {2} mm	module {0} dots ({1} mm) · height 
 monnaie locale	local currency
 mot de passe	password
 mot de passe {0}	password {0}
+moteur absent	engine missing
 ni la largeur (^PW) ni la longueur (^LL)	neither the width (^PW) nor the length (^LL)
 nombre attendu	number expected
 non	no
@@ -1626,14 +1681,18 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} champ vide (séparateurs consécutifs) : normal pour un format positionnel, à vérifier sinon.	{0} empty field (consecutive separators): normal for a positional format, check otherwise.
 {0} champs texte vides (que des espaces) : donnée absente côté logiciel ?	{0} empty text fields (spaces only): data missing on the software side?
 {0} champs vides (séparateurs consécutifs) : normal pour un format positionnel, à vérifier sinon.	{0} empty fields (consecutive separators): normal for a positional format, check otherwise.
+{0} champ{1} vide{2} (séparateurs consécutifs) : normal pour un format positionnel, à vérifier sinon.	{0} empty field{1} (consecutive separators): normal for a positional format, otherwise worth checking.
 {0} chiffres (ou {1} avec la clé) attendus : {2} saisis.	{0} digits (or {1} with the check digit) expected: {2} entered.
 {0} code détecté	{0} code detected
 {0} code porteur de données GS1 sur {1} : chaque donnée est comparée d'un code à l'autre et aux règles GS1.	{0} code carrying GS1 data out of {1}: each data element is compared from one code to another and with the GS1 rules.
 {0} codes détectés	{0} codes detected
 {0} codes porteurs de données GS1 sur {1} : chaque donnée est comparée d'un code à l'autre et aux règles GS1.	{0} codes carrying GS1 data out of {1}: each data element is compared from one code to another and with the GS1 rules.
 {0} codes-barres, {1} textes, {2} cadre(s) ou trait(s) · taille fixée par le programme · {3} · {4} exemplaires. Choisis la résolution de l'imprimante du client pour avoir les tailles en mm.	{0} barcodes, {1} texts, {2} box(es) or line(s) · size set by the program · {3} · {4} copies. Choose the resolution of the customer's printer to get the sizes in mm.
+{0} code{1} détecté{2}	{0} code{1} detected
+{0} code{1} porteur{2} de données GS1 sur {3} : chaque donnée est comparée d'un code à l'autre et aux règles GS1.	{0} code{1} carrying GS1 data out of {3}: each data element is compared between codes and against GS1 rules.
 {0} dans {1} jour ({2}).	{0} in {1} day ({2}).
 {0} dans {1} jours ({2}).	{0} in {1} days ({2}).
+{0} dans {1} jour{2} ({3}).	{0} in {1} day{2} ({3}).
 {0} de données récupérables	{0} of recoverable data
 {0} différent selon le code : {1}.	{0} differs between codes: {1}.
 {0} dossiers	{0} cases
@@ -1702,6 +1761,8 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 Échelle d'export	Export scale
 Édité le {0}	Issued on {0}
 Égypte	Egypt
+Élégant	Elegant
+Élégant arrondi	Elegant rounded
 Émetteur	Issuer
 Émirats arabes unis	United Arab Emirates
 Étape {0}	Step {0}

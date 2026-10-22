@@ -243,7 +243,7 @@ public partial class DevicesView : UserControl
 
     private void PickAdb_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Title = "Choisir adb.exe (Android Platform Tools)", Filter = "adb.exe|adb.exe|Programmes|*.exe" };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = Localization.T("Choisir adb.exe (Android Platform Tools)"), Filter = Localization.T("adb.exe|adb.exe|Programmes|*.exe") };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {
             var settings = AppSettings.Load();

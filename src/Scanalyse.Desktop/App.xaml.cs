@@ -65,6 +65,8 @@ public partial class App : Application
         { IsBackground = true, Name = "Scanalyse - activation" };
         listener.Start();
 
+        // La fermeture de la fenêtre principale arrête le programme, même si une autre fenêtre est restée ouverte.
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
         Localization.Initialize(AppSettings.Load().Language);
         ThemeManager.Initialize(AppSettings.Load().Theme);
         base.OnStartup(e);
@@ -82,7 +84,14 @@ public partial class App : Application
         }
 
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, "--restart") { UseShellExecute = false });
-        Current.Shutdown();
+        if (Current.MainWindow is { } main)
+        {
+            main.Close();
+        }
+        else
+        {
+            Current.Shutdown();
+        }
     }
 
     private void BringToFront()
@@ -121,5 +130,14 @@ public partial class App : Application
         }
 
         base.OnExit(e);
+
+        // Filet de sécurité : si un pilote de douchette ou le moteur web retient le processus après la fermeture,
+        // il est arrêté au bout de 3 secondes, pour que Scanalyse.exe ne reste jamais verrouillé.
+        new Thread(() =>
+        {
+            Thread.Sleep(3000);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+        })
+        { IsBackground = true, Name = "Scanalyse - arrêt" }.Start();
     }
 }

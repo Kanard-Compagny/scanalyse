@@ -157,8 +157,8 @@ public partial class SettingsView : UserControl
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Title = "Logo de la société (en-tête des rapports)",
-            Filter = "Images (*.png;*.jpg;*.jpeg;*.svg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.svg;*.bmp;*.gif",
+            Title = Localization.T("Logo de la société (en-tête des rapports)"),
+            Filter = Localization.T("Images (*.png;*.jpg;*.jpeg;*.svg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.svg;*.bmp;*.gif"),
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {
@@ -225,7 +225,7 @@ public partial class SettingsView : UserControl
 
     private void PickFolder(string title, string current, Action<AppSettings, string> apply)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = title, InitialDirectory = current };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Localization.T(title), InitialDirectory = current };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {
             var s = AppSettings.Load();
@@ -256,7 +256,7 @@ public partial class SettingsView : UserControl
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog
         {
-            Title = "Dossier de l'historique Scanalyse (local ou réseau)",
+            Title = Localization.T("Dossier de l'historique Scanalyse (local ou réseau)"),
             InitialDirectory = HistoryPath.Text,
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)

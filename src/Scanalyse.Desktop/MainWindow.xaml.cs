@@ -170,10 +170,36 @@ public partial class MainWindow : Window
             await LoadHistoryAsync();
             await StartAtelierAsync();
         };
-        Closed += async (_, _) =>
+        Closing += async (_, e) =>
         {
+            if (_cleanedUp)
+            {
+                return;
+            }
+
+            // Fermeture propre avant de quitter : douchettes, relais et moteur web (processus msedgewebview2)
+            // sont libérés, sans jamais attendre plus de 2 secondes un appareil qui ne répond pas.
+            e.Cancel = true;
+            _cleanedUp = true;
+            Hide();
             ThemeManager.Changed -= OnThemeChanged;
-            await Devices.ShutdownAsync();
+            try
+            {
+                await Devices.ShutdownAsync().WaitAsync(TimeSpan.FromSeconds(2));
+            }
+            catch (Exception ex) when (ex is TimeoutException or IOException or InvalidOperationException or ObjectDisposedException or COMException)
+            {
+            }
+
+            try
+            {
+                Web.Dispose();
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or COMException)
+            {
+            }
+
+            Close();
         };
     }
 
@@ -616,10 +642,10 @@ public partial class MainWindow : Window
 
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
-            Title = "Enregistrer le rapport",
+            Title = Localization.T("Enregistrer le rapport"),
             FileName = name + ".pdf",
             DefaultExt = ".pdf",
-            Filter = "Rapport PDF|*.pdf|Page web (HTML)|*.html",
+            Filter = Localization.T("Rapport PDF|*.pdf|Page web (HTML)|*.html"),
             InitialDirectory = AppSettings.Load().ReportsFolderOrDefault,
         };
         if (dialog.ShowDialog(this) != true)
@@ -800,6 +826,9 @@ public partial class MainWindow : Window
         ]);
     }
 
+    /// <summary>Appareils et moteur web déjà libérés : la fenêtre peut se fermer.</summary>
+    private bool _cleanedUp;
+
     /// <summary>Le menu a été replié ou déplié à la main : on ne le change plus selon la largeur.</summary>
     private bool _menuManual;
 
@@ -873,8 +902,8 @@ public partial class MainWindow : Window
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Title = "Importer une image à analyser",
-            Filter = "Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|Tous les fichiers|*.*",
+            Title = Localization.T("Importer une image à analyser"),
+            Filter = Localization.T("Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|Tous les fichiers|*.*"),
         };
         if (dialog.ShowDialog(this) != true)
         {

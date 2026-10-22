@@ -74,7 +74,7 @@ public partial class WelcomeOverlay : UserControl
 
     private static string? Pick(string title, string current)
     {
-        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = title, InitialDirectory = current };
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Localization.T(title), InitialDirectory = current };
         return dialog.ShowDialog(Application.Current.MainWindow) == true ? dialog.FolderName : null;
     }
 

@@ -467,10 +467,10 @@ public partial class PrintView : UserControl
         var name = new string(ControlCharacters.FromVisualized(DataBox.Text).Where(char.IsAsciiLetterOrDigit).Take(30).ToArray());
         var dialog = new SaveFileDialog
         {
-            Title = "Enregistrer le programme d'étiquette",
+            Title = Localization.T("Enregistrer le programme d'étiquette"),
             InitialDirectory = AppSettings.Load().LabelsFolderOrDefault,
             FileName = $"etiquette-{(name.Length > 0 ? name : "code")}{ext}",
-            Filter = $"Programme {Language.ToString().ToUpperInvariant()} (*{ext})|*{ext}|Fichier d'impression (*.prn)|*.prn|Tous les fichiers (*.*)|*.*",
+            Filter = Localization.T($"Programme {Language.ToString().ToUpperInvariant()} (*{ext})|*{ext}|Fichier d'impression (*.prn)|*.prn|Tous les fichiers (*.*)|*.*"),
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) != true)
         {
@@ -1882,9 +1882,9 @@ public partial class PrintView : UserControl
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Ouvrir le programme d'étiquette du client",
+            Title = Localization.T("Ouvrir le programme d'étiquette du client"),
             InitialDirectory = AppSettings.Load().LabelsFolderOrDefault,
-            Filter = "Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|Tous les fichiers (*.*)|*.*",
+            Filter = Localization.T("Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|Tous les fichiers (*.*)|*.*"),
         };
         if (dialog.ShowDialog(Window.GetWindow(this)) == true)
         {

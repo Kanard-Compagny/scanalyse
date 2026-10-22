@@ -40,7 +40,11 @@ internal static partial class Localization
         }
 
         Load();
+        // « Loaded » n'est envoyé par WPF qu'aux éléments qui ont eux-mêmes un gestionnaire : on s'accroche aussi au premier
+        // dimensionnement, que reçoit tout élément affiché (et ceux qui apparaissent plus tard, en devenant visibles).
         EventManager.RegisterClassHandler(typeof(FrameworkElement), FrameworkElement.LoadedEvent, new RoutedEventHandler(OnLoaded), handledEventsToo: true);
+        EventManager.RegisterClassHandler(typeof(FrameworkElement), FrameworkElement.SizeChangedEvent, new SizeChangedEventHandler(OnLoaded), handledEventsToo: true);
+        EventManager.RegisterClassHandler(typeof(ToolTip), ToolTip.OpenedEvent, new RoutedEventHandler(OnLoaded), handledEventsToo: true);
     }
 
     private static void Load()
@@ -184,8 +188,15 @@ internal static partial class Localization
             case HeaderedItemsControl:
                 Watch(element, HeaderedItemsControl.HeaderProperty);
                 break;
+            case HeaderedContentControl:
+                Watch(element, HeaderedContentControl.HeaderProperty);
+                Watch(element, ContentControl.ContentProperty);
+                break;
             case ContentControl:
                 Watch(element, ContentControl.ContentProperty);
+                break;
+            case TextBox:
+                Watch(element, FrameworkElement.TagProperty);
                 break;
         }
     }
@@ -199,8 +210,12 @@ internal static partial class Localization
         Set(element, FrameworkElement.ToolTipProperty);
         switch (element)
         {
-            case TextBlock tb when tb.Inlines.Count <= 1 || tb.Inlines.All(i => i is System.Windows.Documents.Run):
+            case TextBlock tb when tb.Inlines.Count <= 1:
                 Set(element, TextBlock.TextProperty);
+                break;
+            case TextBlock tb:
+                // Texte en plusieurs morceaux (gras, liens…) : chaque morceau est traduit à part.
+                TranslateInlines(tb.Inlines);
                 break;
             case Window:
                 Set(element, Window.TitleProperty);
@@ -208,9 +223,38 @@ internal static partial class Localization
             case HeaderedItemsControl:
                 Set(element, HeaderedItemsControl.HeaderProperty);
                 break;
+            case HeaderedContentControl:
+                Set(element, HeaderedContentControl.HeaderProperty);
+                Set(element, ContentControl.ContentProperty);
+                break;
             case ContentControl:
                 Set(element, ContentControl.ContentProperty);
                 break;
+            case TextBox:
+                // Texte d'aide affiché dans un champ vide (Tag).
+                Set(element, FrameworkElement.TagProperty);
+                break;
+        }
+    }
+
+    private static void TranslateInlines(System.Windows.Documents.InlineCollection inlines)
+    {
+        foreach (var inline in inlines.ToList())
+        {
+            switch (inline)
+            {
+                case System.Windows.Documents.Run run when run.Text.Length > 0:
+                    var en = T(run.Text);
+                    if (!string.Equals(en, run.Text, StringComparison.Ordinal))
+                    {
+                        run.Text = en;
+                    }
+
+                    break;
+                case System.Windows.Documents.Span span:
+                    TranslateInlines(span.Inlines);
+                    break;
+            }
         }
     }
 
