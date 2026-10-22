@@ -17,6 +17,27 @@ public partial class HistoryView : UserControl
     public HistoryView()
     {
         InitializeComponent();
+        var saved = AppSettings.Load().ReportContent;
+        foreach (var chip in ReportContentChips.Children.OfType<RadioButton>())
+        {
+            chip.IsChecked = (string)chip.Tag == saved;
+        }
+    }
+
+    /// <summary>Niveau de détail choisi pour le rapport (mémorisé).</summary>
+    public ReportContent ReportContent =>
+        Enum.TryParse<ReportContent>(ReportContentChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string, out var c) ? c : ReportContent.Both;
+
+    private void ReportContent_Checked(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        var settings = AppSettings.Load();
+        settings.ReportContent = (string)((RadioButton)sender).Tag;
+        settings.Save();
     }
 
     /// <summary>Dossier en cours : les nouvelles analyses y sont enregistrées.</summary>

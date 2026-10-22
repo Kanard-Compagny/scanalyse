@@ -907,6 +907,8 @@ let start="create";
 try{start=localStorage.getItem("atelier-mode")||"create";}catch(e){}
 if(/^#analy/i.test(location.hash))start="scan";else if(/^#cr/i.test(location.hash))start="create";
 // attend que l'aperçu de l'atelier soit dessiné pour l'exemple
-setTimeout(()=>setMode(start==="scan"?"scan":"create",false),start==="scan"?400:0);
+// Dans le programme Windows, c'est le menu latéral qui choisit l'onglet : la page ne reprend pas le dernier utilisé.
+if(DESKTOP){document.getElementById("view-create").hidden=true;document.getElementById("view-scan").hidden=true;}
+else setTimeout(()=>setMode(start==="scan"?"scan":"create",false),start==="scan"?400:0);
 setTimeout(()=>engine().catch(()=>{}),1500);
 })();

@@ -131,4 +131,20 @@ public class HistoryTests
         e.CustomTitle = "";
         Assert.Equal("EAN-13 · Article", e.Title);
     }
+
+    [Fact]
+    public void Report_details_structured_comparison_and_respects_raw_mode()
+    {
+        var big = "[)><RS>01<GS>02<GS>0044470<GS>901<GS>XR630094657248<RS>06<GS>1PABC<GS>SXXRAN261701571<RS><EOT>";
+        var e = new HistoryEntry { Kind = HistoryKind.Comparison, Expected = big, Received = big + "<CR>", Verdict = "Lecture conforme" };
+        var c = new ServiceCase { Client = "C" };
+        var detailed = ReportBuilder.Build(c, [e], _ => null, DateTimeOffset.Now, "1", content: ReportContent.Detailed);
+        Assert.Contains("Format 01", detailed);
+        Assert.Contains("numéro de série", detailed);
+        Assert.Contains("identique au contenu du code", detailed);
+        Assert.DoesNotContain("0044470<GS>", detailed.Replace("&lt;", "<").Replace("&gt;", ">"));
+        var raw = ReportBuilder.Build(c, [e], _ => null, DateTimeOffset.Now, "1", content: ReportContent.Raw);
+        Assert.DoesNotContain("Format 01", raw);
+        Assert.Contains("0044470&lt;GS&gt;", raw);
+    }
 }

@@ -53,7 +53,7 @@ let text="",keys=[],timer=0,count=0,stopped=false;
 function state(ok,msg){st.textContent=msg;st.className="state "+(ok?"ok":"bad");}
 function stop(msg){stopped=true;document.body.classList.add("stopped");box.disabled=true;state(false,msg);}
 function ping(){if(stopped)return;fetch("/ping",{cache:"no-store"}).then(r=>{if(r.status===410){stop("arrêtée par le PC");return;}state(r.ok,r.ok?"relié au PC":"PC injoignable");}).catch(()=>state(false,"PC injoignable"));}
-ping();setInterval(ping,5000);
+ping();setInterval(ping,2500);
 // Garder le champ actif : la douchette intégrée tape là où se trouve le curseur.
 setInterval(()=>{if(!stopped&&document.activeElement!==box)box.focus();},800);
 document.getElementById("stop").addEventListener("click",()=>{

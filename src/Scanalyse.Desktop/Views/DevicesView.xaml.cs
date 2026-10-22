@@ -21,6 +21,9 @@ public partial class DevicesView : UserControl
 {
     private readonly Relay.RelayServer _relay = new();
     private readonly Dictionary<string, Relay.AdbDevice> _openedUsb = [];
+    private readonly System.Windows.Threading.DispatcherTimer _usbWatch = new() { Interval = TimeSpan.FromSeconds(3) };
+    private bool _watching;
+    private readonly HashSet<string> _usbSeen = [];
     private ScannerStatus _deviceStatus = new(ScanSourceKind.Keyboard, "Douchette en mode clavier");
     private string? _adb;
     private IScanSource? _source;
@@ -59,8 +62,10 @@ public partial class DevicesView : UserControl
         _relay.Log += (kind, text) => Dispatcher.InvokeAsync(() => Log?.Invoke(kind, text));
         _relay.SessionsChanged += () => Dispatcher.InvokeAsync(OnSessionsChanged);
         var settings = AppSettings.Load();
-        WifiCheck.IsChecked = settings.RelayWifi;
-        await StartRelayAsync(settings.RelayWifi);
+        // Le Wi-Fi reste un choix à faire à chaque session : au démarrage, le relais n'écoute que l'USB.
+        WifiCheck.IsChecked = false;
+        await StartRelayAsync(false);
+        _usbWatch.Tick += async (_, _) => await WatchUsbAsync();
         _ = RefreshTerminalsAsync();
 
         var prefs = settings.Scanner;
@@ -220,9 +225,6 @@ public partial class DevicesView : UserControl
     private async void Wifi_Click(object sender, RoutedEventArgs e)
     {
         var wifi = WifiCheck.IsChecked == true;
-        var settings = AppSettings.Load();
-        settings.RelayWifi = wifi;
-        settings.Save();
         await StartRelayAsync(wifi);
         Log?.Invoke(LogKind.Info, wifi ? "Relais ouvert au Wi-Fi : les terminaux du même réseau peuvent s'y connecter." : "Relais limité aux terminaux branchés en USB.");
     }
@@ -329,6 +331,7 @@ public partial class DevicesView : UserControl
         if (error is null)
         {
             _openedUsb[device.Serial] = device;
+            _usbWatch.Start();
         }
 
         Log?.Invoke(error is null ? LogKind.Ok : LogKind.Error, error ?? $"Relais ouvert sur {device.Model} : scanne un code avec le terminal, la lecture arrive au banc d'essai.");
@@ -339,6 +342,7 @@ public partial class DevicesView : UserControl
     private async Task StopUsbRelayAsync(Relay.AdbDevice device)
     {
         _openedUsb.Remove(device.Serial);
+        _usbSeen.Remove(device.Model);
         _relay.Block(device.Model, "USB");
         if (_adb is not null)
         {
@@ -349,9 +353,79 @@ public partial class DevicesView : UserControl
         await RefreshTerminalsAsync();
     }
 
+    /// <summary>
+    /// Surveille les terminaux reliés en USB : débranché « à l'arrache », il disparaît d'ADB et sa ligne repasse
+    /// en « Ouvrir le relais » sans attendre.
+    /// </summary>
+    private async Task WatchUsbAsync()
+    {
+        if (_watching || _adb is null)
+        {
+            return;
+        }
+
+        if (_openedUsb.Count == 0)
+        {
+            _usbWatch.Stop();
+            return;
+        }
+
+        _watching = true;
+        try
+        {
+            var present = (await Relay.Adb.DevicesAsync(_adb)).Where(d => d.Ready).Select(d => d.Serial).ToHashSet();
+            var gone = _openedUsb.Keys.Where(s => !present.Contains(s)).ToList();
+            foreach (var serial in gone)
+            {
+                var d = _openedUsb[serial];
+                _openedUsb.Remove(serial);
+                _usbSeen.Remove(d.Model);
+                _relay.Forget(d.Model, "USB");
+                Log?.Invoke(LogKind.Warning, $"{d.Model} débranché : liaison terminée.");
+            }
+
+            if (gone.Count > 0)
+            {
+                await RefreshTerminalsAsync();
+            }
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or System.IO.IOException)
+        {
+        }
+        finally
+        {
+            _watching = false;
+        }
+    }
+
     /// <summary>Terminaux reliés : liste, pastille de la barre d'outils.</summary>
     private void OnSessionsChanged()
     {
+        // Page fermée ou terminal hors ligne : sa ligne USB ne propose plus « Arrêter la liaison ».
+        var usbModels = _relay.Sessions.Where(x => x.Origin == "USB").Select(x => x.Model).ToHashSet();
+        _usbSeen.UnionWith(usbModels);
+        // Seuls les terminaux dont la page a déjà répondu peuvent être « perdus » (pas ceux qui se connectent encore).
+        var stale = _openedUsb.Where(kv => _usbSeen.Contains(kv.Value.Model) && !usbModels.Contains(kv.Value.Model)).Select(kv => kv.Key).ToList();
+        if (stale.Count > 0 && _openedUsb.Count > 0)
+        {
+            _ = Task.Delay(1500).ContinueWith(_ => Dispatcher.InvokeAsync(async () =>
+            {
+                // On laisse à la page le temps de se reconnecter (rechargement) avant de considérer la liaison terminée.
+                var still = _relay.Sessions.Where(x => x.Origin == "USB").Select(x => x.Model).ToHashSet();
+                var removed = stale.Where(s => _openedUsb.TryGetValue(s, out var d) && !still.Contains(d.Model)).ToList();
+                foreach (var r in removed)
+                {
+                    _usbSeen.Remove(_openedUsb[r].Model);
+                    _openedUsb.Remove(r);
+                }
+
+                if (removed.Count > 0)
+                {
+                    await RefreshTerminalsAsync();
+                }
+            }), TaskScheduler.Default);
+        }
+
         var sessions = _relay.Sessions;
         SessionList.Children.Clear();
         foreach (var s in sessions)

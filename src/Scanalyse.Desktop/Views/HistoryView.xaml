@@ -117,7 +117,17 @@
               </StackPanel>
             </Grid>
 
-            <DockPanel Margin="0,14,0,0" LastChildFill="False">
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Contenu des codes dans le rapport :" VerticalAlignment="Center" Margin="0,0,10,6" />
+              <WrapPanel x:Name="ReportContentChips">
+                <RadioButton Style="{StaticResource Chip}" GroupName="ReportContent" Tag="Detailed" Content="Détaillé" Checked="ReportContent_Checked"
+                             ToolTip="Vue structurée (sections, champs), interprétation et caractéristiques : lisible par le client" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="ReportContent" Tag="Raw" Content="Brut" Checked="ReportContent_Checked"
+                             ToolTip="Contenu tel que lu et octets en hexadécimal : pour un intégrateur ou un éditeur de logiciel" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="ReportContent" Tag="Both" Content="Les deux" Checked="ReportContent_Checked" />
+              </WrapPanel>
+            </StackPanel>
+            <DockPanel Margin="0,8,0,0" LastChildFill="False">
               <Button x:Name="UseCaseButton" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Content="Travailler sur ce dossier" Click="UseCase_Click" />
               <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Rapport du dossier (PDF)" Click="Report_Click" />
               <Button x:Name="ClientReportButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="ClientReport_Click" Margin="0,0,8,0" Visibility="Collapsed" />

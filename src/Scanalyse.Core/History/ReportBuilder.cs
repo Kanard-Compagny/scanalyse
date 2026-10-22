@@ -1,8 +1,22 @@
 using System.Globalization;
 using System.Text;
 using Scanalyse.Core.Content;
+using Scanalyse.Core.Text;
 
 namespace Scanalyse.Core.History;
+
+/// <summary>Niveau de détail des contenus de codes dans le rapport.</summary>
+public enum ReportContent
+{
+    /// <summary>Contenu interprété : vue structurée, champs, caractéristiques.</summary>
+    Detailed,
+
+    /// <summary>Contenu brut tel que lu, et octets en hexadécimal.</summary>
+    Raw,
+
+    /// <summary>Les deux.</summary>
+    Both,
+}
 
 /// <summary>
 /// Rapport SAV d'un dossier, en HTML autonome (images incluses) prêt à imprimer ou à convertir en PDF.
@@ -17,9 +31,10 @@ public static class ReportBuilder
     /// <param name="imageDataUrl">Image d'une entrée en « data:image/… », ou <c>null</c>.</param>
     /// <param name="generated">Date de génération.</param>
     /// <param name="version">Version de Scanalyse.</param>
+    /// <param name="content">Niveau de détail des contenus de codes (détaillé, brut ou les deux).</param>
     /// <param name="cases">Dossiers couverts, pour un rapport client sur plusieurs dossiers (détail regroupé par dossier).</param>
     public static string Build(ServiceCase serviceCase, IEnumerable<HistoryEntry> entries, Func<HistoryEntry, string?> imageDataUrl,
-        DateTimeOffset generated, string version, IReadOnlyList<ServiceCase>? cases = null)
+        DateTimeOffset generated, string version, IReadOnlyList<ServiceCase>? cases = null, ReportContent content = ReportContent.Both)
     {
         ArgumentNullException.ThrowIfNull(serviceCase);
         ArgumentNullException.ThrowIfNull(imageDataUrl);
@@ -118,7 +133,7 @@ public static class ReportBuilder
             foreach (var e in items)
             {
                 n++;
-                AppendEntry(sb, e, n, imageDataUrl(e));
+                AppendEntry(sb, e, n, imageDataUrl(e), content);
             }
         }
 
@@ -133,8 +148,10 @@ public static class ReportBuilder
         return sb.ToString();
     }
 
-    private static void AppendEntry(StringBuilder sb, HistoryEntry e, int n, string? img)
+    private static void AppendEntry(StringBuilder sb, HistoryEntry e, int n, string? img, ReportContent content)
     {
+        var detailed = content != ReportContent.Raw;
+        var raw = content != ReportContent.Detailed;
         var hasImg = !string.IsNullOrEmpty(img);
         sb.Append("<article class=\"entry\"><div class=\"eh\"><span class=\"n\">").Append(n).Append("</span><div><h3>").Append(H(e.Title)).Append("</h3><p class=\"meta\">")
           .Append(H(e.At.ToString("dd/MM/yyyy HH:mm:ss", Fr))).Append(string.IsNullOrWhiteSpace(e.Source) ? string.Empty : " · " + H(e.Source))
@@ -184,7 +201,13 @@ public static class ReportBuilder
                     sb.Append("<span class=\"pill ").Append(c.HealthClass switch { "bad" => "bad", "warn" => "warn", _ => "ok" }).Append("\">").Append(H(c.Health)).Append("</span>");
                 }
 
-                sb.Append("</div><div class=\"content mono\">").Append(H(c.Text)).Append("</div>");
+                sb.Append("</div>");
+                var structured = detailed && AppendStructure(sb, c.Text);
+                if (raw || !structured)
+                {
+                    sb.Append("<div class=\"content mono\">").Append(H(c.Text)).Append("</div>");
+                }
+
                 // Les remarques purement informatives restent dans l'analyseur ; le rapport garde ce qui demande une action.
                 if (c.Alerts?.Where(x => x.Level is "warn" or "bad").ToList() is { Count: > 0 } alerts)
                 {
@@ -197,14 +220,14 @@ public static class ReportBuilder
                     sb.Append("</ul>");
                 }
 
-                if (!c.HasDetails)
+                if (!c.HasDetails && detailed)
                 {
                     sb.Append("<p class=\"meta\">Fiche détaillée non enregistrée (analyse faite avec une version précédente) : rouvre l'analyse depuis l'historique pour la compléter.</p>");
                 }
 
                 var hasContent = c.Content is { Count: > 0 };
                 var hasTech = c.Technical is { Count: > 0 };
-                if (hasContent || hasTech)
+                if (detailed && (hasContent || hasTech))
                 {
                     sb.Append("<div class=\"cols\">");
                     if (hasContent)
@@ -224,7 +247,7 @@ public static class ReportBuilder
                     sb.Append("<p class=\"meta\">Identifiant de symbologie ").Append(H(c.SymbologyIdentifier)).Append("</p>");
                 }
 
-                if (!string.IsNullOrEmpty(c.Hex))
+                if (raw && !string.IsNullOrEmpty(c.Hex))
                 {
                     sb.Append("<h4>Données brutes (hexadécimal)</h4><pre class=\"hex\">").Append(H(c.Hex)).Append("</pre>");
                 }
@@ -235,8 +258,16 @@ public static class ReportBuilder
         else
         {
             sb.Append(hasImg ? "<div class=\"body withimg\"><figure><img src=\"" + img + "\" alt=\"Code testé\"></figure><div>" : "<div class=\"body\"><div>");
-            sb.Append("<dl class=\"cmp\"><dt>Contenu du code</dt><dd class=\"mono\">").Append(H(e.Expected))
-              .Append("</dd><dt>Reçu de la douchette</dt><dd class=\"mono\">").Append(e.Received.Length == 0 ? "<i>rien</i>" : H(e.Received)).Append("</dd>");
+            // Lecture identique au contenu (au suffixe près) : inutile de recopier deux fois un long code.
+            var same = e.Received.Length > 0 && TrimSuffix(e.Received) == TrimSuffix(e.Expected);
+            var expectedLength = ControlCharacters.FromVisualized(e.Expected).Length;
+            sb.Append("<dl class=\"cmp\"><dt>Contenu du code</dt><dd class=\"mono\">")
+              .Append(raw ? H(e.Expected) : $"<span class=\"ui\">{expectedLength} caractères (détail ci-dessous)</span>")
+              .Append("</dd><dt>Reçu de la douchette</dt><dd class=\"mono\">")
+              .Append(e.Received.Length == 0 ? "<i>rien</i>"
+                  : same ? $"<span class=\"ui ok\">identique au contenu du code{(e.Received.Length != e.Expected.Length ? $" (suffixe « {H(e.Received[TrimSuffix(e.Received).Length..])} » en plus)" : string.Empty)}</span>"
+                  : H(e.Received))
+              .Append("</dd>");
             if (!string.IsNullOrEmpty(e.AnnouncedSymbology))
             {
                 sb.Append("<dt>Symbologie annoncée</dt><dd>").Append(H(e.AnnouncedSymbology)).Append("</dd>");
@@ -266,9 +297,88 @@ public static class ReportBuilder
             }
 
             sb.Append("</div></div>");
+            if (detailed)
+            {
+                AppendContentAnalysis(sb, e.Expected);
+            }
         }
 
         sb.Append("</article>");
+    }
+
+    private static string TrimSuffix(string visual)
+    {
+        var s = visual;
+        foreach (var suffix in new[] { "<CR><LF>", "<CR>", "<LF>", "<HT>" })
+        {
+            if (s.EndsWith(suffix, StringComparison.Ordinal))
+            {
+                return s[..^suffix.Length];
+            }
+        }
+
+        return s;
+    }
+
+    /// <summary>Vue structurée (enveloppe ISO/IEC 15434, sections, champs) ; <c>false</c> si le contenu n'a pas de séparateurs.</summary>
+    private static bool AppendStructure(StringBuilder sb, string text)
+    {
+        var view = StructuredData.Parse(text);
+        if (view is null)
+        {
+            return false;
+        }
+
+        sb.Append("<div class=\"struct\">");
+        if (view.Envelope is not null)
+        {
+            sb.Append("<p class=\"meta\">").Append(H(view.Envelope)).Append("</p>");
+        }
+
+        foreach (var section in view.Sections)
+        {
+            sb.Append("<h4>").Append(H(section.Title)).Append(" · ").Append(section.Fields.Count).Append(" champ").Append(section.Fields.Count > 1 ? "s" : string.Empty)
+              .Append("</h4><table class=\"kv fields\"><tbody>");
+            foreach (var f in section.Fields)
+            {
+                var value = f.Identifier is null ? f.Value : f.Value[f.Identifier.Length..];
+                var shown = f.Parts.Count > 1 ? string.Join(" │ ", f.Parts.Select(ControlCharacters.Visualize)) : ControlCharacters.Visualize(value);
+                sb.Append("<tr><th>#").Append(f.Index).Append(f.Identifier is null ? string.Empty : " " + H(f.Identifier))
+                  .Append(f.IdentifierName is null ? string.Empty : "<br><small>" + H(f.IdentifierName) + "</small>")
+                  .Append("</th><td class=\"mono\">").Append(shown.Length == 0 ? "<i>(vide)</i>" : H(shown)).Append("</td></tr>");
+            }
+
+            sb.Append("</tbody></table>");
+        }
+
+        foreach (var r in view.Remarks)
+        {
+            sb.Append("<p class=\"meta\">• ").Append(H(r)).Append("</p>");
+        }
+
+        sb.Append("</div>");
+        return true;
+    }
+
+    /// <summary>Interprétation du contenu attendu d'une comparaison (comme « Analyser la référence » au banc).</summary>
+    private static void AppendContentAnalysis(StringBuilder sb, string expectedVisual)
+    {
+        var text = ControlCharacters.FromVisualized(expectedVisual);
+        var analysis = new ContentAnalyzer().Analyze(new ScanInput(text));
+        var structured = StructuredData.Parse(text) is not null;
+        if (analysis.Fields.Count == 0 && !structured)
+        {
+            return;
+        }
+
+        sb.Append("<section class=\"code\"><div class=\"ch\"><b>Contenu du code détaillé</b><span class=\"kind\">").Append(H(analysis.Title)).Append("</span></div>");
+        AppendStructure(sb, text);
+        if (analysis.Fields.Count > 0)
+        {
+            Details(sb, "Ce que contient le code", [.. analysis.Fields.Select(f => new HistoryDetail(f.Label, f.Sensitive ? "•••••• (masqué)" : f.Value + (f.Hint is { Length: > 0 } h ? " · " + h : string.Empty)))]);
+        }
+
+        sb.Append("</section>");
     }
 
     private static void Details(StringBuilder sb, string title, List<HistoryDetail> rows)
@@ -387,6 +497,11 @@ public static class ReportBuilder
         .kv td,.kv th{font-size:9pt;padding:4px 6px}
         .hex{font-family:"Cascadia Mono",Consolas,monospace;font-size:7.5pt;line-height:1.35;background:#F4F5F6;border-radius:7px;padding:7px 10px;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
         .comment{margin-top:10px;padding:8px 11px;border-left:3px solid #F07F13;background:#FFF5EA;border-radius:0 7px 7px 0;font-size:9.5pt}
+        .ui{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;color:#5D656C}
+        .ui.ok{color:#13633F;font-weight:600}
+        .struct h4{margin-top:10px}
+        .code:has(.struct){page-break-inside:auto;break-inside:auto}
+        .kv.fields th{width:22%}
         .case-head{margin-top:16px;border-left:4px solid #F07F13;padding-left:10px}
         .case-head h2{margin:0}
         .case-head p{margin:4px 0}

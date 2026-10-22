@@ -31,7 +31,7 @@ internal sealed partial class RelayServer : IAsyncDisposable
     public const int RawPort = 8766;
 
     /// <summary>Sans signe de vie de la page pendant ce délai, le terminal est considéré comme déconnecté.</summary>
-    private static readonly TimeSpan SessionTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan SessionTimeout = TimeSpan.FromSeconds(7);
 
     private readonly object _gate = new();
     private readonly Dictionary<string, (RelaySession Session, DateTime Seen)> _sessions = [];
@@ -93,7 +93,7 @@ internal sealed partial class RelayServer : IAsyncDisposable
 
         Lan = lan;
         _cts = new CancellationTokenSource();
-        _sweeper = new Timer(_ => Sweep(), null, 3000, 3000);
+        _sweeper = new Timer(_ => Sweep(), null, 1000, 1000);
         _ = AcceptLoopAsync(_http, HandleHttpAsync, _cts.Token);
         _ = AcceptLoopAsync(_raw, HandleRawAsync, _cts.Token);
         return null;

@@ -23,6 +23,9 @@ public sealed class AppSettings
     /// <summary>Adresse du PC choisie pour le relais Wi-Fi (plusieurs cartes réseau possibles).</summary>
     public string RelayAddress { get; set; } = string.Empty;
 
+    /// <summary>Contenu des codes dans les rapports : « Detailed », « Raw » ou « Both ».</summary>
+    public string ReportContent { get; set; } = "Both";
+
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 
