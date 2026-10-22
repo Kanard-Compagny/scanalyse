@@ -32,6 +32,17 @@
 
     <DockPanel Margin="0,0,0,18">
       <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="16,0,0,0">
+        <!-- Ce qu'on affiche à droite : l'aperçu, le programme, ou les deux l'un sous l'autre -->
+        <WrapPanel x:Name="ViewChips" VerticalAlignment="Center">
+          <TextBlock Text="Afficher" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,8,6" />
+          <RadioButton x:Name="ViewPreview" Style="{StaticResource Chip}" GroupName="PaneView" Content="Aperçu" Checked="View_Changed"
+                       ToolTip="L'étiquette en grand" />
+          <RadioButton x:Name="ViewProgram" Style="{StaticResource Chip}" GroupName="PaneView" Content="Programme" Checked="View_Changed"
+                       ToolTip="Le code en grand" />
+          <RadioButton x:Name="ViewBoth" Style="{StaticResource Chip}" GroupName="PaneView" Content="Les deux" IsChecked="True" Checked="View_Changed"
+                       ToolTip="L'aperçu au-dessus du programme" />
+        </WrapPanel>
+        <Rectangle Width="1" Height="26" Fill="{DynamicResource Line}" Margin="10,0,16,6" VerticalAlignment="Center" />
         <RadioButton x:Name="ModeCreate" Style="{StaticResource Chip}" GroupName="PageMode" Content="Créer une étiquette" IsChecked="True" Checked="PageMode_Changed" />
         <RadioButton x:Name="ModeRead" Style="{StaticResource Chip}" GroupName="PageMode" Content="Lire un programme ZPL" Checked="PageMode_Changed"
                      ToolTip="Colle le programme d'un client : aperçu de l'étiquette, codes-barres et ce qu'ils contiennent, points à corriger" />
@@ -245,6 +256,9 @@
             <DockPanel>
               <Button x:Name="ExpandButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="Expand_Click" Margin="10,0,0,6"
                       VerticalAlignment="Center" ToolTip="Affiche le programme sur toute la page (Échap pour revenir)" />
+              <Button x:Name="DetachButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Détacher" Click="Detach_Click" Margin="10,0,0,6"
+                      VerticalAlignment="Center"
+                      ToolTip="Ouvre le programme dans une fenêtre à part (idéal sur un deuxième écran) : l'aperçu prend toute la place ici" />
               <WrapPanel x:Name="LangChips" DockPanel.Dock="Right">
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Zpl" Content="ZPL II" IsChecked="True" Checked="Any_Changed"
                              ToolTip="Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Citizen…)" />

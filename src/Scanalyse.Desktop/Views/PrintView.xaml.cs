@@ -650,25 +650,143 @@ public partial class PrintView : UserControl
     private void SetZoom(Zoom zoom)
     {
         _zoom = zoom;
-        var any = zoom != Zoom.None;
-        SettingsCard.Visibility = !any && !_readMode ? Visibility.Visible : Visibility.Collapsed;
-        ReadCard.Visibility = !any && _readMode ? Visibility.Visible : Visibility.Collapsed;
-        PreviewCard.Visibility = zoom == Zoom.Program ? Visibility.Collapsed : Visibility.Visible;
-        ProgramCard.Visibility = zoom == Zoom.Preview ? Visibility.Collapsed : Visibility.Visible;
-        PreviewCard.Margin = new Thickness(0, 0, 0, zoom == Zoom.Preview ? 0 : 14);
-        Grid.SetColumn(RightPane, any ? 0 : 2);
-        Grid.SetColumnSpan(RightPane, any ? 3 : 1);
-        RightPane.RowDefinitions[0].Height = zoom == Zoom.Preview ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        RightPane.RowDefinitions[1].Height = zoom == Zoom.Preview ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
-        PreviewBox.Height = zoom == Zoom.Preview ? double.NaN : _readMode ? 330 : 170;
-        ExpandButton.Content = zoom == Zoom.Program ? "Réduire" : "Agrandir";
-        ExpandPreviewButton.Content = zoom == Zoom.Preview ? "Réduire" : "Agrandir";
-        CodeBox.FontSize = CodeColors.FontSize = LineNumbers.FontSize = zoom == Zoom.Program ? 14 : 13;
+        ApplyLayout();
         if (zoom == Zoom.Program)
         {
             CodeBox.Focus();
         }
     }
+
+    // ------------------------------------------------------------------ Affichage : aperçu, programme, ou les deux
+
+    private enum PaneView
+    {
+        Both,
+        Preview,
+        Program,
+    }
+
+    private PaneView _view = PaneView.Both;
+    private Window? _programWindow;
+
+    private bool Detached => _programWindow is not null;
+
+    private void View_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_loaded)
+        {
+            return;
+        }
+
+        _view = ViewPreview.IsChecked == true ? PaneView.Preview : ViewProgram.IsChecked == true ? PaneView.Program : PaneView.Both;
+        if (_zoom != Zoom.None)
+        {
+            _zoom = Zoom.None;
+        }
+
+        ApplyLayout();
+    }
+
+    /// <summary>Place les cartes selon le mode, l'agrandissement, le choix « Afficher » et le programme détaché.</summary>
+    private void ApplyLayout()
+    {
+        var zoom = _zoom;
+        var any = zoom != Zoom.None;
+        SettingsCard.Visibility = !any && !_readMode ? Visibility.Visible : Visibility.Collapsed;
+        ReadCard.Visibility = !any && _readMode ? Visibility.Visible : Visibility.Collapsed;
+
+        var showPreview = zoom == Zoom.Preview || (zoom == Zoom.None && (Detached || _view != PaneView.Program));
+        var showProgram = !Detached && (zoom == Zoom.Program || (zoom == Zoom.None && _view != PaneView.Preview));
+        PreviewCard.Visibility = showPreview ? Visibility.Visible : Visibility.Collapsed;
+        if (!Detached)
+        {
+            ProgramCard.Visibility = showProgram ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        var previewFills = showPreview && !showProgram;
+        PreviewCard.Margin = new Thickness(0, 0, 0, showPreview && showProgram ? 14 : 0);
+        Grid.SetColumn(RightPane, any ? 0 : 2);
+        Grid.SetColumnSpan(RightPane, any ? 3 : 1);
+        RightPane.RowDefinitions[0].Height = previewFills ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        RightPane.RowDefinitions[1].Height = showProgram ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        PreviewBox.Height = previewFills ? double.NaN : _readMode ? 330 : 170;
+        ExpandButton.Content = zoom == Zoom.Program ? "Réduire" : "Agrandir";
+        ExpandPreviewButton.Content = zoom == Zoom.Preview ? "Réduire" : "Agrandir";
+        ExpandButton.Visibility = Detached ? Visibility.Collapsed : Visibility.Visible;
+        ViewChips.IsEnabled = !Detached;
+        ViewChips.Opacity = Detached ? 0.45 : 1;
+        ViewChips.ToolTip = Detached ? "Le programme est dans sa propre fenêtre : l'aperçu prend toute la place ici." : null;
+        CodeBox.FontSize = CodeColors.FontSize = LineNumbers.FontSize = zoom == Zoom.Program || Detached ? 14 : 13;
+        if (_zplZoom is null && ZplImage.Source is not null)
+        {
+            Dispatcher.BeginInvoke(new Action(ApplyZplTransform), DispatcherPriority.Loaded);
+        }
+    }
+
+    /// <summary>
+    /// Sort le programme dans sa propre fenêtre (deuxième écran) : on voit l'étiquette et le code en grand en même temps.
+    /// Fermer la fenêtre le remet à sa place.
+    /// </summary>
+    private void Detach_Click(object sender, RoutedEventArgs e)
+    {
+        if (_programWindow is { } open)
+        {
+            open.Close();
+            return;
+        }
+
+        var owner = Window.GetWindow(this);
+        RightPane.Children.Remove(ProgramCard);
+        ProgramCard.Visibility = Visibility.Visible;
+        var host = new Border { Padding = new Thickness(16), Child = ProgramCard };
+        var w = new Window
+        {
+            Title = (_readMode ? "Programme ZPL du client" : ProgramTitle.Text) + " — Scanalyse",
+            Owner = owner,
+            Icon = owner?.Icon,
+            Width = Math.Max(720, (owner?.ActualWidth ?? 1400) * 0.5),
+            Height = Math.Max(600, (owner?.ActualHeight ?? 900) * 0.85),
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = host,
+            ShowInTaskbar = false,
+        };
+        w.SetResourceReference(BackgroundProperty, "Bg");
+        w.SetResourceReference(ForegroundProperty, "Ink");
+        w.SetResourceReference(FontFamilyProperty, "UiFont");
+        w.FontSize = 14;
+        w.Closed += (_, _) =>
+        {
+            host.Child = null;
+            RightPane.Children.Add(ProgramCard);
+            Grid.SetRow(ProgramCard, 1);
+            _programWindow = null;
+            DetachButton.Content = "Détacher";
+            DetachButton.ToolTip = DetachTip;
+            ApplyLayout();
+            owner?.Activate();
+        };
+        w.SourceInitialized += (_, _) => DarkTitleBar(w, ThemeManager.IsDark);
+        _programWindow = w;
+        DetachButton.Content = "Rattacher";
+        DetachButton.ToolTip = "Remet le programme dans la page (ou ferme simplement cette fenêtre)";
+        _zoom = Zoom.None;
+        ApplyLayout();
+        w.Show();
+        CodeBox.Focus();
+    }
+
+    /// <summary>Barre de titre Windows sombre quand le thème l'est (Windows 10 20H1 et plus).</summary>
+    private static void DarkTitleBar(Window w, bool dark)
+    {
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(w).Handle;
+        var on = dark ? 1 : 0;
+        _ = DwmSetWindowAttribute(hwnd, 20, ref on, sizeof(int));
+    }
+
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
+    private const string DetachTip = "Ouvre le programme dans une fenêtre à part (idéal sur un deuxième écran) : l'aperçu prend toute la place ici";
 
     protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
     {
