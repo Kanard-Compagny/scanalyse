@@ -47,6 +47,7 @@ public partial class MainWindow : Window
         _atelier.Ready += OnAtelierReady;
         _atelier.CompareRequested += OnCompareRequested;
         _atelier.Decoded += OnDecoded;
+        _atelier.LabelChecked += OnLabelChecked;
         Bench.Compared += OnBenchCompared;
         Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         _atelier.ModeChanged += OnAtelierModeChanged;
@@ -155,6 +156,22 @@ public partial class MainWindow : Window
         foreach (var c in codes)
         {
             AddLog(LogKind.Info, c.Format.ToUpperInvariant(), c.Text);
+        }
+    }
+
+    private void OnLabelChecked(LabelCheck check)
+    {
+        if (check.Verdict == "good")
+        {
+            AddLog(LogKind.Ok, "ÉTIQUETTE", "Étiquette cohérente : les données sont identiques d'un code à l'autre et respectent les règles GS1.");
+            return;
+        }
+
+        var kind = check.Verdict == "bad" ? LogKind.Error : LogKind.Warning;
+        AddLog(kind, "ÉTIQUETTE", check.Verdict == "bad" ? "Incohérences entre les codes de l'étiquette :" : "Étiquette à vérifier :");
+        foreach (var p in check.Problems)
+        {
+            AddLog(kind, "ÉTIQUETTE", p);
         }
     }
 

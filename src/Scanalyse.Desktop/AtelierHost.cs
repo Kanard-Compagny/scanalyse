@@ -14,6 +14,11 @@ namespace Scanalyse.Desktop;
 /// <param name="ImagePng">Vignette du code découpée dans l'image analysée (PNG), si disponible.</param>
 public sealed record CompareRequest(string Text, string Format, string SymbologyIdentifier, byte[]? ImagePng = null);
 
+/// <summary>Bilan de cohérence d'une étiquette à plusieurs codes.</summary>
+/// <param name="Verdict">« good », « warn » ou « bad ».</param>
+/// <param name="Problems">Incohérences et points à vérifier.</param>
+public sealed record LabelCheck(string Verdict, IReadOnlyList<string> Problems);
+
 /// <summary>Code trouvé par l'Atelier dans une image.</summary>
 public sealed record DecodedCode(string Format, string Text);
 
@@ -40,6 +45,9 @@ internal sealed class AtelierHost
 
     /// <summary>L'Atelier a analysé une image (liste vide : aucun code trouvé).</summary>
     public event Action<string, IReadOnlyList<DecodedCode>>? Decoded;
+
+    /// <summary>L'image contenait une étiquette à plusieurs codes : bilan de cohérence.</summary>
+    public event Action<LabelCheck>? LabelChecked;
 
     /// <summary>L'Atelier est passé de lui-même en mode « scan » ou « create » (par exemple « Recréer ce code »).</summary>
     public event Action<string>? ModeChanged;
@@ -225,6 +233,16 @@ internal sealed class AtelierHost
                     }
 
                     Decoded?.Invoke(Get(root, "source"), items);
+                    if (root.TryGetProperty("label", out var label) && label.ValueKind == JsonValueKind.Object)
+                    {
+                        var problems = new List<string>();
+                        if (label.TryGetProperty("notes", out var notes) && notes.ValueKind == JsonValueKind.Array)
+                        {
+                            problems.AddRange(notes.EnumerateArray().Where(n => n.ValueKind == JsonValueKind.String).Select(n => n.GetString() ?? string.Empty));
+                        }
+
+                        LabelChecked?.Invoke(new LabelCheck(Get(label, "verdict"), problems));
+                    }
                     break;
             }
         }

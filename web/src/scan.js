@@ -723,6 +723,7 @@ function render(ms,reg){
   }
   const kinds={};
   let html=`<div class="summary"><b>${results.length} code${results.length>1?"s":""} détecté${results.length>1?"s":""}</b><span>${esc(srcLabel)} · ${zone} · ${Math.round(ms)} ms</span>${region?"":`<button class="btn small" type="button" data-deep>Chercher d'autres codes</button>`}</div>`;
+  html+=labelCheckHtml(results);
   results.forEach((r,i)=>{
     const it=interpret(r.text,r);kinds[i]=it;
     const fmt=FMT[r.format]||r.format;const isM=MATRIX.test(r.format);
@@ -767,9 +768,12 @@ function render(ms,reg){
   });
   box.innerHTML=html;
   if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,
-    items:results.map(r=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||"")}))}));}catch(e){}}
+    items:results.map(r=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||"")})),
+    label:(()=>{try{const c=labelCheck(results);if(!c)return null;const n=k=>c.notes.filter(x=>x[0]===k).length;
+      return {verdict:c.worst,bad:n("bad"),warn:n("warn"),notes:c.notes.filter(x=>x[0]==="bad"||x[0]==="warn").map(x=>x[1])};}catch(e){return null;}})()}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
   box.querySelectorAll(".res").forEach(el=>{el.addEventListener("mouseenter",()=>setFocus(+el.dataset.i,false));});
+  box.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setFocus(+b.dataset.goto,true)));
   box.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{const t=results[+b.dataset.copy].text||"";
     const done=()=>{b.textContent="Copié";setTimeout(()=>b.textContent="Copier le contenu",1800);};
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,()=>{const pre=b.closest(".res").querySelector(".content");const rg=document.createRange();rg.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(rg);b.textContent="Texte sélectionné : Ctrl+C";});}));
