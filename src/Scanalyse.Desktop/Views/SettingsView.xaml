@@ -214,6 +214,17 @@
             <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14"
                        Text="Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2." />
 
+            <!-- Crédits : badge et pseudo de l'auteur -->
+            <Border Background="{DynamicResource Surface2}" CornerRadius="12" Padding="12,10" Margin="0,0,0,14" HorizontalAlignment="Left">
+              <StackPanel Orientation="Horizontal">
+                <Image Source="/Assets/kanard-128.png" Width="40" Height="40" RenderOptions.BitmapScalingMode="HighQuality" />
+                <StackPanel Margin="12,0,4,0" VerticalAlignment="Center">
+                  <TextBlock Text="Conçu et développé par" FontSize="11.5" Foreground="{DynamicResource Muted}" />
+                  <TextBlock Text="Mr.Kanard" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Ink}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
             <TextBlock Style="{StaticResource FieldLabel}" Text="Diagnostic (à joindre à une demande d'aide)" />
             <TextBox x:Name="DiagBox" IsReadOnly="True" BorderThickness="0" Background="{DynamicResource Surface2}" Padding="12,10"
                      FontFamily="{StaticResource MonoFont}" FontSize="12" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" Margin="0,0,0,14" />

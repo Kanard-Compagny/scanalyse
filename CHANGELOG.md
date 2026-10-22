@@ -12,6 +12,7 @@
 - **Grands écrans** : « Analyser une image » utilise toute la largeur (source fixe, fiches des codes en colonnes) ; les cartes des Paramètres se rangent en colonnes.
 - **Paramètres** : « Quoi de neuf » et les licences s'ouvrent dans une fenêtre aux couleurs de Scanalyse ; **désinstallation** : Scanalyse efface lui-même ses réglages, son cache et, en option, l'historique, les rapports et les étiquettes (jamais un dossier choisi à la main), puis ouvre l'Explorateur sur Scanalyse.exe et son dossier temporaire à supprimer. Aucun script caché : rien qui alerte un antivirus.
 - **Dossiers** : plus aucun dossier créé au démarrage ; Rapports, Étiquettes et Historique apparaissent au premier enregistrement.
+- **Crédits** : badge et pseudo de l'auteur, Mr.Kanard, dans Paramètres → À propos.
 - Fenêtre de choix de langue lisible en thème sombre ; plus de petit cadre carré autour des pastilles au clic.
 
 ## 0.10.0 — octobre 2026

@@ -39,6 +39,7 @@
   <ItemGroup>
     <Resource Include="Assets\Scanalyse.ico" />
     <Resource Include="Assets\logo-64.png" />
+    <Resource Include="Assets\kanard-128.png" />
   </ItemGroup>
 
 </Project>
