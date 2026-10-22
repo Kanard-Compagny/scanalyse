@@ -21,7 +21,10 @@ public sealed class HistoryStore
     /// <summary>Dossier racine (…\Scanalyse\Historique).</summary>
     public string Folder { get; }
 
-    private string CasesFile => Path.Combine(Folder, "dossiers.json");
+    /// <summary>Un fichier par dossier : plusieurs postes peuvent partager le même historique (dossier réseau).</summary>
+    private string CasesFolder => Path.Combine(Folder, "Dossiers");
+
+    private string LegacyCasesFile => Path.Combine(Folder, "dossiers.json");
 
     /// <summary>Entrées, de la plus récente à la plus ancienne.</summary>
     public IReadOnlyList<HistoryEntry> Entries
@@ -54,14 +57,40 @@ public sealed class HistoryStore
         {
             _entries.Clear();
             _cases.Clear();
-            if (File.Exists(CasesFile))
+            // Ancienne version : tous les dossiers dans un seul fichier, découpé au passage.
+            if (File.Exists(LegacyCasesFile))
             {
                 try
                 {
-                    _cases.AddRange(JsonSerializer.Deserialize<List<ServiceCase>>(File.ReadAllText(CasesFile), Json) ?? []);
+                    foreach (var c in JsonSerializer.Deserialize<List<ServiceCase>>(File.ReadAllText(LegacyCasesFile), Json) ?? [])
+                    {
+                        if (!c.IsInbox)
+                        {
+                            WriteCase(c);
+                        }
+                    }
+
+                    File.Delete(LegacyCasesFile);
                 }
                 catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
                 {
+                }
+            }
+
+            if (Directory.Exists(CasesFolder))
+            {
+                foreach (var file in Directory.EnumerateFiles(CasesFolder, "*.json"))
+                {
+                    try
+                    {
+                        if (JsonSerializer.Deserialize<ServiceCase>(File.ReadAllText(file), Json) is { } c && !c.IsInbox)
+                        {
+                            _cases.Add(c);
+                        }
+                    }
+                    catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
+                    {
+                    }
                 }
             }
 
@@ -74,7 +103,7 @@ public sealed class HistoryStore
             {
                 foreach (var file in Directory.EnumerateFiles(Folder, "*.json", SearchOption.AllDirectories))
                 {
-                    if (Path.GetFileName(file) == "dossiers.json")
+                    if (Path.GetFileName(file) == "dossiers.json" || Path.GetDirectoryName(file) == CasesFolder)
                     {
                         continue;
                     }
@@ -168,8 +197,11 @@ public sealed class HistoryStore
                 _cases.RemoveAll(c => c.Id == serviceCase.Id);
                 _cases.Add(serviceCase);
             }
+        }
 
-            SaveCases();
+        if (!serviceCase.IsInbox)
+        {
+            WriteCase(serviceCase);
         }
     }
 
@@ -189,18 +221,26 @@ public sealed class HistoryStore
         lock (_gate)
         {
             _cases.RemoveAll(c => c.Id == serviceCase.Id);
-            SaveCases();
         }
+
+        TryDelete(Path.Combine(CasesFolder, serviceCase.Id + ".json"));
+    }
+
+    /// <summary>Dossiers d'un même client (nom comparé sans casse ni accents).</summary>
+    public IReadOnlyList<ServiceCase> CasesOfClient(string client)
+    {
+        var key = HistorySearch.Normalize(client.Trim());
+        return key.Length == 0 ? [] : [.. Cases.Where(c => !c.IsInbox && HistorySearch.Normalize(c.Client.Trim()) == key)];
     }
 
     public ServiceCase? FindCase(string id) => Cases.FirstOrDefault(c => c.Id == id);
 
     public IReadOnlyList<HistoryEntry> EntriesOf(string caseId) => [.. Entries.Where(e => e.CaseId == caseId)];
 
-    private void SaveCases()
+    private void WriteCase(ServiceCase c)
     {
-        Directory.CreateDirectory(Folder);
-        File.WriteAllText(CasesFile, JsonSerializer.Serialize(_cases, Json));
+        Directory.CreateDirectory(CasesFolder);
+        File.WriteAllText(Path.Combine(CasesFolder, c.Id + ".json"), JsonSerializer.Serialize(c, Json));
     }
 
     private string MonthFolder(DateTimeOffset at) => Path.Combine(Folder, at.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture));

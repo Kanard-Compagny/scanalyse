@@ -725,7 +725,7 @@ function render(ms,reg){
     const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
     return;
   }
-  const kinds={};
+  const kinds={},details={};
   let html=`<div class="summary"><b>${results.length} code${results.length>1?"s":""} détecté${results.length>1?"s":""}</b><span>${esc(srcLabel)} · ${zone} · ${Math.round(ms)} ms</span>${region?"":`<button class="btn small" type="button" data-deep>Chercher d'autres codes</button>`}</div>`;
   html+=labelCheckHtml(results);
   results.forEach((r,i)=>{
@@ -759,6 +759,8 @@ function render(ms,reg){
     if(qz&&qz.state==="busy")al.push(["warn","La marge autour du code semble encombrée : certains lecteurs peuvent échouer."]);
     if(r.inverted)al.push(["warn","Code inversé : de nombreux lecteurs (caisses, vieux smartphones) ne le lisent pas."]);
     if(r.uec!=null&&r.uec<.25)al.push(["bad","Presque toute la correction d'erreur est consommée : le code est abîmé, masqué (logo trop grand) ou mal imprimé."]);
+    details[i]={health:health[0],healthClass:health[1],kind:it.kind,
+      rows:it.rows.map(([k,v])=>[plainText(k),plainText(v)]),spec:spec.map(([k,v])=>[plainText(k),plainText(v)]),alerts:al.map(([t,m])=>[t,m])};
     html+=`<article class="res" data-i="${i}">
       <div class="res-head"><span class="num">${i+1}</span><h3>${esc(it.kind)}</h3><span class="pill">${esc(fmt)}</span><span class="pill ${health[1]}">${health[0]}</span></div>
       <pre class="content">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
@@ -772,7 +774,7 @@ function render(ms,reg){
   });
   box.innerHTML=html;
   if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(),
-    items:results.map((r,i)=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||""),symbologyIdentifier:r.symId||"",kind:(kinds[i]&&kinds[i].kind)||""})),
+    items:results.map((r,i)=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||""),symbologyIdentifier:r.symId||"",kind:(kinds[i]&&kinds[i].kind)||"",...(details[i]||{})})),
     label:(()=>{try{const c=labelCheck(results);if(!c)return null;const n=k=>c.notes.filter(x=>x[0]===k).length;
       return {verdict:c.worst,bad:n("bad"),warn:n("warn"),notes:c.notes.filter(x=>x[0]==="bad"||x[0]==="warn").map(x=>x[1])};}catch(e){return null;}})()}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
@@ -789,11 +791,23 @@ function render(ms,reg){
 }
 function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
 /* Image analysée, réduite, pour l'historique du programme */
+// Les codes y sont encadrés et numérotés comme à l'écran : le rapport montre « qui est quoi ».
 function thumbImage(){
-  try{if(!src)return "";const k=Math.min(1,1600/Math.max(src.width,src.height));const c=document.createElement("canvas");
+  try{if(!src)return "";const k=Math.min(1,1800/Math.max(src.width,src.height));const c=document.createElement("canvas");
     c.width=Math.round(src.width*k);c.height=Math.round(src.height*k);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
-    x.drawImage(src,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.86);}catch(e){return "";}
+    x.drawImage(src,0,0,c.width,c.height);
+    const u=Math.max(1.5,Math.max(c.width,c.height)/700);
+    results.forEach((r,i)=>{
+      x.save();x.beginPath();r.pts.forEach((p,j)=>j?x.lineTo(p.x*k,p.y*k):x.moveTo(p.x*k,p.y*k));x.closePath();
+      x.lineWidth=3*u;x.strokeStyle="#fff";x.stroke();x.lineWidth=1.8*u;x.strokeStyle="#145C43";x.stroke();x.fillStyle="rgba(20,92,67,.10)";x.fill();
+      const R=11*u,p=r.pts[0];const cx=Math.min(Math.max(p.x*k,R),c.width-R),cy=Math.min(Math.max(p.y*k,R),c.height-R);
+      x.beginPath();x.arc(cx,cy,R,0,7);x.fillStyle="#145C43";x.fill();x.lineWidth=2*u;x.strokeStyle="#fff";x.stroke();
+      x.fillStyle="#fff";x.font=`700 ${Math.round(R*1.15)}px Segoe UI,Arial,sans-serif`;x.textAlign="center";x.textBaseline="middle";x.fillText(String(i+1),cx,cy+u*.5);x.restore();
+    });
+    return c.toDataURL("image/jpeg",.88);}catch(e){return "";}
 }
+/* Texte brut d'un fragment HTML de la fiche (pour l'historique et le rapport) */
+function plainText(h){const d=document.createElement("div");d.innerHTML=String(h).replace(/<br\s*\/?>/gi," · ");return d.textContent.replace(/\s+/g," ").trim();}
 /* Vignette du code (zone de l'image autour du code), pour le banc d'essai */
 function cropImage(r){
   try{const b=bbox(r.pts);const m=Math.max(12,Math.round((b.x1-b.x0+b.y1-b.y0)*.08));

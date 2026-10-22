@@ -61,7 +61,19 @@ public sealed class ServiceCase
 /// <param name="Text">Contenu, caractères invisibles en notation lisible (&lt;GS&gt;…).</param>
 /// <param name="SymbologyIdentifier">Identifiant AIM, s'il est connu.</param>
 /// <param name="Kind">Nature du contenu (« Données GS1 », « Lien web »…).</param>
-public sealed record HistoryCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "");
+/// <param name="Health">État de lecture (« Lecture fiable », « Code abîmé »…).</param>
+/// <param name="HealthClass">« good », « warn » ou « bad ».</param>
+/// <param name="Content">Ce que contient le code (libellé, valeur), comme dans l'analyseur.</param>
+/// <param name="Technical">Caractéristiques techniques (libellé, valeur).</param>
+/// <param name="Alerts">Remarques (gravité « info », « warn », « bad » ; message).</param>
+public sealed record HistoryCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "",
+    string Health = "", string HealthClass = "", List<HistoryDetail>? Content = null, List<HistoryDetail>? Technical = null, List<HistoryNote>? Alerts = null);
+
+/// <summary>Ligne « libellé : valeur » de la fiche d'un code.</summary>
+public sealed record HistoryDetail(string Label, string Value);
+
+/// <summary>Remarque sur un code (« info », « warn », « bad »).</summary>
+public sealed record HistoryNote(string Level, string Message);
 
 /// <summary>Constat enregistré.</summary>
 public sealed record HistoryFinding(Severity Severity, string Title, string Explanation = "", string? Fix = null);
@@ -74,6 +86,9 @@ public sealed class HistoryEntry
     public DateTimeOffset At { get; set; } = DateTimeOffset.Now;
 
     public HistoryKind Kind { get; set; }
+
+    /// <summary>Inclure dans le rapport du dossier.</summary>
+    public bool InReport { get; set; } = true;
 
     /// <summary>Dossier SAV de rattachement.</summary>
     public string CaseId { get; set; } = ServiceCase.InboxId;

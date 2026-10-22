@@ -69,4 +69,52 @@ public class HistoryTests
         Assert.Contains("À faire : Activer la transmission de GS", html);
         Assert.True(html.IndexOf("https://exemple.fr", StringComparison.Ordinal) < html.IndexOf("A&lt;GS&gt;B", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Cases_are_one_file_each_and_grouped_by_client()
+    {
+        var folder = TempFolder();
+        var store = new HistoryStore(folder);
+        store.Load();
+        var a = new ServiceCase { Client = "Entrepôt Nord", Reference = "T-1" };
+        var b = new ServiceCase { Client = "entrepot nord ", Reference = "T-2" };
+        store.SaveCase(a);
+        store.SaveCase(b);
+        store.SaveCase(new ServiceCase { Client = "Autre" });
+        Assert.Equal(3, Directory.GetFiles(Path.Combine(folder, "Dossiers")).Length);
+        Assert.Equal(2, store.CasesOfClient("ENTREPOT NORD").Count);
+        Directory.Delete(folder, true);
+    }
+
+    [Fact]
+    public void Legacy_single_cases_file_is_split()
+    {
+        var folder = TempFolder();
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(Path.Combine(folder, "dossiers.json"), """[{"Id":"abc","Client":"Ancien"},{"Id":"inbox"}]""");
+        var store = new HistoryStore(folder);
+        store.Load();
+        Assert.Equal("Ancien", store.FindCase("abc")!.Client);
+        Assert.False(File.Exists(Path.Combine(folder, "dossiers.json")));
+        Directory.Delete(folder, true);
+    }
+
+    [Fact]
+    public void Client_report_groups_entries_by_case_with_code_details()
+    {
+        var a = new ServiceCase { Id = "a", Client = "Client X", Reference = "T-1" };
+        var b = new ServiceCase { Id = "b", Client = "Client X", Reference = "T-2" };
+        var entries = new[]
+        {
+            new HistoryEntry { CaseId = "a", At = new(2026, 10, 1, 8, 0, 0, TimeSpan.Zero), Codes = [new("Data Matrix", "(01)03453120000011", "]d2", "Données GS1", "Lecture fiable", "good",
+                [new("GTIN (article) AI 01", "03453120000011")], [new("Symbologie", "Data Matrix")], [new("warn", "Modules très petits")])] },
+            new HistoryEntry { CaseId = "b", At = new(2026, 10, 9, 8, 0, 0, TimeSpan.Zero), Kind = HistoryKind.Comparison, Expected = "X", Received = "X" },
+        };
+        var html = ReportBuilder.Build(new ServiceCase { Client = "Client X", Reference = "Tous les dossiers" }, entries, _ => null, DateTimeOffset.Now, "1", [a, b]);
+        Assert.Contains("Dossier T-1", html);
+        Assert.Contains("Dossier T-2", html);
+        Assert.True(html.IndexOf("Dossier T-1", StringComparison.Ordinal) < html.IndexOf("Dossier T-2", StringComparison.Ordinal));
+        Assert.Contains("Ce que contient le code", html);
+        Assert.Contains("Modules très petits", html);
+    }
 }

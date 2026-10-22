@@ -11,6 +11,9 @@ public sealed class AppSettings
     /// <summary>Thème choisi.</summary>
     public AppTheme Theme { get; set; } = AppTheme.System;
 
+    /// <summary>Dossier de l'historique choisi par l'utilisateur ; vide = à côté du programme.</summary>
+    public string HistoryFolder { get; set; } = string.Empty;
+
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 

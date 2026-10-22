@@ -29,7 +29,8 @@ public partial class HistoryView : UserControl
     public event Action<HistoryEntry>? ReopenRequested;
 
     /// <summary>Générer le rapport d'un dossier (fourni par la fenêtre principale).</summary>
-    public Func<ServiceCase, Task>? ReportRequested { get; set; }
+    /// <remarks>Second paramètre : rapport de tous les dossiers du même client.</remarks>
+    public Func<ServiceCase, bool, Task>? ReportRequested { get; set; }
 
     /// <summary>Message pour le journal.</summary>
     public event Action<LogKind, string>? Log;
@@ -133,6 +134,9 @@ public partial class HistoryView : UserControl
         InboxHint.Visibility = c.IsInbox ? Visibility.Visible : Visibility.Collapsed;
         DeleteCaseButton.Visibility = c.IsInbox ? Visibility.Collapsed : Visibility.Visible;
         ActiveBadge.Visibility = c.Id == ActiveCaseId ? Visibility.Visible : Visibility.Collapsed;
+        var sameClient = c.IsInbox ? 0 : _store!.CasesOfClient(c.Client).Count;
+        ClientReportButton.Visibility = sameClient > 1 ? Visibility.Visible : Visibility.Collapsed;
+        ClientReportButton.Content = $"Rapport client ({sameClient} dossiers)";
         UseCaseButton.Visibility = c.Id == ActiveCaseId ? Visibility.Collapsed : Visibility.Visible;
     }
 
@@ -221,7 +225,16 @@ public partial class HistoryView : UserControl
         SaveFields();
         if (ReportRequested is not null)
         {
-            await ReportRequested(SelectedCase);
+            await ReportRequested(SelectedCase, false);
+        }
+    }
+
+    private async void ClientReport_Click(object sender, RoutedEventArgs e)
+    {
+        SaveFields();
+        if (ReportRequested is not null)
+        {
+            await ReportRequested(SelectedCase, true);
         }
     }
 
@@ -266,7 +279,7 @@ public partial class HistoryView : UserControl
 
         var total = _store.EntriesOf(_selectedCaseId).Count;
         var shown = VisibleEntries();
-        EntryList.ItemsSource = shown.Select(e => EntryView.From(e, _store, e.CaseId != ActiveCaseId)).ToList();
+        EntryList.ItemsSource = shown.Select(e => EntryView.From(e, _store)).ToList();
         CountText.Text = shown.Count == total ? $"{total} analyse{(total > 1 ? "s" : string.Empty)}" : $"{shown.Count} sur {total}";
         EmptyText.Visibility = shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         EmptyText.Text = total == 0
@@ -278,10 +291,50 @@ public partial class HistoryView : UserControl
 
     private void Reopen_Click(object sender, RoutedEventArgs e) => ReopenRequested?.Invoke(EntryOf(sender));
 
+    /// <summary>« Déplacer vers… » : tous les dossiers, plus la création d'un nouveau dossier.</summary>
     private void Move_Click(object sender, RoutedEventArgs e)
     {
-        _store!.Move(EntryOf(sender), ActiveCaseId);
+        var entry = EntryOf(sender);
+        var menu = new ContextMenu { PlacementTarget = (UIElement)sender, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        foreach (var c in _store!.Cases.Where(c => c.Id != entry.CaseId))
+        {
+            var item = new MenuItem { Header = c.Id == ActiveCaseId ? $"{c.DisplayName}  (en cours)" : c.DisplayName };
+            item.Click += (_, _) => MoveTo(entry, c);
+            menu.Items.Add(item);
+        }
+
+        if (menu.Items.Count > 0)
+        {
+            menu.Items.Add(new Separator());
+        }
+
+        var create = new MenuItem { Header = "Nouveau dossier…" };
+        create.Click += (_, _) =>
+        {
+            var previous = _store.FindCase(ActiveCaseId);
+            var c = new ServiceCase { Technician = previous?.Technician ?? string.Empty };
+            _store.SaveCase(c);
+            MoveTo(entry, c);
+            _selectedCaseId = c.Id;
+            SetActive(c);
+            Dispatcher.InvokeAsync(() => ClientBox.Focus(), System.Windows.Threading.DispatcherPriority.Input);
+        };
+        menu.Items.Add(create);
+        menu.IsOpen = true;
+    }
+
+    private void MoveTo(HistoryEntry entry, ServiceCase target)
+    {
+        _store!.Move(entry, target.Id);
+        Log?.Invoke(LogKind.Info, $"« {entry.Title} » rangé dans {target.DisplayName}.");
         Refresh();
+    }
+
+    private void InReport_Click(object sender, RoutedEventArgs e)
+    {
+        var entry = EntryOf(sender);
+        entry.InReport = ((CheckBox)sender).IsChecked == true;
+        _store!.Update(entry);
     }
 
     private void DeleteEntry_Click(object sender, RoutedEventArgs e)
@@ -293,18 +346,19 @@ public partial class HistoryView : UserControl
 
 /// <summary>Entrée prête à afficher.</summary>
 public sealed record EntryView(HistoryEntry Entry, string Title, string Meta, string Detail, string Verdict, Severity Worst,
-    BitmapImage? Thumb, string KindLabel, Visibility MoveVisibility)
+    BitmapImage? Thumb, string KindLabel)
 {
+    public bool InReport => Entry.InReport;
+
     public Visibility NoThumbVisibility => Thumb is null ? Visibility.Visible : Visibility.Collapsed;
 
-    public static EntryView From(HistoryEntry e, HistoryStore store, bool canMove)
+    public static EntryView From(HistoryEntry e, HistoryStore store)
     {
         var detail = e.Kind == HistoryKind.Comparison
             ? $"Attendu : {e.Expected}\nReçu : {(e.Received.Length == 0 ? "(rien)" : e.Received)}"
             : string.Join("\n", e.Codes.Take(3).Select(c => c.Text)) + (e.Codes.Count > 3 ? $"\n… et {e.Codes.Count - 3} autres" : string.Empty);
         return new EntryView(e, e.Title, $"{e.At:dd/MM/yyyy HH:mm} · {e.Source}", detail, ReportBuilder.Verdict(e), e.Worst,
-            LoadThumb(store.ImagePath(e)), e.Kind == HistoryKind.Comparison ? "Comparaison" : "Image",
-            canMove ? Visibility.Visible : Visibility.Collapsed);
+            LoadThumb(store.ImagePath(e)), e.Kind == HistoryKind.Comparison ? "Comparaison" : "Image");
     }
 
     private static BitmapImage? LoadThumb(string? path)

@@ -20,7 +20,9 @@ public sealed record CompareRequest(string Text, string Format, string Symbology
 public sealed record LabelCheck(string Verdict, IReadOnlyList<string> Problems);
 
 /// <summary>Code trouvé par l'Atelier dans une image.</summary>
-public sealed record DecodedCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "");
+public sealed record DecodedCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "",
+    string Health = "", string HealthClass = "", List<Scanalyse.Core.History.HistoryDetail>? Content = null,
+    List<Scanalyse.Core.History.HistoryDetail>? Technical = null, List<Scanalyse.Core.History.HistoryNote>? Alerts = null);
 
 /// <summary>Résultat complet de l'analyse d'une image par l'Atelier.</summary>
 /// <param name="Source">Origine (« Capture d'écran », nom de fichier, « Caméra : … »).</param>
@@ -238,7 +240,9 @@ internal sealed class AtelierHost
                     {
                         foreach (var it in arr.EnumerateArray())
                         {
-                            items.Add(new DecodedCode(Get(it, "format"), Get(it, "text"), Get(it, "symbologyIdentifier"), Get(it, "kind")));
+                            items.Add(new DecodedCode(Get(it, "format"), Get(it, "text"), Get(it, "symbologyIdentifier"), Get(it, "kind"),
+                                Get(it, "health"), Get(it, "healthClass"), Pairs(it, "rows"), Pairs(it, "spec"),
+                                [.. Pairs(it, "alerts").Select(p => new Scanalyse.Core.History.HistoryNote(p.Label, p.Value))]));
                         }
                     }
 
@@ -264,6 +268,24 @@ internal sealed class AtelierHost
         {
             // Message mal formé : ignoré.
         }
+    }
+
+    /// <summary>Lit un tableau JSON de paires [libellé, valeur].</summary>
+    private static List<Scanalyse.Core.History.HistoryDetail> Pairs(JsonElement el, string name)
+    {
+        var list = new List<Scanalyse.Core.History.HistoryDetail>();
+        if (el.TryGetProperty(name, out var arr) && arr.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var p in arr.EnumerateArray())
+            {
+                if (p.ValueKind == JsonValueKind.Array && p.GetArrayLength() >= 2)
+                {
+                    list.Add(new(p[0].GetString() ?? string.Empty, p[1].GetString() ?? string.Empty));
+                }
+            }
+        }
+
+        return list;
     }
 
     /// <summary>

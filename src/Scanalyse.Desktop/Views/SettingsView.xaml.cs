@@ -50,6 +50,37 @@ public partial class SettingsView : UserControl
         }
     }
 
+    /// <summary>L'utilisateur choisit un autre dossier d'historique (chaîne vide : emplacement par défaut).</summary>
+    public event Action<string>? HistoryFolderChangeRequested;
+
+    /// <summary>Affiche le dossier d'historique en vigueur.</summary>
+    public void ShowHistoryFolder(string path, bool isDefault)
+    {
+        HistoryPath.Text = path;
+        ResetHistoryButton.Visibility = isDefault ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void ChangeHistory_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Dossier de l'historique Scanalyse (local ou réseau)",
+            InitialDirectory = HistoryPath.Text,
+        };
+        if (dialog.ShowDialog(Window.GetWindow(this)) == true)
+        {
+            HistoryFolderChangeRequested?.Invoke(dialog.FolderName);
+        }
+    }
+
+    private void ResetHistory_Click(object sender, RoutedEventArgs e) => HistoryFolderChangeRequested?.Invoke(string.Empty);
+
+    private void OpenHistory_Click(object sender, RoutedEventArgs e)
+    {
+        Directory.CreateDirectory(HistoryPath.Text);
+        Process.Start(new ProcessStartInfo(HistoryPath.Text) { UseShellExecute = true });
+    }
+
     private void OpenData_Click(object sender, RoutedEventArgs e)
     {
         Directory.CreateDirectory(AppSettings.DataFolder);

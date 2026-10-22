@@ -33,6 +33,22 @@
         </StackPanel>
       </Border>
 
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Historique et rapports" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
+                     Text="Par défaut, l'historique est rangé à côté de Scanalyse.exe : il suit le programme (clé USB, dossier partagé). Choisis un dossier réseau pour que toute l'équipe partage les mêmes dossiers SAV." />
+          <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,9" Margin="0,0,0,12">
+            <TextBlock x:Name="HistoryPath" FontFamily="{StaticResource MonoFont}" FontSize="12.5" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
+          </Border>
+          <WrapPanel>
+            <Button Style="{StaticResource BtnSecondary}" Content="Changer de dossier…" Click="ChangeHistory_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Ouvrir le dossier" Click="OpenHistory_Click" Margin="0,0,8,8" />
+            <Button x:Name="ResetHistoryButton" Style="{StaticResource BtnGhost}" Content="Revenir à côté du programme" Click="ResetHistory_Click" Margin="0,0,0,8" />
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
       <Border Style="{StaticResource Card}">
         <StackPanel>
           <TextBlock Style="{StaticResource CardTitle}" Text="À propos" />

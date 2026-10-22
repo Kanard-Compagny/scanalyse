@@ -17,8 +17,9 @@ public static class ReportBuilder
     /// <param name="imageDataUrl">Image d'une entrée en « data:image/… », ou <c>null</c>.</param>
     /// <param name="generated">Date de génération.</param>
     /// <param name="version">Version de Scanalyse.</param>
+    /// <param name="cases">Dossiers couverts, pour un rapport client sur plusieurs dossiers (détail regroupé par dossier).</param>
     public static string Build(ServiceCase serviceCase, IEnumerable<HistoryEntry> entries, Func<HistoryEntry, string?> imageDataUrl,
-        DateTimeOffset generated, string version)
+        DateTimeOffset generated, string version, IReadOnlyList<ServiceCase>? cases = null)
     {
         ArgumentNullException.ThrowIfNull(serviceCase);
         ArgumentNullException.ThrowIfNull(imageDataUrl);
@@ -87,65 +88,146 @@ public static class ReportBuilder
 
         sb.Append("</section>");
 
-        // Détail
+        // Détail, regroupé par dossier quand le rapport en couvre plusieurs (rapport client)
         sb.Append("<h2 class=\"detail\">Détail des analyses</h2>");
+        var groups = list.GroupBy(e => e.CaseId).ToList();
+        var multi = cases is { Count: > 1 } && groups.Count > 1;
         var n = 0;
-        foreach (var e in list)
+        List<(string Key, IEnumerable<HistoryEntry> Items)> parts = multi
+            ? [.. groups.OrderBy(g => g.Min(e => e.At)).Select(g => (g.Key, (IEnumerable<HistoryEntry>)g))]
+            : [(serviceCase.Id, list)];
+        foreach (var (key, items) in parts)
         {
-            n++;
-            sb.Append("<article class=\"entry\"><div class=\"eh\"><span class=\"n\">").Append(n).Append("</span><div><h3>").Append(H(e.Title)).Append("</h3><p class=\"meta\">")
-              .Append(H(e.At.ToString("dd/MM/yyyy HH:mm:ss", Fr))).Append(string.IsNullOrWhiteSpace(e.Source) ? string.Empty : " · " + H(e.Source)).Append("</p></div><span class=\"pill ")
-              .Append(Css4(e.Worst)).Append("\">").Append(H(Verdict(e))).Append("</span></div>");
-
-            var img = imageDataUrl(e);
-            var hasImg = !string.IsNullOrEmpty(img);
-            sb.Append(hasImg ? "<div class=\"body withimg\"><figure><img src=\"" + img + "\" alt=\"Image analysée\"></figure><div>" : "<div class=\"body\"><div>");
-
-            if (e.Kind == HistoryKind.ImageAnalysis)
+            if (multi)
             {
-                if (e.Codes.Count == 0)
+                var c = cases!.FirstOrDefault(x => x.Id == key);
+                sb.Append("<section class=\"case-head\"><h2>Dossier ").Append(H(c?.Reference is { Length: > 0 } r ? r : c?.DisplayName ?? "non classé")).Append("</h2>");
+                if (c is not null)
                 {
-                    sb.Append("<p>Aucun code n'a pu être lu sur cette image.</p>");
-                }
-                else
-                {
-                    sb.Append("<table><thead><tr><th>#</th><th>Symbologie</th><th>Contenu</th></tr></thead><tbody>");
-                    var i = 0;
-                    foreach (var c in e.Codes)
+                    sb.Append("<p class=\"meta\">Créé le ").Append(H(c.Created.ToString("d MMMM yyyy", Fr)))
+                      .Append(string.IsNullOrWhiteSpace(c.Technician) ? string.Empty : " · " + H(c.Technician)).Append("</p>");
+                    if (!string.IsNullOrWhiteSpace(c.Notes))
                     {
-                        i++;
-                        sb.Append("<tr><td>").Append(i).Append("</td><td>").Append(H(c.Format))
-                          .Append(string.IsNullOrEmpty(c.SymbologyIdentifier) ? string.Empty : "<br><small>" + H(c.SymbologyIdentifier) + "</small>")
-                          .Append(string.IsNullOrEmpty(c.Kind) ? string.Empty : "<br><small>" + H(c.Kind) + "</small>")
-                          .Append("</td><td class=\"mono\">").Append(H(c.Text)).Append("</td></tr>");
+                        sb.Append("<p>").Append(Multiline(c.Notes)).Append("</p>");
                     }
-
-                    sb.Append("</tbody></table>");
                 }
 
-                if (e.LabelNotes.Count > 0)
+                sb.Append("</section>");
+            }
+
+            foreach (var e in items)
+            {
+                n++;
+                AppendEntry(sb, e, n, imageDataUrl(e));
+            }
+        }
+
+        if (list.Count == 0)
+        {
+            sb.Append("<p>Ce dossier ne contient encore aucune analyse.</p>");
+        }
+
+        sb.Append("<footer>Rapport généré par Scanalyse ").Append(H(version))
+          .Append(". Analyse faite localement sur le poste de l'intervenant. Les indications de contraste et de lisibilité sont des estimations : elles ne remplacent pas une vérification ISO/IEC 15415 ou 15416 par un vérificateur étalonné.</footer>");
+        sb.Append("</body></html>");
+        return sb.ToString();
+    }
+
+    private static void AppendEntry(StringBuilder sb, HistoryEntry e, int n, string? img)
+    {
+        var hasImg = !string.IsNullOrEmpty(img);
+        sb.Append("<article class=\"entry\"><div class=\"eh\"><span class=\"n\">").Append(n).Append("</span><div><h3>").Append(H(e.Title)).Append("</h3><p class=\"meta\">")
+          .Append(H(e.At.ToString("dd/MM/yyyy HH:mm:ss", Fr))).Append(string.IsNullOrWhiteSpace(e.Source) ? string.Empty : " · " + H(e.Source)).Append("</p></div><span class=\"pill ")
+          .Append(Css4(e.Worst)).Append("\">").Append(H(Verdict(e))).Append("</span></div>");
+
+        if (e.Kind == HistoryKind.ImageAnalysis)
+        {
+            // Photo pleine largeur, codes encadrés et numérotés, puis la fiche complète de chaque code.
+            if (hasImg)
+            {
+                sb.Append("<figure class=\"photo\"><img src=\"").Append(img).Append("\" alt=\"Image analysée, codes numérotés\"><figcaption>Les numéros sur l'image renvoient aux fiches ci-dessous.</figcaption></figure>");
+            }
+
+            if (e.LabelNotes.Count > 0)
+            {
+                sb.Append("<h4>Cohérence de l'étiquette</h4><ul class=\"findings\">");
+                foreach (var note in e.LabelNotes)
                 {
-                    sb.Append("<h4>Cohérence de l'étiquette</h4><ul class=\"findings\">");
-                    foreach (var note in e.LabelNotes)
+                    sb.Append("<li class=\"").Append(Css4(e.Worst)).Append("\">").Append(H(note)).Append("</li>");
+                }
+
+                sb.Append("</ul>");
+            }
+            else if (e.LabelVerdict == "good" && e.Codes.Count > 1)
+            {
+                sb.Append("<p class=\"allok\">Étiquette cohérente : les données sont identiques d'un code à l'autre et respectent les règles GS1.</p>");
+            }
+
+            if (e.Codes.Count == 0)
+            {
+                sb.Append("<p>Aucun code n'a pu être lu sur cette image.</p>");
+            }
+
+            var i = 0;
+            foreach (var c in e.Codes)
+            {
+                i++;
+                sb.Append("<section class=\"code\"><div class=\"ch\"><span class=\"n small\">").Append(i).Append("</span><b>").Append(H(c.Format)).Append("</b>")
+                  .Append(string.IsNullOrEmpty(c.Kind) ? string.Empty : "<span class=\"kind\">" + H(c.Kind) + "</span>");
+                if (!string.IsNullOrEmpty(c.Health))
+                {
+                    sb.Append("<span class=\"pill ").Append(c.HealthClass switch { "bad" => "bad", "warn" => "warn", _ => "ok" }).Append("\">").Append(H(c.Health)).Append("</span>");
+                }
+
+                sb.Append("</div><div class=\"content mono\">").Append(H(c.Text)).Append("</div>");
+                // Les remarques purement informatives restent dans l'analyseur ; le rapport garde ce qui demande une action.
+                if (c.Alerts?.Where(x => x.Level is "warn" or "bad").ToList() is { Count: > 0 } alerts)
+                {
+                    sb.Append("<ul class=\"findings\">");
+                    foreach (var a in alerts)
                     {
-                        sb.Append("<li class=\"").Append(Css4(e.Worst)).Append("\">").Append(H(note)).Append("</li>");
+                        sb.Append("<li class=\"").Append(a.Level switch { "bad" => "bad", "warn" => "warn", _ => "info" }).Append("\">").Append(H(a.Message)).Append("</li>");
                     }
 
                     sb.Append("</ul>");
                 }
-            }
-            else
-            {
-                sb.Append("<dl class=\"cmp\"><dt>Contenu du code</dt><dd class=\"mono\">").Append(H(e.Expected))
-                  .Append("</dd><dt>Reçu de la douchette</dt><dd class=\"mono\">").Append(e.Received.Length == 0 ? "<i>rien</i>" : H(e.Received)).Append("</dd>");
-                if (!string.IsNullOrEmpty(e.AnnouncedSymbology))
+
+                var hasContent = c.Content is { Count: > 0 };
+                var hasTech = c.Technical is { Count: > 0 };
+                if (hasContent || hasTech)
                 {
-                    sb.Append("<dt>Symbologie annoncée</dt><dd>").Append(H(e.AnnouncedSymbology)).Append("</dd>");
+                    sb.Append("<div class=\"cols\">");
+                    if (hasContent)
+                    {
+                        Details(sb, "Ce que contient le code", c.Content!);
+                    }
+
+                    if (hasTech)
+                    {
+                        Details(sb, "Caractéristiques techniques", c.Technical!);
+                    }
+
+                    sb.Append("</div>");
+                }
+                else if (!string.IsNullOrEmpty(c.SymbologyIdentifier))
+                {
+                    sb.Append("<p class=\"meta\">Identifiant de symbologie ").Append(H(c.SymbologyIdentifier)).Append("</p>");
                 }
 
-                sb.Append("</dl>");
+                sb.Append("</section>");
+            }
+        }
+        else
+        {
+            sb.Append(hasImg ? "<div class=\"body withimg\"><figure><img src=\"" + img + "\" alt=\"Code testé\"></figure><div>" : "<div class=\"body\"><div>");
+            sb.Append("<dl class=\"cmp\"><dt>Contenu du code</dt><dd class=\"mono\">").Append(H(e.Expected))
+              .Append("</dd><dt>Reçu de la douchette</dt><dd class=\"mono\">").Append(e.Received.Length == 0 ? "<i>rien</i>" : H(e.Received)).Append("</dd>");
+            if (!string.IsNullOrEmpty(e.AnnouncedSymbology))
+            {
+                sb.Append("<dt>Symbologie annoncée</dt><dd>").Append(H(e.AnnouncedSymbology)).Append("</dd>");
             }
 
+            sb.Append("</dl>");
             if (e.Findings.Count > 0)
             {
                 sb.Append("<ul class=\"findings\">");
@@ -168,18 +250,21 @@ public static class ReportBuilder
                 sb.Append("</ul>");
             }
 
-            sb.Append("</div></div></article>");
+            sb.Append("</div></div>");
         }
 
-        if (list.Count == 0)
+        sb.Append("</article>");
+    }
+
+    private static void Details(StringBuilder sb, string title, List<HistoryDetail> rows)
+    {
+        sb.Append("<div><h4>").Append(H(title)).Append("</h4><table class=\"kv\"><tbody>");
+        foreach (var r in rows)
         {
-            sb.Append("<p>Ce dossier ne contient encore aucune analyse.</p>");
+            sb.Append("<tr><th>").Append(H(r.Label)).Append("</th><td>").Append(H(r.Value)).Append("</td></tr>");
         }
 
-        sb.Append("<footer>Rapport généré par Scanalyse ").Append(H(version))
-          .Append(". Analyse faite localement sur le poste de l'intervenant. Les indications de contraste et de lisibilité sont des estimations : elles ne remplacent pas une vérification ISO/IEC 15415 ou 15416 par un vérificateur étalonné.</footer>");
-        sb.Append("</body></html>");
-        return sb.ToString();
+        sb.Append("</tbody></table></div>");
     }
 
     /// <summary>Libellé du résultat d'une entrée.</summary>
@@ -252,7 +337,7 @@ public static class ReportBuilder
         .issues li{margin:3px 0}
         .issues li.bad{color:#A3261C}.issues li.warn{color:#6B5000}
         .allok{color:#13633F;font-weight:600}
-        .detail{page-break-before:auto}
+        .detail{page-break-before:auto;page-break-after:avoid;break-after:avoid}
         .entry{border:1px solid #E1E4E7;border-radius:10px;padding:12px 14px;margin:0 0 10px;page-break-inside:avoid;break-inside:avoid}
         .eh{display:flex;align-items:flex-start;gap:10px}
         .eh>div{flex:1}
@@ -274,6 +359,22 @@ public static class ReportBuilder
         .findings li{padding:7px 10px;border-radius:7px;background:#F4F5F6}
         .findings li.ok{background:#E1F2E8;color:#13633F}.findings li.info{background:#E4ECF7;color:#1d3f6b}.findings li.warn{background:#FBF0C8;color:#5a4300}.findings li.bad{background:#FCE5E3;color:#8f1f17}
         .fix{color:#15191C}
+        .photo{margin:10px 0 0;padding:6px;text-align:center;page-break-inside:avoid;break-inside:avoid}
+        .photo img{max-width:100%;max-height:115mm;width:auto;display:inline-block}
+        .photo figcaption{font-size:8.5pt;color:#5D656C;margin-top:4px}
+        .code{border-top:1px solid #E1E4E7;margin-top:12px;padding-top:10px;page-break-inside:avoid;break-inside:avoid}
+        .ch{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .n.small{width:20px;height:20px;font-size:8.5pt}
+        .kind{color:#5D656C}
+        .content{background:#F4F5F6;border-radius:7px;padding:7px 10px;margin-top:7px}
+        .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+        .kv th{width:40%;color:#5D656C;font-weight:500}
+        .kv td,.kv th{font-size:9pt;padding:4px 6px}
+        .case-head{margin-top:16px;border-left:4px solid #F07F13;padding-left:10px}
+        .case-head h2{margin:0}
+        .case-head p{margin:4px 0}
+        .entry{page-break-inside:auto;break-inside:auto}
+        .eh{page-break-after:avoid;break-after:avoid}
         footer{margin-top:18px;padding-top:8px;border-top:1px solid #E1E4E7;color:#5D656C;font-size:8.5pt}
         """;
 }

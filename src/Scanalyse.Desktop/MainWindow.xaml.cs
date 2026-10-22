@@ -30,7 +30,7 @@ public partial class MainWindow : Window
     private const double SidebarNarrow = 66;
 
     private readonly AtelierHost _atelier;
-    private readonly HistoryStore _history = new(Path.Combine(AppSettings.DataFolder, "Historique"));
+    private HistoryStore _history = new(HistoryLocation.Current(AppSettings.Load()));
     private int _lastImageSequence = -1;
     private HistoryEntry? _lastImageEntry;
     private HistoryEntry? _lastComparison;
@@ -56,6 +56,7 @@ public partial class MainWindow : Window
         HistoryPage.ReopenRequested += OnReopenRequested;
         HistoryPage.ReportRequested = GenerateReportAsync;
         HistoryPage.Log += (kind, text) => AddLog(kind, "HISTORIQUE", text);
+        SettingsPage.HistoryFolderChangeRequested += async path => await ChangeHistoryFolderAsync(path);
         Bench.Compared += OnBenchCompared;
         Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         _atelier.ModeChanged += OnAtelierModeChanged;
@@ -223,12 +224,57 @@ public partial class MainWindow : Window
     {
         try
         {
+            // Première ouverture après la mise à jour : l'historique du profil Windows rejoint le nouvel emplacement.
+            var settings = AppSettings.Load();
+            if (string.IsNullOrWhiteSpace(settings.HistoryFolder) && _history.Folder != HistoryLocation.LegacyFolder
+                && HistoryLocation.HasData(HistoryLocation.LegacyFolder) && !HistoryLocation.HasData(_history.Folder))
+            {
+                var copied = await Task.Run(() => HistoryLocation.CopyAll(HistoryLocation.LegacyFolder, _history.Folder));
+                AddLog(LogKind.Info, "HISTORIQUE", $"Historique déplacé à côté du programme ({copied} fichiers) : {_history.Folder}");
+            }
+
+            ShowHistoryFolder();
             await Task.Run(_history.Load);
             HistoryPage.Attach(_history, AppSettings.Load().ActiveCaseId);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             AddLog(LogKind.Warning, "HISTORIQUE", "Historique illisible : " + ex.Message);
+        }
+    }
+
+    private void ShowHistoryFolder() =>
+        SettingsPage.ShowHistoryFolder(_history.Folder, string.IsNullOrWhiteSpace(AppSettings.Load().HistoryFolder));
+
+    /// <summary>Change le dossier de l'historique : l'existant y est copié s'il est vide, puis tout est relu.</summary>
+    private async Task ChangeHistoryFolderAsync(string path)
+    {
+        var target = string.IsNullOrWhiteSpace(path) ? HistoryLocation.DefaultFolder : path;
+        if (!HistoryLocation.IsWritable(target))
+        {
+            AddLog(LogKind.Error, "HISTORIQUE", $"Impossible d'écrire dans {target} : choisis un dossier où tu as les droits d'écriture.");
+            return;
+        }
+
+        try
+        {
+            var copied = HistoryLocation.HasData(target) ? 0 : await Task.Run(() => HistoryLocation.CopyAll(_history.Folder, target));
+            var settings = AppSettings.Load();
+            settings.HistoryFolder = path;
+            settings.Save();
+            _history = new HistoryStore(target);
+            _lastImageEntry = null;
+            _lastComparison = null;
+            await Task.Run(_history.Load);
+            HistoryPage.Attach(_history, settings.ActiveCaseId);
+            ShowHistoryFolder();
+            AddLog(LogKind.Ok, "HISTORIQUE", copied > 0
+                ? $"Historique déplacé vers {target} ({copied} fichiers copiés ; l'ancien dossier est conservé)."
+                : $"Historique : {target}");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AddLog(LogKind.Error, "HISTORIQUE", "Changement de dossier impossible : " + ex.Message);
         }
     }
 
@@ -257,7 +303,8 @@ public partial class MainWindow : Window
                 : a.Label?.Verdict == "bad" ? Severity.Error
                 : a.Label?.Verdict == "warn" ? Severity.Warning
                 : Severity.Ok;
-            var codes = a.Codes.Select(c => new HistoryCode(c.Format, c.Text, c.SymbologyIdentifier, c.Kind)).ToList();
+            var codes = a.Codes.Select(c => new HistoryCode(c.Format, c.Text, c.SymbologyIdentifier, c.Kind,
+                c.Health, c.HealthClass, c.Content, c.Technical, c.Alerts)).ToList();
             if (a.Sequence == _lastImageSequence && _lastImageEntry is { } existing && _history.Entries.Contains(existing))
             {
                 existing.Codes = codes;
@@ -349,11 +396,31 @@ public partial class MainWindow : Window
         NavBench.IsChecked = true;
     }
 
-    /// <summary>Rapport du dossier : HTML autonome converti en PDF par le moteur Edge, puis ouvert.</summary>
-    private async Task GenerateReportAsync(ServiceCase serviceCase)
+    /// <summary>
+    /// Rapport HTML autonome converti en PDF par le moteur Edge, puis ouvert : un dossier, ou tous les dossiers du client.
+    /// Seules les analyses cochées « dans le rapport » sont reprises.
+    /// </summary>
+    private async Task GenerateReportAsync(ServiceCase serviceCase, bool wholeClient)
     {
-        var entries = _history.EntriesOf(serviceCase.Id);
-        var name = string.Join(" - ", new[] { "Rapport Scanalyse", serviceCase.Client, serviceCase.Reference, DateTime.Now.ToString("yyyy-MM-dd") }
+        IReadOnlyList<ServiceCase> cases = wholeClient ? _history.CasesOfClient(serviceCase.Client) : [serviceCase];
+        var entries = _history.Entries.Where(e => e.InReport && cases.Any(c => c.Id == e.CaseId)).ToList();
+        var header = wholeClient
+            ? new ServiceCase
+            {
+                Id = "client",
+                Client = serviceCase.Client,
+                Reference = $"{cases.Count} dossiers",
+                Technician = string.Join(", ", cases.Select(c => c.Technician).Where(t => !string.IsNullOrWhiteSpace(t)).Distinct()),
+                Notes = string.Join("\n", cases.Where(c => !string.IsNullOrWhiteSpace(c.Reference)).Select(c => $"• {c.Reference} : {c.Notes.Split('\n')[0]}".TrimEnd(' ', ':'))),
+            }
+            : serviceCase;
+        if (entries.Count == 0)
+        {
+            AddLog(LogKind.Warning, "RAPPORT", "Aucune analyse à mettre dans le rapport (dossier vide, ou toutes les analyses sont décochées).");
+            return;
+        }
+
+        var name = string.Join(" - ", new[] { "Rapport Scanalyse", header.Client, wholeClient ? "tous les dossiers" : header.Reference, DateTime.Now.ToString("yyyy-MM-dd") }
             .Where(p => !string.IsNullOrWhiteSpace(p)));
         foreach (var bad in Path.GetInvalidFileNameChars())
         {
@@ -374,7 +441,7 @@ public partial class MainWindow : Window
         }
 
         var v = Assembly.GetExecutingAssembly().GetName().Version;
-        var html = ReportBuilder.Build(serviceCase, entries, ImageDataUrl, DateTimeOffset.Now, v is null ? string.Empty : $"{v.Major}.{v.Minor}.{v.Build}");
+        var html = ReportBuilder.Build(header, entries, ImageDataUrl, DateTimeOffset.Now, v is null ? string.Empty : $"{v.Major}.{v.Minor}.{v.Build}", cases);
         try
         {
             if (dialog.FileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))

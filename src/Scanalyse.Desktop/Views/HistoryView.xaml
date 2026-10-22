@@ -119,7 +119,8 @@
 
             <DockPanel Margin="0,14,0,0" LastChildFill="False">
               <Button x:Name="UseCaseButton" DockPanel.Dock="Left" Style="{StaticResource BtnSecondary}" Content="Travailler sur ce dossier" Click="UseCase_Click" />
-              <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Générer le rapport PDF" Click="Report_Click" />
+              <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Rapport du dossier (PDF)" Click="Report_Click" />
+              <Button x:Name="ClientReportButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="ClientReport_Click" Margin="0,0,8,0" Visibility="Collapsed" />
               <Button x:Name="DeleteCaseButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Supprimer le dossier" Click="DeleteCase_Click" Margin="0,0,8,0" />
             </DockPanel>
           </StackPanel>
@@ -184,10 +185,11 @@
                         </Border>
                         <WrapPanel HorizontalAlignment="Right" Margin="0,10,0,0">
                           <Button Style="{StaticResource BtnSmall}" Content="Rouvrir" Click="Reopen_Click" Margin="0,0,6,0" />
-                          <Button Style="{StaticResource BtnSmall}" Content="Ranger dans le dossier en cours" Click="Move_Click" Margin="0,0,6,0"
-                                  Visibility="{Binding MoveVisibility}" />
+                          <Button Style="{StaticResource BtnSmall}" Content="Déplacer vers…" Click="Move_Click" Margin="0,0,6,0" />
                           <Button Style="{StaticResource BtnSmall}" Content="Supprimer" Click="DeleteEntry_Click" />
                         </WrapPanel>
+                        <CheckBox Style="{StaticResource CheckLine}" Content="Dans le rapport" IsChecked="{Binding InReport, Mode=OneWay}"
+                                  Click="InReport_Click" HorizontalAlignment="Right" Margin="0,10,0,0" />
                       </StackPanel>
                     </Grid>
                   </Border>
