@@ -72,6 +72,9 @@ internal sealed class AtelierHost
     /// <summary>Bouton de l'invite vide d'« Analyser une image » : « import », « paste », « capture » ou « camera ».</summary>
     public event Action<string>? ActionRequested;
 
+    /// <summary>Plusieurs fichiers déposés dans l'Atelier (images, PDF) : nom et contenu.</summary>
+    public event Action<IReadOnlyList<(string Name, byte[] Data)>>? BatchRequested;
+
     /// <summary>L'utilisateur veut le programme d'impression d'un code (ZPL…).</summary>
     public event Action<PrintRequest>? PrintRequested;
 
@@ -210,6 +213,25 @@ internal sealed class AtelierHost
         return done == tcs.Task ? tcs.Task.Result : new LabelRender(null, "Délai dépassé.", []);
     }
 
+    /// <summary>Contenu d'une adresse « data: » de n'importe quel type (image, PDF).</summary>
+    public static byte[]? FromAnyDataUrl(string dataUrl)
+    {
+        var comma = dataUrl.IndexOf(',');
+        if (comma < 0 || !dataUrl.StartsWith("data:", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Convert.FromBase64String(dataUrl[(comma + 1)..]);
+        }
+        catch (FormatException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>Convertit une image « data:image/png;base64,… » en octets.</summary>
     public static byte[]? FromDataUrl(string dataUrl)
     {
@@ -279,6 +301,29 @@ internal sealed class AtelierHost
                 case "action":
                     ActionRequested?.Invoke(Get(root, "action"));
                     break;
+
+                case "batch":
+                {
+                    // Plusieurs fichiers (ou un PDF) déposés sur « Analyser une image » : analysés à la suite par le programme.
+                    var files = new List<(string Name, byte[] Data)>();
+                    if (root.TryGetProperty("files", out var fl) && fl.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var f in fl.EnumerateArray())
+                        {
+                            if (FromAnyDataUrl(Get(f, "data")) is { } bytes)
+                            {
+                                files.Add((Get(f, "name"), bytes));
+                            }
+                        }
+                    }
+
+                    if (files.Count > 0)
+                    {
+                        BatchRequested?.Invoke(files);
+                    }
+
+                    break;
+                }
 
                 case "print":
                     PrintRequested?.Invoke(new PrintRequest(Get(root, "text"), Get(root, "format"),

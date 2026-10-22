@@ -168,7 +168,15 @@ async function loadBlob(blob,label){
 $("scanFile").addEventListener("change",e=>{const f=e.target.files[0];if(f)loadBlob(f,f.name);e.target.value="";});
 ["dragenter","dragover"].forEach(t=>stage.addEventListener(t,e=>{e.preventDefault();stage.classList.add("over");}));
 ["dragleave","drop"].forEach(t=>stage.addEventListener(t,e=>{e.preventDefault();stage.classList.remove("over");}));
-stage.addEventListener("drop",e=>{const f=[...e.dataTransfer.files].find(f=>/^image\//.test(f.type)||/\.(png|jpe?g|gif|webp|bmp|avif|svg)$/i.test(f.name));if(f)loadBlob(f,f.name);});
+stage.addEventListener("drop",e=>{
+  const all=[...e.dataTransfer.files].filter(f=>/^image\//.test(f.type)||/\.(png|jpe?g|gif|webp|bmp|avif|svg|tiff?)$/i.test(f.name)||/\.pdf$/i.test(f.name)||f.type==="application/pdf");
+  // Programme Windows : plusieurs fichiers ou un PDF → analyse en lot par le programme (une entrée par image ou page).
+  if(DESKTOP&&(all.length>1||all.some(f=>/\.pdf$/i.test(f.name)||f.type==="application/pdf"))){
+    Promise.all(all.map(f=>new Promise(res=>{const r=new FileReader();r.onload=()=>res({name:f.name,data:r.result});r.onerror=()=>res(null);r.readAsDataURL(f);})))
+      .then(list=>{try{window.chrome.webview.postMessage(JSON.stringify({type:"batch",files:list.filter(Boolean)}));}catch(err){}});
+    return;
+  }
+  const f=all.find(f=>!/\.pdf$/i.test(f.name));if(f)loadBlob(f,f.name);});
 document.addEventListener("paste",e=>{
   if($("view-scan").hidden) return;
   const it=[...(e.clipboardData||{}).items||[]].find(i=>i.type.startsWith("image/"));

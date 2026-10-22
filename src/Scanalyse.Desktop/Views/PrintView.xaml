@@ -117,6 +117,25 @@
           </Grid>
         </DockPanel>
         <TextBlock x:Name="SendStatus" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,6,0,0" />
+        <!-- Maintenance : état, calibrage, page de configuration, redémarrage -->
+        <WrapPanel Margin="0,8,0,0">
+          <TextBlock Text="Maintenance" FontSize="12.5" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
+          <WrapPanel x:Name="ToolLangChips" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Langage que parle l'imprimante">
+            <RadioButton Style="{StaticResource Chip}" GroupName="ToolLang" Tag="Zpl" Content="ZPL" IsChecked="True" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="ToolLang" Tag="Tspl" Content="TSPL" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="ToolLang" Tag="Epl2" Content="EPL2" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="ToolLang" Tag="Dpl" Content="DPL" />
+          </WrapPanel>
+          <Button Style="{StaticResource BtnGhost}" Tag="Status" Content="Lire l'état" Click="PrinterTool_Click"
+                  ToolTip="Papier, ruban, tête ouverte, pause… (imprimante en réseau : la réponse ne revient pas par USB)" />
+          <Button Style="{StaticResource BtnGhost}" Tag="Calibrate" Content="Calibrer" Click="PrinterTool_Click"
+                  ToolTip="Mesure des étiquettes (espace ou marque noire) : quelques étiquettes avancent" />
+          <Button Style="{StaticResource BtnGhost}" Tag="ConfigLabel" Content="Page de configuration" Click="PrinterTool_Click"
+                  ToolTip="Imprime l'étiquette de configuration de l'imprimante (réglages, réseau, firmware)" />
+          <Button Style="{StaticResource BtnGhost}" Tag="Reset" Content="Redémarrer" Click="PrinterTool_Click"
+                  ToolTip="Redémarrage logiciel : les réglages enregistrés sont conservés" />
+        </WrapPanel>
+        <StackPanel x:Name="ToolResult" Margin="0,6,0,0" />
       </StackPanel>
     </Border>
 

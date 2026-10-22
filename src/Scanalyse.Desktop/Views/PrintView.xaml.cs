@@ -45,6 +45,7 @@ public partial class PrintView : UserControl
         var p = AppSettings.Load().Print;
         Check(LangChips, p.Language);
         Check(TemplateLangChips, p.Language);
+        Check(ToolLangChips, p.Language);
         Check(DpiChips, p.Dpi.ToString(CultureInfo.InvariantCulture));
         WidthBox.Text = p.WidthMm.ToString("0.#", CultureInfo.CurrentCulture);
         HeightBox.Text = p.HeightMm.ToString("0.#", CultureInfo.CurrentCulture);
@@ -487,6 +488,89 @@ public partial class PrintView : UserControl
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             Status("Enregistrement impossible : " + ex.Message, ok: false);
+        }
+    }
+
+    // ------------------------------------------------------------------ Maintenance de l'imprimante
+
+    private async void PrinterTool_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string tag } || !Enum.TryParse<PrinterAction>(tag, out var action))
+        {
+            return;
+        }
+
+        var language = Enum.TryParse<PrinterLanguage>(Selected(ToolLangChips, "Zpl"), out var l) ? l : PrinterLanguage.Zpl;
+        var name = language == PrinterLanguage.Epl2 ? "EPL2" : language.ToString().ToUpperInvariant();
+        ToolResult.Children.Clear();
+        if (PrinterCommands.Command(language, action) is not { } command)
+        {
+            ToolResult.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Info,
+                $"Pas de commande de calibrage standard en {name} : lance-le depuis le menu de l'imprimante ou son utilitaire.")));
+            return;
+        }
+
+        if (action == PrinterAction.Reset && !await Dialogs.ConfirmAsync(Localization.T("Redémarrer l'imprimante ?"),
+                Localization.T("L'impression en cours est interrompue. Les réglages enregistrés sont conservés ; l'imprimante est indisponible quelques secondes."),
+                Localization.T("Redémarrer"), null, danger: false))
+        {
+            return;
+        }
+
+        var queue = ModeQueue.IsChecked == true ? SelectedQueue : null;
+        var address = ModeQueue.IsChecked == true ? (queue is null ? null : PrinterTransport.QueueAddress(queue)) : AddressBox.Text.Trim();
+        if ((ModeQueue.IsChecked == true && queue is null) || (ModeQueue.IsChecked != true && string.IsNullOrEmpty(address)))
+        {
+            Status(ModeQueue.IsChecked == true ? "Choisis d'abord une imprimante dans la liste." : "Indique l'adresse IP de l'imprimante.", ok: false);
+            return;
+        }
+
+        var shown = PrinterCommands.Display(language, action);
+        try
+        {
+            if (action == PrinterAction.Status)
+            {
+                if (string.IsNullOrEmpty(address))
+                {
+                    ToolResult.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Warning,
+                        "Lecture d'état impossible par cette file Windows (USB ou partage) : la réponse ne revient que par le réseau. Choisis « Réseau » avec l'adresse IP de l'imprimante.")));
+                    return;
+                }
+
+                Status($"Lecture de l'état ({shown})…", ok: true);
+                var reply = await PrinterTransport.QueryTcpAsync(address, command);
+                foreach (var alert in PrinterCommands.ParseStatus(language, reply))
+                {
+                    ToolResult.Children.Add(AlertBox(alert));
+                }
+
+                Status($"État lu ({name}, {address}).", ok: true);
+                Log?.Invoke(LogKind.Info, $"État de l'imprimante lu ({name}, {address}).");
+                return;
+            }
+
+            if (queue is not null)
+            {
+                await Task.Run(() => PrinterTransport.SendToQueue(queue, command, "Scanalyse - maintenance"));
+            }
+            else
+            {
+                await PrinterTransport.SendTcpAsync(address!, command);
+            }
+
+            var done = action switch
+            {
+                PrinterAction.Calibrate => "Calibrage lancé : quelques étiquettes avancent.",
+                PrinterAction.ConfigLabel => "Page de configuration demandée.",
+                _ => "Redémarrage demandé.",
+            };
+            Status($"{Localization.T(done)} ({shown})", ok: true);
+            Log?.Invoke(LogKind.Ok, $"{done} ({name} : {shown})");
+        }
+        catch (IOException ex)
+        {
+            Status(ex.Message, ok: false);
+            Log?.Invoke(LogKind.Error, ex.Message);
         }
     }
 

@@ -112,6 +112,7 @@ public partial class MainWindow : Window
         };
         _atelier.PrintRequested += r => OpenPrint(r.Text, PrintView.SymbologyFor(r.Format, r.Text, r.Gs1), r.Source);
         _atelier.ModeChanged += OnAtelierModeChanged;
+        _atelier.BatchRequested += async files => await StartBatchAsync(files);
         _atelier.ActionRequested += action =>
         {
             switch (action)
@@ -308,6 +309,130 @@ public partial class MainWindow : Window
         if (a.Record)
         {
             RecordImage(a);
+        }
+
+        if (_batch is not null && a.Source == _batchCurrent)
+        {
+            _batchCodes += codes.Count;
+            Dispatcher.InvokeAsync(NextBatchItemAsync, DispatcherPriority.Background);
+        }
+    }
+
+    // ------------------------------------------------------------------ Analyse en lot
+
+    private Queue<(string Label, byte[] Data, string Mime)>? _batch;
+    private string? _batchCurrent;
+    private int _batchTotal;
+    private int _batchCodes;
+
+    /// <summary>
+    /// Analyse à la suite plusieurs images ou les pages d'un PDF : chacune est enregistrée dans le dossier SAV en cours,
+    /// puis le rapport du dossier est proposé.
+    /// </summary>
+    private async Task StartBatchAsync(IReadOnlyList<(string Name, byte[] Data)> files)
+    {
+        var items = new Queue<(string Label, byte[] Data, string Mime)>();
+        foreach (var (name, data) in files)
+        {
+            var ext = Path.GetExtension(name);
+            if (ext.Equals(".pdf", StringComparison.OrdinalIgnoreCase) || (data.Length > 4 && data[0] == '%' && data[1] == 'P' && data[2] == 'D' && data[3] == 'F'))
+            {
+                try
+                {
+                    var pages = await PdfPages.RenderAsync(data);
+                    for (var i = 0; i < pages.Count; i++)
+                    {
+                        items.Enqueue(($"{name} · page {i + 1}/{pages.Count}", pages[i], "image/png"));
+                    }
+
+                    AddLog(LogKind.Info, "LOT", $"{name} : {pages.Count} page{(pages.Count > 1 ? "s" : string.Empty)}.");
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or COMException or ArgumentException or InvalidOperationException)
+                {
+                    AddLog(LogKind.Error, "LOT", $"{name} : PDF illisible ({ex.Message}).");
+                }
+            }
+            else if (ImageTypes.TryGetValue(ext, out var mime) && mime != "image/tiff")
+            {
+                items.Enqueue((name, data, mime));
+            }
+            else
+            {
+                try
+                {
+                    // TIFF et autres : Windows décode, on transmet du PNG.
+                    var frame = BitmapDecoder.Create(new MemoryStream(data), BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad).Frames[0];
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(frame));
+                    using var ms = new MemoryStream();
+                    encoder.Save(ms);
+                    items.Enqueue((name, ms.ToArray(), "image/png"));
+                }
+                catch (Exception ex) when (ex is NotSupportedException or FileFormatException or IOException)
+                {
+                    AddLog(LogKind.Warning, "LOT", $"{name} : format non reconnu, ignoré.");
+                }
+            }
+        }
+
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        if (items.Count == 1)
+        {
+            var single = items.Dequeue();
+            NavAnalyse.IsChecked = true;
+            await _atelier.LoadImageAsync(single.Data, single.Label, single.Mime);
+            return;
+        }
+
+        _batch = items;
+        _batchTotal = items.Count;
+        _batchCodes = 0;
+        NavAnalyse.IsChecked = true;
+        AddLog(LogKind.Info, "LOT", $"Analyse en lot : {items.Count} images, enregistrées dans le dossier « {CaseLabel.Text.Replace("Dossier : ", string.Empty, StringComparison.Ordinal)} ».");
+        await NextBatchItemAsync();
+    }
+
+    private async Task NextBatchItemAsync()
+    {
+        if (_batch is null)
+        {
+            return;
+        }
+
+        if (_batch.Count == 0)
+        {
+            var total = _batchTotal;
+            var codes = _batchCodes;
+            _batch = null;
+            _batchCurrent = null;
+            AddLog(LogKind.Ok, "LOT", $"Analyse en lot terminée : {total} images, {codes} code{(codes > 1 ? "s" : string.Empty)} lu{(codes > 1 ? "s" : string.Empty)}.");
+            var settings = AppSettings.Load();
+            if (_history.FindCase(settings.ActiveCaseId) is { } current && await Confirm.AskAsync(
+                    Localization.T("Analyse en lot terminée"),
+                    string.Format(CultureInfo.InvariantCulture, Localization.T("{0} images analysées, {1} codes lus. Générer maintenant le rapport PDF du dossier « {2} » ?"), total, codes, current.DisplayName),
+                    Localization.T("Générer le rapport"), null, danger: false))
+            {
+                await GenerateReportAsync(current, false);
+            }
+
+            return;
+        }
+
+        var (label, data, mime) = _batch.Dequeue();
+        _batchCurrent = label;
+        AddLog(LogKind.Info, "LOT", $"{_batchTotal - _batch.Count}/{_batchTotal} · {label}");
+        await _atelier.LoadImageAsync(data, label, mime);
+
+        // Filet de sécurité : une image qui ne renvoie aucun résultat ne bloque pas le lot.
+        await Task.Delay(TimeSpan.FromSeconds(45));
+        if (_batch is not null && _batchCurrent == label)
+        {
+            AddLog(LogKind.Warning, "LOT", $"{label} : pas de résultat après 45 s, image suivante.");
+            await NextBatchItemAsync();
         }
     }
 
@@ -1070,11 +1195,32 @@ public partial class MainWindow : Window
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Title = Localization.T("Importer une image à analyser"),
-            Filter = Localization.T("Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|Tous les fichiers|*.*"),
+            Title = Localization.T("Importer une ou plusieurs images à analyser"),
+            Filter = Localization.T("Images et PDF (PNG, JPG, BMP, GIF, WebP, TIFF, PDF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff;*.pdf|Tous les fichiers|*.*"),
+            Multiselect = true,
         };
         if (dialog.ShowDialog(this) != true)
         {
+            return;
+        }
+
+        // Plusieurs fichiers ou un PDF : analyse en lot (une entrée d'historique par image ou page).
+        if (dialog.FileNames.Length > 1 || dialog.FileNames.Any(f => Path.GetExtension(f).Equals(".pdf", StringComparison.OrdinalIgnoreCase)))
+        {
+            var files = new List<(string Name, byte[] Data)>();
+            foreach (var f in dialog.FileNames)
+            {
+                try
+                {
+                    files.Add((Path.GetFileName(f), await File.ReadAllBytesAsync(f)));
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    AddLog(LogKind.Error, "LOT", $"{Path.GetFileName(f)} : {ex.Message}");
+                }
+            }
+
+            await StartBatchAsync(files);
             return;
         }
 
