@@ -665,3 +665,16 @@ public sealed record FindingView(Severity Severity, string Title, string Explana
     public static FindingView From(Finding f) =>
         new(f.Severity, f.Title, f.Explanation, string.IsNullOrWhiteSpace(f.Fix) ? string.Empty : "À faire : " + f.Fix);
 }
+
+/// <summary>Comparaison terminée, telle qu'elle est enregistrée dans l'historique.</summary>
+/// <param name="Expected">Contenu du code (notation lisible).</param>
+/// <param name="Received">Données reçues (notation lisible).</param>
+/// <param name="Via">Liaison de la douchette (« COM5 · 9600 8N1 », mode clavier…).</param>
+/// <param name="Symbology">Symbologie annoncée (HID POS).</param>
+/// <param name="Verdict">Titre du résultat.</param>
+/// <param name="Image">Vignette du code testé (PNG).</param>
+/// <param name="Result">Résultat détaillé.</param>
+public sealed record BenchSnapshot(string Expected, string Received, string Via, string? Symbology, string Verdict, byte[]? Image, ComparisonResult Result);
+
+/// <summary>Information extraite prête à afficher.</summary>
+public sealed record FieldView(string Label, string Value, string Hint);

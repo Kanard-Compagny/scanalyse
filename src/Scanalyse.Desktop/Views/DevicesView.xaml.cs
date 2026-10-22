@@ -755,3 +755,4 @@ public partial class DevicesView : UserControl
         settings.Save();
     }
 }
+
