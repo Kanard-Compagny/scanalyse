@@ -2048,9 +2048,12 @@ function labelCheckHtml(list){
   function tr(t,depth){
     if(!exact||!t||depth>3)return t;
     if(exact.has(t))return exact.get(t);
-    const s=t.trim();if(s!==t&&exact.has(s))return t.replace(s,exact.get(s));
+    const s=t.trim();if(s!==t&&s){const r=tr(s,depth);return r===s?t:t.replace(s,r);}
     for(const p of patterns){const m=p.re.exec(t);if(m)return p.en.replace(slot,(x,n)=>tr(m.groups["s"+n],depth+1));}
     for(const p of prefixes)if(t.startsWith(p.fr))return p.en+tr(t.slice(p.fr.length),depth+1);
+    // Ponctuation ou « (AI) » en tête : on traduit la suite (« : GS1 DataMatrix (…) », « (17) Date d'expiration »)
+    const lead=/^([\s:·,;\-–]+|\(\d{2,4}\)\s)([\s\S]+)$/.exec(t);
+    if(lead){const r=tr(lead[2],depth+1);if(r!==lead[2])return lead[1]+r;}
     return t;
   }
   window.atelierT=t=>tr(t,0);
@@ -2075,6 +2078,13 @@ function labelCheckHtml(list){
     }
     patterns.sort((a,b)=>b.fixed-a.fixed);prefixes.sort((a,b)=>b.fr.length-a.fr.length);
     document.documentElement.lang="en";
+    // Dates et nombres : format anglais là où le code demande le format français.
+    const swap=l=>(l==="fr-FR"||l==="fr")?"en-GB":l;
+    const dl=Date.prototype.toLocaleDateString,ds=Date.prototype.toLocaleString,dt=Date.prototype.toLocaleTimeString,nl=Number.prototype.toLocaleString;
+    Date.prototype.toLocaleDateString=function(l,o){return dl.call(this,swap(l),o);};
+    Date.prototype.toLocaleString=function(l,o){return ds.call(this,swap(l),o);};
+    Date.prototype.toLocaleTimeString=function(l,o){return dt.call(this,swap(l),o);};
+    Number.prototype.toLocaleString=function(l,o){return nl.call(this,swap(l),o);};
     walk(document.body);
     if(observer)observer.disconnect();
     observer=new MutationObserver(list=>{for(const m of list){
