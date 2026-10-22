@@ -60,6 +60,7 @@ public partial class MainWindow : Window
         SettingsPage.HistoryFolderChangeRequested += async path => await ChangeHistoryFolderAsync(path);
         Bench.Compared += OnBenchCompared;
         Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
+        Devices.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         _atelier.ModeChanged += OnAtelierModeChanged;
         Symbols.CreateRequested += OnCreateRequested;
         Devices.Scanned += OnDeviceScanned;

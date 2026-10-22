@@ -14,6 +14,12 @@ public sealed class AppSettings
     /// <summary>Dossier de l'historique choisi par l'utilisateur ; vide = à côté du programme.</summary>
     public string HistoryFolder { get; set; } = string.Empty;
 
+    /// <summary>Chemin d'adb.exe choisi à la main ; vide = recherche automatique.</summary>
+    public string AdbPath { get; set; } = string.Empty;
+
+    /// <summary>Relais terminal accessible en Wi-Fi (sinon seulement en USB via ADB).</summary>
+    public bool RelayWifi { get; set; }
+
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 

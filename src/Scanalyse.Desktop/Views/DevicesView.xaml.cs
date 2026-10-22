@@ -22,6 +22,8 @@ public partial class DevicesView : UserControl
     private const int MaxMonitorItems = 200;
 
     private readonly ObservableCollection<MonitorItem> _monitor = [];
+    private readonly Relay.RelayServer _relay = new();
+    private string? _adb;
     private IScanSource? _source;
     private DeviceEntry? _connected;
     private bool _busy;
@@ -32,6 +34,9 @@ public partial class DevicesView : UserControl
         MonitorList.ItemsSource = _monitor;
         LoadSerialPreferences(AppSettings.Load().Scanner.Serial);
     }
+
+    /// <summary>Dessine un code (texte, type de l'Atelier) : sert au QR de l'adresse Wi-Fi du relais.</summary>
+    public Func<string, string, Task<(byte[]? Png, string? Error)>>? Renderer { get; set; }
 
     /// <summary>Une lecture est arrivée (thread de l'interface).</summary>
     public event Action<ScanEvent>? Scanned;
@@ -52,7 +57,14 @@ public partial class DevicesView : UserControl
     /// <summary>Détecte les douchettes et reconnecte la dernière utilisée si elle est branchée.</summary>
     public async Task InitializeAsync()
     {
-        var prefs = AppSettings.Load().Scanner;
+        _relay.Scanned += e => Dispatcher.InvokeAsync(() => OnScanned(e));
+        _relay.Log += (kind, text) => Dispatcher.InvokeAsync(() => Log?.Invoke(kind, text));
+        var settings = AppSettings.Load();
+        WifiCheck.IsChecked = settings.RelayWifi;
+        await StartRelayAsync(settings.RelayWifi);
+        _ = RefreshTerminalsAsync();
+
+        var prefs = settings.Scanner;
         await RefreshAsync(prefs.DeviceId);
         if (prefs.Kind is ScanSourceKind.Serial or ScanSourceKind.Pos && Selected is { } entry && entry.Id == prefs.DeviceId)
         {
@@ -65,7 +77,163 @@ public partial class DevicesView : UserControl
     }
 
     /// <summary>Ferme proprement la liaison (fermeture du programme).</summary>
-    public async Task ShutdownAsync() => await CloseSourceAsync();
+    public async Task ShutdownAsync()
+    {
+        await CloseSourceAsync();
+        await _relay.DisposeAsync();
+    }
+
+    // ------------------------------------------------------------------ Relais terminal Android
+
+    private async Task StartRelayAsync(bool wifi)
+    {
+        var error = await _relay.StartAsync(wifi);
+        if (error is not null)
+        {
+            Log?.Invoke(LogKind.Error, error);
+        }
+
+        var ips = Relay.RelayServer.LanAddresses();
+        RawHint.Text = $"dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {Relay.RelayServer.RawPort} pour un terminal relié en USB (après « Ouvrir le relais »)"
+            + (wifi && ips.Count > 0 ? $", ou vers {ips[0]} port {Relay.RelayServer.RawPort} en Wi-Fi." : ".");
+        WifiPanel.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
+        if (wifi)
+        {
+            if (ips.Count == 0)
+            {
+                WifiUrl.Text = "Aucun réseau local détecté sur ce PC.";
+                WifiQr.Source = null;
+                return;
+            }
+
+            var url = $"http://{ips[0]}:{Relay.RelayServer.HttpPort}/relais";
+            WifiUrl.Text = url + (ips.Count > 1 ? $"\n(autres adresses : {string.Join(", ", ips.Skip(1))})" : string.Empty);
+            await ShowQrAsync(url);
+        }
+    }
+
+    private async Task ShowQrAsync(string url)
+    {
+        if (Renderer is null)
+        {
+            return;
+        }
+
+        // L'Atelier peut ne pas être encore prêt au démarrage : quelques essais.
+        for (var i = 0; i < 10; i++)
+        {
+            var (png, _) = await Renderer(url, "qrplain");
+            if (png is { Length: > 0 })
+            {
+                var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                using (var ms = new System.IO.MemoryStream(png))
+                {
+                    bmp.BeginInit();
+                    bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    bmp.StreamSource = ms;
+                    bmp.EndInit();
+                }
+
+                bmp.Freeze();
+                WifiQr.Source = bmp;
+                return;
+            }
+
+            await Task.Delay(1500);
+        }
+    }
+
+    private async void Wifi_Click(object sender, RoutedEventArgs e)
+    {
+        var wifi = WifiCheck.IsChecked == true;
+        var settings = AppSettings.Load();
+        settings.RelayWifi = wifi;
+        settings.Save();
+        await StartRelayAsync(wifi);
+        Log?.Invoke(LogKind.Info, wifi ? "Relais ouvert au Wi-Fi : les terminaux du même réseau peuvent s'y connecter." : "Relais limité aux terminaux branchés en USB.");
+    }
+
+    private async void RefreshTerminals_Click(object sender, RoutedEventArgs e) => await RefreshTerminalsAsync();
+
+    private void PickAdb_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = "Choisir adb.exe (Android Platform Tools)", Filter = "adb.exe|adb.exe|Programmes|*.exe" };
+        if (dialog.ShowDialog(Window.GetWindow(this)) == true)
+        {
+            var settings = AppSettings.Load();
+            settings.AdbPath = dialog.FileName;
+            settings.Save();
+            _ = RefreshTerminalsAsync();
+        }
+    }
+
+    private async Task RefreshTerminalsAsync()
+    {
+        _adb = Relay.Adb.Find(AppSettings.Load().AdbPath);
+        TerminalList.Children.Clear();
+        if (_adb is null)
+        {
+            AdbStatus.Text = "ADB introuvable : indique où se trouve adb.exe (Platform Tools, outil SAV…). Le Wi-Fi fonctionne sans ADB.";
+            return;
+        }
+
+        AdbStatus.Text = "ADB : " + _adb;
+        IReadOnlyList<Relay.AdbDevice> devices;
+        try
+        {
+            devices = await Relay.Adb.DevicesAsync(_adb);
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or System.IO.IOException)
+        {
+            AdbStatus.Text = "ADB ne démarre pas : " + ex.Message;
+            return;
+        }
+
+        if (devices.Count == 0)
+        {
+            var none = new TextBlock { Text = "Aucun terminal branché. Active le débogage USB (Options pour les développeurs) et branche le câble.", TextWrapping = TextWrapping.Wrap, FontSize = 12.5 };
+            none.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            TerminalList.Children.Add(none);
+            return;
+        }
+
+        foreach (var d in devices)
+        {
+            var row = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 9, 12, 9), Margin = new Thickness(0, 0, 0, 8) };
+            row.SetResourceReference(Border.BackgroundProperty, "Surface2");
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            text.Children.Add(new TextBlock { Text = d.Model, FontWeight = FontWeights.SemiBold });
+            var sub = new TextBlock { Text = $"{d.Serial} · {d.StateText}", FontSize = 12, TextWrapping = TextWrapping.Wrap };
+            sub.SetResourceReference(TextBlock.ForegroundProperty, d.Ready ? "Muted" : "WarnFg");
+            text.Children.Add(sub);
+            grid.Children.Add(text);
+            var open = new Button { Content = "Ouvrir le relais", Style = (Style)FindResource("BtnSecondary"), IsEnabled = d.Ready, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            open.Click += async (_, _) => await OpenRelayAsync(d);
+            Grid.SetColumn(open, 1);
+            grid.Children.Add(open);
+            row.Child = grid;
+            TerminalList.Children.Add(row);
+        }
+    }
+
+    private async Task OpenRelayAsync(Relay.AdbDevice device)
+    {
+        if (_adb is null)
+        {
+            return;
+        }
+
+        if (!_relay.IsRunning)
+        {
+            await StartRelayAsync(WifiCheck.IsChecked == true);
+        }
+
+        var error = await Relay.Adb.OpenRelayAsync(_adb, device.Serial);
+        Log?.Invoke(error is null ? LogKind.Ok : LogKind.Error, error ?? $"Relais ouvert sur {device.Model} : scanne un code avec le terminal, la lecture arrive au banc d'essai.");
+    }
 
     // ------------------------------------------------------------------ Liste des douchettes
 
@@ -234,7 +402,8 @@ public partial class DevicesView : UserControl
     private void OnScanned(ScanEvent e)
     {
         var header = $"{e.At:HH:mm:ss} · {e.Source} · {e.Raw.Length} octet{(e.Raw.Length > 1 ? "s" : string.Empty)}"
-            + (e.Symbology is null ? string.Empty : $" · symbologie annoncée : {e.Symbology}");
+            + (e.Symbology is null ? string.Empty : $" · symbologie annoncée : {e.Symbology}")
+            + (e.Detail is null ? string.Empty : $" · {e.Detail}");
         _monitor.Insert(0, new MonitorItem(header, ControlCharacters.Visualize(e.Text), e.Hex));
         while (_monitor.Count > MaxMonitorItems)
         {

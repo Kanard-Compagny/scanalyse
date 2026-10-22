@@ -24,7 +24,8 @@ public enum ScanSourceKind
 /// <param name="Raw">Octets exactement tels que reçus.</param>
 /// <param name="Text">Texte transmis au banc d'essai.</param>
 /// <param name="Symbology">Symbologie annoncée par le scanner (HID POS uniquement).</param>
-public sealed record ScanEvent(DateTime At, string Source, byte[] Raw, string Text, string? Symbology)
+/// <param name="Detail">Précision affichée au moniteur (touches reçues par le relais terminal…).</param>
+public sealed record ScanEvent(DateTime At, string Source, byte[] Raw, string Text, string? Symbology, string? Detail = null)
 {
     /// <summary>Octets en hexadécimal.</summary>
     public string Hex => RawData.ToHex(Raw);

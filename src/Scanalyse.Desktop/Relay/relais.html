@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Scanalyse · Relais</title>
+<style>
+:root{--bg:#F4F5F6;--panel:#fff;--ink:#15191C;--muted:#5D656C;--line:#E1E4E7;--brand:#145C43;--soft:#E1EEE8;--ok:#13633F;--okbg:#E1F2E8;--bad:#A3261C;--badbg:#FCE5E3;--side:#0F3D2E}
+@media (prefers-color-scheme:dark){:root{--bg:#101314;--panel:#181C1E;--ink:#E9ECEE;--muted:#9AA3A9;--line:#2A3033;--brand:#5FD3A1;--soft:#173A2D;--ok:#73D9A9;--okbg:#123326;--bad:#FF8A80;--badbg:#3A1714;--side:#0B2A20}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 "Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--side);color:#E6F0EB;padding:12px 16px;display:flex;align-items:center;gap:10px}
+header b{font-size:17px}
+.mark{width:12px;height:12px;border-radius:3px;background:#F07F13}
+.state{margin-left:auto;font-size:12px;padding:3px 9px;border-radius:10px;background:rgba(255,255,255,.12)}
+.state.ok{background:#1F7454}.state.bad{background:#A3261C}
+main{padding:14px;display:grid;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+h1{font-size:18px;margin:0 0 4px}
+p{margin:0;color:var(--muted);font-size:13.5px}
+textarea{width:100%;min-height:84px;margin-top:10px;font:15px/1.4 Consolas,"Roboto Mono",monospace;color:var(--ink);background:var(--bg);border:2px solid var(--brand);border-radius:10px;padding:10px;resize:none}
+textarea:focus{outline:none}
+.last{font-family:Consolas,"Roboto Mono",monospace;font-size:13px;word-break:break-all}
+.item{border-top:1px solid var(--line);padding:8px 0}
+.item:first-child{border-top:0}
+.item small{display:block;color:var(--muted);font-family:"Segoe UI",Roboto,sans-serif;font-size:11.5px}
+.sent{color:var(--ok)}.err{color:var(--bad)}
+</style>
+</head>
+<body>
+<header><span class="mark"></span><b>Scanalyse</b><span>Relais</span><span class="state" id="state">connexion…</span></header>
+<main>
+  <section class="card">
+    <h1>Scanne un code</h1>
+    <p>La lecture du terminal arrive dans le champ ci-dessous puis part au banc d'essai de Scanalyse, avec le détail des touches reçues. Garde cette page au premier plan.</p>
+    <textarea id="in" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" aria-label="Lecture reçue"></textarea>
+  </section>
+  <section class="card"><h1 style="font-size:15px">Dernières lectures</h1><div id="log" class="last"><p>Aucune lecture pour l'instant.</p></div></section>
+</main>
+<script>
+(function(){
+const box=document.getElementById("in"),log=document.getElementById("log"),st=document.getElementById("state");
+let text="",keys=[],timer=0,count=0;
+function state(ok,msg){st.textContent=msg;st.className="state "+(ok?"ok":"bad");}
+function ping(){fetch("/ping",{cache:"no-store"}).then(r=>state(r.ok,r.ok?"relié au PC":"PC injoignable")).catch(()=>state(false,"PC injoignable"));}
+ping();setInterval(ping,5000);
+// Garder le champ actif : la douchette intégrée tape là où se trouve le curseur.
+setInterval(()=>{if(document.activeElement!==box)box.focus();},800);
+function vis(t){return t.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)])+">");}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function flush(){
+  clearTimeout(timer);timer=0;
+  if(!text&&!keys.length)return;
+  const payload={text,keys,userAgent:navigator.userAgent};text="";keys=[];box.value="";
+  const div=document.createElement("div");div.className="item";
+  div.innerHTML=`${esc(vis(payload.text))}<small>${new Date().toLocaleTimeString("fr-FR")} · ${payload.text.length} caractères · ${payload.keys.length} touches · <span>envoi…</span></small>`;
+  if(!count++)log.innerHTML="";log.prepend(div);while(log.children.length>8)log.lastChild.remove();
+  const s=div.querySelector("span");
+  fetch("/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+    .then(r=>{s.textContent=r.ok?"reçu par le PC":"refusé";s.className=r.ok?"sent":"err";})
+    .catch(()=>{s.textContent="PC injoignable";s.className="err";});
+}
+function arm(){clearTimeout(timer);timer=setTimeout(flush,150);}
+// Chaque touche est notée telle que le terminal l'envoie : c'est ce qui permet de voir un GS perdu ou un mauvais clavier.
+box.addEventListener("keydown",e=>{
+  keys.push({key:e.key,code:e.code,keyCode:e.keyCode,shift:e.shiftKey,ctrl:e.ctrlKey,alt:e.altKey});
+  if(e.key==="Enter"){e.preventDefault();text+="\r";flush();return;}
+  if(e.key==="Tab"){e.preventDefault();text+="\t";arm();return;}
+  if(e.ctrlKey&&e.key&&e.key.length===1){const c=e.key.toUpperCase().charCodeAt(0);if(c>=64&&c<96){e.preventDefault();text+=String.fromCharCode(c-64);arm();return;}}
+  if(e.key==="Unidentified"||e.keyCode===229){arm();return;}
+  arm();
+});
+// Le texte vient des événements de saisie (les claviers virtuels n'envoient pas toujours la touche).
+box.addEventListener("beforeinput",e=>{if(e.data){text+=e.data;arm();}else if(e.inputType==="insertLineBreak"){text+="\r";flush();}});
+box.addEventListener("input",()=>arm());
+})();
+</script>
+</body>
+</html>

@@ -32,6 +32,8 @@ const DEFAULTS={datamatrix:"SCANALYSE-0001",pdf417:"Scanalyse · PDF417 · exemp
   ean13:"300123456789",ean8:"9638507",upca:"03600029145",upce:"0123456",itf14:"1345312000001",databar:"0950600013435",
   code128:"LOT-2026-ABC",code39:"ABC-123",code93:"CODE93",codabar:"A12345B",itf:"12345678"};
 const byId=Object.fromEntries(TYPES.map(t=>[t.id,t]));
+// QR simple (sans personnalisation), pour les codes que dessine le programme (adresse du relais terminal…)
+byId.qrplain={id:"qrplain",fmt:"QRCode",label:"QR Code"};
 let current="qr";
 const values={};          // contenu saisi, par type
 let gs1Rows=null;         // champs GS1 partagés entre les types GS1
