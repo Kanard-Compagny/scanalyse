@@ -190,6 +190,38 @@
 
         <Border Style="{StaticResource Card}">
           <StackPanel>
+            <TextBlock Style="{StaticResource CardTitle}" Text="Mises à jour" />
+            <TextBlock Style="{StaticResource PageSubtitle}" TextWrapping="Wrap" Margin="0,4,0,12"
+                       Text="Scanalyse cherche une version plus récente dans le dossier de diffusion de l'équipe (partage réseau où l'on dépose le dernier Scanalyse.exe) et sur GitHub si le dépôt est public." />
+            <CheckBox x:Name="UpdateCheckBox" Style="{StaticResource CheckLine}" Content="Rechercher au démarrage" Checked="Option_Changed" Unchecked="Option_Changed" Margin="0,0,0,10" />
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Dossier de diffusion de l'équipe" />
+            <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="10,7" Margin="0,0,0,8">
+              <TextBlock x:Name="UpdateFolderText" FontFamily="{StaticResource MonoFont}" FontSize="12" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Ink}" />
+            </Border>
+            <WrapPanel>
+              <Button Style="{StaticResource BtnSecondary}" Content="Choisir…" Click="PickUpdateFolder_Click" Margin="0,0,8,8" />
+              <Button x:Name="UpdateFolderClear" Style="{StaticResource BtnGhost}" Content="Retirer" Click="ClearUpdateFolder_Click" Margin="0,0,8,8" />
+              <Button Style="{StaticResource BtnSecondary}" Content="Rechercher maintenant" Click="CheckUpdates_Click" Margin="0,0,0,8" />
+            </WrapPanel>
+            <TextBlock x:Name="UpdateStatus" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Muted}" />
+          </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Style="{StaticResource CardTitle}" Text="Profil d'équipe" />
+            <TextBlock Style="{StaticResource PageSubtitle}" TextWrapping="Wrap" Margin="0,4,0,12"
+                       Text="Un seul fichier pour configurer un nouveau poste : en-tête et logo des rapports, dossiers partagés (historique, rapports, étiquettes, mises à jour), réglages d'impression et d'enregistrement. Le nom du technicien et la langue restent propres à chaque poste." />
+            <WrapPanel>
+              <Button Style="{StaticResource BtnSecondary}" Content="Exporter le profil…" Click="ExportProfile_Click" Margin="0,0,8,8" />
+              <Button Style="{StaticResource BtnSecondary}" Content="Importer un profil…" Click="ImportProfile_Click" Margin="0,0,0,8" />
+            </WrapPanel>
+            <TextBlock x:Name="ProfileStatus" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Muted}" />
+          </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
             <TextBlock Style="{StaticResource CardTitle}" Text="Prise en main" />
             <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
                        Text="L'accueil présente Scanalyse et le choix des dossiers ; la visite guidée montre où se trouve chaque outil." />

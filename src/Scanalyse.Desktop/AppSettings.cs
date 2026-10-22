@@ -69,6 +69,12 @@ public sealed class AppSettings
     /// <summary>Chaque lecture reçue est comparée tout de suite à la référence.</summary>
     public bool AutoCompare { get; set; } = true;
 
+    /// <summary>Chercher une nouvelle version au démarrage.</summary>
+    public bool UpdateCheck { get; set; } = true;
+
+    /// <summary>Dossier de diffusion de l'équipe (partage réseau contenant la dernière version de Scanalyse.exe).</summary>
+    public string UpdateFolder { get; set; } = string.Empty;
+
     /// <summary>L'accueil du premier lancement a été vu (terminé ou passé).</summary>
     public bool WelcomeDone { get; set; }
 

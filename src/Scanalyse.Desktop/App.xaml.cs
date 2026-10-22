@@ -66,6 +66,7 @@ public partial class App : Application
         listener.Start();
 
         ThemeManager.Initialize(AppSettings.Load().Theme);
+        Updater.CleanupOld();
         var settings = AppSettings.Load();
         if (!settings.LanguageChosen && !settings.WelcomeDone)
         {

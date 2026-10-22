@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -73,6 +74,7 @@ public partial class MainWindow : Window
         Tour.IsVisibleChanged += (_, _) => Airspace();
         Welcome.HistoryFolder = () => _history.Folder;
         Welcome.HistoryFolderChangeRequested += ChangeHistoryFolderAsync;
+        Welcome.ImportProfile = SettingsPage.ImportTeamProfileAsync;
         Welcome.Finished += tour =>
         {
             if (tour)
@@ -83,6 +85,7 @@ public partial class MainWindow : Window
         SettingsPage.WelcomeRequested += () => Welcome.Show();
         SettingsPage.TourRequested += StartTour;
         SettingsPage.UninstallRequested += async folders => await UninstallAsync(folders);
+        SettingsPage.UpdateCheckRequested += async () => await CheckUpdatesAsync(silent: false);
         HistoryPage.ActiveCaseChanged += OnActiveCaseChanged;
         HistoryPage.ReopenRequested += OnReopenRequested;
         HistoryPage.ReportRequested = GenerateReportAsync;
@@ -170,6 +173,10 @@ public partial class MainWindow : Window
             _ = InitializeDevicesAsync();
             await LoadHistoryAsync();
             await StartAtelierAsync();
+            if (AppSettings.Load().UpdateCheck)
+            {
+                _ = CheckUpdatesAsync(silent: true);
+            }
         };
         Closing += async (_, e) =>
         {
@@ -825,6 +832,62 @@ public partial class MainWindow : Window
             new(CaseButton, "Dossier SAV en cours",
                 "Chaque analyse est rangée dans le dossier choisi ici. Retrouve-les dans « Historique » pour les renommer, les commenter et produire le rapport PDF du client."),
         ]);
+    }
+
+    // ------------------------------------------------------------------ Mises à jour
+
+    private Scanalyse.Core.Updates.AvailableUpdate? _update;
+
+    /// <summary>Cherche une nouvelle version ; en silence au démarrage (seul le bouton de la barre de titre apparaît).</summary>
+    private async Task CheckUpdatesAsync(bool silent)
+    {
+        var (update, message) = await Updater.CheckAsync(AppSettings.Load());
+        _update = update;
+        UpdateButton.Content = update is null ? string.Empty : string.Format(CultureInfo.InvariantCulture, Localization.T("Mise à jour {0}"), update.Version);
+        UpdateButton.Visibility = update is null ? Visibility.Collapsed : Visibility.Visible;
+        SettingsPage.ShowUpdateStatus(message, update is not null);
+        if (update is not null)
+        {
+            AddLog(LogKind.Info, "MISE À JOUR", message);
+            if (!silent)
+            {
+                await OfferUpdateAsync();
+            }
+        }
+    }
+
+    private async void UpdateButton_Click(object sender, RoutedEventArgs e) => await OfferUpdateAsync();
+
+    /// <summary>Propose d'installer la version trouvée (nouveautés en résumé), puis remplace le programme et redémarre.</summary>
+    private async Task OfferUpdateAsync()
+    {
+        if (_update is not { } u)
+        {
+            return;
+        }
+
+        var notes = string.Join(Environment.NewLine, u.Notes.Replace("\r", string.Empty, StringComparison.Ordinal).Split('\n')
+            .Select(l => l.Trim().TrimStart('#', '-', '*', ' ').Replace("**", string.Empty, StringComparison.Ordinal))
+            .Where(l => l.Length > 0)
+            .Take(8));
+        var ok = await Confirm.AskAsync(
+            string.Format(CultureInfo.InvariantCulture, Localization.T("Installer Scanalyse {0} ?"), u.Version),
+            (notes.Length > 0 ? notes + Environment.NewLine + Environment.NewLine : string.Empty)
+                + string.Format(CultureInfo.InvariantCulture, Localization.T("Version actuelle : {0}. Scanalyse va se fermer puis redémarrer dans la nouvelle version ; l'historique et les réglages sont conservés."), Updater.Current),
+            Localization.T("Installer et redémarrer"),
+            null,
+            danger: false);
+        if (!ok)
+        {
+            return;
+        }
+
+        AddLog(LogKind.Info, "MISE À JOUR", Localization.T("Installation de la mise à jour…"));
+        if (await Updater.InstallAsync(u) is { } error)
+        {
+            AddLog(LogKind.Error, "MISE À JOUR", error);
+            SettingsPage.ShowUpdateStatus(error, true);
+        }
     }
 
     // ------------------------------------------------------------------ Désinstallation

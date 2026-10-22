@@ -90,6 +90,8 @@ public partial class SettingsView : UserControl
         TechnicianBox.Text = s.ReportTechnician;
         ContactBox.Text = s.ReportContact;
         ShowLogo(s.ReportLogoPath);
+        UpdateCheckBox.IsChecked = s.UpdateCheck;
+        ShowUpdateFolder(s.UpdateFolder);
         _loadingOptions = false;
     }
 
@@ -116,6 +118,7 @@ public partial class SettingsView : UserControl
         }
 
         s.AutoCompare = AutoCompareCheck.IsChecked == true;
+        s.UpdateCheck = UpdateCheckBox.IsChecked == true;
         s.Print.Language = Selected(LangChips) ?? s.Print.Language;
         if (int.TryParse(Selected(DpiChips), out var dpi))
         {
@@ -332,6 +335,134 @@ public partial class SettingsView : UserControl
 
         using var reader = new StreamReader(stream);
         new DocWindow(title, reader.ReadToEnd()) { Owner = Window.GetWindow(this) }.Show();
+    }
+
+    // ------------------------------------------------------------------ Mises à jour
+
+    /// <summary>« Rechercher maintenant » : la fenêtre principale cherche et propose l'installation.</summary>
+    public event Action? UpdateCheckRequested;
+
+    /// <summary>Résultat de la dernière recherche de mise à jour.</summary>
+    public void ShowUpdateStatus(string message, bool available)
+    {
+        UpdateStatus.Text = message;
+        UpdateStatus.SetResourceReference(TextBlock.ForegroundProperty, available ? "BrandText" : "Muted");
+    }
+
+    private void ShowUpdateFolder(string folder)
+    {
+        UpdateFolderText.Text = string.IsNullOrWhiteSpace(folder) ? Localization.T("Aucun (GitHub seulement, si le dépôt est public)") : folder;
+        UpdateFolderClear.Visibility = string.IsNullOrWhiteSpace(folder) ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void PickUpdateFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var s = AppSettings.Load();
+        var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Localization.T("Dossier de diffusion de l'équipe (contient Scanalyse.exe)") };
+        if (Directory.Exists(s.UpdateFolder))
+        {
+            dialog.InitialDirectory = s.UpdateFolder;
+        }
+
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+        {
+            return;
+        }
+
+        s.UpdateFolder = dialog.FolderName;
+        s.Save();
+        ShowUpdateFolder(s.UpdateFolder);
+        UpdateCheckRequested?.Invoke();
+    }
+
+    private void ClearUpdateFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var s = AppSettings.Load();
+        s.UpdateFolder = string.Empty;
+        s.Save();
+        ShowUpdateFolder(string.Empty);
+    }
+
+    private void CheckUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        UpdateStatus.Text = Localization.T("Recherche en cours…");
+        UpdateCheckRequested?.Invoke();
+    }
+
+    // ------------------------------------------------------------------ Profil d'équipe
+
+    private void ExportProfile_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = Localization.T("Exporter le profil d'équipe"),
+            FileName = "Profil Scanalyse" + TeamProfile.Extension,
+            Filter = Localization.T("Profil d'équipe Scanalyse") + $" (*{TeamProfile.Extension})|*{TeamProfile.Extension}",
+            DefaultExt = TeamProfile.Extension,
+        };
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            TeamProfile.From(AppSettings.Load()).Save(dialog.FileName);
+            ProfileStatus.Text = Localization.T("Profil enregistré : ") + dialog.FileName + " " + Localization.T("Dépose-le sur le partage de l'équipe, puis « Importer un profil » sur chaque poste.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ProfileStatus.Text = Localization.T("Export impossible : ") + ex.Message;
+        }
+    }
+
+    private async void ImportProfile_Click(object sender, RoutedEventArgs e) => await ImportTeamProfileAsync();
+
+    /// <summary>Choisit un profil d'équipe, montre ce qu'il règle, puis l'applique (aussi proposé à l'accueil).</summary>
+    /// <returns><c>true</c> si un profil a été importé.</returns>
+    public async Task<bool> ImportTeamProfileAsync()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = Localization.T("Importer un profil d'équipe"),
+            Filter = Localization.T("Profil d'équipe Scanalyse") + $" (*{TeamProfile.Extension})|*{TeamProfile.Extension}",
+        };
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+        {
+            return false;
+        }
+
+        if (TeamProfile.Load(dialog.FileName) is not { } profile)
+        {
+            ProfileStatus.Text = Localization.T("Ce fichier n'est pas un profil d'équipe Scanalyse.");
+            return false;
+        }
+
+        var lines = string.Join(Environment.NewLine, profile.Summary().Select(l => "• " + l));
+        if (!await Dialogs.ConfirmAsync(Localization.T("Importer ce profil d'équipe ?"),
+                lines + Environment.NewLine + Environment.NewLine + Localization.T("Ces réglages remplacent ceux de ce poste. Le nom du technicien et la langue ne changent pas."),
+                Localization.T("Importer"), null, danger: false))
+        {
+            return false;
+        }
+
+        var s = AppSettings.Load();
+        profile.ApplyTo(s);
+        s.Save();
+        if (profile.HistoryFolder.Length > 0 && !string.Equals(profile.HistoryFolder, s.HistoryFolder, StringComparison.OrdinalIgnoreCase))
+        {
+            HistoryFolderChangeRequested?.Invoke(profile.HistoryFolder);
+        }
+
+        LoadOptions();
+        ShowFolders();
+        ProfileStatus.Text = Localization.T("Profil importé.") + (profile.CreatedBy.Length > 0 ? " " + string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("(créé par {0})"), profile.CreatedBy) : string.Empty);
+        if (profile.UpdateFolder.Length > 0)
+        {
+            UpdateCheckRequested?.Invoke();
+        }
+
+        return true;
     }
 
     // ------------------------------------------------------------------ Désinstallation

@@ -30,6 +30,25 @@
           <Image Source="/Assets/logo-64.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" />
           <TextBlock Text="Scanalyse" Margin="10,0,0,0" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource TitleInk}" VerticalAlignment="Center" />
           <TextBlock x:Name="VersionText" Margin="10,0,0,0" FontSize="12" Foreground="{DynamicResource TitleMuted}" VerticalAlignment="Center" />
+          <!-- Nouvelle version disponible (dossier de l'équipe ou GitHub) -->
+          <Button x:Name="UpdateButton" Visibility="Collapsed" Margin="12,0,0,0" Cursor="Hand" WindowChrome.IsHitTestVisibleInChrome="True"
+                  Click="UpdateButton_Click" ToolTip="Installer la nouvelle version de Scanalyse (redémarrage)">
+            <Button.Template>
+              <ControlTemplate TargetType="Button">
+                <Border x:Name="Bd" Background="{DynamicResource TitleHover}" CornerRadius="11" Padding="9,3,11,3">
+                  <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource Action}" VerticalAlignment="Center" />
+                    <TextBlock x:Name="UpdateText" Text="{TemplateBinding Content}" Margin="7,0,0,0" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TitleInk}" />
+                  </StackPanel>
+                </Border>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SideActiveBg}" />
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Button.Template>
+          </Button>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Style="{StaticResource BtnCaption}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Click" ToolTip="Réduire">
@@ -221,7 +240,7 @@
       </Grid>
 
       <!-- Confirmations (suppression, actions irréversibles) : par-dessus la barre d'outils et les pages -->
-      <views:ConfirmOverlay x:Name="Confirm" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="100" />
+      <views:ConfirmOverlay x:Name="Confirm" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="110" />
       <!-- Premier lancement : accueil, puis visite guidée -->
       <views:WelcomeOverlay x:Name="Welcome" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="101" />
       <views:TourOverlay x:Name="Tour" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="102" />

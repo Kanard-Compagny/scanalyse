@@ -16,6 +16,17 @@ public partial class WelcomeOverlay : UserControl
     /// <summary>Changement du dossier de l'historique (copie de l'existant faite par la fenêtre principale).</summary>
     public event Func<string, Task>? HistoryFolderChangeRequested;
 
+    /// <summary>Import d'un profil d'équipe (fait par les Paramètres) ; vrai si un profil a été importé.</summary>
+    public Func<Task<bool>>? ImportProfile { get; set; }
+
+    private async void ImportProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (ImportProfile is { } import && await import())
+        {
+            Refresh();
+        }
+    }
+
     /// <summary>Accueil terminé ; vrai si la visite guidée est demandée.</summary>
     public event Action<bool>? Finished;
 
