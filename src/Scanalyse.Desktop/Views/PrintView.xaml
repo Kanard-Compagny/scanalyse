@@ -24,8 +24,9 @@
 
 <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
   <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : rien n'est jamais coupé. -->
-  <Grid x:Name="PageGrid" MinHeight="780" Height="{Binding ViewportHeight, ElementName=PageScroll}">
+  <Grid x:Name="PageGrid" MinHeight="850" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
@@ -54,7 +55,61 @@
       </StackPanel>
     </DockPanel>
 
-    <Grid Grid.Row="1">
+    <!-- Imprimante : toujours au même endroit, en haut de la page -->
+    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
+      <StackPanel>
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="12,0,0,0" VerticalAlignment="Center" />
+          <TextBlock DockPanel.Dock="Left" Text="Imprimante" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
+          <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+            <RadioButton x:Name="ModeTcp" Style="{StaticResource Chip}" GroupName="Target" Content="Réseau (IP, port 9100)" IsChecked="True" Checked="Mode_Changed" Margin="0,0,6,0" />
+            <RadioButton x:Name="ModeQueue" Style="{StaticResource Chip}" GroupName="Target" Content="Installée sur ce PC" Checked="Mode_Changed" Margin="0,0,0,0" />
+          </StackPanel>
+          <Grid VerticalAlignment="Center">
+              <DockPanel x:Name="AddressPanel" Margin="0">
+                <Grid>
+                  <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" />
+                  <TextBlock x:Name="AddressHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
+                             Text="ex. 192.168.1.50 ou 192.168.1.50:6101" />
+                </Grid>
+              </DockPanel>
+              <StackPanel x:Name="QueuePanel" Visibility="Collapsed" Margin="0">
+                <Button x:Name="QueueButton" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="QueueButton_Click"
+                        ToolTip="Choisir l'imprimante (les données partent en mode RAW : le pilote ne les modifie pas)">
+                  <DockPanel LastChildFill="True">
+                    <TextBlock DockPanel.Dock="Right" Text="▾" FontSize="14" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                    <TextBlock x:Name="QueueCount" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                    <TextBlock x:Name="QueueSelected" Text="Choisir une imprimante…" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                  </DockPanel>
+                </Button>
+                <Popup x:Name="QueuePopup" PlacementTarget="{Binding ElementName=QueueButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True"
+                       Width="{Binding ActualWidth, ElementName=QueueButton}" PopupAnimation="Fade">
+                  <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,6,0,0">
+                    <StackPanel>
+                      <DockPanel Margin="0,0,0,8">
+                        <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Actualiser" Click="RefreshQueues_Click" Padding="8,2" Margin="8,0,0,0" />
+                        <Grid>
+                          <TextBox x:Name="QueueSearch" Style="{StaticResource FieldInput}" TextChanged="QueueSearch_TextChanged" />
+                          <TextBlock x:Name="QueueSearchHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
+                                     Text="Rechercher (nom, serveur…)" />
+                        </Grid>
+                      </DockPanel>
+                      <ScrollViewer x:Name="QueueScroll" MaxHeight="320" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <WrapPanel x:Name="QueueChips" />
+                      </ScrollViewer>
+                      <TextBlock x:Name="QueueHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"
+                                 Text="Les données partent en mode RAW : le pilote ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »)." />
+                    </StackPanel>
+                  </Border>
+                </Popup>
+              </StackPanel>
+          </Grid>
+        </DockPanel>
+        <TextBlock x:Name="SendStatus" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,6,0,0" />
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="5*" />
         <ColumnDefinition Width="18" />
@@ -291,13 +346,15 @@
                 <ColumnDefinition Width="*" />
               </Grid.ColumnDefinitions>
               <Border Background="{DynamicResource Surface2}" CornerRadius="8,0,0,8" BorderBrush="{DynamicResource Line}" BorderThickness="1,1,0,1" ClipToBounds="True">
-                <TextBlock x:Name="LineNumbers" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Muted}" TextAlignment="Right"
-                           MinWidth="34" Padding="8,0,8,0" Margin="0,9,0,0" Text="1" />
+                <Canvas Width="46" ClipToBounds="True">
+                  <TextBlock x:Name="LineNumbers" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Muted}" TextAlignment="Right"
+                             Width="46" Padding="0,0,8,0" Text="1" />
+                </Canvas>
               </Border>
               <!-- Coloration : le texte coloré est dessiné sous la zone de saisie, dont les caractères sont transparents. -->
               <Border Grid.Column="1" Background="{DynamicResource Surface2}" CornerRadius="0,8,8,0" />
-              <Canvas Grid.Column="1" Margin="11,9,11,9" ClipToBounds="True" IsHitTestVisible="False">
-                <TextBlock x:Name="CodeColors" Canvas.Left="2" Canvas.Top="0" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" />
+              <Canvas x:Name="CodeOverlay" Grid.Column="1" IsHitTestVisible="False">
+                <TextBlock x:Name="CodeColors" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" />
               </Canvas>
               <TextBox x:Name="CodeBox" Grid.Column="1" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
                        Background="Transparent" Foreground="Transparent" SelectionOpacity="0.35"
@@ -315,55 +372,12 @@
             </StackPanel>
 
             <StackPanel Grid.Row="4" Margin="0,12,0,0">
-              <TextBlock Style="{StaticResource FieldLabel}" Text="Imprimante" Margin="0,0,0,6" />
               <WrapPanel>
-                <RadioButton x:Name="ModeTcp" Style="{StaticResource Chip}" GroupName="Target" Content="Réseau (adresse IP, port 9100)" IsChecked="True" Checked="Mode_Changed" />
-                <RadioButton x:Name="ModeQueue" Style="{StaticResource Chip}" GroupName="Target" Content="Imprimante installée sur ce PC" Checked="Mode_Changed" />
-              </WrapPanel>
-              <DockPanel x:Name="AddressPanel" Margin="0,4,0,0">
-                <Grid>
-                  <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" />
-                  <TextBlock x:Name="AddressHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
-                             Text="ex. 192.168.1.50 ou 192.168.1.50:6101" />
-                </Grid>
-              </DockPanel>
-              <StackPanel x:Name="QueuePanel" Visibility="Collapsed" Margin="0,4,0,0">
-                <Button x:Name="QueueButton" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="QueueButton_Click"
-                        ToolTip="Choisir l'imprimante (les données partent en mode RAW : le pilote ne les modifie pas)">
-                  <DockPanel LastChildFill="True">
-                    <TextBlock x:Name="QueueCount" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" />
-                    <TextBlock x:Name="QueueSelected" Text="Choisir une imprimante…" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                  </DockPanel>
-                </Button>
-                <Popup x:Name="QueuePopup" PlacementTarget="{Binding ElementName=QueueButton}" Placement="Top" StaysOpen="False" AllowsTransparency="True"
-                       Width="{Binding ActualWidth, ElementName=QueueButton}" PopupAnimation="Fade">
-                  <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,6">
-                    <StackPanel>
-                      <DockPanel Margin="0,0,0,8">
-                        <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Actualiser" Click="RefreshQueues_Click" Padding="8,2" Margin="8,0,0,0" />
-                        <Grid>
-                          <TextBox x:Name="QueueSearch" Style="{StaticResource FieldInput}" TextChanged="QueueSearch_TextChanged" />
-                          <TextBlock x:Name="QueueSearchHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
-                                     Text="Rechercher (nom, serveur…)" />
-                        </Grid>
-                      </DockPanel>
-                      <ScrollViewer x:Name="QueueScroll" MaxHeight="320" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <WrapPanel x:Name="QueueChips" />
-                      </ScrollViewer>
-                      <TextBlock x:Name="QueueHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"
-                                 Text="Les données partent en mode RAW : le pilote ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »)." />
-                    </StackPanel>
-                  </Border>
-                </Popup>
-              </StackPanel>
-              <WrapPanel Margin="0,12,0,0">
-                <Button Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="0,0,8,8" />
-                <Button Style="{StaticResource BtnSecondary}" Content="Copier" Click="Copy_Click" Margin="0,0,8,8" />
-                <Button Style="{StaticResource BtnSecondary}" Content="Enregistrer…" Click="Save_Click" Margin="0,0,8,8" />
-                <Button x:Name="RegenerateButton" Style="{StaticResource BtnGhost}" Content="Régénérer" Click="Regenerate_Click" Margin="0,0,0,8"
+                <Button Style="{StaticResource BtnSecondary}" Content="Copier" Click="Copy_Click" Margin="0,0,8,0" />
+                <Button Style="{StaticResource BtnSecondary}" Content="Enregistrer…" Click="Save_Click" Margin="0,0,8,0" />
+                <Button x:Name="RegenerateButton" Style="{StaticResource BtnGhost}" Content="Régénérer" Click="Regenerate_Click"
                         ToolTip="Abandonne les retouches manuelles et repart des réglages" />
               </WrapPanel>
-              <TextBlock x:Name="SendStatus" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed" />
             </StackPanel>
           </Grid>
         </Border>

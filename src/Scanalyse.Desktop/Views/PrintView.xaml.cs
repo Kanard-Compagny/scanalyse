@@ -58,11 +58,9 @@ public partial class PrintView : UserControl
 
         DataBox.Text = "SCANALYSE-0001";
         // Numéros de ligne et texte coloré : ils suivent le défilement du programme.
-        CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, e) =>
-        {
-            LineNumbers.RenderTransform = new TranslateTransform(0, -e.VerticalOffset);
-            CodeColors.RenderTransform = new TranslateTransform(-e.HorizontalOffset, -e.VerticalOffset);
-        }));
+        CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, _) => AlignOverlay()));
+        CodeBox.SizeChanged += (_, _) => AlignOverlay();
+        CodeBox.Loaded += (_, _) => Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
         _colorTimer.Tick += (_, _) => Recolor();
         BuildLegend();
         _readTimer.Tick += async (_, _) =>
@@ -717,6 +715,7 @@ public partial class PrintView : UserControl
         ViewChips.Opacity = Detached ? 0.45 : 1;
         ViewChips.ToolTip = Detached ? "Le programme est dans sa propre fenêtre : l'aperçu prend toute la place ici." : null;
         CodeBox.FontSize = CodeColors.FontSize = LineNumbers.FontSize = zoom == Zoom.Program || Detached ? 14 : 13;
+        Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
         if (_zplZoom is null && ZplImage.Source is not null)
         {
             Dispatcher.BeginInvoke(new Action(ApplyZplTransform), DispatcherPriority.Loaded);
@@ -873,15 +872,54 @@ public partial class PrintView : UserControl
         {
             var run = new System.Windows.Documents.Run(text.Substring(t.Start, t.Length));
             run.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, ColorKey(t.Kind));
-            if (t.Kind is SyntaxKind.Structure or SyntaxKind.Position or SyntaxKind.Text or SyntaxKind.Barcode or SyntaxKind.Graphic)
-            {
-                run.FontWeight = FontWeights.SemiBold;
-            }
-
             CodeColors.Inlines.Add(run);
         }
 
         Legend.Visibility = text.Contains('^', StringComparison.Ordinal) ? Visibility.Visible : Visibility.Collapsed;
+        Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Cale le texte coloré et les numéros de ligne sur la position réelle du texte dans la zone de saisie
+    /// (mesurée par la zone elle-même : marges internes, défilement et hauteur de ligne compris).
+    /// </summary>
+    private void AlignOverlay()
+    {
+        if (!CodeBox.IsLoaded || CodeBox.Template?.FindName("PART_ContentHost", CodeBox) is not ScrollViewer host)
+        {
+            return;
+        }
+
+        try
+        {
+            var origin = host.TranslatePoint(new Point(0, 0), CodeBox);
+            CodeOverlay.Clip = new RectangleGeometry(new Rect(origin.X, origin.Y, Math.Max(0, host.ViewportWidth), Math.Max(0, host.ViewportHeight)));
+            var first = CodeBox.GetRectFromCharacterIndex(0);
+            if (first.IsEmpty || double.IsInfinity(first.Top))
+            {
+                return;
+            }
+
+            if (CodeBox.LineCount > 1)
+            {
+                var second = CodeBox.GetRectFromCharacterIndex(CodeBox.GetCharacterIndexFromLineIndex(1));
+                var lineHeight = second.Top - first.Top;
+                if (lineHeight > 4 && lineHeight < 80)
+                {
+                    CodeColors.LineStackingStrategy = LineNumbers.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+                    CodeColors.LineHeight = LineNumbers.LineHeight = lineHeight;
+                }
+            }
+
+            Canvas.SetLeft(CodeColors, first.Left);
+            Canvas.SetTop(CodeColors, first.Top);
+            // La gouttière commence sous la bordure de la zone (1 point) : même référence verticale.
+            Canvas.SetTop(LineNumbers, first.Top - 1);
+        }
+        catch (InvalidOperationException)
+        {
+            // Mise en page pas encore prête : on recalera au prochain passage.
+        }
     }
 
     private void BuildLegend()
@@ -986,7 +1024,7 @@ public partial class PrintView : UserControl
             ? "Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne."
             : "Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire.";
         PasteProgramButton.Content = on ? "Coller un autre programme" : "Coller un programme client";
-        PageGrid.MinHeight = on ? 840 : 780;
+        PageGrid.MinHeight = on ? 910 : 850;
         RegenerateButton.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         WarningsList.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         EditedNote.Visibility = Visibility.Collapsed;
