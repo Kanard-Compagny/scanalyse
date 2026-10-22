@@ -29,7 +29,8 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") } else { $v = "0.9.0-dev.${{ github.run_number }}" }
+          $prefix = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.VersionPrefix
+          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") } else { $v = "$prefix-dev.${{ github.run_number }}" }
           "value=$v" >> $env:GITHUB_OUTPUT
 
       - name: Exécutable portable
