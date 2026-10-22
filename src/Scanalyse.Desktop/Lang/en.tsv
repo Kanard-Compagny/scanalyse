@@ -70,6 +70,7 @@ ASCII complet, plus compact que le Code 39.	Full ASCII, more compact than Code 3
 ASCII complet.	Full ASCII.
 ATELIER	WORKSHOP
 Abandonne les retouches manuelles et repart des réglages	Discards manual edits and starts again from the settings
+Accents et caractères spéciaux en UTF-8 (^CI28) : le fichier doit être envoyé encodé en UTF-8.	Accents and special characters in UTF-8 (^CI28): the file must be sent UTF-8 encoded.
 Accepte <GS>, <RS>… et la forme « (01)… » pour GS1	Accepts <GS>, <RS>… and the “(01)…” form for GS1
 Accepter aussi les terminaux en Wi-Fi (même réseau que le PC)	Also accept terminals over Wi-Fi (same network as the PC)
 Accès au presse-papiers refusé	Clipboard access denied
@@ -164,6 +165,7 @@ Aucun	None
 Aucun QR dans l'atelier	No QR in the workshop
 Aucun aperçu	No preview
 Aucun code détecté	No code detected
+Aucun code n'a pu être lu sur cette image.	No code could be read on this image.
 Aucun code-barres	No barcode
 Aucun code-barres trouvé	No barcode found
 Aucun port COM, scanner HID POS ni caméra trouvé. La douchette est sans doute en mode clavier : voir « Passer en liaison directe » plus bas.	No COM port, HID POS scanner or camera found. The scanner is probably in keyboard mode: see “Switch to a direct link” below.
@@ -176,6 +178,7 @@ Aucune analyse dans ce dossier pour l'instant.	No analysis in this case yet.
 Aucune analyse dans ce dossier pour l'instant. Analyse une image ou compare une lecture : elle s'enregistre ici.	No analysis in this case yet. Analyze an image or compare a reading: it is saved here.
 Aucune analyse ne correspond à la recherche.	No analysis matches the search.
 Aucune analyse à mettre dans le rapport (dossier vide, ou toutes les analyses sont décochées).	No analysis to put in the report (empty case, or all analyses are unchecked).
+Aucune anomalie relevée sur les analyses de ce dossier.	No anomaly found in this case's analyses.
 Aucune caméra détectée.	No camera detected.
 Aucune caméra trouvée. Branche une webcam ou une caméra document, puis réessaie.	No camera found. Plug in a webcam or a document camera, then try again.
 Aucune capture reçue.	No capture received.
@@ -186,6 +189,7 @@ Aucune symbologie ne correspond.	No symbology matches.
 Augmente le délai « même code » (same symbol timeout) ou passe en lecture déclenchée.	Increase the same symbol timeout or switch to triggered reading.
 Australie	Australia
 Autorisation refusée : la règle de pare-feu n'a pas été ajoutée.	Permission denied: the firewall rule was not added.
+Autoriser	Allow
 Autoriser Scanalyse dans le pare-feu	Allow Scanalyse in the firewall
 Autorité de certification	Certification authority
 Autriche	Austria
@@ -242,6 +246,8 @@ Caractère nul	Null character
 Caractères	Characters
 Caractères * du Code 39 transmis	Code 39 * characters transmitted
 Caractères accentués mal transmis	Accented characters badly transmitted
+Caractères accentués sans ^CI28 : l'imprimante utilise sa page de codes 850. {0}. Pour imprimer les accents tels quels, ajoute ^CI28 après ^XA et envoie le fichier en UTF-8.	Accented characters without ^CI28: the printer uses its code page 850. {0}. To print accents as they are, add ^CI28 after ^XA and send the file in UTF-8.
+Caractères de contrôle encodés en hexadécimal (^FH) : ils sont bien transmis au code.	Control characters encoded in hexadecimal (^FH): they are transmitted to the code.
 Caractères invisibles : écris	Invisible characters: write
 Caractères invisibles : écris <GS>, <RS>, <EOT>, <CR>…	Invisible characters: write <GS>, <RS>, <EOT>, <CR>…
 Caractéristiques techniques	Technical characteristics
@@ -259,6 +265,7 @@ Cartons, logistique, entrepôts	Cartons, logistics, warehouses
 Catégorie	Category
 Ce code contient un mot de passe Wi-Fi lisible par n'importe quel lecteur : ne le diffuse pas au-delà des personnes qui préparent les terminaux.	This code contains a Wi-Fi password readable by any reader: don't share it beyond the people preparing the terminals.
 Ce code contient une clé secrète de connexion. Ne le partage pas et ne le publie pas.	This code contains a secret login key. Don't share or publish it.
+Ce dossier ne contient encore aucune analyse.	This case doesn't contain any analysis yet.
 Ce format n'est pas pris en charge par le navigateur (par exemple HEIC). Convertis l'image en PNG ou JPG, ou fais une capture d'écran.	This format is not supported by the browser (for example HEIC). Convert the image to PNG or JPG, or take a screenshot.
 Ce n'est pas le même code	It's not the same code
 Ce navigateur ne donne pas accès à la caméra.	This browser doesn't give access to the camera.
@@ -301,6 +308,7 @@ Chypre	Cyprus
 Clair	Light
 Classification carcasse (UN/ECE)	Carcass classification (UN/ECE)
 Classification de carcasse (UN/ECE)	Carcass classification (UN/ECE)
+Clavier	Keyboard
 Client / site	Customer / site
 Clique pour renommer l'analyse (problème rencontré, repère…). Vide : nom automatique.	Click to rename the analysis (problem found, marker…). Empty: automatic name.
 Clique sur un élément de l'étiquette pour voir sa ligne et son détail	Click an element of the label to see its line and details
@@ -363,8 +371,11 @@ Coller un autre programme	Paste another program
 Coller un programme client	Paste a customer program
 Coller une image	Paste an image
 Colombie	Colombia
+Commandes non dessinées dans l'aperçu : {0}.	Commands not drawn in the preview: {0}.
 Comme Windows	Like Windows
 Commence et termine par A, B, C ou D.	Starts and ends with A, B, C or D.
+Commencer	Start
+Commentaire de l'intervenant	Technician's comment
 Comparaison douchette	Scanner comparison
 Comparaison douchette · {0}	Scanner comparison · {0}
 Comparaison non enregistrée :	Comparison not saved:
@@ -393,12 +404,15 @@ Contenu compressé et signé : il faut une application dédiée pour le lire.	Co
 Contenu compressé non décodable ici (profil chiffré ou partiel).	Compressed content that can't be decoded here (encrypted or partial profile).
 Contenu copié.	Content copied.
 Contenu des codes dans le rapport :	Code content in the report:
+Contenu du code	Code content
+Contenu du code détaillé	Detailed code content
 Contenu du programme	Program content
 Contenu refusé par le	Content refused by the
 Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.	Content taken from the test bench: choose the code type if needed, then export or print.
 Contenu tel que lu et octets en hexadécimal : pour un intégrateur ou un éditeur de logiciel	Content as read and bytes in hexadecimal: for an integrator or software vendor
 Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.	Content, colors, module and finder shapes, central logo. The preview updates live and checks that the code stays readable.
 Contient des caractères invisibles : {0}.	Contains invisible characters: {0}.
+Continuer	Continue
 Contraste de symbole	Symbol contrast
 Contraste faible	Low contrast
 Contraste insuffisant ({0}:1) entre barres et fond.	Insufficient contrast ({0}:1) between bars and background.
@@ -440,6 +454,7 @@ Créer ce type de code	Create this type of code
 Créer un code	Create a code
 Créer un code ·	Create a code ·
 Créer une étiquette	Create a label
+Créé le	Created on
 D (UCC/EAN : GS1 automatique)	D (UCC/EAN: automatic GS1)
 DOUCHETTE	SCANNER
 DPL : la rotation tourne le code autour de son point d'ancrage ; vérifie sa position sur l'étiquette.	DPL: rotation turns the code around its anchor point; check its position on the label.
@@ -499,6 +514,7 @@ Données reçues : clique dans le champ puis scanne avec la douchette (Entrée e
 Données sans préfixe « QA, » / « MA, » : les premiers caractères sont pris pour des réglages et n'apparaissent pas dans le code.	Data without “QA,” / “MA,” prefix: the first characters are taken as settings and don't appear in the code.
 Données tronquées : {0} caractères reçus sur {1}	Truncated data: {0} characters received out of {1}
 Données vérifiées : clés de contrôle et codes GS1 conformes.	Data checked: check digits and GS1 codes compliant.
+Dossier	Case
 Dossier :	Case:
 Dossier : Non classé	Case: Unfiled
 Dossier : {0}	Case: {0}
@@ -545,6 +561,7 @@ Désignation	Description
 Désignation, EAN-13 de vente et GS1 DataMatrix avec GTIN, lot et date limite.	Description, retail EAN-13 and GS1 DataMatrix with GTIN, lot and expiry date.
 Désinstaller	Uninstall
 Détacher	Detach
+Détail des analyses	Analysis details
 Détaillé	Detailed
 Dézoomer	Zoom out
 Dézoomer (Ctrl + molette)	Zoom out (Ctrl + wheel)
@@ -602,6 +619,7 @@ Facturer à (GLN)	Bill to (GLN)
 Fermer	Close
 Fermer (Échap)	Close (Esc)
 Fiche de référence de chaque type de code : ce qu'il sait encoder, sa capacité, ses usages et sa norme.	Reference sheet for each code type: what it can encode, its capacity, its uses and its standard.
+Fiche détaillée non enregistrée (analyse faite avec une version précédente) : rouvre l'analyse depuis l'historique pour la compléter.	Detailed sheet not saved (analysis made with a previous version): reopen the analysis from the history to complete it.
 Fichier .zpl, .prn ou .txt envoyé par le client (tu peux aussi le glisser sur la page)	.zpl, .prn or .txt file sent by the customer (you can also drop it on the page)
 Fichier enregistré :	File saved:
 Fichier image ou photo	Image file or photo
@@ -701,6 +719,7 @@ ITIP des pièces contenues	ITIP of contained pieces
 Identifiant d'application	Application identifier
 Identifiant d'application inconnu.	Unknown application identifier.
 Identifiant d'application {0} (non répertorié)	Application identifier {0} (not listed)
+Identifiant de symbologie	Symbology identifier
 Identifiant de symbologie AIM non répertorié	Unlisted AIM symbology identifier
 Identifiant de symbologie ajouté : {0}	Symbology identifier added: {0}
 Image	Image
@@ -828,6 +847,9 @@ Le moteur Edge WebView2 n'est pas disponible : enregistre le rapport en HTML et 
 Le presse-papiers est occupé par une autre application : réessaie.	The clipboard is used by another application: try again.
 Le presse-papiers ne contient pas de texte : copie d'abord le programme du client (Ctrl + A puis Ctrl + C dans son fichier), ou utilise « Ouvrir un fichier ».	The clipboard contains no text: first copy the customer's program (Ctrl + A then Ctrl + C in their file), or use “Open a file”.
 Le programme est dans sa propre fenêtre : l'aperçu prend toute la place ici.	The program is in its own window: the preview takes all the space here.
+Le programme ne fixe ni la largeur (^PW) ni la longueur (^LL) : ce sont les réglages de l'imprimante qui s'appliquent. L'aperçu s'ajuste au contenu.	The program sets neither the width (^PW) nor the length (^LL): the printer's settings apply. The preview adapts to the content.
+Le programme ne fixe pas la largeur (^PW) : ce sont les réglages de l'imprimante qui s'appliquent. L'aperçu s'ajuste au contenu.	The program doesn't set the width (^PW): the printer's settings apply. The preview adapts to the content.
+Le programme ne fixe pas la longueur (^LL) : ce sont les réglages de l'imprimante qui s'appliquent. L'aperçu s'ajuste au contenu.	The program doesn't set the length (^LL): the printer's settings apply. The preview adapts to the content.
 Le programme ne fixe {0} : ce sont les réglages de l'imprimante qui s'appliquent. L'aperçu s'ajuste au contenu.	The program sets {0}: the printer's settings apply. The preview adapts to the content.
 Le préfixe GS1 indique le pays de l'organisation qui a attribué le numéro, pas le pays de fabrication.	The GS1 prefix shows the country of the organization that assigned the number, not the country of manufacture.
 Le scanner ajoute le caractère de début de texte devant les données.	The scanner adds the start-of-text character before the data.
@@ -858,6 +880,7 @@ Les données utiles sont identiques au contenu du code.	The useful data is ident
 Les espaces servent seulement à aérer le texte lisible : ils ne sont pas encodés.	Spaces only make the human-readable text easier to read: they are not encoded.
 Les lettres sont identiques mais pas leur casse : verrouillage majuscules actif sur le PC, ou conversion de casse réglée dans le scanner.	The letters are identical but not their case: caps lock on the PC, or case conversion set in the scanner.
 Les minuscules sont converties en majuscules.	Lowercase letters are converted to uppercase.
+Les numéros sur l'image renvoient aux fiches ci-dessous.	The numbers on the image refer to the sheets below.
 Les systèmes GS1 risquent de le refuser : active le mode GS1 dans le logiciel d'étiquetage.	GS1 systems may reject it: enable GS1 mode in the labeling software.
 Les séparateurs FNC1 / GS sont ajoutés automatiquement là où il le faut. La clé du GTIN et du SSCC est calculée si tu saisis le numéro sans elle.	FNC1 / GS separators are added automatically where needed. The check digit of the GTIN and SSCC is computed if you enter the number without it.
 Les zéros au début du code ont disparu. Ce n'est presque jamais le scanner : c'est l'application qui convertit le code en nombre (Excel, champ numérique…).	The zeros at the start of the code disappeared. It's almost never the scanner: the application converts the code into a number (Excel, numeric field…).
@@ -882,6 +905,9 @@ Lien web	Web link
 Liens web, Wi-Fi, paiement, GS1 Digital Link, traçabilité	Web links, Wi-Fi, payment, GS1 Digital Link, traceability
 Lieu	Location
 Lieu de production (GLN)	Production location (GLN)
+Ligne {0} : champ placé à x = {1}, au-delà de la largeur ^PW{2} : il ne s'imprime pas.	Line {0}: field placed at x = {1}, beyond the width ^PW{2}: it doesn't print.
+Ligne {0} : champ placé à y = {1}, au-delà de la longueur ^LL{2}.	Line {0}: field placed at y = {1}, beyond the length ^LL{2}.
+Ligne {0} : champ sans position (^FO ou ^FT) : il s'imprime en haut à gauche.	Line {0}: field without position (^FO or ^FT): it prints at the top left.
 Lignes de lecture concordantes	Matching scan lines
 Lire en direct	Read live
 Lire le programme ZPL d'un client, partir d'un modèle ou recréer un code, et l'envoyer à l'imprimante.	Read a customer's ZPL program, start from a template or recreate a code, and send it to the printer.
@@ -930,6 +956,7 @@ Mode clavier (émulation)	Keyboard mode (emulation)
 Modifiable : chaque ligne peut être retouchée, l'envoi part tel quel	Editable: every line can be changed, it is sent as is
 Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne.	Edit the lines directly: the preview and analysis update. “Show line” on a code takes you to its line.
 Modifier le pare-feu Windows ?	Change the Windows firewall?
+Module (^BY)	Module (^BY)
 Module : {0} mm ({1} point à {2} dpi). Code : {3} × {4} mm hors marges ({5} × {6} modules).	Module: {0} mm ({1} dot at {2} dpi). Code: {3} × {4} mm without margins ({5} × {6} modules).
 Module : {0} mm ({1} points à {2} dpi). Code : {3} × {4} mm hors marges ({5} × {6} modules).	Module: {0} mm ({1} dots at {2} dpi). Code: {3} × {4} mm without margins ({5} × {6} modules).
 Module de {0} mm : GS1 demande au moins 0,264 mm en point de vente (0,33 mm recommandé).	Module of {0} mm: GS1 requires at least 0.264 mm at point of sale (0.33 mm recommended).
@@ -1032,6 +1059,8 @@ Partie	Part
 Partie (GLN)	Party (GLN)
 Partir d'un modèle	Start from a template
 Pas d'image dans le presse-papiers	No image in the clipboard
+Pas de ^XA : l'imprimante n'interprète pas ce texte comme une étiquette.	No ^XA: the printer doesn't interpret this text as a label.
+Pas de ^XZ à la fin : l'étiquette n'est jamais imprimée (l'imprimante attend la suite).	No ^XZ at the end: the label is never printed (the printer waits for the rest).
 Pas de référence : chaque lecture est simplement analysée. Colle ici le contenu attendu, envoie un code depuis « Analyser une image », ou prends une lecture comme référence.	No reference: each reading is simply analyzed. Paste the expected content here, send a code from “Analyze an image”, or take a reading as reference.
 Pas de réponse de {0}:{1} en 5 secondes : vérifie l'adresse IP, que l'imprimante est allumée et sur le même réseau.	No answer from {0}:{1} within 5 seconds: check the IP address, that the printer is on and on the same network.
 Passer	Skip
@@ -1072,6 +1101,7 @@ Poids net, kg (3 décimales)	Net weight, kg (3 decimals)
 Point intérieur	Inner dot
 Points de fidélité	Loyalty points
 Points par module	Dots per module
+Points relevés	Findings
 Points à vérifier	Points to check
 Police, texte (^A ^CF)	Font, text (^A ^CF)
 Pologne	Poland
@@ -1164,6 +1194,7 @@ Rapport client ({0} dossiers)	Customer report ({0} cases)
 Rapport d'analyse des codes-barres	Barcode analysis report
 Rapport du dossier (PDF)	Case report (PDF)
 Rapport enregistré : {0}	Report saved: {0}
+Rapport généré par Scanalyse	Report generated by Scanalyse
 Rapport non créé :	Report not created:
 Rapports PDF	PDF reports
 Rattacher le programme à la page	Reattach the program to the page
@@ -1178,6 +1209,7 @@ Rechercher : contenu, GTIN, lot, source…	Search: content, GTIN, lot, source…
 Rechercher : nom, usage, norme, caractères…	Search: name, use, standard, characters…
 Rechercher les terminaux branchés en USB	Search for terminals connected over USB
 Rechercher à nouveau les douchettes branchées	Search again for connected scanners
+Reconnecter	Reconnect
 Recréer ce code	Recreate this code
 Redirection du port {0} refusée : {1}	Port {0} forwarding refused: {1}
 Relais limité aux terminaux branchés en USB.	Relay limited to terminals connected over USB.
@@ -1204,6 +1236,7 @@ Retour chariot (touche Entrée)	Carriage return (Enter key)
 Revenir à côté du programme	Back next to the program
 Revoir l'accueil	Show welcome again
 Reçu ({0} caractères) : {1}	Received ({0} characters): {1}
+Reçu de la douchette	Received from the scanner
 Reçu en direct · {0} · {1} octets	Received live · {0} · {1} bytes
 Rien à analyser : corrige d'abord le contenu.	Nothing to analyze: fix the content first.
 Rien à envoyer : la combinaison langage / symbologie n'est pas prise en charge.	Nothing to send: this language / symbology combination is not supported.
@@ -1305,6 +1338,7 @@ Surface logistique	Logistic area
 Surfaces étroites (bords de cartons, tubes)	Narrow surfaces (box edges, tubes)
 Suède	Sweden
 Symbologie	Symbology
+Symbologie annoncée	Announced symbology
 Synthèse	Summary
 Système	System
 Sécurité	Security
@@ -1431,6 +1465,7 @@ WEP (obsolète)	WEP (obsolete)
 WEP est un chiffrement obsolète et facile à casser.	WEP is an obsolete encryption that is easy to break.
 Webcams et caméras document : lecture des codes en direct dans « Analyser une image ».	Webcams and document cameras: live code reading in “Analyze an image”.
 Windows bloque l'accès : Paramètres Windows › Confidentialité et sécurité › Caméra, active « Autoriser les applications de bureau à accéder à votre caméra ».	Windows blocks access: Windows Settings › Privacy & security › Camera, turn on “Let desktop apps access your camera”.
+ZPL : le QR Code (^BQ) ne se tourne pas ; il est imprimé à l'endroit.	ZPL: the QR Code (^BQ) can't be rotated; it is printed upright.
 ZXing indisponible	ZXing unavailable
 Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Citizen…)	Zebra, and most printers with ZPL emulation (Honeywell, SATO, TSC, Citizen…)
 Zone de capture	Catch area
@@ -1438,6 +1473,8 @@ Zone de silence	Quiet zone
 Zones de silence (marges blanches)	Quiet zones (white margins)
 Zoomer (Ctrl + molette)	Zoom in (Ctrl + wheel)
 Zéros de tête supprimés	Leading zeros removed
+^POI : l'étiquette est imprimée tête-bêche (tournée de 180°). L'aperçu la montre telle qu'elle a été dessinée.	^POI: the label is printed upside down (rotated 180°). The preview shows it as designed.
+^PQ{0} : {0} exemplaires à chaque envoi.	^PQ{0}: {0} copies with each send.
 absent (installer « WebView2 Runtime » de Microsoft)	missing (install Microsoft's “WebView2 Runtime”)
 absente : le message est peut-être tronqué.	missing: the message may be truncated.
 adb n'a pas démarré.	adb did not start.
@@ -1536,6 +1573,7 @@ préfixe illisible	unreadable prefix
 préfixe non attribué	unassigned prefix
 quantité	quantity
 rMQR (QR rectangulaire)	rMQR (rectangular QR)
+rien	nothing
 rotation {0}°	rotation {0}°
 référence article du client	customer part number
 référence article du fournisseur	supplier part number
@@ -1581,9 +1619,12 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} analyse de plus de {1} jours supprimée (Paramètres → Historique).	{0} analysis older than {1} days deleted (Settings → History).
 {0} analyses	{0} analyses
 {0} analyses de plus de {1} jours supprimées (Paramètres → Historique).	{0} analyses older than {1} days deleted (Settings → History).
+{0} caractères (détail ci-dessous)	{0} characters (details below)
 {0} caractères · {1}	{0} characters · {1}
 {0} caractères · {1} octets	{0} characters · {1} bytes
+{0} champ texte vide (que des espaces) : donnée absente côté logiciel ?	{0} empty text field (spaces only): data missing on the software side?
 {0} champ vide (séparateurs consécutifs) : normal pour un format positionnel, à vérifier sinon.	{0} empty field (consecutive separators): normal for a positional format, check otherwise.
+{0} champs texte vides (que des espaces) : donnée absente côté logiciel ?	{0} empty text fields (spaces only): data missing on the software side?
 {0} champs vides (séparateurs consécutifs) : normal pour un format positionnel, à vérifier sinon.	{0} empty fields (consecutive separators): normal for a positional format, check otherwise.
 {0} chiffres (ou {1} avec la clé) attendus : {2} saisis.	{0} digits (or {1} with the check digit) expected: {2} entered.
 {0} code détecté	{0} code detected

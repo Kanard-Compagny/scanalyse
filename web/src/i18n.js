@@ -33,7 +33,9 @@
     exact=new Map();patterns=[];prefixes=[];
     for(const [fr,en] of entries){
       if(/\{\d+\}/.test(fr)){
-        const re=new RegExp("^"+esc(fr).replace(/\\\{(\d+)\\\}/g,(x,n)=>`(?<s${n}>[\\s\\S]+?)`)+"$");
+        // Une partie variable répétée ({0} … {0}) : la seconde occurrence renvoie à la première.
+        const seen=new Set();
+        let re;try{re=new RegExp("^"+esc(fr).replace(/\\\{(\d+)\\\}/g,(x,n)=>{if(seen.has(n))return `\\k<s${n}>`;seen.add(n);return `(?<s${n}>[\\s\\S]+?)`;})+"$");}catch(e){continue;}
         patterns.push({re,en,fixed:fr.replace(slot,"").length});
       }else{exact.set(fr,en);if(/[:·]$/.test(fr))prefixes.push({fr:fr+" ",en:en+" "});}
     }
