@@ -138,6 +138,26 @@ internal static partial class Localization
         return text;
     }
 
+    /// <summary>Traduit les textes d'une page HTML (rapport) : le contenu entre les balises, hors styles et scripts.</summary>
+    public static string TranslateHtml(string html)
+    {
+        if (!IsEnglish)
+        {
+            return html;
+        }
+
+        html = html.Replace("<html lang=\"fr\">", "<html lang=\"en\">", StringComparison.Ordinal);
+        return HtmlText().Replace(html, m =>
+        {
+            var text = System.Net.WebUtility.HtmlDecode(m.Groups[1].Value);
+            var en = T(text);
+            return en == text ? m.Value : ">" + System.Net.WebUtility.HtmlEncode(en) + "<";
+        });
+    }
+
+    [GeneratedRegex(@">([^<>]*[A-Za-zÀ-ÿ][^<>]*)<")]
+    private static partial Regex HtmlText();
+
     // ------------------------------------------------------------------ Interface WPF
 
     private static readonly DependencyProperty HookedProperty =

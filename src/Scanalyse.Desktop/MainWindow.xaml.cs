@@ -630,6 +630,7 @@ public partial class MainWindow : Window
         var v = Assembly.GetExecutingAssembly().GetName().Version;
         var html = ReportBuilder.Build(header, entries, ImageDataUrl, DateTimeOffset.Now, v is null ? string.Empty : $"{v.Major}.{v.Minor}.{v.Build}", cases, HistoryPage.ReportContent,
             ReportIssuerFromSettings());
+        html = Localization.TranslateHtml(html);
         try
         {
             if (dialog.FileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))

@@ -11,32 +11,61 @@
 (vide)	(empty)
 ), puis	), then
 , passerelle {0}	, gateway {0}
+1 850 caractères texte ou 1 108 octets	1,850 text characters or 1,108 bytes
 1 an	1 year
 1 imprimante	1 printer
 1 · Contenu du code	1 · Code content
 1. Pare-feu : Windows bloque souvent les connexions entrantes, surtout sur un réseau classé « public ». Autorise Scanalyse avec le bouton ci-dessous (droits administrateur, réseau local seulement).	1. Firewall: Windows often blocks incoming connections, especially on a network classified as “public”. Allow Scanalyse with the button below (administrator rights, local network only).
+10 modules (barre de protection recommandée)	10 modules (bearer bar recommended)
 11 chiffres + clé.	11 digits + check digit.
+11 modules à gauche, 7 à droite	11 modules left, 7 right
+12 chiffres (clé incluse)	12 digits (check digit included)
 12 chiffres + clé.	12 digits + check digit.
+12 ou 13 chiffres.	12 or 13 digits.
+13 chiffres	13 digits
+13 chiffres (clé incluse)	13 digits (check digit included)
 13 chiffres + clé.	13 digits + check digit.
+13 ou 14 chiffres.	13 or 14 digits.
+14 chiffres	14 digits
 2 · Type de code	2 · Code type
 2. Adresse : choisis la carte du réseau sur lequel est le terminal (pas un VPN ni une carte virtuelle).	2. Address: choose the adapter of the network the terminal is on (not a VPN or a virtual adapter).
 203 dpi (8 points/mm)	203 dpi (8 dots/mm)
 2D empilé	2D stacked
 2D matriciel	2D matrix
 2D-Doc (document sécurisé français)	2D-Doc (French secure document)
+3 116 chiffres ou 1 556 octets	3,116 digits or 1,556 bytes
+3 832 chiffres ou 1 914 octets	3,832 digits or 1,914 bytes
 3 mois	3 months
 3 · Imprimante : résolution de la tête	3 · Printer: print head resolution
 3. Wi-Fi d'entreprise ou invité : l'« isolation des clients » empêche les appareils de se joindre entre eux. Dans ce cas, passe par le câble USB.	3. Corporate or guest Wi-Fi: “client isolation” prevents devices from reaching each other. In that case, use the USB cable.
 30 jours	30 days
 300 dpi (12 points/mm)	300 dpi (12 dots/mm)
+35 chiffres (M4)	35 digits (M4)
 35 chiffres au plus.	35 digits at most.
+361 chiffres	361 digits
+366 chiffres	366 digits
 4 · Étiquette, position et taille du code	4 · Label, position and code size
 5 · Rotation et texte	5 · Rotation and text
 6 mois	6 months
 600 dpi (24 points/mm)	600 dpi (24 dots/mm)
+7 089 chiffres ou 2 953 octets (version 40, correction L)	7,089 digits or 2,953 bytes (version 40, correction L)
 7 chiffres + clé.	7 digits + check digit.
+7 modules de chaque côté	7 modules on each side
+74 chiffres ou 41 caractères	74 digits or 41 characters
+8 chiffres	8 digits
+8 chiffres (clé incluse)	8 digits (check digit included)
+8 chiffres (forme compressée d'un UPC-A)	8 digits (compressed form of a UPC-A)
+9 chiffres	9 digits
+9 modules de chaque côté	9 modules on each side
+9 modules à gauche, 7 à droite	9 modules left, 7 right
+93 caractères	93 characters
+>8 en tête : FNC1, le code est un GS1-128.	>8 at the start: FNC1, the code is a GS1-128.
+A (automatique)	A (automatic)
 ADB introuvable : indique où se trouve adb.exe (Platform Tools, outil SAV…). Le Wi-Fi fonctionne sans ADB.	ADB not found: indicate where adb.exe is (Platform Tools, service tool…). Wi-Fi works without ADB.
 ADB ne démarre pas :	ADB doesn't start:
+ASCII complet	Full ASCII
+ASCII complet (128 caractères)	Full ASCII (128 characters)
+ASCII complet, octets	Full ASCII, bytes
 ASCII complet, plus compact que le Code 39.	Full ASCII, more compact than Code 39.
 ASCII complet.	Full ASCII.
 ATELIER	WORKSHOP
@@ -47,9 +76,15 @@ Accès au presse-papiers refusé	Clipboard access denied
 Acheté auprès de (GLN)	Purchased from (GLN)
 Action irréversible : les analyses supprimées ne pourront pas être récupérées.	Irreversible action: deleted analyses cannot be recovered.
 Action irréversible.	Irreversible action.
+Active la transmission du chiffre système / la conversion vers EAN-13 si l'application attend 13 chiffres.	Enable system digit transmission / conversion to EAN-13 if the application expects 13 digits.
+Active « Transmettre le chiffre de contrôle » pour cette symbologie dans le scanner.	Enable “Transmit check digit” for this symbology in the scanner.
 Activer	Enable
 Activé	On
 Actualiser	Refresh
+Adaptateur USB-série CH340	CH340 USB-serial adapter
+Adaptateur USB-série FTDI	FTDI USB-serial adapter
+Adaptateur USB-série Prolific	Prolific USB-serial adapter
+Adaptateur USB-série Silicon Labs	Silicon Labs USB-serial adapter
 Adresse	Address
 Adresse du relais :	Relay address:
 Adresse web	Web address
@@ -118,6 +153,8 @@ Arménie	Armenia
 Arrêter	Stop
 Arrêter la liaison	Stop the link
 Article (GTIN)	Item (GTIN)
+Articles en point de vente	Point-of-sale items
+Articles en point de vente (Amérique du Nord)	Point-of-sale items (North America)
 Articles en point de vente (Amérique du Nord).	Point-of-sale items (North America).
 Articles en point de vente (GTIN-13). Clé calculée automatiquement.	Point-of-sale items (GTIN-13). Check digit computed automatically.
 Atelier QR	QR Workshop
@@ -142,9 +179,11 @@ Aucune analyse à mettre dans le rapport (dossier vide, ou toutes les analyses s
 Aucune caméra détectée.	No camera detected.
 Aucune caméra trouvée. Branche une webcam ou une caméra document, puis réessaie.	No camera found. Plug in a webcam or a document camera, then try again.
 Aucune capture reçue.	No capture received.
+Aucune donnée reçue	No data received
 Aucune image à coller. Fais une capture (Win + Maj + S) ou copie une image, puis réessaie.	No image to paste. Take a screenshot (Win + Shift + S) or copy an image, then try again.
 Aucune imprimante installée sur ce PC. Utilise l'envoi réseau, ou installe le pilote de l'imprimante d'étiquettes.	No printer installed on this PC. Use network sending, or install the label printer driver.
 Aucune symbologie ne correspond.	No symbology matches.
+Augmente le délai « même code » (same symbol timeout) ou passe en lecture déclenchée.	Increase the same symbol timeout or switch to triggered reading.
 Australie	Australia
 Autorisation refusée : la règle de pare-feu n'a pas été ajoutée.	Permission denied: the firewall rule was not added.
 Autoriser Scanalyse dans le pare-feu	Allow Scanalyse in the firewall
@@ -158,8 +197,10 @@ Banc d'essai et impression	Test bench and printing
 Barres plus claires que le fond : beaucoup de lecteurs refusent les codes inversés.	Bars lighter than the background: many readers refuse inverted codes.
 Belgique	Belgium
 Belgique et Luxembourg	Belgium and Luxembourg
+Bibliothèques, banques du sang, colis anciens	Libraries, blood banks, old parcels
 Bibliothèques, banques du sang.	Libraries, blood banks.
 Bienvenue dans Scanalyse	Welcome to Scanalyse
+Billets de transport, cartes d'embarquement	Transport tickets, boarding passes
 Billets de transport, cartes d'embarquement.	Transport tickets, boarding passes.
 Bits d'arrêt	Stop bits
 Bits de données	Data bits
@@ -177,6 +218,7 @@ C'est prêt. Une visite de 30 secondes montre où se trouve chaque outil : la ba
 CAMÉRA	CAMERA
 COMPARER	COMPARE
 CPID (composant)	CPID (component)
+CPID (identifiant de composant)	CPID (component identifier)
 CRÉER	CREATE
 Cadre extérieur	Outer frame
 Cadre {0} × {1}, trait {2}	Box {0} × {1}, line {2}
@@ -195,7 +237,11 @@ Capture prête : zoome avec la molette, puis trace un rectangle autour du code.	
 Capture rapide :	Quick capture:
 Capturer l'écran	Capture the screen
 Capturer une zone	Capture an area
+Caractère de contrôle UCC (mod 103) demandé en plus : rarement utile.	Additional UCC check character (mod 103) requested: rarely useful.
+Caractère nul	Null character
 Caractères	Characters
+Caractères * du Code 39 transmis	Code 39 * characters transmitted
+Caractères accentués mal transmis	Accented characters badly transmitted
 Caractères invisibles : écris	Invisible characters: write
 Caractères invisibles : écris <GS>, <RS>, <EOT>, <CR>…	Invisible characters: write <GS>, <RS>, <EOT>, <CR>…
 Caractéristiques techniques	Technical characteristics
@@ -207,11 +253,14 @@ Carte réseau physique avec passerelle	Physical network adapter with gateway
 Carte virtuelle, VPN ou sans passerelle : peu probable pour le terminal	Virtual adapter, VPN or no gateway: unlikely for the terminal
 Cartes d'embarquement, permis, profils de configuration de terminaux.	Boarding passes, licenses, terminal configuration profiles.
 Cartons d'expédition (GTIN-14).	Shipping cartons (GTIN-14).
+Cartons d'expédition (unités logistiques)	Shipping cartons (logistic units)
 Cartons, entrepôts.	Cartons, warehouses.
+Cartons, logistique, entrepôts	Cartons, logistics, warehouses
 Catégorie	Category
 Ce code contient un mot de passe Wi-Fi lisible par n'importe quel lecteur : ne le diffuse pas au-delà des personnes qui préparent les terminaux.	This code contains a Wi-Fi password readable by any reader: don't share it beyond the people preparing the terminals.
 Ce code contient une clé secrète de connexion. Ne le partage pas et ne le publie pas.	This code contains a secret login key. Don't share or publish it.
 Ce format n'est pas pris en charge par le navigateur (par exemple HEIC). Convertis l'image en PNG ou JPG, ou fais une capture d'écran.	This format is not supported by the browser (for example HEIC). Convert the image to PNG or JPG, or take a screenshot.
+Ce n'est pas le même code	It's not the same code
 Ce navigateur ne donne pas accès à la caméra.	This browser doesn't give access to the camera.
 Ce navigateur ne permet pas la capture d'écran. Fais Win + Maj + S puis Ctrl + V.	This browser doesn't allow screen capture. Press Win + Shift + S then Ctrl + V.
 Ce que contient le code	What the code contains
@@ -227,12 +276,15 @@ Changer…	Change…
 Chaque analyse d'image et chaque comparaison douchette est enregistrée dans le dossier en cours. Un dossier par intervention, et un rapport PDF à remettre au client.	Every image analysis and every scanner comparison is saved in the current case. One case per job, and a PDF report to give the customer.
 Chaque analyse est rangée dans le dossier choisi ici. Retrouve-les dans « Historique » pour les renommer, les commenter et produire le rapport PDF du client.	Every analysis is filed in the case chosen here. Find them in “History” to rename them, comment them and produce the customer's PDF report.
 Chaque analyse rangée dans le dossier du client, rapport PDF en un clic.	Every analysis filed in the customer's case, PDF report in one click.
+Chaîne GS1	GS1 string
 Chaîne GS1 (forme lisible, modifiable)	GS1 string (readable form, editable)
 Chaîne d'éléments GS1 : identifiants d'application (AI) normalisés, lus par les systèmes logistiques et de caisse.	GS1 element string: standardized application identifiers (AI), read by logistics and checkout systems.
 Chemin	Path
 Chercher d'autres codes	Search for more codes
 Chiffres	Digits
+Chiffres (nombre pair)	Digits (even number)
 Chiffres et - $ : / . +, encadrés par A, B, C ou D.	Digits and - $ : / . +, framed by A, B, C or D.
+Chiffres, - $ : / . +	Digits, - $ : / . +
 Chili	Chile
 Chine	China
 Choisir adb.exe (Android Platform Tools)	Choose adb.exe (Android Platform Tools)
@@ -248,16 +300,33 @@ Choisis où Scanalyse range ce qu'il produit. Un dossier réseau permet de parta
 Chypre	Cyprus
 Clair	Light
 Classification carcasse (UN/ECE)	Carcass classification (UN/ECE)
+Classification de carcasse (UN/ECE)	Carcass classification (UN/ECE)
 Client / site	Customer / site
 Clique pour renommer l'analyse (problème rencontré, repère…). Vide : nom automatique.	Click to rename the analysis (problem found, marker…). Empty: automatic name.
 Clique sur un élément de l'étiquette pour voir sa ligne et son détail	Click an element of the label to see its line and details
+Clé de contrôle fausse ({0}) : l'imprimante calculera la bonne ({1}).	Wrong check digit ({0}): the printer will compute the correct one ({1}).
+Clé de contrôle invalide : le numéro a été mal généré ou mal lu.	Invalid check digit: the number was badly generated or badly read.
 Clé de contrôle invalide : {0} au lieu de {1}.	Invalid check digit: {0} instead of {1}.
+Clé de contrôle non transmise	Check digit not transmitted
+Clé de contrôle {0} calculée par l'imprimante.	Check digit {0} computed by the printer.
+Clé du GTIN fausse : l'imprimante imprime la clé calculée {0}.	Wrong GTIN check digit: the printer prints the computed check digit {0}.
+Clé modulo 43 ajoutée par l'imprimante (elle fait partie des données lues si la douchette ne la contrôle pas).	Modulo 43 check added by the printer (it is part of the data read if the scanner doesn't check it).
+Clé saisie {0}, l'imprimante imprime la clé calculée {1}.	Check digit entered {0}, the printer prints the computed check digit {1}.
+Clé secrète	Secret key
 Code 128 (FNC1 en 2e position)	Code 128 (FNC1 in 2nd position)
+Code 128 avec FNC1 en 2e position	Code 128 with FNC1 in 2nd position
 Code 128 concaténé	Concatenated Code 128
 Code 128 standard	Standard Code 128
+Code 2D	2D code
 Code 32 (pharma italien)	Code 32 (Italian pharma)
+Code 32 (pharmacie italienne)	Code 32 (Italian pharmacy)
+Code 39 : seuls A-Z, 0-9 et - . espace $ / + % sont permis.	Code 39: only A-Z, 0-9 and - . space $ / + % are allowed.
+Code 39 ASCII étendu	Extended ASCII Code 39
+Code 39 avec clé vérifiée et transmise	Code 39 with check verified and transmitted
+Code 39 avec clé vérifiée, non transmise	Code 39 with check verified, not transmitted
 Code 39 avec contrôle vérifié	Code 39 with verified check
 Code 39 sans contrôle	Code 39 without check
+Code 39 standard : minuscules converties en majuscules.	Standard Code 39: lowercase converted to uppercase.
 Code 39 étendu	Extended Code 39
 Code OTAN (NSN)	NATO stock number (NSN)
 Code abîmé	Damaged code
@@ -265,17 +334,23 @@ Code créé :	Code created:
 Code créé : QR personnalisé	Code created: custom QR
 Code de composant d'emballage	Packaging component number
 Code de routage	Routing code
+Code emplacement	Location code
+Code emplacement en très grand et en Code 128, pour racks et allées.	Location code in very large print and in Code 128, for racks and aisles.
 Code imprimante	Printer code
 Code imprimante (ZPL, TSPL, EPL2)	Printer code (ZPL, TSPL, EPL2)
 Code inversé : de nombreux lecteurs (caisses, vieux smartphones) ne le lisent pas.	Inverted code: many readers (checkouts, old smartphones) can't read it.
 Code postal avec pays	Postal code with country
 Code postal de livraison	Ship-to postal code
+Code postal de livraison avec pays	Ship-to postal code with country
 Code repris ({0}) : choisis le langage de l'imprimante, puis copie, enregistre ou envoie le programme.	Code taken ({0}): choose the printer language, then copy, save or send the program.
+Code reçu deux fois	Code received twice
 Code testé	Tested code
 Code-barres	Barcode
 Code-barres (^B…)	Barcode (^B…)
 Codes-barres ({0})	Barcodes ({0})
 Cohérence de l'étiquette	Label consistency
+Colis (n/N)	Parcel (n/N)
+Colis transporteur	Carrier parcel
 Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ouvre-le avec « Ouvrir un fichier », ou glisse-le sur la page.	Paste here (“Program” area) the .zpl, .prn or .txt file sent by the customer, open it with “Open a file”, or drop it on the page.
 Colle ici le programme ZPL du client (Ctrl + V), ouvre son fichier, ou glisse-le sur la page.	Paste the customer's ZPL program here (Ctrl + V), open their file, or drop it on the page.
 Colle le programme ZPL du client dans la zone « Programme » : l'étiquette s'affiche ici.	Paste the customer's ZPL program in the “Program” area: the label shows here.
@@ -290,6 +365,8 @@ Coller une image	Paste an image
 Colombie	Colombia
 Comme Windows	Like Windows
 Commence et termine par A, B, C ou D.	Starts and ends with A, B, C or D.
+Comparaison douchette	Scanner comparison
+Comparaison douchette · {0}	Scanner comparison · {0}
 Comparaison non enregistrée :	Comparison not saved:
 Comparaisons	Comparisons
 Compare le contenu réel d'un code avec ce que la douchette transmet, et explique chaque écart.	Compares the actual content of a code with what the scanner transmits, and explains each difference.
@@ -300,6 +377,7 @@ Compatibles GS1	GS1 compatible
 Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.	Third-party components: zxing-cpp (Apache 2.0), zxing-wasm and qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.
 Composants tiers et licences	Third-party components and licenses
 Compte	Account
+Conforme	Compliant
 Conforme aux recommandations GS1 pour la distribution (0,264 à 0,66 mm).	Meets GS1 retail recommendations (0.264 to 0.66 mm).
 Conforme pour la logistique (au moins 0,495 mm).	Compliant for logistics (at least 0.495 mm).
 Connecter	Connect
@@ -310,6 +388,7 @@ Connexion impossible	Unable to connect
 Connexion à {0}:{1} impossible ({2}) : vérifie l'adresse IP et que le port {3} est ouvert sur l'imprimante.	Unable to connect to {0}:{1} ({2}): check the IP address and that port {3} is open on the printer.
 Connexion à {0}…	Connecting to {0}…
 Contenu	Content
+Contenu GS1 attendu : « (01)03453120000011(10)LOT42 » ou la forme transmise avec <GS>.	GS1 content expected: “(01)03453120000011(10)LOT42” or the transmitted form with <GS>.
 Contenu compressé et signé : il faut une application dédiée pour le lire.	Compressed and signed content: a dedicated app is needed to read it.
 Contenu compressé non décodable ici (profil chiffré ou partiel).	Compressed content that can't be decoded here (encrypted or partial profile).
 Contenu copié.	Content copied.
@@ -319,6 +398,7 @@ Contenu refusé par le	Content refused by the
 Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.	Content taken from the test bench: choose the code type if needed, then export or print.
 Contenu tel que lu et octets en hexadécimal : pour un intégrateur ou un éditeur de logiciel	Content as read and bytes in hexadecimal: for an integrator or software vendor
 Contenu, couleurs, formes des modules et des repères, logo central. L'aperçu se met à jour en direct et vérifie que le code reste lisible.	Content, colors, module and finder shapes, central logo. The preview updates live and checks that the code stays readable.
+Contient des caractères invisibles : {0}.	Contains invisible characters: {0}.
 Contraste de symbole	Symbol contrast
 Contraste faible	Low contrast
 Contraste insuffisant ({0}:1) entre barres et fond.	Insufficient contrast ({0}:1) between bars and background.
@@ -360,25 +440,36 @@ Créer ce type de code	Create this type of code
 Créer un code	Create a code
 Créer un code ·	Create a code ·
 Créer une étiquette	Create a label
+D (UCC/EAN : GS1 automatique)	D (UCC/EAN: automatic GS1)
 DOUCHETTE	SCANNER
+DPL : la rotation tourne le code autour de son point d'ancrage ; vérifie sa position sur l'étiquette.	DPL: rotation turns the code around its anchor point; check its position on the label.
+DPL : les caractères de contrôle (<GS>, <RS>…) ne sont pas transmis de façon fiable. Utilise le ZPL pour ce contenu.	DPL: control characters (<GS>, <RS>…) are not transmitted reliably. Use ZPL for this content.
+DPL généré d'après le manuel Honeywell / Datamax (unités 0,1 mm, origine en bas à gauche) : valide l'étiquette sur l'imprimante.	DPL generated from the Honeywell / Datamax manual (0.1 mm units, origin bottom left): validate the label on the printer.
 Danemark	Denmark
 Dans Claude, la page n'a pas accès à l'écran. Fais Win + Maj + S, sélectionne la zone, puis Ctrl + V sur cette page.	In Claude, the page has no access to the screen. Press Win + Shift + S, select the area, then Ctrl + V on this page.
 Dans Claude, la page n'a pas accès à la caméra. Prends une photo du code, puis importe-la.	In Claude, the page has no access to the camera. Take a photo of the code, then import it.
 Dans le rapport	In the report
 Data Matrix (FNC1 en 2e position)	Data Matrix (FNC1 in 2nd position)
 Data Matrix avec ECI	Data Matrix with ECI
+Data Matrix avec FNC1 en 2e position	Data Matrix with FNC1 in 2nd position
+Data Matrix avec FNC1 en 2e position et ECI	Data Matrix with FNC1 in 2nd position and ECI
 Data Matrix carré uniquement	Square Data Matrix only
 Date d'emballage	Packaging date
 Date d'expiration	Expiry date
 Date d'expiration (DLC)	Expiration date
 Date d'échéance	Due date
 Date d'émission	Issue date
+Date de durabilité minimale (15)	Best before date (15)
 Date de durabilité minimale (DDM)	Best before date
 Date de premier gel	First freeze date
 Date de production	Production date
 Date de récolte	Harvest date
 Date et heure d'expiration	Expiration date and time
 Date et heure de production	Production date and time
+Date et heure invalides (format attendu : AAMMJJHH[MM]).	Invalid date and time (expected format: YYMMDDHH[MM]).
+Date invalide (format attendu : AAMMJJ).	Invalid date (expected format: YYMMDD).
+Date limite	Expiry date
+Date limite (17)	Expiry date (17)
 Date limite de vente	Sell-by date
 Depuis la gauche	From the left
 Depuis le haut	From the top
@@ -396,12 +487,17 @@ Données GS1	GS1 data
 Données GS1 (AI) dans un QR.	GS1 data (AI) in a QR.
 Données GS1 (AI).	GS1 data (AI).
 Données GS1 (traçabilité)	GS1 data (traceability)
+Données GS1 du Data Matrix illisibles.	Unreadable GS1 data for the Data Matrix.
 Données JSON	JSON data
 Données brutes (Zebra DataWedge, sortie IP) :	Raw data (Zebra DataWedge, IP output):
 Données brutes (hexadécimal)	Raw data (hexadecimal)
 Données conformes, avec ajouts du scanner	Data compliant, with scanner additions
+Données différentes	Different data
+Données encadrées par des caractères ajoutés	Data framed by added characters
 Données lues par une douchette	Data read by a scanner
 Données reçues : clique dans le champ puis scanne avec la douchette (Entrée et Tab sont capturés)	Received data: click in the field, then scan with the scanner (Enter and Tab are captured)
+Données sans préfixe « QA, » / « MA, » : les premiers caractères sont pris pour des réglages et n'apparaissent pas dans le code.	Data without “QA,” / “MA,” prefix: the first characters are taken as settings and don't appear in the code.
+Données tronquées : {0} caractères reçus sur {1}	Truncated data: {0} characters received out of {1}
 Données vérifiées : clés de contrôle et codes GS1 conformes.	Data checked: check digits and GS1 codes compliant.
 Dossier :	Case:
 Dossier : Non classé	Case: Unfiled
@@ -412,6 +508,7 @@ Dossier de l'historique Scanalyse (local ou réseau)	Scanalyse history folder (l
 Dossier des programmes d'étiquettes	Label programs folder
 Dossier des programmes d'étiquettes (ouvrir les fichiers clients, enregistrer les ZPL)	Label programs folder (open customer files, save ZPL)
 Dossier des rapports PDF	PDF reports folder
+Dossier du {0}	Case of {0}
 Dossier en cours	Current case
 Dossier en cours : {0}. Les prochaines analyses y seront enregistrées.	Current case: {0}. The next analyses will be saved there.
 Dossier proposé pour enregistrer les rapports PDF	Folder suggested for saving PDF reports
@@ -429,7 +526,9 @@ Douchette en mode clavier	Scanner in keyboard mode
 Douchettes USB, série et HID POS	USB, serial and HID POS scanners
 Douchettes en port série ou HID POS, terminaux Android et caméras : leurs lectures arrivent directement au banc d'essai, octet par octet.	Serial or HID POS scanners, Android terminals and cameras: their readings go straight to the test bench, byte by byte.
 Début	Start
+Début de texte (préfixe fréquent)	Start of text (common prefix)
 Début, fin (^XA ^FS ^XZ)	Start, end (^XA ^FS ^XZ)
+Déclare le champ en texte dans l'application, ou format de cellule « Texte » dans Excel.	Declare the field as text in the application, or use the “Text” cell format in Excel.
 Déconnecter	Disconnect
 Dégradé linéaire	Linear gradient
 Dégradé radial	Radial gradient
@@ -437,24 +536,36 @@ Délai dépassé.	Timed out.
 Démarrage et affichage	Startup and display
 Déplacer vers…	Move to…
 Dépose une image ici	Drop an image here
+Désactive Verr. Maj, ou la conversion de casse du scanner. Certains scanners ont un réglage « ignorer Verr. Maj ».	Disable Caps Lock, or the scanner's case conversion. Some scanners have an “ignore Caps Lock” setting.
+Désactive « Convertir UPC-A en EAN-13 » si l'application attend 12 chiffres.	Disable “Convert UPC-A to EAN-13” if the application expects 12 digits.
+Désactive « Transmettre start/stop » pour le Code 39 dans le scanner.	Disable “Transmit start/stop” for Code 39 in the scanner.
 Désactiver	Disable
 Désactivé	Off
+Désignation	Description
+Désignation, EAN-13 de vente et GS1 DataMatrix avec GTIN, lot et date limite.	Description, retail EAN-13 and GS1 DataMatrix with GTIN, lot and expiry date.
 Désinstaller	Uninstall
 Détacher	Detach
 Détaillé	Detailed
 Dézoomer	Zoom out
 Dézoomer (Ctrl + molette)	Zoom out (Ctrl + wheel)
+EAN-13 + supplément 2 chiffres	EAN-13 + 2-digit add-on
+EAN-13 + supplément 5 chiffres	EAN-13 + 5-digit add-on
 EAN-13 avec supplément	EAN-13 with add-on
+EAN-13 avec supplément (transmission combinée)	EAN-13 with add-on (combined transmission)
+EAN-13 transmis au format UPC-A	EAN-13 transmitted as UPC-A
 ECI déclaré (jeu de caractères explicite)	Declared ECI (explicit character set)
+EPL2 : les caractères de contrôle ne sont pas pris en charge ici. Utilise le ZPL.	EPL2: control characters are not supported here. Use ZPL.
 Efface la référence, la lecture, l'aperçu et le résultat	Clears the reference, the reading, the preview and the result
 Effacer	Clear
 Effacer la lecture	Clear the reading
 Effacer le journal	Clear the log
 Effacer le journal ?	Clear the log?
 Effacer les modules sous le logo	Clear the modules under the logo
+Emplacement de stock	Stock location
 Emplacement physique (GLN)	Physical location (GLN)
 En DPL, la position « y » se compte depuis le bas de l'étiquette (0,1 mm ou 0,01 pouce).	In DPL, the “y” position is counted from the bottom of the label (0.1 mm or 0.01 inch).
 En cours	Current
+En mode clavier, le GS ne passe pas tel quel : configure le scanner pour le remplacer par un caractère que l'application sait traiter, ou utilise le mode HID POS / intent qui transmet les octets bruts.	In keyboard mode, GS doesn't pass as is: configure the scanner to replace it with a character the application can handle, or use HID POS / intent mode, which transmits raw bytes.
 En-tête des rapports remis aux clients : ta société, ton nom et tes coordonnées, avec ton logo.	Header of the reports given to customers: your company, your name and contact details, with your logo.
 Encodage	Encoding
 Encodage du texte	Text encoding
@@ -479,6 +590,9 @@ Espagne et Andorre	Spain and Andorra
 Espèce (pêche)	Species (fishery)
 Estonie	Estonia
 Exemplaires	Copies
+Expéditeur	Sender
+Expéditeur, destinataire en grand, n° de suivi en Code 128, poids, référence, colis n/N.	Sender, recipient in large print, tracking number in Code 128, weight, reference, parcel n/N.
+Extension + préfixe GS1 + n° de série ; la clé est calculée si tu n'en mets que 17.	Extension + GS1 prefix + serial number; the check digit is computed if you only enter 17.
 Extension de GLN	GLN extension component
 Extension de série tierce	Third-party serial extension
 Extension {0} · préfixe GS1 : {1}	Extension {0} · GS1 prefix: {1}
@@ -494,7 +608,9 @@ Fichier image ou photo	Image file or photo
 Fichier trop gros pour un programme d'étiquette (plus de 4 Mo) : il contient sans doute des images.	File too large for a label program (over 4 MB): it probably contains images.
 Figer et analyser	Freeze and analyze
 Fin de lecture : silence de (ms)	End of reading: silence of (ms)
+Fin de texte (suffixe fréquent)	End of text (common suffix)
 Fin de transmission	End of transmission
+Fin de transmission (séparateur de format 06)	End of transmission (format 06 separator)
 Fin de transmission <EOT> absente : le message est peut-être tronqué.	End of transmission <EOT> missing: the message may be truncated.
 Finlande	Finland
 Fonction	Job title
@@ -503,9 +619,11 @@ Fond transparent	Transparent background
 Fond transparent (PNG et SVG)	Transparent background (PNG and SVG)
 Format allongé.	Elongated format.
 Format suisse de paiement (Swiss QR Code).	Swiss payment format (Swiss QR Code).
+Format {0} : {1}	Format {0}: {1}
 Forme courte d'un UPC-A	Short form of a UPC-A
 Formes	Shapes
 France et Monaco	France and Monaco
+Fruits et légumes, petits articles	Fruit and vegetables, small items
 Fruits et légumes, petits articles.	Fruit and vegetables, small items.
 GIAI (actif individuel)	GIAI (individual asset)
 GIAI de l'assemblage	GIAI of the assembly
@@ -513,6 +631,7 @@ GINC (n° d'envoi)	GINC (consignment number)
 GMN (modèle de produit)	GMN (product model)
 GRAI (actif réutilisable)	GRAI (returnable asset)
 GS1 (numéros GTIN-8 abrégés)	GS1 (short GTIN-8 numbers)
+GS1 Aztec (FNC1 en 1re position)	GS1 Aztec (FNC1 in 1st position)
 GS1 DataBar Expanded empilé	GS1 DataBar Expanded stacked
 GS1 DataBar empilé	GS1 DataBar stacked
 GS1 DataBar empilé omnidirectionnel	GS1 DataBar stacked omnidirectional
@@ -529,9 +648,13 @@ GTIN (article)	GTIN (item)
 GTIN + poids, prix, dates.	GTIN + weight, price, dates.
 GTIN contenu (02) sans SSCC (00) : l'AI 02 est réservé aux unités logistiques identifiées par un SSCC.	Contained GTIN (02) without SSCC (00): AI 02 is reserved for logistic units identified by an SSCC.
 GTIN contenu (02) sans nombre d'unités contenues (37) : GS1 impose les deux ensemble.	Contained GTIN (02) without number of contained units (37): GS1 requires both together.
+GTIN de l'article de base	GTIN of the base item
 GTIN des articles contenus	GTIN of contained items
+GTIN des articles contenus (02)	GTIN of contained items (02)
+GTIN-14 (indicateur 0 ou 1)	GTIN-14 (indicator 0 or 1)
 GTIN-14 compact.	Compact GTIN-14.
 Graphique (^GB)	Graphics (^GB)
+Grossissement	Magnification
 Grèce	Greece
 Génère le programme ZPL / TSPL / EPL2 de ce code pour le réimprimer sur l'imprimante du client	Generates the ZPL / TSPL / EPL2 program of this code to reprint it on the customer's printer
 Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.	Generates the ZPL, TSPL, EPL2 or DPL program of a label to recreate a customer's code on their printer, and sends it directly.
@@ -548,6 +671,7 @@ HID POS :	HID POS:
 HISTORIQUE	HISTORY
 Hauteur	Height
 Hauteur (indicative)	Height (indicative)
+Hauteur de ligne	Row height
 Hauteur des barres	Bar height
 Hauteur logistique	Logistic height
 Historique	History
@@ -567,11 +691,18 @@ ISBN (livres) / ISMN (partitions)	ISBN (books) / ISMN (sheet music)
 ISO-8859-1 / autre (détecté)	ISO-8859-1 / other (detected)
 ISSN (presse, périodiques)	ISSN (press, periodicals)
 ITF (2 parmi 5 entrelacé)	ITF (Interleaved 2 of 5)
+ITF (2 parmi 5 entrelacé) : un nombre pair de chiffres est attendu.	ITF (Interleaved 2 of 5): an even number of digits is expected.
 ITF avec chiffre de contrôle vérifié	ITF with verified check digit
+ITF avec clé vérifiée et transmise	ITF with check verified and transmitted
+ITF avec clé vérifiée, non transmise	ITF with check verified, not transmitted
 ITF sans contrôle	ITF without check
 ITIP (pièce d'un ensemble)	ITIP (piece of a trade item)
 ITIP des pièces contenues	ITIP of contained pieces
 Identifiant d'application	Application identifier
+Identifiant d'application inconnu.	Unknown application identifier.
+Identifiant d'application {0} (non répertorié)	Application identifier {0} (not listed)
+Identifiant de symbologie AIM non répertorié	Unlisted AIM symbology identifier
+Identifiant de symbologie ajouté : {0}	Symbology identifier added: {0}
 Image	Image
 Image agrandie : trace un rectangle pour sélectionner un code	Enlarged image: draw a rectangle to select a code
 Image analysée, avec les codes détectés encadrés	Analyzed image, with the detected codes framed
@@ -581,6 +712,7 @@ Image floue : recule un peu (20 à 30 cm)	Blurry image: move back a little (20 t
 Image illisible	Unreadable image
 Image illisible :	Unreadable image:
 Image nette	Sharp image
+Image sans code lisible	Image without readable code
 Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|Tous les fichiers|*.*	Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|All files|*.*
 Impaire	Odd
 Importe, colle ou capture une image : chaque code est lu, détaillé et peut être comparé à une lecture douchette.	Import, paste or capture an image: every code is read, detailed and can be compared with a scanner reading.
@@ -601,8 +733,10 @@ Indicateur {0} · préfixe GS1 : {1}	Indicator {0} · GS1 prefix: {1}
 Indique l'adresse IP de l'imprimante (menu réseau de l'imprimante ou étiquette de configuration).	Enter the printer's IP address (printer network menu or configuration label).
 Indispensables en RS-232 : ils doivent être identiques à ceux de la douchette. En port COM virtuel USB, vitesse et parité sont le plus souvent ignorées.	Essential for RS-232: they must match the scanner's. On a USB virtual COM port, speed and parity are usually ignored.
 Indonésie	Indonesia
+Industrie, automobile (Odette), défense, badges	Industry, automotive (Odette), defense, badges
 Industrie, automobile, badges.	Industry, automotive, badges.
 Industrie, marquage direct de pièces, petites étiquettes.	Industry, direct part marking, small labels.
+Industrie, postes canadiennes	Industry, Canada Post
 Industrie.	Industry.
 Industriel	Industrial
 Information convenue entre partenaires	Information mutually agreed between partners
@@ -611,6 +745,7 @@ Information interne de l'entreprise	Company internal information
 Installer	Install
 Installée sur ce PC	Installed on this PC
 Intervenant	Technician
+Inventaire / matériel	Inventory / equipment
 Irlande	Ireland
 Islande	Iceland
 Israël	Israel
@@ -643,9 +778,13 @@ La barre du haut	The top bar
 La caméra est déjà utilisée par une autre application (Teams, Zoom, l'appli Caméra…). Ferme-la puis réessaie.	The camera is already used by another application (Teams, Zoom, the Camera app…). Close it and try again.
 La caméra n'a pas pu démarrer.	The camera could not start.
 La clé de contrôle de l'IBAN est invalide.	The IBAN check digits are invalid.
+La clé de contrôle est fausse : le code a été mal généré ou mal lu.	The check digit is wrong: the code was badly generated or badly read.
 La fiche du dossier ne pourra pas être récupérée.	The case record cannot be recovered.
+La fin du code manque. Causes probables : longueur maximale configurée pour cette symbologie, champ de saisie limité, ou transmission interrompue.	The end of the code is missing. Likely causes: maximum length configured for this symbology, limited input field, or interrupted transmission.
 La lecture arrive comme une frappe au clavier, dans le champ qui a le focus.	The reading arrives as keystrokes, in the field that has the focus.
+La lecture contient la référence, mais c'est un code bien plus long ({0} caractères reçus, {1} attendus) : un autre code de l'étiquette qui reprend la même donnée (code transporteur, code 2D…).	The reading contains the reference, but it's a much longer code ({0} characters received, {1} expected): another code on the label that repeats the same data (carrier code, 2D code…).
 La lecture devient le contenu attendu ; scanne à nouveau pour vérifier qu'elle se lit toujours pareil	The reading becomes the expected content; scan again to check it always reads the same
+La lecture n'a presque rien en commun avec la référence ({0} caractères reçus, {1} attendus) : un autre code a sans doute été scanné (code voisin sur l'étiquette), ou la référence vient d'un test précédent.	The reading has almost nothing in common with the reference ({0} characters received, {1} expected): another code was probably scanned (neighboring code on the label), or the reference comes from a previous test.
 La lecture ne correspond pas à la référence affichée : vérifie le code scanné, ou prends cette lecture comme nouvelle référence.	The reading doesn't match the reference shown: check the scanned code, or use this reading as the new reference.
 La marge autour du code semble encombrée : certains lecteurs peuvent échouer.	The margin around the code looks cluttered: some readers may fail.
 La page de l'Atelier est absente de l'exécutable.	The Workshop page is missing from the executable.
@@ -660,16 +799,22 @@ Langage non reconnu : ce texte n'est pas un programme ZPL, TSPL, EPL2, DPL, SBPL
 Largeur	Width
 Largeur de la barre la plus fine (1D) ou d'un carré (2D), en points de la tête	Width of the narrowest bar (1D) or of a square (2D), in print head dots
 Largeur logistique	Logistic width
+Le 0 de tête de cet EAN-13 n'est pas transmis : le scanner l'envoie comme un UPC-A de 12 chiffres.	The leading 0 of this EAN-13 is not transmitted: the scanner sends it as a 12-digit UPC-A.
 Le GTIN contenu (02, {0} = {1}) ne correspond pas à l'article du {2} ({3}).	The contained GTIN (02, {0} = {1}) doesn't match the item of {2} ({3}).
 Le GTIN contenu (02, {0}) et le{1} {2} désignent le même article à un autre niveau d'emballage.	The contained GTIN (02, {0}) and {2} designate the same item at another packaging level.
 Le GTIN des articles contenus (02, {0}) correspond à l'article {1} {2}.	The GTIN of the contained items (02, {0}) matches the item {1} {2}.
 Le chiffre de contrôle du GTIN {0} est faux : le code a été mal généré ou mal lu.	The check digit of GTIN {0} is wrong: the code was badly generated or badly read.
 Le choix est mémorisé. « Système » suit le réglage clair ou sombre de Windows.	Your choice is remembered. “System” follows the Windows light or dark setting.
 Le code (≈ {0} × {1} mm) dépasse de l'étiquette : réduis le module, la hauteur ou déplace-le.	The code (≈ {0} × {1} mm) goes beyond the label: reduce the module or the height, or move it.
+Le code contient des séparateurs GS entre les champs variables (lot, série…). Ils ont disparu à la transmission : l'application ne peut plus savoir où finit un champ et où commence le suivant.	The code contains GS separators between variable fields (lot, serial…). They disappeared during transmission: the application can no longer tell where one field ends and the next begins.
 Le code en grand	The code, large
 Le code généré n'a pas pu être relu : vérifie les couleurs et le contenu.	The generated code could not be read back: check the colors and content.
+Le code n'a rien transmis. Causes probables : symbologie désactivée dans le scanner, longueur hors des limites autorisées, ou application qui n'a pas le focus.	The code transmitted nothing. Likely causes: symbology disabled in the scanner, length outside the allowed limits, or application without focus.
 Le composant Microsoft Edge WebView2 n'est pas installé sur ce PC. Il est présent d'office sur Windows 11 et sur les Windows 10 à jour ; sinon, installe le « WebView2 Runtime » depuis le site de Microsoft. Le banc d'essai reste utilisable.	The Microsoft Edge WebView2 component is not installed on this PC. It comes with Windows 11 and up-to-date Windows 10; otherwise, install the “WebView2 Runtime” from Microsoft's website. The test bench remains usable.
+Le contenu contient « _ », caractère d'échappement choisi pour FNC1 : vérifie le code imprimé.	The content contains “_”, the escape character chosen for FNC1: check the printed code.
+Le contenu du code est vide.	The code content is empty.
 Le contenu est vide.	The content is empty.
+Le dernier chiffre ({0}) est la clé de contrôle : le scanner la lit mais ne l'envoie pas.	The last digit ({0}) is the check digit: the scanner reads it but doesn't send it.
 Le dossier « {0} » est déjà vide.	The case “{0}” is already empty.
 Le dossier « {0} » et sa fiche (client, référence, intervenant, notes) seront supprimés.	The case “{0}” and its record (customer, reference, technician, notes) will be deleted.
 Le journal n'est pas sauvegardé : copie-le avant si tu en as besoin.	The log is not saved: copy it first if you need it.
@@ -683,7 +828,15 @@ Le moteur Edge WebView2 n'est pas disponible : enregistre le rapport en HTML et 
 Le presse-papiers est occupé par une autre application : réessaie.	The clipboard is used by another application: try again.
 Le presse-papiers ne contient pas de texte : copie d'abord le programme du client (Ctrl + A puis Ctrl + C dans son fichier), ou utilise « Ouvrir un fichier ».	The clipboard contains no text: first copy the customer's program (Ctrl + A then Ctrl + C in their file), or use “Open a file”.
 Le programme est dans sa propre fenêtre : l'aperçu prend toute la place ici.	The program is in its own window: the preview takes all the space here.
+Le programme ne fixe {0} : ce sont les réglages de l'imprimante qui s'appliquent. L'aperçu s'ajuste au contenu.	The program sets {0}: the printer's settings apply. The preview adapts to the content.
 Le préfixe GS1 indique le pays de l'organisation qui a attribué le numéro, pas le pays de fabrication.	The GS1 prefix shows the country of the organization that assigned the number, not the country of manufacture.
+Le scanner ajoute le caractère de début de texte devant les données.	The scanner adds the start-of-text character before the data.
+Le scanner ajoute un 0 devant le code UPC-A pour l'envoyer au format EAN-13. Les deux formes désignent le même article.	The scanner adds a 0 in front of the UPC-A code to send it as EAN-13. Both forms designate the same item.
+Le scanner ajoute un caractère de fin après les données.	The scanner adds an end character after the data.
+Le scanner ajoute « Entrée » après les données pour valider automatiquement la saisie. C'est le réglage le plus courant.	The scanner adds “Enter” after the data to validate the input automatically. It's the most common setting.
+Le scanner ajoute « {0} » ({1}) devant les données. C'est utile si l'application s'en sert pour reconnaître le type de code.	The scanner adds “{0}” ({1}) before the data. It's useful if the application uses it to recognize the code type.
+Le scanner « tape » comme sur un clavier américain alors que le PC est réglé en français : les chiffres deviennent &é"'(-è_çà et A/Q, Z/W, M sont inversés.	The scanner “types” as on a US keyboard while the PC is set to French: digits become &é"'(-è_çà and A/Q, Z/W, M are swapped.
+Le scanner « tape » comme sur un clavier français alors que le PC est réglé en anglais : les chiffres deviennent !@#$%^&*() et A/Q, Z/W sont inversés.	The scanner “types” as on a French keyboard while the PC is set to English: digits become !@#$%^&*() and A/Q, Z/W are swapped.
 Le téléchargement direct n'est pas disponible ici. Clic droit (ou appui long) sur l'image puis « Enregistrer l'image ».	Direct download isn't available here. Right-click (or long-press) the image, then “Save image”.
 Le {0} ({1}) reprend le {2} du {3}.	The {0} ({1}) repeats the {2} of the {3}.
 Lecture conforme	Reading compliant
@@ -695,15 +848,23 @@ Lecture fiable	Reliable reading
 Lecture fragile	Fragile reading
 Lecture reçue	Received reading
 Les analyses faites sans dossier arrivent ici. Crée un dossier pour une intervention, puis range-y les analyses utiles.	Analyses made without a case land here. Create a case for a job, then file the useful analyses in it.
+Les champs GS1 sont bien séparés, mais par un autre caractère que GS. C'est correct seulement si l'application attend exactement ce caractère.	The GS1 fields are separated, but by another character than GS. It's correct only if the application expects exactly this character.
 Les deux	Both
+Les données arrivent deux fois de suite : double déclenchement, mode de lecture continue ou délai entre lectures identiques trop court.	The data arrives twice in a row: double trigger, continuous reading mode or too short a delay between identical readings.
 Les données partent en mode RAW : le pilote ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »).	Data is sent in RAW mode: the driver doesn't change it (Zebra, Honeywell, TSC… driver or “Generic / Text Only”).
 Les données reçues ne correspondent pas au contenu du code.	The received data doesn't match the content of the code.
+Les données reçues sont exactement celles du code.	The received data is exactly the code's data.
 Les données utiles sont identiques au contenu du code.	The useful data is identical to the content of the code.
+Les espaces servent seulement à aérer le texte lisible : ils ne sont pas encodés.	Spaces only make the human-readable text easier to read: they are not encoded.
+Les lettres sont identiques mais pas leur casse : verrouillage majuscules actif sur le PC, ou conversion de casse réglée dans le scanner.	The letters are identical but not their case: caps lock on the PC, or case conversion set in the scanner.
 Les minuscules sont converties en majuscules.	Lowercase letters are converted to uppercase.
+Les systèmes GS1 risquent de le refuser : active le mode GS1 dans le logiciel d'étiquetage.	GS1 systems may reject it: enable GS1 mode in the labeling software.
 Les séparateurs FNC1 / GS sont ajoutés automatiquement là où il le faut. La clé du GTIN et du SSCC est calculée si tu saisis le numéro sans elle.	FNC1 / GS separators are added automatically where needed. The check digit of the GTIN and SSCC is computed if you enter the number without it.
+Les zéros au début du code ont disparu. Ce n'est presque jamais le scanner : c'est l'application qui convertit le code en nombre (Excel, champ numérique…).	The zeros at the start of the code disappeared. It's almost never the scanner: the application converts the code into a number (Excel, numeric field…).
 Les {0} analyse du dossier « {1} » seront supprimées, avec leurs images, noms et commentaires. Le dossier et sa fiche sont conservés.	The {0} analysis of the case “{1}” will be deleted, with its image, name and comment. The case and its record are kept.
 Les {0} analyses du dossier « {1} » seront supprimées, avec leurs images, noms et commentaires. Le dossier et sa fiche sont conservés.	The {0} analyses of the case “{1}” will be deleted, with their images, names and comments. The case and its record are kept.
 Les {0} lignes du journal des lectures seront effacées. Les analyses et comparaisons enregistrées dans l'historique ne sont pas touchées.	The {0} lines of the reading log will be cleared. Analyses and comparisons saved in the history are not affected.
+Les étoiles de début et de fin du Code 39 sont transmises avec les données.	The start and stop asterisks of Code 39 are transmitted with the data.
 Lettonie	Latvia
 Liaison arrêtée depuis {0} ({1}).	Link stopped from {0} ({1}).
 Liaison avec {0} ({1}) arrêtée.	Link with {0} ({1}) stopped.
@@ -716,7 +877,9 @@ Lien de suivi marketing ({0}).	Marketing tracking link ({0}).
 Lien non chiffré (http) : préfère https.	Unencrypted link (http): prefer https.
 Lien raccourci ou redirigé : la destination finale n'est pas visible avant ouverture.	Shortened or redirected link: the final destination isn't visible before opening.
 Lien vers une appli	App link
+Lien vers une application	Link to an app
 Lien web	Web link
+Liens web, Wi-Fi, paiement, GS1 Digital Link, traçabilité	Web links, Wi-Fi, payment, GS1 Digital Link, traceability
 Lieu	Location
 Lieu de production (GLN)	Production location (GLN)
 Lignes de lecture concordantes	Matching scan lines
@@ -730,25 +893,38 @@ Lisible : bon contraste.	Readable: good contrast.
 Lituanie	Lithuania
 Livre (ISBN)	Book (ISBN)
 Livrer à (GLN)	Ship to (GLN)
+Livres	Books
+Logistique, colis (GS1-128), étiquettes internes	Logistics, parcels (GS1-128), internal labels
 Logo central	Central logo
 Logo de la société (en-tête des rapports)	Company logo (report header)
 Longueur	Length
+Longueur incorrecte : {0} caractères au lieu de {1}.	Incorrect length: {0} characters instead of {1}.
 Longueur logistique	Logistic length
 Lot de remise à neuf	Refurbishment lot
 Lu seulement après accentuation de l'image : la photo est floue. Une douchette ou une caméra moins tolérante risque de ne pas le lire ; refais la photo plus nette si possible.	Read only after sharpening the image: the photo is blurry. A scanner or a less tolerant camera may not read it; retake the photo sharper if possible.
 Macao	Macao
 Macédoine du Nord	North Macedonia
 Main (déplacer)	Hand (move)
+Majuscules et minuscules modifiées	Uppercase and lowercase changed
+Majuscules, chiffres, - . espace $ / + %	Uppercase, digits, - . space $ / + %
 Majuscules, chiffres, - . espace $ / + %.	Uppercase, digits, - . space $ / + %.
 Malaisie	Malaysia
 Malte	Malta
 Marge autour du code	Margin around the code
 Marge de correction restante	Remaining error correction margin
 Maroc	Morocco
+Marquage de petites pièces	Marking small parts
 Marquage de très petites pièces.	Marking of very small parts.
 Masque de données	Data mask
 Masse surfacique	Area density
+Mauvaise langue de clavier (scanner en AZERTY, PC en QWERTY)	Wrong keyboard layout (scanner in AZERTY, PC in QWERTY)
+Mauvaise langue de clavier (scanner en QWERTY, PC en AZERTY)	Wrong keyboard layout (scanner in QWERTY, PC in AZERTY)
+MaxiCode : contenu lu, mais pas dessiné dans l'aperçu.	MaxiCode: content read, but not drawn in the preview.
+MaxiCode mode 2 ou 3	MaxiCode mode 2 or 3
+MaxiCode mode 4 ou 5	MaxiCode mode 4 or 5
 Mexique	Mexico
+Ministère de la santé italien	Italian Ministry of Health
+Mode D : les données ne forment pas une chaîne GS1 valide « (AI)valeur ».	Mode D: the data doesn't form a valid GS1 string “(AI)value”.
 Mode clavier	Keyboard mode
 Mode clavier (émulation)	Keyboard mode (emulation)
 Modifiable : chaque ligne peut être retouchée, l'envoi part tel quel	Editable: every line can be changed, it is sent as is
@@ -765,6 +941,7 @@ Modèles	Templates
 Moldavie	Moldova
 Molette ou pincement : zoom · Glisser : sélectionner · Espace, clic molette ou clic droit + glisser : déplacer · Échap : fermer	Wheel or pinch: zoom · Drag: select · Space, middle click or right click + drag: move · Esc: close
 Montant	Amount
+Montant attendu : code devise ISO sur 3 chiffres puis montant.	Amount expected: 3-digit ISO currency code, then amount.
 Montant par unité de mesure	Amount per unit of measure
 Montant à payer	Amount payable
 Monténégro	Montenegro
@@ -772,23 +949,31 @@ Mot de passe	Password
 Moteur : {0}. Analyse 100 % locale : l'image ne quitte pas ton appareil.	Engine: {0}. 100% local analysis: the image never leaves your device.
 Moteur de lecture indisponible	Reading engine unavailable
 Motif	Purpose
+Médicaments en Allemagne	Drugs in Germany
+Médicaments en Italie	Drugs in Italy
 Méthode de production	Production method
 Mêmes couleurs que les modules	Same colors as the modules
+N (normal, sous-ensembles par >…)	N (normal, subsets with >…)
 Nom de domaine internationalisé (punycode) : vérifie qu'il n'imite pas un site connu.	Internationalized domain name (punycode): check it doesn't imitate a well-known site.
 Nom du réseau (SSID)	Network name (SSID)
 Nom structuré	Structured name
 Nombre	Number
 Nombre d'unités contenues	Number of contained units
 Nombre d'unités contenues (37) sans GTIN contenu (02).	Number of contained units (37) without contained GTIN (02).
+Nombre entier attendu.	Integer expected.
+Nombre impair de chiffres : l'imprimante ajoute un 0 devant.	Odd number of digits: the printer adds a leading 0.
 Nombre pair de chiffres.	Even number of digits.
 Non classé	Unfiled
 Norme	Standard
 Norvège	Norway
+Notes	Notes
 Notes : matériel, contexte, conclusion (reprises dans le rapport)	Notes: equipment, context, conclusion (included in the report)
 Nouveau dossier	New case
 Nouveau dossier…	New case…
 Nouveau test	New test
 Nouvelle-Zélande	New Zealand
+Numérique, alphanumérique, octets	Numeric, alphanumeric, bytes
+Numérique, alphanumérique, octets, kanji	Numeric, alphanumeric, bytes, kanji
 Numéro	Number
 Numéro (nombre pair de chiffres)	Number (even number of digits)
 Numéro ({0} chiffres, ou {1} avec la clé)	Number ({0} digits, or {1} with the check digit)
@@ -799,9 +984,13 @@ Numéro de série secondaire	Secondary serial number
 Numéro de téléphone	Phone number
 Numéro surtaxé (08 9x) : appel facturé au prix fort.	Premium-rate number (08 9x): call charged at a high rate.
 N° d'approbation du transformateur	Processor approval number
+N° d'inventaire	Inventory number
+N° d'inventaire en QR Code et Code 128, désignation et propriétaire.	Inventory number as QR Code and Code 128, description and owner.
 N° de bulletin de paiement	Payment slip reference
 N° de commande client	Customer's purchase order number
+N° de suivi	Tracking number
 N° de série CPID	CPID serial number
+N° de série du composant	Component serial number
 N° de téléphone mobile	Mobile phone number
 Objet	Subject
 Octets reçus (hexadécimal)	Received bytes (hexadecimal)
@@ -822,14 +1011,18 @@ Ouvrir une image ou une photo à analyser (Ctrl + O)	Open an image or photo to a
 Où ranger tes fichiers	Where to store your files
 PDF417 (codage de base)	PDF417 (basic encoding)
 PDF417 (codage étendu)	PDF417 (extended encoding)
+PDF417 (interprétation de base)	PDF417 (basic interpretation)
+PDF417 (interprétation étendue)	PDF417 (extended interpretation)
 PNG, JPG, SVG ou WebP. Glisser-déposer possible.	PNG, JPG, SVG or WebP. Drag and drop works.
 PRESSE-PAPIERS	CLIPBOARD
 PZN (pharma allemand)	PZN (German pharma)
+PZN (pharmacie allemande)	PZN (German pharmacy)
 Page de relais absente.	Relay page missing.
 Page de relais ouverte sur {0} ({1}).	Relay page opened on {0} ({1}).
 Page ouverte au démarrage	Page opened at startup
 Paiement en cryptomonnaie	Cryptocurrency payment
 Paire	Even
+Palette logistique GS1 (SSCC)	GS1 logistic pallet (SSCC)
 Par défaut, l'historique est rangé à côté de Scanalyse.exe : il suit le programme (clé USB, dossier partagé). Choisis un dossier réseau pour que toute l'équipe partage les mêmes dossiers SAV.	By default, the history is stored next to Scanalyse.exe: it follows the program (USB stick, shared folder). Choose a network folder so the whole team shares the same service cases.
 Paramètres	Settings
 Pare-feu : ports {0} ouverts pour le réseau local. Recharge la page sur le terminal.	Firewall: ports {0} open for the local network. Reload the page on the terminal.
@@ -847,10 +1040,18 @@ Pays d'origine	Country of origin
 Pays d'origine (code ISO)	Country of origin (ISO code)
 Pays de démontage	Country of disassembly
 Pays de toute la chaîne	Country covering the full process chain
+Pays de toute la chaîne de transformation	Country covering the full process chain
 Pays de transformation	Country of processing
 Pays de transformation initiale	Country of initial processing
+Pays-Bas	Netherlands
 Pense à remettre la douchette dans son mode d'origine avant de la rendre au client.	Remember to put the scanner back in its original mode before returning it to the customer.
+Permis de conduire, cartes d'embarquement, profils de configuration (StageNow)	Driving licenses, boarding passes, configuration profiles (StageNow)
+Petites étiquettes	Small labels
+Petits articles (Amérique du Nord)	Small items (North America)
+Petits articles de santé	Small healthcare items
+Petits articles en point de vente	Small point-of-sale items
 Petits articles en point de vente.	Small point-of-sale items.
+Pharmacie (sérialisation), industrie, marquage direct, santé (UDI)	Pharmacy (serialization), industry, direct marking, healthcare (UDI)
 Photo envoyée par un client, capture de son écran, étiquette scannée… ou glisse un fichier ici.	Photo sent by a customer, screenshot of their screen, scanned label… or drop a file here.
 Photo ou capture d'un client : chaque code lu, détaillé (GS1, contenu caché) et l'étiquette vérifiée.	A customer's photo or screenshot: every code read, detailed (GS1, hidden content) and the label checked.
 Photo, capture d'écran, scan d'étiquette, PDF exporté en image…	Photo, screenshot, scanned label, PDF exported as an image…
@@ -858,11 +1059,14 @@ Pivoter l'aperçu d'un quart de tour à droite	Rotate the preview a quarter turn
 Pivoter l'aperçu d'un quart de tour à gauche	Rotate the preview a quarter turn left
 Plus le niveau est haut, plus le code supporte un logo, une tache ou un pli, mais plus il est dense.	The higher the level, the better the code tolerates a logo, a stain or a fold, but the denser it is.
 Plus tard	Later
+Poids	Weight
+Poids (kg)	Weight (kg)
 Poids brut	Gross weight
 Poids brut, kg (2 décimales)	Gross weight, kg (2 decimals)
 Poids net	Net weight
 Poids net ({0} kg) supérieur au poids brut ({1} kg).	Net weight ({0} kg) higher than gross weight ({1} kg).
 Poids net ({0} kg) ≤ poids brut ({1} kg).	Net weight ({0} kg) ≤ gross weight ({1} kg).
+Poids net en kg (3102)	Net weight in kg (3102)
 Poids net, kg (2 décimales)	Net weight, kg (2 decimals)
 Poids net, kg (3 décimales)	Net weight, kg (3 decimals)
 Point intérieur	Inner dot
@@ -878,6 +1082,7 @@ Ports {0}/{1} indisponibles ({2}) : une autre instance de Scanalyse ou un autre 
 Position géographique	Geographic location
 Pour la logistique, GS1 demande au moins 0,495 mm par module.	For logistics, GS1 requires at least 0.495 mm per module.
 Pour les longues sessions	For long sessions
+Premier écart à la position {0} : attendu « {1} », reçu « {2} ». Longueurs : {3} attendus, {4} reçus.	First difference at position {0}: expected “{1}”, received “{2}”. Lengths: {3} expected, {4} received.
 Prendre cette lecture comme référence	Use this reading as reference
 Prendre comme référence	Use as reference
 Presque toute la correction d'erreur est consommée : le code est abîmé, masqué (logo trop grand) ou mal imprimé.	Almost all error correction is used up: the code is damaged, hidden (logo too large) or badly printed.
@@ -887,10 +1092,14 @@ Prise en main	Getting started
 Prix (article à prix variable)	Price (variable-price item)
 Prix unitaire	Price per unit
 Prix à payer (2 décimales)	Amount payable (2 decimals)
+Problème	Problem
 Problème de lecture	Reading problem
 Problèmes	Problems
+Produit (GTIN, lot, date)	Product (GTIN, lot, date)
 Produit en rouleau (dimensions)	Roll products (dimensions)
+Produits frais à poids variable, coupons	Variable-weight fresh products, coupons
 Produits frais à poids variable, coupons.	Variable-weight fresh products, coupons.
+Profil StageNow décompressé localement. Les champs non reconnus restent visibles dans le profil décompressé.	StageNow profile decompressed locally. Unrecognized fields remain visible in the decompressed profile.
 Profil StageNow décompressé localement. Les champs non reconnus restent visibles dans « Profil décompressé ».	StageNow profile decompressed locally. Unrecognized fields remain visible in “Decompressed profile”.
 Profil Zebra StageNow	Zebra StageNow profile
 Profil de configuration Zebra StageNow	Zebra StageNow configuration profile
@@ -918,9 +1127,11 @@ Programme {0} · {1} lignes. Il peut être envoyé tel quel à une imprimante qu
 Programme — Scanalyse	Program — Scanalyse
 Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|Tous les fichiers (*.*)|*.*	Label programs (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|All files (*.*)|*.*
 Programmes d'étiquettes	Label programs
+Propriétaire	Owner
 Protocole	Protocol
 Précédent	Previous
 Préfixe 2 : code interne au magasin, souvent pour les produits pesés ou à prix variable.	Prefix 2: store-internal code, often for weighed or variable-price products.
+Préfixe <STX> ajouté	<STX> prefix added
 Préfixe GS1	GS1 prefix
 Prénom	First name
 Présente un code devant la caméra…	Hold a code in front of the camera…
@@ -932,11 +1143,16 @@ Pérou	Peru
 QR Code (FNC1 en 2e position, AIM)	QR Code (FNC1 in 2nd position, AIM)
 QR Code AIM avec ECI	AIM QR Code with ECI
 QR Code avec ECI	QR Code with ECI
+QR Code avec FNC1 en 2e position (AIM)	QR Code with FNC1 in 2nd position (AIM)
+QR Code avec FNC1 en 2e position et ECI	QR Code with FNC1 in 2nd position and ECI
 QR Code modèle 1	QR Code model 1
 QR Code modèle 2	QR Code model 2
+QR Code modèle 2 avec ECI	QR Code model 2 with ECI
 QR Code personnalisé	Custom QR Code
 QR personnalisé	Custom QR
 QR-facture suisse	Swiss QR-bill
+Qualité {0} : ancien Data Matrix ECC 000-140, que beaucoup de lecteurs refusent. Utilise 200 (ECC 200).	Quality {0}: old Data Matrix ECC 000-140, which many readers refuse. Use 200 (ECC 200).
+Quantité d'articles (37)	Number of items (37)
 Quantité variable	Variable count
 Quelle image analyser ?	Which image to analyze?
 Quoi de neuf	What's new
@@ -945,6 +1161,7 @@ REÇU	RECEIVED
 Rapport PDF|*.pdf|Page web (HTML)|*.html	PDF report|*.pdf|Web page (HTML)|*.html
 Rapport Scanalyse	Scanalyse report
 Rapport client ({0} dossiers)	Customer report ({0} cases)
+Rapport d'analyse des codes-barres	Barcode analysis report
 Rapport du dossier (PDF)	Case report (PDF)
 Rapport enregistré : {0}	Report saved: {0}
 Rapport non créé :	Report not created:
@@ -977,10 +1194,13 @@ Repris de :	Taken from:
 Repris de : {0}	Taken from: {0}
 Repris de l'analyse d'image : {0}{1}	Taken from the image analysis: {0}{1}
 Repères	Finder patterns
+Retire ce préfixe dans le scanner si l'application ne l'attend pas.	Remove this prefix in the scanner if the application doesn't expect it.
+Retire ces préfixes et suffixes dans le scanner, ou configure l'application pour les ignorer.	Remove these prefixes and suffixes in the scanner, or configure the application to ignore them.
 Retirer	Remove
 Retirer ce champ	Remove this field
 Retirer le logo	Remove the logo
 Retour	Back
+Retour chariot (touche Entrée)	Carriage return (Enter key)
 Revenir à côté du programme	Back next to the program
 Revoir l'accueil	Show welcome again
 Reçu ({0} caractères) : {1}	Received ({0} characters): {1}
@@ -992,7 +1212,11 @@ Rien à imprimer : corrige d'abord le contenu.	Nothing to print: fix the content
 Rien à installer sur le terminal : Scanalyse ouvre une page de relais dans son navigateur, la douchette intégrée y tape la lecture, et elle arrive ici avec le détail des touches. Zebra, Honeywell, Datalogic… toutes marques.	Nothing to install on the terminal: Scanalyse opens a relay page in its browser, the built-in scanner types the reading there, and it arrives here with the key details. Zebra, Honeywell, Datalogic… all brands.
 Roumanie	Romania
 Rouvrir	Reopen
+Royaume-Uni	United Kingdom
 Russie	Russia
+Règle l'encodage du scanner (ECI / page de code) ou active la saisie par codes ALT / Unicode.	Set the scanner's encoding (ECI / code page) or enable ALT code / Unicode input.
+Règle la langue du clavier du scanner sur celle du PC, ou passe par le mode HID POS / codes ALT.	Set the scanner's keyboard language to the PC's, or use HID POS mode / ALT codes.
+Règle la langue du clavier du scanner sur « Français (AZERTY) », ou utilise l'émulation par codes ALT / le mode HID POS qui ne dépend pas de la langue.	Set the scanner's keyboard language to “French (AZERTY)”, or use ALT code emulation / HID POS mode, which don't depend on the language.
 Réduire	Minimize
 Réduire ou afficher le journal	Collapse or show the log
 Réduire ou déployer le menu	Collapse or expand the menu
@@ -1002,10 +1226,13 @@ Référence (ticket, intervention)	Reference (ticket, job)
 Référence : contenu réel du code (accepte <GS>, <CR>… pour les caractères invisibles)	Reference: actual content of the code (accepts <GS>, <CR>… for invisible characters)
 Référence article additionnelle	Additional product identification
 Référence client	Customer part number
+Référence commande	Order reference
 Référence de l'entité source	Reference to source entity
 Référence enregistrée	Reference saved
+Référence interne	Internal reference
 Référence reprise d'une lecture : scanne à nouveau le code pour vérifier qu'il se lit toujours pareil.	Reference taken from a reading: scan the code again to check it always reads the same.
 Référence reprise de l'image ({0}) : scanne le même code avec la douchette.	Reference taken from the image ({0}): scan the same code with the scanner.
+Référence structurée	Structured reference
 Réglages du port série	Serial port settings
 Régénérer	Regenerate
 Réimprimer ce code	Reprint this code
@@ -1019,16 +1246,19 @@ Résolution	Resolution
 Résolution par défaut	Default resolution
 Résultat	Result
 SRIN (instance de service)	SRIN (service instance)
+SSCC (17 ou 18 chiffres)	SSCC (17 or 18 digits)
 SSCC (colis, palette)	SSCC (parcel, pallet)
 SSCC (n° de colis ou palette)	SSCC (parcel or pallet number)
 SVG (vectoriel)	SVG (vector)
 Sans zone de silence.	No quiet zone.
 Sans zones de silence, prévois une marge blanche autour du code à l'impression.	Without quiet zones, leave a white margin around the code when printing.
 Santé (sérialisation, UDI), traçabilité industrielle.	Healthcare (serialization, UDI), industrial traceability.
+Saut de ligne	Line feed
 Scanalyse - Composants tiers.txt	Scanalyse - Third-party components.txt
 Scanalyse - Quoi de neuf.txt	Scanalyse - What's new.txt
 Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {0} et {1}, uniquement depuis ton réseau local. Windows va demander les droits administrateur.	Scanalyse will add a rule allowing incoming connections on ports {0} and {1}, only from your local network. Windows will ask for administrator rights.
 Scanalyse · PDF417 · exemple	Scanalyse · PDF417 · sample
+Scanne le bon code, ou prends cette lecture comme nouvelle référence.	Scan the right code, or use this reading as the new reference.
 Scanne le même code : la lecture sera comparée à cette référence.	Scan the same code: the reading will be compared with this reference.
 Scanne maintenant le même code	Now scan the same code
 Scanne un code : il est analysé. Avec une référence, la lecture est comparée au contenu attendu.	Scan a code: it is analyzed. With a reference, the reading is compared with the expected content.
@@ -1038,7 +1268,11 @@ Se déconnecter	Disconnect
 Serbie	Serbia
 Ses {0} analyse ne sont pas perdues : elles reviennent dans « Non classé ».	Its {0} analysis is not lost: it goes back to “Unfiled”.
 Ses {0} analyses ne sont pas perdues : elles reviennent dans « Non classé ».	Its {0} analyses are not lost: they go back to “Unfiled”.
+Seuls les caractères accentués ou spéciaux diffèrent : le jeu de caractères n'est pas le même entre le code, le scanner et l'application (UTF-8, Latin-1…).	Only accented or special characters differ: the character set isn't the same between the code, the scanner and the application (UTF-8, Latin-1…).
 Seuls les chiffres sont acceptés.	Only digits are accepted.
+Seuls les chiffres sont autorisés.	Only digits are allowed.
+Si l'application ne l'attend pas, désactive la transmission de l'identifiant AIM / Code ID dans le scanner.	If the application doesn't expect it, disable AIM / Code ID transmission in the scanner.
+Si l'application valide deux fois ou passe au champ suivant à tort, retire ce suffixe dans le scanner.	If the application validates twice or wrongly moves to the next field, remove this suffix in the scanner.
 Signal DTR (PC prêt)	DTR signal (PC ready)
 Signature numérique	Digital signature
 Singapour	Singapore
@@ -1048,12 +1282,15 @@ Slovénie	Slovenia
 Société	Company
 Sombre	Dark
 Structure GS1 reconnue, mais le code n'est pas marqué GS1 (identifiant {0} sans FNC1 en tête). Les systèmes GS1 risquent de le refuser : active le mode GS1 dans le logiciel d'étiquetage.	GS1 structure recognized, but the code isn't flagged as GS1 (identifier {0} without leading FNC1). GS1 systems may reject it: enable GS1 mode in the labeling software.
+Structure GS1 reconnue, mais le code n'est pas marqué GS1 ({0}, sans FNC1 en tête).	GS1 structure recognized, but the code isn't flagged as GS1 ({0}, without leading FNC1).
 Styles rapides	Quick styles
 Subdivision du pays d'origine	Country subdivision of origin
+Suffixe ajouté : {0}	Suffix added: {0}
 Suisse	Switzerland
 Suisse et Liechtenstein	Switzerland and Liechtenstein
 Suivant	Next
 Supplément	Add-on
+Suppression	Delete
 Supprime toutes les analyses de ce dossier ; le dossier et sa fiche sont conservés	Deletes all analyses in this case; the case and its record are kept
 Supprimer	Delete
 Supprimer automatiquement les analyses plus anciennes que	Automatically delete analyses older than
@@ -1065,16 +1302,26 @@ Supprimer les {0} analyses	Delete the {0} analyses
 Sur le terminal : ouvre le navigateur, touche la barre d'adresse, puis scanne ce QR avec le lecteur du terminal. L'adresse s'écrit, la douchette envoie Entrée, et la page s'ouvre.	On the terminal: open the browser, tap the address bar, then scan this QR with the terminal's scanner. The address is typed, the scanner sends Enter and the page opens.
 Surface	Area
 Surface logistique	Logistic area
+Surfaces étroites (bords de cartons, tubes)	Narrow surfaces (box edges, tubes)
 Suède	Sweden
 Symbologie	Symbology
+Synthèse	Summary
 Système	System
 Sécurité	Security
 Sélectionne la ligne de ce code dans le programme, pour la lire ou la corriger	Selects this code's line in the program, to read or fix it
 Sélectionne la zone qui contient le code : elle sera analysée automatiquement.	Select the area that contains the code: it will be analyzed automatically.
 Sélectionner une zone	Select an area
 Sélectionner une zone de l'écran avec l'outil Capture de Windows	Select an area of the screen with the Windows Snipping Tool
+Séparateur GS1 (GS) supprimé	GS1 separator (GS) removed
+Séparateur GS1 remplacé par « {0} »	GS1 separator replaced with “{0}”
+Séparateur d'enregistrement (format ISO 15434)	Record separator (ISO 15434 format)
+Séparateur d'unité	Unit separator
+Séparateur de fichier	File separator
+Séparateur de groupe (FNC1 / GS1)	Group separator (FNC1 / GS1)
 Séquence (structured append)	Sequence (structured append)
 TSC et nombreuses imprimantes d'entrée de gamme	TSC and many entry-level printers
+TSPL : les caractères de contrôle (<GS>, <RS>…) ne sont pas transmis de façon fiable. Utilise le ZPL pour ce contenu.	TSPL: control characters (<GS>, <RS>…) are not transmitted reliably. Use ZPL for this content.
+Tabulation	Tab
 Taille d'un module	Module size
 Taille dans l'image	Size in the image
 Taille de l'interface	Interface size
@@ -1095,6 +1342,7 @@ Texte libre sous le code (facultatif : référence, n° de dossier…)	Free text
 Texte lisible sous le code	Human-readable text under the code
 Texte lisible sous le code (codes 1D)	Human-readable text under the code (1D codes)
 Texte sélectionné : Ctrl+C	Text selected: Ctrl+C
+Texte, numérique, octets	Text, numeric, bytes
 Thaïlande	Thailand
 Thème	Theme
 Thème :	Theme:
@@ -1116,6 +1364,7 @@ Trait horizontal {0} points	Horizontal line {0} dots
 Trait vertical {0} points	Vertical line {0} dots
 Travailler sur ce dossier	Work on this case
 Traçabilité lisible par smartphone.	Traceability readable by smartphone.
+Tri de colis (UPS)	Parcel sorting (UPS)
 Trop petit pour la grande distribution : GS1 recommande 0,33 mm (0,264 mm au minimum).	Too small for retail: GS1 recommends 0.33 mm (0.264 mm minimum).
 Tu pourras la relancer à tout moment depuis Paramètres → Prise en main.	You can start it again at any time from Settings → Getting started.
 Tunisie	Tunisia
@@ -1128,6 +1377,7 @@ Téléchargement annulé.	Download cancelled.
 Télécharger	Download
 Téléchargé :	Downloaded:
 Téléphone	Phone
+UPC-A converti en EAN-13	UPC-A converted to EAN-13
 UPC-E d'origine	Original UPC-E
 URL de l'emballage étendu	Extended packaging URL
 UTF-8 (détecté)	UTF-8 (detected)
@@ -1145,6 +1395,10 @@ Usages typiques	Typical uses
 Utilise Ctrl + V directement sur la page.	Use Ctrl + V directly on the page.
 Utiliser le mode clavier	Use keyboard mode
 Valeur	Value
+Valeur numérique attendue.	Numeric value expected.
+Variable, pair	Variable, even
+Variable, ~25 caractères en pratique	Variable, ~25 characters in practice
+Variable, ~48 caractères en pratique	Variable, ~48 characters in practice
 Variante de produit	Product variant
 Variante sur commande	Made-to-order variation
 Version / taille	Version / size
@@ -1165,6 +1419,10 @@ Volume net	Net volume
 Vue structurée	Structured view
 Vue structurée (sections et champs)	Structured view (sections and fields)
 Vue structurée (sections, champs), interprétation et caractéristiques : lisible par le client	Structured view (sections, fields), interpretation and characteristics: readable by the customer
+Vérifie la longueur maximale de la symbologie dans le scanner et la taille du champ de l'application (au moins {0} caractères).	Check the symbology's maximum length in the scanner and the size of the application's field (at least {0} characters).
+Vérifie que l'application (ou Loftware, ou le WMS) utilise le même remplaçant ; sinon aligne le réglage du scanner.	Check that the application (or Loftware, or the WMS) uses the same replacement; otherwise align the scanner setting.
+Vérifie que la symbologie est activée dans le scanner (DataWedge, EZConfig, Aladdin…) et que ses longueurs minimale et maximale acceptent ce code.	Check that the symbology is enabled in the scanner (DataWedge, EZConfig, Aladdin…) and that its minimum and maximum lengths accept this code.
+Vérifie que le bon code a été scanné, puis les règles de transformation du scanner (remplacement de caractères, modification des données).	Check that the right code was scanned, then the scanner's transformation rules (character replacement, data modification).
 Vérifie toujours le bénéficiaire et l'IBAN avant de payer : un QR de paiement peut être collé par-dessus l'original.	Always check the beneficiary and IBAN before paying: a payment QR can be stuck over the original.
 Vérifié : relu correctement (identifiant {0}).	Checked: read back correctly (identifier {0}).
 Vérifié : relu correctement.	Checked: read back correctly.
@@ -1179,6 +1437,7 @@ Zone de capture	Catch area
 Zone de silence	Quiet zone
 Zones de silence (marges blanches)	Quiet zones (white margins)
 Zoomer (Ctrl + molette)	Zoom in (Ctrl + wheel)
+Zéros de tête supprimés	Leading zeros removed
 absent (installer « WebView2 Runtime » de Microsoft)	missing (install Microsoft's “WebView2 Runtime”)
 absente : le message est peut-être tronqué.	missing: the message may be truncated.
 adb n'a pas démarré.	adb did not start.
@@ -1187,6 +1446,7 @@ adb.exe|adb.exe|Programmes|*.exe	adb.exe|adb.exe|Programs|*.exe
 ajoutée	added
 aucune analyse	no analysis
 aucune imprimante installée	no printer installed
+aucune requise	none required
 banc d'essai	test bench
 bons de remboursement	refund vouchers
 ce que le code contient	what the code contains
@@ -1200,6 +1460,9 @@ clé invalide (attendue	invalid check digit (expected
 clé valide	valid check digit
 code fournisseur	supplier code
 code pays	country code
+code pays {0}	country code {0}
+comparaison douchette	scanner comparison
+comparaisons douchette	scanner comparisons
 conforme (≥ {0} module)	compliant (≥ {0} module)
 conforme (≥ {0} modules)	compliant (≥ {0} modules)
 contenu refusé pour ce type de code.	content refused for this code type.
@@ -1227,9 +1490,12 @@ image de {0} × {1} px	image of {0} × {1} px
 image de {0} × {1} px · {2} ms	image of {0} × {1} px · {2} ms
 image en miroir	mirrored image
 image, capture ou collage	image, capture or paste
+images analysées	analyzed images
 imprimante d'étiquettes	label printer
+jj/mm/aaaa	dd/mm/yyyy
 jsQR (QR codes uniquement, analyse réduite)	jsQR (QR codes only, reduced analysis)
 la page du rapport ne s'est pas chargée.	the report page did not load.
+langage non reconnu	language not recognized
 le moteur Edge n'a pas pu créer le PDF (fichier ouvert dans un autre programme ?).	the Edge engine could not create the PDF (file open in another program?).
 les 3 coins	the 3 corners
 les petits points	the small dots
@@ -1238,20 +1504,27 @@ module {0} points ({1} mm)	module {0} dots ({1} mm)
 module {0} points ({1} mm) · hauteur {2} mm	module {0} dots ({1} mm) · height {2} mm
 monnaie locale	local currency
 mot de passe	password
+mot de passe {0}	password {0}
+ni la largeur (^PW) ni la longueur (^LL)	neither the width (^PW) nor the length (^LL)
 nombre attendu	number expected
 non	no
 non chiffré	not encrypted
+non classé	unfiled
 non précisée	not specified
 non vérifiable (code au bord de l'image)	can't be checked (code at the edge of the image)
 normale	normal
 numéro de lot	lot number
 numéro de série	serial number
+objet :	object:
 objet : {0}	object: {0}
 oui	yes
 oui (code de configuration de scanner)	yes (scanner configuration code)
 page de codes 850	code page 850
+paramètres (voir le profil décompressé)	settings (see the decompressed profile)
 paramètres ci-dessous	settings below
 part de la correction d'erreur encore inutilisée	share of error correction still unused
+pas la largeur (^PW)	not the width (^PW)
+pas la longueur (^LL)	not the length (^LL)
 pays non précisé	country not specified
 point de départ	starting point
 points	dots
@@ -1259,6 +1532,7 @@ points ({0} mm)	dots ({0} mm)
 police {0} · {1}×{2}	font {0} · {1}×{2}
 programme ZPL lu, ligne {0}	ZPL program read, line {0}
 programme {0} lu, ligne {1}	{0} program read, line {1}
+préfixe illisible	unreadable prefix
 préfixe non attribué	unassigned prefix
 quantité	quantity
 rMQR (QR rectangulaire)	rMQR (rectangular QR)
@@ -1267,6 +1541,7 @@ référence article du client	customer part number
 référence article du fournisseur	supplier part number
 référence de commande	order reference
 réseau	network
+réseau {0}	network {0}
 sur cette page. Le glisser-déposer marche aussi.	on this page. Drag and drop works too.
 symbole {0} sur {1}	symbol {0} of {1}
 tableau de {0} éléments	array of {0} items
@@ -1285,14 +1560,23 @@ zone de {0} × {1} px	area of {0} × {1} px
 zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0}  (en cours)	{0}  (current)
 {0} (GS1-128) porte {1} caractères de données : la norme en autorise 48 au maximum par symbole. Répartis les données sur deux codes.	{0} (GS1-128) carries {1} data characters: the standard allows 48 at most per symbol. Spread the data over two codes.
+{0} (devise ISO {1})	{0} (ISO currency {1})
 {0} ({1}) postérieure à la {2} ({3}).	{0} ({1}) later than the {2} ({3}).
 {0} : aucun code détecté.	{0}: no code detected.
+{0} : clé de contrôle fausse ({1}), corrigée en {2}.	{0}: wrong check digit ({1}), corrected to {2}.
+{0} : date « {1} » non comprise (attendu jj/mm/aaaa).	{0}: date “{1}” not understood (expected dd/mm/yyyy).
 {0} : la quantité contenue (37) s'emploie avec le GTIN contenu (02), pas avec le GTIN de l'article (01).	{0}: the contained quantity (37) is used with the contained GTIN (02), not with the item GTIN (01).
 {0} : lecture détaillée non disponible. Pour retrouver le contenu des codes, imprime l'étiquette et passe-la dans « Analyser une image » (photo ou capture), ou scanne-la au banc d'essai.	{0}: detailed reading not available. To find the content of the codes, print the label and put it through “Analyze an image” (photo or capture), or scan it at the test bench.
 {0} : les AI 01 et 02 ne peuvent pas figurer dans le même code.	{0}: AIs 01 and 02 cannot appear in the same code.
 {0} : même article à des niveaux d'emballage différents ({1}). Normal sur un carton qui porte aussi le code de l'unité consommateur.	{0}: same item at different packaging levels ({1}). Normal on a carton that also carries the consumer unit's code.
+{0} : seuls les chiffres sont permis.	{0}: only digits are allowed.
+{0} : valeur trop grande pour {1} chiffres.	{0}: value too large for {1} digits.
+{0} : {1} chiffres attendus (ou {2} avec la clé), {3} caractères reçus.	{0}: {1} digits expected (or {2} with the check digit), {3} characters received.
+{0} : {1} chiffres attendus ({2} sans la clé), {3} saisis.	{0}: {1} digits expected ({2} without the check digit), {3} entered.
+{0} : {1} chiffres attendus, {2} reçus : l'imprimante complète ou refuse le code.	{0}: {1} digits expected, {2} received: the printer completes or refuses the code.
 {0} : {1} code détecté.	{0}: {1} code detected.
 {0} : {1} codes détectés.	{0}: {1} codes detected.
+{0} : « {1} » n'est pas un nombre.	{0}: “{1}” is not a number.
 {0} analyse	{0} analysis
 {0} analyse de plus de {1} jours supprimée (Paramètres → Historique).	{0} analysis older than {1} days deleted (Settings → History).
 {0} analyses	{0} analyses
@@ -1324,6 +1608,9 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} lignes	{0} lines
 {0} lignes · langage non reconnu. Vérifie que c'est bien le fichier d'impression (et non un export PDF ou image).	{0} lines · language not recognized. Check that it is really the print file (not a PDF or image export).
 {0} n'a pas d'équivalent fiable dans les langages d'imprimante proposés (ZPL, TSPL, EPL2).	{0} has no reliable equivalent in the offered printer languages (ZPL, TSPL, EPL2).
+{0} n'est pas généré en DPL (FNC1 et paramètres propres à chaque firmware). Utilise le ZPL : les Honeywell PM/PD/PX le comprennent en émulation.	{0} is not generated in DPL (FNC1 and settings specific to each firmware). Use ZPL: Honeywell PM/PD/PX printers understand it through emulation.
+{0} n'est pas généré en EPL2 (langage ancien, 2D et GS1 selon le modèle). Utilise le ZPL : les Zebra récentes ne parlent plus que ZPL.	{0} is not generated in EPL2 (old language, 2D and GS1 depending on the model). Use ZPL: recent Zebra printers only speak ZPL.
+{0} n'est pas généré en TSPL : la gestion du FNC1 et des codes Aztec varie selon les firmwares. Utilise le ZPL (la plupart des TSC le comprennent en émulation).	{0} is not generated in TSPL: FNC1 and Aztec support varies between firmwares. Use ZPL (most TSC printers understand it through emulation).
 {0} n'est plus disponible ou ne répond pas : rebranche-la puis actualise la liste.	{0} is no longer available or doesn't answer: plug it back in, then refresh the list.
 {0} ne répond plus (douchette débranchée ?).	{0} no longer answers (scanner unplugged?).
 {0} px de côté	{0} px wide
@@ -1336,7 +1623,9 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} touches dont {1} non reconnue par le navigateur ({2})	{0} keys, {1} not recognized by the browser ({2})
 {0} touches dont {1} non reconnues par le navigateur ({2})	{0} keys, {1} not recognized by the browser ({2})
 {0} · affichage par sections (décoche pour le texte brut)	{0} · shown by sections (uncheck for raw text)
+{0} · extension {1} · préfixe GS1 : {2}	{0} · extension {1} · GS1 prefix: {2}
 {0} · image de {1} × {2} px · {3} ms	{0} · image of {1} × {2} px · {3} ms
+{0} · indicateur {1} · préfixe GS1 : {2}	{0} · indicator {1} · GS1 prefix: {2}
 {0} · ligne {1} · x {2}, y {3}	{0} · line {1} · x {2}, y {3}
 {0} · ligne {1} · x {2}, y {3} (^FO){4}	{0} · line {1} · x {2}, y {3} (^FO){4}
 {0} · ligne {1} · x {2}, y {3} (^FT){4}	{0} · line {1} · x {2}, y {3} (^FT){4}
@@ -1346,11 +1635,14 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} · {1} champ	{0} · {1} field
 {0} · {1} champs	{0} · {1} fields
 {0} Étiquette {1} × {2} mm, valeurs d'exemple à remplacer.	{0} Label {1} × {2} mm, sample values to replace.
+{0} étiquettes dans le programme : seule la première est affichée.	{0} labels in the program: only the first one is shown.
 « Source » indique comment la douchette est reliée au PC. Importer, Coller (Ctrl + Maj + V), Capturer une zone ou Caméra : l'image part dans « Analyser une image », où chaque code est lu et détaillé.	“Source” shows how the scanner is connected to the PC. Import, Paste (Ctrl + Shift + V), Capture an area or Camera: the image goes to “Analyze an image”, where every code is read and detailed.
 « USB CDC » chez Zebra, « USB Serial » chez Honeywell, « USB-COM » chez Datalogic. Windows crée un port COM, puis clique sur Actualiser.	“USB CDC” at Zebra, “USB Serial” at Honeywell, “USB-COM” at Datalogic. Windows creates a COM port; then click Refresh.
 « USB HID POS », si le modèle le propose. Windows le reconnaît sans pilote et indique en plus la symbologie lue.	“USB HID POS”, if the model offers it. Windows recognizes it without a driver and also reports the symbology read.
 « {0} » du {1} sera supprimée, avec son image, son nom et son commentaire.	“{0}” of {1} will be deleted, with its image, name and comment.
+« {0} » est vide.	“{0}” is empty.
 « {0} » rangé dans {1}.	“{0}” filed in {1}.
+« {0} » s'imprime « {1} »	“{0}” prints as “{1}”
 · créé le {0}	· created on {0}
 · identifiant	· identifier
 · identifiant {0}	· identifier {0}
@@ -1365,7 +1657,9 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 À propos de Scanalyse	About Scanalyse
 À vérifier	To check
 ÉTIQUETTE	LABEL
+Échappement	Escape
 Échelle d'export	Export scale
+Édité le {0}	Issued on {0}
 Égypte	Egypt
 Émetteur	Issuer
 Émirats arabes unis	United Arab Emirates
@@ -1378,8 +1672,10 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 Étiquette cohérente	Consistent label
 Étiquette cohérente : les données sont identiques d'un code à l'autre et respectent les règles GS1.	Consistent label: data is identical from one code to another and follows the GS1 rules.
 Étiquette du programme ZPL envoyée à l'analyse : chaque code est relu comme sur une photo.	Label from the ZPL program sent for analysis: each code is read again as from a photo.
+Étiquette palette normalisée GS1 : SSCC, GTIN contenu, quantité, lot, DDM, poids, en trois GS1-128.	Standard GS1 pallet label: SSCC, contained GTIN, quantity, lot, best before date, weight, in three GS1-128.
 Étiquette {0} envoyée à {1}:{2}.	{0} label sent to {1}:{2}.
 Étiquette {0} envoyée à « {1} ».	{0} label sent to “{1}”.
+Étiquette · {0} codes	Label · {0} codes
 Étiquette à vérifier :	Label to check:
 Étiquettes complètes prêtes à l'emploi : remplis les champs, les clés de contrôle et les codes GS1 sont calculés, le programme ZPL est prêt à envoyer.	Complete ready-to-use labels: fill in the fields, check digits and GS1 codes are computed, the ZPL program is ready to send.
 Étiquettes internes, logistique, inventaire.	Internal labels, logistics, inventory.
