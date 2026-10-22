@@ -156,6 +156,16 @@ public partial class DevicesView : UserControl
     /// </summary>
     private async void Firewall_Click(object sender, RoutedEventArgs e)
     {
+        if (!await Dialogs.ConfirmAsync(
+                "Modifier le pare-feu Windows ?",
+                $"Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {Relay.RelayServer.HttpPort} et {Relay.RelayServer.RawPort}, uniquement depuis ton réseau local. Windows va demander les droits administrateur.",
+                "Autoriser",
+                null,
+                danger: false))
+        {
+            return;
+        }
+
         const string name = "Scanalyse - relais terminal";
         var ports = $"{Relay.RelayServer.HttpPort}-{Relay.RelayServer.RawPort}";
         var command = $"/c netsh advfirewall firewall delete rule name=\"{name}\" >nul 2>&1 & "

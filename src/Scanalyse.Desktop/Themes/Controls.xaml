@@ -129,6 +129,16 @@
     <Setter Property="Padding" Value="18,0" />
   </Style>
 
+  <!-- Action destructrice (supprimer, vider) : seulement dans les confirmations -->
+  <Style x:Key="BtnDanger" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+    <Setter Property="Background" Value="{DynamicResource BadFg}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BadFg}" />
+    <Setter Property="Foreground" Value="{DynamicResource Surface}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Height" Value="40" />
+    <Setter Property="Padding" Value="18,0" />
+  </Style>
+
   <Style x:Key="BtnGhost" TargetType="Button" BasedOn="{StaticResource BtnBase}">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />

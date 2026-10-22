@@ -216,6 +216,18 @@ public sealed class HistoryStore
         return ImagePath(entry);
     }
 
+    /// <summary>Supprime toutes les analyses d'un dossier (le dossier, lui, reste). Renvoie leur nombre.</summary>
+    public int DeleteEntriesOf(string caseId)
+    {
+        var entries = EntriesOf(caseId);
+        foreach (var e in entries)
+        {
+            Delete(e);
+        }
+
+        return entries.Count;
+    }
+
     /// <summary>Range une entrée dans un autre dossier.</summary>
     public void Move(HistoryEntry entry, string caseId)
     {

@@ -222,6 +222,9 @@
           </Border>
         </Grid>
       </Grid>
+
+      <!-- Confirmations (suppression, actions irréversibles) : par-dessus la barre d'outils et les pages -->
+      <views:ConfirmOverlay x:Name="Confirm" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="100" />
     </Grid>
   </Border>
 </Window>

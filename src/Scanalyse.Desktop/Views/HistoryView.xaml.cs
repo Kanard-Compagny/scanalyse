@@ -220,10 +220,21 @@ public partial class HistoryView : UserControl
         }
     }
 
-    private void DeleteCase_Click(object sender, RoutedEventArgs e)
+    private async void DeleteCase_Click(object sender, RoutedEventArgs e)
     {
         var c = SelectedCase;
         if (c.IsInbox)
+        {
+            return;
+        }
+
+        var count = _store!.EntriesOf(c.Id).Count;
+        if (!await Dialogs.ConfirmAsync(
+                "Supprimer ce dossier ?",
+                $"Le dossier « {c.DisplayName} » et sa fiche (client, référence, intervenant, notes) seront supprimés."
+                + (count > 0 ? $" Ses {count} analyse{(count > 1 ? "s" : string.Empty)} ne sont pas perdues : elles reviennent dans « Non classé »." : string.Empty),
+                "Supprimer le dossier",
+                "La fiche du dossier ne pourra pas être récupérée."))
         {
             return;
         }
@@ -239,6 +250,31 @@ public partial class HistoryView : UserControl
         {
             Refresh();
         }
+    }
+
+    /// <summary>« Vider le dossier » : toutes ses analyses et leurs images sont supprimées définitivement.</summary>
+    private async void EmptyCase_Click(object sender, RoutedEventArgs e)
+    {
+        var c = SelectedCase;
+        var count = _store!.EntriesOf(c.Id).Count;
+        if (count == 0)
+        {
+            Log?.Invoke(LogKind.Info, $"Le dossier « {c.DisplayName} » est déjà vide.");
+            return;
+        }
+
+        if (!await Dialogs.ConfirmAsync(
+                "Vider ce dossier ?",
+                $"Les {count} analyse{(count > 1 ? "s" : string.Empty)} du dossier « {c.DisplayName} » seront supprimées, avec leurs images, noms et commentaires. Le dossier et sa fiche sont conservés.",
+                count > 1 ? $"Supprimer les {count} analyses" : "Supprimer l'analyse",
+                "Action irréversible : les analyses supprimées ne pourront pas être récupérées."))
+        {
+            return;
+        }
+
+        var deleted = _store.DeleteEntriesOf(c.Id);
+        Log?.Invoke(LogKind.Info, $"Dossier « {c.DisplayName} » vidé : {deleted} analyse{(deleted > 1 ? "s" : string.Empty)} supprimée{(deleted > 1 ? "s" : string.Empty)}.");
+        Refresh();
     }
 
     private async void Report_Click(object sender, RoutedEventArgs e)
@@ -401,9 +437,19 @@ public partial class HistoryView : UserControl
         _store!.Update(entry);
     }
 
-    private void DeleteEntry_Click(object sender, RoutedEventArgs e)
+    private async void DeleteEntry_Click(object sender, RoutedEventArgs e)
     {
-        _store!.Delete(EntryOf(sender));
+        var entry = EntryOf(sender);
+        if (!await Dialogs.ConfirmAsync(
+                "Supprimer cette analyse ?",
+                $"« {entry.Title} » du {entry.At:dd/MM/yyyy à HH:mm} sera supprimée, avec son image, son nom et son commentaire.",
+                "Supprimer l'analyse",
+                "Action irréversible."))
+        {
+            return;
+        }
+
+        _store!.Delete(entry);
         Refresh();
     }
 }

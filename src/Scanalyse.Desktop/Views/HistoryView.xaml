@@ -132,6 +132,8 @@
               <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Rapport du dossier (PDF)" Click="Report_Click" />
               <Button x:Name="ClientReportButton" DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="ClientReport_Click" Margin="0,0,8,0" Visibility="Collapsed" />
               <Button x:Name="DeleteCaseButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Supprimer le dossier" Click="DeleteCase_Click" Margin="0,0,8,0" />
+              <Button x:Name="EmptyCaseButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Vider le dossier" Click="EmptyCase_Click" Margin="0,0,4,0"
+                      ToolTip="Supprime toutes les analyses de ce dossier ; le dossier et sa fiche sont conservés" />
             </DockPanel>
           </StackPanel>
         </Border>

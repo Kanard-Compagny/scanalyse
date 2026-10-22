@@ -53,6 +53,18 @@ public partial class MainWindow : Window
         _atelier.Ready += OnAtelierReady;
         _atelier.CompareRequested += OnCompareRequested;
         _atelier.Analyzed += OnAnalyzed;
+        // Le moteur web s'affiche toujours au-dessus des éléments WPF : on le masque le temps d'une confirmation.
+        Confirm.IsVisibleChanged += (_, _) =>
+        {
+            if (Confirm.IsVisible && Web.Visibility == Visibility.Visible)
+            {
+                Web.Visibility = Visibility.Hidden;
+            }
+            else if (!Confirm.IsVisible && Web.Visibility == Visibility.Hidden)
+            {
+                Web.Visibility = Visibility.Visible;
+            }
+        };
         HistoryPage.ActiveCaseChanged += OnActiveCaseChanged;
         HistoryPage.ReopenRequested += OnReopenRequested;
         HistoryPage.ReportRequested = GenerateReportAsync;
@@ -827,8 +839,17 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ClearLog_Click(object sender, RoutedEventArgs e)
+    private async void ClearLog_Click(object sender, RoutedEventArgs e)
     {
+        if (_log.Count == 0 || !await Confirm.AskAsync(
+                "Effacer le journal ?",
+                $"Les {_log.Count} lignes du journal des lectures seront effacées. Les analyses et comparaisons enregistrées dans l'historique ne sont pas touchées.",
+                "Effacer le journal",
+                "Le journal n'est pas sauvegardé : copie-le avant si tu en as besoin."))
+        {
+            return;
+        }
+
         _log.Clear();
         LogCount.Text = string.Empty;
     }
