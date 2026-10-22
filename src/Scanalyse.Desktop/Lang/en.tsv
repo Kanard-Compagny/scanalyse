@@ -1033,6 +1033,8 @@ Liaison avec {0} ({1}) arrêtée.	Link with {0} ({1}) stopped.
 Liaison avec {0} arrêtée.	Link with {0} stopped.
 Liaison perdue	Link lost
 Liban	Lebanon
+Licence GNU GPL v3	GNU GPL v3 license
+Licence GPL v3	GPL v3 license
 Lien	Link
 Lien GS1 Digital Link	GS1 Digital Link
 Lien GS1 Digital Link : la même étiquette sert au passage en caisse et à une page web produit.	GS1 Digital Link: the same label works at checkout and for a product web page.
@@ -1062,6 +1064,7 @@ Lituanie	Lithuania
 Livre (ISBN)	Book (ISBN)
 Livrer à (GLN)	Ship to (GLN)
 Livres	Books
+Logiciel libre et gratuit sous licence GNU GPL v3 : chacun peut l'utiliser, le partager et l'améliorer, à condition que ses versions restent libres. Fourni sans aucune garantie.	Free and open-source software under the GNU GPL v3: anyone may use, share and improve it, as long as their versions stay free. Provided without any warranty.
 Logiciel qui lit un port COM ; aussi pour le banc d'essai en liaison série (pilote CDC).	Software reading a COM port; also for the test bench over a serial link (CDC driver).
 Logiciels de caisse en OPOS / JavaPOS.	Point-of-sale software using OPOS / JavaPOS.
 Logistique, colis (GS1-128), étiquettes internes	Logistics, parcels (GS1-128), internal labels

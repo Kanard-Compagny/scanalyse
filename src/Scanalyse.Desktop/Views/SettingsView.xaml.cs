@@ -322,6 +322,8 @@ public partial class SettingsView : UserControl
 
     private void Changelog_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.Changelog.md", "Quoi de neuf");
 
+    private void License_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.License.txt", "Licence GNU GPL v3");
+
     private void Licenses_Click(object sender, RoutedEventArgs e) => OpenEmbedded("Scanalyse.ThirdParty.md", "Composants tiers et licences");
 
     /// <summary>Ouvre un texte embarqué dans le programme, mis en forme dans une fenêtre aux couleurs de Scanalyse.</summary>

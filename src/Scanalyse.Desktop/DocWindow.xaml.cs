@@ -101,13 +101,23 @@ public partial class DocWindow : Window
                 continue;
             }
 
+            // Lignes consécutives = un seul paragraphe (comme en Markdown ; texte de licence coupé à 80 colonnes).
+            var text = line.Trim();
+            while (i + 1 < lines.Length && lines[i + 1].Trim().Length > 0 && !IsBlockStart(lines[i + 1]))
+            {
+                text += " " + lines[++i].Trim();
+            }
+
             var para = new Paragraph { Margin = new Thickness(0, 0, 0, 10) };
-            AddInlines(para.Inlines, line);
+            AddInlines(para.Inlines, text);
             doc.Blocks.Add(para);
         }
 
         return doc;
     }
+
+    private static bool IsBlockStart(string line) =>
+        Bullet().IsMatch(line.TrimEnd()) || Heading().IsMatch(line.TrimEnd()) || line.TrimStart().StartsWith('|') || Numbered().IsMatch(line);
 
     private Table BuildTable(List<string> rows)
     {
@@ -210,6 +220,9 @@ public partial class DocWindow : Window
 
     [GeneratedRegex(@"^(?<indent>\s*)[-*]\s+(.*)$")]
     private static partial Regex Bullet();
+
+    [GeneratedRegex(@"^\s*\d+\.\s")]
+    private static partial Regex Numbered();
 
     [GeneratedRegex(@"^(#{1,4})\s+(.*)$")]
     private static partial Regex Heading();

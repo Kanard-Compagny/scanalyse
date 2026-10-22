@@ -2,7 +2,7 @@
 
 Analyse et diagnostic de lecture des codes-barres : **ce que contient un code, à quoi il sert, et pourquoi il passe ou non** entre le code imprimé, le scanner et l'application.
 
-> Logiciel privé — tous droits réservés.
+> Logiciel libre et gratuit, créé par **Mr.Kanard** pour les techniciens qui en ont besoin — licence [GNU GPL v3](LICENSE).
 
 ## Contenu de la solution
 
@@ -70,3 +70,17 @@ On obtient un unique `Scanalyse.exe` autonome dans `src/Scanalyse.Desktop/bin/Po
 - Code et commentaires en français pour la documentation, identifiants en anglais.
 - Avertissements traités comme des erreurs dans le Core.
 - Toute règle d'analyse ou de diagnostic s'accompagne d'un test.
+
+## Licence
+
+Scanalyse — analyse et diagnostic de lecture des codes-barres
+Copyright © 2026 Mr.Kanard
+
+Ce programme est un logiciel libre : vous pouvez le redistribuer et/ou le modifier selon les termes de la
+**GNU General Public License version 3** publiée par la Free Software Foundation (voir [LICENSE](LICENSE)).
+Toute version modifiée et distribuée doit rester sous la même licence, avec son code source.
+
+Ce programme est distribué dans l'espoir qu'il sera utile, mais **sans aucune garantie** ; sans même la garantie
+implicite de qualité marchande ou d'adéquation à un usage particulier.
+
+Les composants tiers gardent leur propre licence (MIT, Apache 2.0…) : voir [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

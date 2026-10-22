@@ -1,5 +1,9 @@
 # Scanalyse — Quoi de neuf
 
+## Prochaine version
+
+- **Logiciel libre** : Scanalyse est publié sous licence **GNU GPL v3** (Paramètres → À propos → « Licence GPL v3 »).
+
 ## 0.11.0 — octobre 2026
 
 ### Nouveautés

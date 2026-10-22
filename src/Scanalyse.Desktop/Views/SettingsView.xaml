@@ -245,6 +245,8 @@
                        Text="Toute l'analyse est faite sur ce PC : aucune image ni aucune donnée lue n'est envoyée sur Internet." />
             <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14"
                        Text="Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2." />
+            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14"
+                       Text="Logiciel libre et gratuit sous licence GNU GPL v3 : chacun peut l'utiliser, le partager et l'améliorer, à condition que ses versions restent libres. Fourni sans aucune garantie." />
 
             <!-- Crédits : badge et pseudo de l'auteur -->
             <Border Background="{DynamicResource Surface2}" CornerRadius="12" Padding="12,10" Margin="0,0,0,14" HorizontalAlignment="Left">
@@ -263,6 +265,7 @@
             <WrapPanel>
               <Button Style="{StaticResource BtnSecondary}" Content="Copier le diagnostic" Click="CopyDiag_Click" Margin="0,0,8,8" />
               <Button Style="{StaticResource BtnSecondary}" Content="Quoi de neuf" Click="Changelog_Click" Margin="0,0,8,8" />
+              <Button Style="{StaticResource BtnSecondary}" Content="Licence GPL v3" Click="License_Click" Margin="0,0,8,8" />
               <Button Style="{StaticResource BtnSecondary}" Content="Composants tiers et licences" Click="Licenses_Click" Margin="0,0,8,8" />
               <Button Style="{StaticResource BtnGhost}" Content="Ouvrir le dossier des données" Click="OpenData_Click" Margin="0,0,0,8" />
             </WrapPanel>

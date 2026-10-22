@@ -30,6 +30,7 @@
     <!-- Mentions des composants tiers, affichées depuis Paramètres → À propos. -->
     <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="Scanalyse.ThirdParty.md" />
     <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Scanalyse.Changelog.md" />
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="Scanalyse.License.txt" />
     <!-- Page ouverte dans le navigateur du terminal Android par le relais. -->
     <EmbeddedResource Include="Relay\relais.html" LogicalName="Scanalyse.Relay.relais.html" />
     <EmbeddedResource Include="..\..\web\vendor\zxing-wasm-full-3.1.4.js" LogicalName="Scanalyse.Relay.zxing.js" />
