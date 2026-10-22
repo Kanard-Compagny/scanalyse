@@ -117,4 +117,18 @@ public class HistoryTests
         Assert.Contains("Ce que contient le code", html);
         Assert.Contains("Modules très petits", html);
     }
+
+    [Fact]
+    public void Custom_title_and_comment_are_used()
+    {
+        var e = new HistoryEntry { Codes = [new("EAN-13", "3453120000011", Kind: "Article")], CustomTitle = "Étiquette carton refusée au quai 3", Comment = "Lot illisible\nRéimpression demandée" };
+        Assert.Equal("Étiquette carton refusée au quai 3", e.Title);
+        Assert.True(HistorySearch.Matches(e, "quai reimpression"));
+        var html = ReportBuilder.Build(new ServiceCase { Client = "C" }, [e], _ => null, DateTimeOffset.Now, "1");
+        Assert.Contains("Étiquette carton refusée au quai 3", html);
+        Assert.Contains("EAN-13 · Article", html);
+        Assert.Contains("Lot illisible<br>Réimpression demandée", html);
+        e.CustomTitle = "";
+        Assert.Equal("EAN-13 · Article", e.Title);
+    }
 }

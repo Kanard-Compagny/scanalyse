@@ -330,6 +330,49 @@ public partial class HistoryView : UserControl
         Refresh();
     }
 
+    /// <summary>Renommer : un nom vide ou identique au nom automatique rend le nom automatique.</summary>
+    private void Title_LostFocus(object sender, RoutedEventArgs e)
+    {
+        var box = (TextBox)sender;
+        var entry = EntryOf(sender);
+        var text = box.Text.Trim();
+        var custom = text.Length == 0 || text == entry.AutoTitle ? string.Empty : text;
+        if (custom != entry.CustomTitle)
+        {
+            entry.CustomTitle = custom;
+            _store!.Update(entry);
+        }
+
+        box.Text = entry.Title;
+    }
+
+    private void Comment_LostFocus(object sender, RoutedEventArgs e)
+    {
+        var entry = EntryOf(sender);
+        var text = ((TextBox)sender).Text.TrimEnd();
+        if (text != entry.Comment)
+        {
+            entry.Comment = text;
+            _store!.Update(entry);
+        }
+    }
+
+    /// <summary>Entrée valide le nom ; Échap annule la modification.</summary>
+    private void Inline_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        var box = (TextBox)sender;
+        if (e.Key == System.Windows.Input.Key.Escape)
+        {
+            box.Text = EntryOf(sender).Title;
+        }
+
+        if (e.Key is System.Windows.Input.Key.Enter or System.Windows.Input.Key.Escape)
+        {
+            box.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
+            e.Handled = true;
+        }
+    }
+
     private void InReport_Click(object sender, RoutedEventArgs e)
     {
         var entry = EntryOf(sender);

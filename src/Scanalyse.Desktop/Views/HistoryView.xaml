@@ -174,8 +174,13 @@
                         </Grid>
                       </Border>
                       <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource Ink}" />
+                        <TextBox Style="{StaticResource InlineInput}" Text="{Binding Entry.Title, Mode=OneTime}" FontWeight="SemiBold" FontSize="14" Margin="-6,-3,0,0"
+                                 Tag="Nom de l'analyse" ToolTip="Clique pour renommer l'analyse (problème rencontré, repère…). Vide : nom automatique."
+                                 LostFocus="Title_LostFocus" KeyDown="Inline_KeyDown" MaxLength="120" />
                         <TextBlock Text="{Binding Meta}" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        <TextBox Style="{StaticResource InlineInput}" Text="{Binding Entry.Comment, Mode=OneTime}" FontSize="12.5" Margin="-6,4,0,0"
+                                 Tag="Ajouter un commentaire : problème rencontré, action menée…" AcceptsReturn="True" MaxHeight="90"
+                                 LostFocus="Comment_LostFocus" />
                         <TextBlock Text="{Binding Detail}" FontSize="12.5" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" Margin="0,6,0,0"
                                    FontFamily="{StaticResource MonoFont}" MaxHeight="54" TextTrimming="CharacterEllipsis" />
                       </StackPanel>

@@ -135,9 +135,19 @@ public sealed class HistoryEntry
 
     public List<HistoryFinding> Findings { get; set; } = [];
 
-    /// <summary>Titre court pour les listes.</summary>
+    /// <summary>Nom donné par l'utilisateur (problème rencontré, repère…) ; vide = nom automatique.</summary>
+    public string CustomTitle { get; set; } = string.Empty;
+
+    /// <summary>Commentaire libre de l'intervenant, repris dans le rapport.</summary>
+    public string Comment { get; set; } = string.Empty;
+
+    /// <summary>Nom affiché : celui choisi par l'utilisateur, sinon le nom automatique.</summary>
     [JsonIgnore]
-    public string Title => Kind switch
+    public string Title => string.IsNullOrWhiteSpace(CustomTitle) ? AutoTitle : CustomTitle;
+
+    /// <summary>Nom automatique (type de code, nombre de codes, résultat).</summary>
+    [JsonIgnore]
+    public string AutoTitle => Kind switch
     {
         HistoryKind.Comparison => string.IsNullOrEmpty(Verdict) ? "Comparaison douchette" : $"Comparaison douchette · {Verdict}",
         _ when Codes.Count == 0 => "Image sans code lisible",
@@ -148,7 +158,7 @@ public sealed class HistoryEntry
     /// <summary>Texte de recherche (minuscules, sans accents).</summary>
     [JsonIgnore]
     public string SearchText => HistorySearch.Normalize(string.Join(" ",
-        new[] { Source, Title, Expected, Received, AnnouncedSymbology ?? string.Empty, Verdict }
+        new[] { Source, Title, AutoTitle, Comment, Expected, Received, AnnouncedSymbology ?? string.Empty, Verdict }
             .Concat(Codes.SelectMany(c => new[] { c.Format, c.Text, c.Kind }))
             .Concat(Findings.Select(f => f.Title))
             .Concat(LabelNotes)));

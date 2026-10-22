@@ -137,8 +137,13 @@ public static class ReportBuilder
     {
         var hasImg = !string.IsNullOrEmpty(img);
         sb.Append("<article class=\"entry\"><div class=\"eh\"><span class=\"n\">").Append(n).Append("</span><div><h3>").Append(H(e.Title)).Append("</h3><p class=\"meta\">")
-          .Append(H(e.At.ToString("dd/MM/yyyy HH:mm:ss", Fr))).Append(string.IsNullOrWhiteSpace(e.Source) ? string.Empty : " · " + H(e.Source)).Append("</p></div><span class=\"pill ")
+          .Append(H(e.At.ToString("dd/MM/yyyy HH:mm:ss", Fr))).Append(string.IsNullOrWhiteSpace(e.Source) ? string.Empty : " · " + H(e.Source))
+          .Append(string.IsNullOrWhiteSpace(e.CustomTitle) ? string.Empty : " · " + H(e.AutoTitle)).Append("</p></div><span class=\"pill ")
           .Append(Css4(e.Worst)).Append("\">").Append(H(Verdict(e))).Append("</span></div>");
+        if (!string.IsNullOrWhiteSpace(e.Comment))
+        {
+            sb.Append("<div class=\"comment\"><b>Commentaire de l'intervenant</b><br>").Append(Multiline(e.Comment)).Append("</div>");
+        }
 
         if (e.Kind == HistoryKind.ImageAnalysis)
         {
@@ -381,6 +386,7 @@ public static class ReportBuilder
         .kv th{width:40%;color:#5D656C;font-weight:500}
         .kv td,.kv th{font-size:9pt;padding:4px 6px}
         .hex{font-family:"Cascadia Mono",Consolas,monospace;font-size:7.5pt;line-height:1.35;background:#F4F5F6;border-radius:7px;padding:7px 10px;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+        .comment{margin-top:10px;padding:8px 11px;border-left:3px solid #F07F13;background:#FFF5EA;border-radius:0 7px 7px 0;font-size:9.5pt}
         .case-head{margin-top:16px;border-left:4px solid #F07F13;padding-left:10px}
         .case-head h2{margin:0}
         .case-head p{margin:4px 0}
