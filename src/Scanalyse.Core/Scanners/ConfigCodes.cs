@@ -95,6 +95,7 @@ public enum ScannerBrand
 {
     Honeywell,
     Datalogic,
+    Zebra,
 }
 
 /// <summary>Code de configuration à scanner.</summary>
@@ -102,13 +103,15 @@ public enum ScannerBrand
 /// <param name="Group">Rubrique (« Clavier », « Suffixe »…).</param>
 /// <param name="Title">Effet du code.</param>
 /// <param name="Data">Contenu (sans FNC3).</param>
-/// <param name="Fnc3">Code Honeywell : FNC3 en tête.</param>
+/// <param name="Fnc3">Code de programmation : FNC3 en tête (Code 128) ou marque « programmation lecteur » (Data Matrix).</param>
 /// <param name="Hint">Quand l'utiliser (écart vu au banc d'essai…).</param>
-public sealed record ConfigCode(ScannerBrand Brand, string Group, string Title, string Data, bool Fnc3, string Hint);
+/// <param name="Matrix">Data Matrix (codes Zebra) plutôt que Code 128.</param>
+public sealed record ConfigCode(ScannerBrand Brand, string Group, string Title, string Data, bool Fnc3, string Hint, bool Matrix = false);
 
 /// <summary>
 /// Codes de configuration documentés par les fabricants. Honeywell : commandes de menu (manuels Voyager / Xenon), en Code 128
 /// avec FNC3, terminées par « . » (enregistrées). Datalogic : chaînes « $+ … $- » des guides QuickScan / Gryphon.
+/// Zebra : Data Matrix « programmation lecteur » relus dans le guide de démarrage rapide du DS3678.
 /// </summary>
 public static class ScannerConfigCodes
 {
@@ -136,6 +139,40 @@ public static class ScannerConfigCodes
             "Les étiquettes logistiques GS1-128 ne sont pas lues."),
         new(ScannerBrand.Honeywell, "Symbologies", "Activer la lecture Code 128", "128ENA1.", true,
             "Les codes Code 128 ne sont pas lus."),
+        new(ScannerBrand.Zebra, "Réglages", "Revenir aux réglages par défaut", "92", true,
+            "À scanner d'abord quand la douchette a été modifiée et qu'on ne sait plus comment.", true),
+        new(ScannerBrand.Zebra, "Suffixe", "Ajouter Entrée (retour chariot / saut de ligne) après chaque lecture", "N6S06201007S0680100DB0EB01", true,
+            "Le logiciel attend une validation après chaque code.", true),
+        new(ScannerBrand.Zebra, "Suffixe", "Ajouter Tab après chaque lecture", "N6S06201007S06801009B0EB01", true,
+            "Le logiciel passe au champ suivant après chaque code.", true),
+        new(ScannerBrand.Zebra, "Clavier", "Ignorer le verrouillage des majuscules (activer)", "SXUAH1036101", true,
+            "Lettres en minuscules / majuscules inversées quand Verr. Maj. est actif sur le poste.", true),
+        new(ScannerBrand.Zebra, "Clavier", "Ne pas ignorer le verrouillage des majuscules (réglage d'usine)", "SXUAH1036100", true,
+            "Retour au comportement d'origine.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "Clavier USB (HID) — réglage d'usine", "SXUAH20003", true,
+            "La douchette tape les données comme un clavier.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "Port COM virtuel (hôte CDC USB)", "SXUAH2000B", true,
+            "Logiciel qui lit un port COM ; aussi pour le banc d'essai en liaison série (pilote CDC).", true),
+        new(ScannerBrand.Zebra, "Interface USB", "Émulation de port COM simple", "SXUAH20005", true,
+            "Port COM virtuel sans pilote Zebra.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "SNAPI sans imagerie", "SXUAH2000A", true,
+            "Applications Zebra (SDK, 123Scan) : données et pilotage.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "SNAPI avec imagerie", "SXUAH20009", true,
+            "Applications Zebra avec capture d'image.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "OPOS USB portable", "SXUAH20008", true,
+            "Logiciels de caisse en OPOS / JavaPOS.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "USB IBM de bureau", "SXUAH20002", true,
+            "Terminaux de caisse IBM / Toshiba.", true),
+        new(ScannerBrand.Zebra, "Interface USB", "USB IBM portable", "SXUAH20001", true,
+            "Terminaux de caisse IBM / Toshiba (lecteur portable).", true),
+        new(ScannerBrand.Zebra, "Interface USB", "CDC SSI via USB", "SXUAH2000E", true,
+            "Protocole SSI de Zebra sur port COM virtuel.", true),
+        new(ScannerBrand.Zebra, "Interface série", "RS-232 standard", "SMHAH10403005", true,
+            "Câble série RS-232 (réglage par défaut en série).", true),
+        new(ScannerBrand.Zebra, "Interface clavier", "Émulation clavier : notebook IBM AT", "SXAAH200044", true,
+            "Câble clavier (wedge) sur portable.", true),
+        new(ScannerBrand.Zebra, "Interface clavier", "Émulation clavier : compatible IBM PC/AT", "SXAAH200004", true,
+            "Câble clavier (wedge) sur PC fixe.", true),
         new(ScannerBrand.Datalogic, "Réglages", "Revenir aux réglages par défaut", "$+$*", false,
             "À scanner seul : la douchette revient à sa configuration d'usine."),
         new(ScannerBrand.Datalogic, "Programmation", "Entrer en mode programmation", "$+", false,

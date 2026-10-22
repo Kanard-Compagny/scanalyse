@@ -24,9 +24,18 @@ public class ConfigCodesTests
     [Fact]
     public void Tous_les_codes_sont_encodables()
     {
-        foreach (var c in ScannerConfigCodes.All)
+        foreach (var c in ScannerConfigCodes.All.Where(c => !c.Matrix))
         {
             Assert.True(Code128.Widths(c.Data, c.Fnc3).Sum() > 30);
         }
+    }
+
+    [Fact]
+    public void Codes_zebra_en_data_matrix()
+    {
+        var zebra = ScannerConfigCodes.All.Where(c => c.Brand == ScannerBrand.Zebra).ToList();
+        Assert.True(zebra.Count >= 10);
+        Assert.True(zebra.All(c => c.Matrix && c.Fnc3));
+        Assert.Equal("92", zebra[0].Data);
     }
 }

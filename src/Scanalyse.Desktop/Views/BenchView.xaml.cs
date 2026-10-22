@@ -17,7 +17,7 @@ namespace Scanalyse.Desktop.Views;
 public partial class BenchView : UserControl
 {
     private void ConfigCodes_Click(object sender, RoutedEventArgs e) =>
-        new ConfigCodesWindow { Owner = Window.GetWindow(this) }.Show();
+        new ConfigCodesWindow(Renderer) { Owner = Window.GetWindow(this) }.Show();
 
     private readonly ContentAnalyzer _analyzer = new();
     private string? _expectedAim;

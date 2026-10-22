@@ -20,7 +20,7 @@ public sealed record ScannerStatus(ScanSourceKind Kind, string Text, bool Error 
 public partial class DevicesView : UserControl
 {
     private void ConfigCodes_Click(object sender, RoutedEventArgs e) =>
-        new ConfigCodesWindow { Owner = Window.GetWindow(this) }.Show();
+        new ConfigCodesWindow(Renderer) { Owner = Window.GetWindow(this) }.Show();
 
     private readonly Relay.RelayServer _relay = new();
     private readonly Dictionary<string, Relay.AdbDevice> _openedUsb = [];

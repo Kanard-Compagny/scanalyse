@@ -112,6 +112,8 @@ Agrandir pour scanner à l'écran	Enlarge to scan from the screen
 Ajoute au moins un champ GS1.	Add at least one GS1 field.
 Ajouter	Add
 Ajouter Entrée (CR) après chaque lecture	Add Enter (CR) after each read
+Ajouter Entrée (retour chariot / saut de ligne) après chaque lecture	Add Enter (carriage return / line feed) after each read
+Ajouter Tab après chaque lecture	Add Tab after each read
 Ajouter un champ	Add a field
 Ajuster	Fit
 Albanie	Albania
@@ -163,6 +165,8 @@ Appareils de lecture	Reading devices
 Appareils de lecture : douchettes, terminaux Android, caméras	Reading devices: scanners, Android terminals, cameras
 Apparence	Appearance
 Apparence, dossiers de rangement, prise en main et informations sur le programme.	Appearance, storage folders, getting started and program information.
+Applications Zebra (SDK, 123Scan) : données et pilotage.	Zebra applications (SDK, 123Scan): data and control.
+Applications Zebra avec capture d'image.	Zebra applications with image capture.
 Appliqué à chaque démarrage. Les dossiers SAV et leurs fiches sont conservés, seules les analyses anciennes sont retirées.	Applied at each startup. Service cases and their records are kept; only old analyses are removed.
 Après les codes de réglage : la configuration est sauvegardée.	After the setting codes: the configuration is saved.
 Arabie saoudite	Saudi Arabia
@@ -245,6 +249,7 @@ Bénéficiaire	Beneficiary
 C'est parti	Let's go
 C'est prêt. Une visite de 30 secondes montre où se trouve chaque outil : la barre du haut, le menu, le dossier SAV en cours.	All set. A 30-second tour shows where each tool is: the top bar, the menu, the current service case.
 CAMÉRA	CAMERA
+CDC SSI via USB	CDC SSI over USB
 COMPARER	COMPARE
 CPID (composant)	CPID (component)
 CPID (identifiant de composant)	CPID (component identifier)
@@ -348,6 +353,7 @@ Classification carcasse (UN/ECE)	Carcass classification (UN/ECE)
 Classification de carcasse (UN/ECE)	Carcass classification (UN/ECE)
 Classique	Classic
 Clavier	Keyboard
+Clavier USB (HID) — réglage d'usine	USB keyboard (HID) — factory setting
 Clavier américain (QWERTY)	US keyboard (QWERTY)
 Clavier français (AZERTY)	French keyboard (AZERTY)
 Client / site	Customer / site
@@ -398,6 +404,7 @@ Code reçu deux fois	Code received twice
 Code testé	Tested code
 Code-barres	Barcode
 Code-barres (^B…)	Barcode (^B…)
+Codes Zebra relus dans le guide du DS3678 (Data Matrix de programmation : lecteur 2D nécessaire, la plupart des modèles DS récents les acceptent). Clavier français et séparateur GS1 : dans le guide complet du modèle ou avec 123Scan.	Zebra codes read from the DS3678 guide (programming Data Matrix: 2D reader required, most recent DS models accept them). French keyboard and GS1 separator: in the model's full guide or with 123Scan.
 Codes de configuration	Configuration codes
 Codes de configuration — Scanalyse	Configuration codes — Scanalyse
 Codes de menu Honeywell (Voyager, Xenon, Granit, Hyperion…) : un seul code suffit, le réglage est enregistré. Scanne-les sur l'écran (lecteurs 2D) ou imprime-les pour un lecteur laser.	Honeywell menu codes (Voyager, Xenon, Granit, Hyperion…): one code is enough, the setting is saved. Scan them on screen (2D readers) or print them for a laser reader.
@@ -512,6 +519,9 @@ Créer un code	Create a code
 Créer un code ·	Create a code ·
 Créer une étiquette	Create a label
 Créé le	Created on
+Câble clavier (wedge) sur PC fixe.	Keyboard (wedge) cable on a desktop PC.
+Câble clavier (wedge) sur portable.	Keyboard (wedge) cable on a laptop.
+Câble série RS-232 (réglage par défaut en série).	RS-232 serial cable (default serial setting).
 D (UCC/EAN : GS1 automatique)	D (UCC/EAN: automatic GS1)
 DOUCHETTE	SCANNER
 DPL : la rotation tourne le code autour de son point d'ancrage ; vérifie sa position sur l'étiquette.	DPL: rotation turns the code around its anchor point; check its position on the label.
@@ -756,6 +766,7 @@ GTIN-14 compact.	Compact GTIN-14.
 Graphique (^GB)	Graphics (^GB)
 Grossissement	Magnification
 Grèce	Greece
+Guide complet du DS2208 (zebra.com)	Full DS2208 guide (zebra.com)
 Génère le programme ZPL / TSPL / EPL2 de ce code pour le réimprimer sur l'imprimante du client	Generates the ZPL / TSPL / EPL2 program of this code to reprint it on the customer's printer
 Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.	Generates the ZPL, TSPL, EPL2 or DPL program of a label to recreate a customer's code on their printer, and sends it directly.
 Générateur indisponible dans ce navigateur.	Generator unavailable in this browser.
@@ -806,6 +817,7 @@ Identifiant d'application {0} (non répertorié)	Application identifier {0} (not
 Identifiant de symbologie	Symbology identifier
 Identifiant de symbologie AIM non répertorié	Unlisted AIM symbology identifier
 Identifiant de symbologie ajouté : {0}	Symbology identifier added: {0}
+Ignorer le verrouillage des majuscules (activer)	Ignore Caps Lock (enable)
 Il règle d'un coup les dossiers partagés, l'en-tête des rapports et les mises à jour.	It sets the shared folders, report header and updates in one go.
 Image	Image
 Image agrandie : trace un rectangle pour sélectionner un code	Enlarged image: draw a rectangle to select a code
@@ -866,6 +878,9 @@ Installer Scanalyse {0} ?	Install Scanalyse {0}?
 Installer et redémarrer	Install and restart
 Installer la nouvelle version de Scanalyse (redémarrage)	Install the new version of Scanalyse (restart)
 Installée sur ce PC	Installed on this PC
+Interface USB	USB interface
+Interface clavier	Keyboard interface
+Interface série	Serial interface
 Interpréteur occupé (préparation d'une étiquette).	Interpreter busy (preparing a label).
 Intervenant	Technician
 Inventaire / matériel	Inventory / equipment
@@ -908,6 +923,7 @@ La caméra est déjà utilisée par une autre application (Teams, Zoom, l'appli 
 La caméra n'a pas pu démarrer.	The camera could not start.
 La clé de contrôle de l'IBAN est invalide.	The IBAN check digits are invalid.
 La clé de contrôle est fausse : le code a été mal généré ou mal lu.	The check digit is wrong: the code was badly generated or badly read.
+La douchette tape les données comme un clavier.	The scanner types the data like a keyboard.
 La fiche du dossier ne pourra pas être récupérée.	The case record cannot be recovered.
 La fin du code manque. Causes probables : longueur maximale configurée pour cette symbologie, champ de saisie limité, ou transmission interrompue.	The end of the code is missing. Likely causes: maximum length configured for this symbology, limited input field, or interrupted transmission.
 La lecture arrive comme une frappe au clavier, dans le champ qui a le focus.	The reading arrives as keystrokes, in the field that has the focus.
@@ -958,6 +974,7 @@ Le lien n'a pas été ouvert : l'analyse est faite localement.	The link was not 
 Le lien pointe vers une adresse IP plutôt qu'un nom de domaine : prudence.	The link points to an IP address rather than a domain name: be careful.
 Le lien télécharge directement un fichier exécutable ou une archive.	The link directly downloads an executable file or an archive.
 Le logiciel attend une validation après chaque code.	The software expects Enter after each code.
+Le logiciel passe au champ suivant après chaque code.	The software moves to the next field after each code.
 Le module de décodage n'a pas pu démarrer dans ce navigateur. Utilise la version autonome de l'Atelier QR dans Chrome, Edge, Opera ou Firefox.	The decoding module could not start in this browser. Use the standalone version of the QR Workshop in Chrome, Edge, Opera or Firefox.
 Le moteur Edge WebView2 n'est pas disponible : enregistre le rapport en HTML et imprime-le depuis le navigateur.	The Edge WebView2 engine is not available: save the report as HTML and print it from the browser.
 Le presse-papiers est occupé par une autre application : réessaie.	The clipboard is used by another application: try again.
@@ -1010,6 +1027,7 @@ Les {0} lignes du journal des lectures seront effacées. Les analyses et compara
 Les étiquettes logistiques GS1-128 ne sont pas lues.	GS1-128 logistics labels are not read.
 Les étoiles de début et de fin du Code 39 sont transmises avec les données.	The start and stop asterisks of Code 39 are transmitted with the data.
 Lettonie	Latvia
+Lettres en minuscules / majuscules inversées quand Verr. Maj. est actif sur le poste.	Upper / lower case swapped when Caps Lock is on at the computer.
 Liaison arrêtée depuis {0} ({1}).	Link stopped from {0} ({1}).
 Liaison avec {0} ({1}) arrêtée.	Link with {0} ({1}) stopped.
 Liaison avec {0} arrêtée.	Link with {0} stopped.
@@ -1044,6 +1062,8 @@ Lituanie	Lithuania
 Livre (ISBN)	Book (ISBN)
 Livrer à (GLN)	Ship to (GLN)
 Livres	Books
+Logiciel qui lit un port COM ; aussi pour le banc d'essai en liaison série (pilote CDC).	Software reading a COM port; also for the test bench over a serial link (CDC driver).
+Logiciels de caisse en OPOS / JavaPOS.	Point-of-sale software using OPOS / JavaPOS.
 Logistique, colis (GS1-128), étiquettes internes	Logistics, parcels (GS1-128), internal labels
 Logo central	Central logo
 Logo de la société (en-tête des rapports)	Company logo (report header)
@@ -1128,6 +1148,7 @@ Mémoire de réception pleine.	Receive buffer full.
 Méthode de production	Production method
 Mêmes couleurs que les modules	Same colors as the modules
 N (normal, sous-ensembles par >…)	N (normal, subsets with >…)
+Ne pas ignorer le verrouillage des majuscules (réglage d'usine)	Do not ignore Caps Lock (factory setting)
 Nettoyage en cours…	Cleaning up…
 Nom	Name
 Nom de domaine internationalisé (punycode) : vérifie qu'il n'imite pas un site connu.	Internationalized domain name (punycode): check it doesn't imitate a well-known site.
@@ -1170,6 +1191,7 @@ N° de série CPID	CPID serial number
 N° de série du composant	Component serial number
 N° de téléphone mobile	Mobile phone number
 Néon acide	Acid neon
+OPOS USB portable	USB OPOS handheld
 Objet	Subject
 Octets reçus (hexadécimal)	Received bytes (hexadecimal)
 Organisation	Organization
@@ -1269,7 +1291,9 @@ Points relevés	Findings
 Points à vérifier	Points to check
 Police, texte (^A ^CF)	Font, text (^A ^CF)
 Pologne	Poland
+Port COM virtuel (hôte CDC USB)	Virtual COM port (USB CDC host)
 Port COM virtuel :	Virtual COM port:
+Port COM virtuel sans pilote Zebra.	Virtual COM port without the Zebra driver.
 Port série {0}	Serial port {0}
 Port série {0} · {1}	Serial port {0} · {1}
 Port {0} indisponible ({1}) : la caméra des terminaux en Wi-Fi ne sera pas utilisable.	Port {0} unavailable ({1}): the camera of Wi-Fi terminals won't be usable.
@@ -1334,6 +1358,7 @@ Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zp
 Programmes d'étiquettes	Label programs
 Propriétaire	Owner
 Protocole	Protocol
+Protocole SSI de Zebra sur port COM virtuel.	Zebra SSI protocol over a virtual COM port.
 Précédent	Previous
 Préfixe	Prefix
 Préfixe 2 : code interne au magasin, souvent pour les produits pesés ou à prix variable.	Prefix 2: store-internal code, often for weighed or variable-price products.
@@ -1369,6 +1394,7 @@ Quitter en enregistrant	Exit and save
 Quoi de neuf	What's new
 RAPPORT	REPORT
 REÇU	RECEIVED
+RS-232 standard	Standard RS-232
 Rapport PDF|*.pdf|Page web (HTML)|*.html	PDF report|*.pdf|Web page (HTML)|*.html
 Rapport Scanalyse	Scanalyse report
 Rapport client ({0} dossiers)	Customer report ({0} cases)
@@ -1424,6 +1450,7 @@ Retirer	Remove
 Retirer ce champ	Remove this field
 Retirer le logo	Remove the logo
 Retour	Back
+Retour au comportement d'origine.	Back to the original behaviour.
 Retour chariot (touche Entrée)	Carriage return (Enter key)
 Retour à la ligne ou caractère en trop après chaque lecture.	Line break or extra character after each read.
 Revenir aux réglages par défaut	Restore default settings
@@ -1482,6 +1509,8 @@ Réseau sans mot de passe : le trafic n'est pas chiffré.	Network without passwo
 Résolution	Resolution
 Résolution par défaut	Default resolution
 Résultat	Result
+SNAPI avec imagerie	SNAPI with imaging
+SNAPI sans imagerie	SNAPI without imaging
 SRIN (instance de service)	SRIN (service instance)
 SSCC (17 ou 18 chiffres)	SSCC (17 or 18 digits)
 SSCC (colis, palette)	SSCC (parcel, pallet)
@@ -1585,6 +1614,8 @@ Terminal Android	Android terminal
 Terminal sans lecteur intégré :	Terminal without a built-in scanner:
 Terminal · sortie IP {0}	Terminal · IP output {0}
 Terminaux Android (relais)	Android terminals (relay)
+Terminaux de caisse IBM / Toshiba (lecteur portable).	IBM / Toshiba POS terminals (handheld reader).
+Terminaux de caisse IBM / Toshiba.	IBM / Toshiba POS terminals.
 Terminaux reliés en ce moment	Terminals connected right now
 Terminer	Finish
 Texte	Text
@@ -1640,6 +1671,8 @@ Tête trop froide.	Head too cold.
 UPC-A converti en EAN-13	UPC-A converted to EAN-13
 UPC-E d'origine	Original UPC-E
 URL de l'emballage étendu	Extended packaging URL
+USB IBM de bureau	IBM USB table-top
+USB IBM portable	IBM USB handheld
 UTF-8 (détecté)	UTF-8 (detected)
 Un QR très stylisé ou un logo trop grand peut empêcher toute lecture.	A very stylized QR or an oversized logo can prevent any reading.
 Un code trop petit à l'écran : zoome avant la capture.	Code too small on screen: zoom in before capturing.
@@ -1967,6 +2000,9 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 Élégant arrondi	Elegant rounded
 Émetteur	Issuer
 Émirats arabes unis	United Arab Emirates
+Émulation clavier : compatible IBM PC/AT	Keyboard wedge: IBM PC/AT compatible
+Émulation clavier : notebook IBM AT	Keyboard wedge: IBM AT notebook
+Émulation de port COM simple	Simple COM port emulation
 Étape {0}	Step {0}
 État de l'imprimante lu ({0}, {1}).	Printer status read ({0}, {1}).
 État de révision	Revision status

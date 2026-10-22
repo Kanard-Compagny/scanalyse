@@ -2168,6 +2168,8 @@ function fromNotation(s){return s.replace(/<(NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|
 function toNotation(s){return s.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":CTRL[c.charCodeAt(0)])+">");}
 // QR simple (sans personnalisation), pour les codes que dessine le programme (adresse du relais terminal…)
 byId.qrplain={id:"qrplain",fmt:"QRCode",label:"QR Code"};
+// Data Matrix « programmation lecteur » (codes de configuration Zebra), pour le programme Windows
+byId.dmprog={id:"dmprog",fmt:"DataMatrix",label:"Data Matrix",square:true,readerInit:true};
 let current="qr";
 const values={};          // contenu saisi, par type
 let gs1Rows=null;         // champs GS1 partagés entre les types GS1
@@ -2319,7 +2321,7 @@ function recolor(svg,fg,bg,transparent){
 async function writeFor(typeId,data,opts){
   const t=byId[typeId];const Z=await engine();
   return Z.writeBarcode(data,{format:t.fmt,scale:opts.scale||2,rotate:opts.rotate||0,withHRT:!!(t.hrt&&opts.hrt),
-    withQuietZones:opts.quiet!==false,options:t.gs1?"gs1":"",forceSquareDataMatrix:!!(t.square&&opts.square)});
+    withQuietZones:opts.quiet!==false,options:t.gs1?"gs1":"",forceSquareDataMatrix:!!(t.square&&opts.square),readerInit:!!t.readerInit});
 }
 function svgToCanvas(svgText,scale,pad,bg){
   return new Promise((res,rej)=>{
