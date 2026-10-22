@@ -134,3 +134,20 @@ public class ProgramFileTests
         Assert.Equal(40, e.Single().X);
     }
 }
+
+public class ProgramFileDecodeTests
+{
+    [Fact]
+    public void Decodes_notepad_unicode_and_latin1()
+    {
+        const string zpl = "^XA\r\n^FDN° EMB^FS\r\n^XZ";
+        var utf16 = new byte[] { 0xFF, 0xFE }.Concat(System.Text.Encoding.Unicode.GetBytes(zpl)).ToArray();
+        var (t1, e1) = ProgramFile.Decode(utf16);
+        Assert.Equal(zpl, t1);
+        Assert.True(e1.StartsWith("UTF-16", StringComparison.Ordinal));
+        Assert.Equal(zpl, ProgramFile.Decode(System.Text.Encoding.Unicode.GetBytes(zpl)).Text);
+        Assert.Equal(zpl, ProgramFile.Decode(new byte[] { 0xEF, 0xBB, 0xBF }.Concat(System.Text.Encoding.UTF8.GetBytes(zpl)).ToArray()).Text);
+        Assert.Equal(zpl, ProgramFile.Decode(System.Text.Encoding.Latin1.GetBytes(zpl)).Text);
+        Assert.Equal(ProgramKind.Zpl, ProgramFile.Detect(t1));
+    }
+}

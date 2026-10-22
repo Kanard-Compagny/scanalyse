@@ -1745,18 +1745,10 @@ public partial class PrintView : UserControl
             }
 
             var bytes = File.ReadAllBytes(path);
-            string text;
-            try
-            {
-                text = new UTF8Encoding(false, true).GetString(bytes);
-            }
-            catch (DecoderFallbackException)
-            {
-                text = Encoding.Latin1.GetString(bytes);
-            }
-
-            LoadProgram(text.TrimStart('﻿'));
-            Log?.Invoke(LogKind.Info, $"Programme ouvert : {Path.GetFileName(path)} ({bytes.Length} octets).");
+            var (text, encoding) = ProgramFile.Decode(bytes);
+            text = text.TrimStart('\uFEFF').Replace("\0", string.Empty, StringComparison.Ordinal);
+            LoadProgram(text);
+            Log?.Invoke(LogKind.Info, $"Programme ouvert : {Path.GetFileName(path)} ({bytes.Length} octets, {encoding}, {ProgramFile.Name(ProgramFile.Detect(text))}).");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

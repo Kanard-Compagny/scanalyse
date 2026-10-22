@@ -74,6 +74,61 @@ public static partial class ProgramFile
         return ProgramKind.Unknown;
     }
 
+    /// <summary>
+    /// Lit les octets d'un fichier d'impression avec le bon encodage : UTF-8 (avec ou sans BOM), UTF-16 (« Unicode » du Bloc-notes,
+    /// avec ou sans BOM), sinon octet par octet (Windows-1252 / Latin-1, comme l'imprimante les reçoit).
+    /// </summary>
+    /// <returns>Le texte et le nom de l'encodage reconnu.</returns>
+    public static (string Text, string Encoding) Decode(byte[] bytes)
+    {
+        ArgumentNullException.ThrowIfNull(bytes);
+        if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
+        {
+            return (new System.Text.UTF8Encoding(false).GetString(bytes, 3, bytes.Length - 3), "UTF-8");
+        }
+
+        if (bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE)
+        {
+            return (System.Text.Encoding.Unicode.GetString(bytes, 2, bytes.Length - 2), "UTF-16 (Unicode)");
+        }
+
+        if (bytes.Length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF)
+        {
+            return (System.Text.Encoding.BigEndianUnicode.GetString(bytes, 2, bytes.Length - 2), "UTF-16 big-endian");
+        }
+
+        // UTF-16 sans BOM : un octet nul sur deux.
+        if (bytes.Length >= 8)
+        {
+            var pairs = bytes.Length / 2;
+            int oddZero = 0, evenZero = 0;
+            for (var i = 0; i + 1 < bytes.Length; i += 2)
+            {
+                evenZero += bytes[i] == 0 ? 1 : 0;
+                oddZero += bytes[i + 1] == 0 ? 1 : 0;
+            }
+
+            if (oddZero > pairs * 0.4 && evenZero < pairs * 0.05)
+            {
+                return (System.Text.Encoding.Unicode.GetString(bytes), "UTF-16 (Unicode)");
+            }
+
+            if (evenZero > pairs * 0.4 && oddZero < pairs * 0.05)
+            {
+                return (System.Text.Encoding.BigEndianUnicode.GetString(bytes), "UTF-16 big-endian");
+            }
+        }
+
+        try
+        {
+            return (new System.Text.UTF8Encoding(false, true).GetString(bytes), "UTF-8");
+        }
+        catch (System.Text.DecoderFallbackException)
+        {
+            return (System.Text.Encoding.Latin1.GetString(bytes), "Windows-1252 / Latin-1");
+        }
+    }
+
     /// <summary>Nom affiché du langage.</summary>
     public static string Name(ProgramKind kind) => kind switch
     {
