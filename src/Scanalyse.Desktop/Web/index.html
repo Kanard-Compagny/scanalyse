@@ -1542,7 +1542,7 @@ function render(ms,reg){
       <ul><li>Trace un rectangle serré autour du code, avec un peu de marge blanche.</li><li>Évite le flou, les reflets et les angles trop prononcés.</li><li>Un code trop petit à l'écran : zoome avant la capture.</li><li>Un QR très stylisé ou un logo trop grand peut empêcher toute lecture.</li></ul>
       <div class="acts"><button class="btn small primary" type="button" data-zoomsel>Agrandir et sélectionner</button>${region?"":`<button class="btn small" type="button" data-deep>Recherche approfondie</button>`}</div></div>`;
     box.querySelector("[data-zoomsel]").addEventListener("click",()=>vOpen());
-    if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(),items:[]}));}catch(e){}}
+    if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(false),items:[]}));}catch(e){}}
     const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
     return;
   }
@@ -1594,8 +1594,8 @@ function render(ms,reg){
     </article>`;
   });
   box.innerHTML=html;
-  if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(),
-    items:results.map((r,i)=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||""),symbologyIdentifier:r.symId||"",kind:(kinds[i]&&kinds[i].kind)||"",...(details[i]||{})})),
+  if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(false),annotated:thumbImage(true),
+    items:results.map((r,i)=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||""),symbologyIdentifier:r.symId||"",kind:(kinds[i]&&kinds[i].kind)||"",hex:hexdump(r.bytes),...(details[i]||{})})),
     label:(()=>{try{const c=labelCheck(results);if(!c)return null;const n=k=>c.notes.filter(x=>x[0]===k).length;
       return {verdict:c.worst,bad:n("bad"),warn:n("warn"),notes:c.notes.filter(x=>x[0]==="bad"||x[0]==="warn").map(x=>x[1])};}catch(e){return null;}})()}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
@@ -1613,15 +1613,16 @@ function render(ms,reg){
 function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
 /* Image analysée, réduite, pour l'historique du programme */
 // Les codes y sont encadrés et numérotés comme à l'écran : le rapport montre « qui est quoi ».
-function thumbImage(){
+function thumbImage(withBoxes){
   try{if(!src)return "";const k=Math.min(1,1800/Math.max(src.width,src.height));const c=document.createElement("canvas");
     c.width=Math.round(src.width*k);c.height=Math.round(src.height*k);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
     x.drawImage(src,0,0,c.width,c.height);
+    if(withBoxes===false)return c.toDataURL("image/jpeg",.9);
     const u=Math.max(1.5,Math.max(c.width,c.height)/700);
     results.forEach((r,i)=>{
       x.save();x.beginPath();r.pts.forEach((p,j)=>j?x.lineTo(p.x*k,p.y*k):x.moveTo(p.x*k,p.y*k));x.closePath();
-      x.lineWidth=3*u;x.strokeStyle="#fff";x.stroke();x.lineWidth=1.8*u;x.strokeStyle="#145C43";x.stroke();x.fillStyle="rgba(20,92,67,.10)";x.fill();
-      const R=11*u,p=r.pts[0];const cx=Math.min(Math.max(p.x*k,R),c.width-R),cy=Math.min(Math.max(p.y*k,R),c.height-R);
+      x.lineWidth=6*u;x.strokeStyle="#fff";x.stroke();x.lineWidth=3.2*u;x.strokeStyle="#1FAE74";x.stroke();x.fillStyle="rgba(31,174,116,.12)";x.fill();
+      const R=15*u,p=r.pts[0];const cx=Math.min(Math.max(p.x*k,R),c.width-R),cy=Math.min(Math.max(p.y*k,R),c.height-R);
       x.beginPath();x.arc(cx,cy,R,0,7);x.fillStyle="#145C43";x.fill();x.lineWidth=2*u;x.strokeStyle="#fff";x.stroke();
       x.fillStyle="#fff";x.font=`700 ${Math.round(R*1.15)}px Segoe UI,Arial,sans-serif`;x.textAlign="center";x.textBaseline="middle";x.fillText(String(i+1),cx,cy+u*.5);x.restore();
     });

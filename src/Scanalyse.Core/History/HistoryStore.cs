@@ -126,16 +126,15 @@ public sealed class HistoryStore
     }
 
     /// <summary>Enregistre une entrée et son image (PNG ou JPEG), puis l'ajoute en tête.</summary>
-    public HistoryEntry Add(HistoryEntry entry, byte[]? image = null, string imageExtension = ".jpg")
+    /// <param name="entry">Entrée à enregistrer.</param>
+    /// <param name="image">Image d'origine, si disponible.</param>
+    /// <param name="imageExtension">Extension du fichier image (« .jpg », « .png »).</param>
+    /// <param name="annotated">Image avec les codes encadrés et numérotés, si disponible.</param>
+    public HistoryEntry Add(HistoryEntry entry, byte[]? image = null, string imageExtension = ".jpg", byte[]? annotated = null)
     {
         var dir = MonthFolder(entry.At);
         Directory.CreateDirectory(dir);
-        if (image is { Length: > 0 })
-        {
-            entry.ImageFile = entry.Id + imageExtension;
-            File.WriteAllBytes(Path.Combine(dir, entry.ImageFile), image);
-        }
-
+        WriteImages(entry, image, imageExtension, annotated);
         File.WriteAllText(Path.Combine(dir, entry.Id + ".json"), JsonSerializer.Serialize(entry, Json));
         lock (_gate)
         {
@@ -167,6 +166,11 @@ public sealed class HistoryStore
             TryDelete(Path.Combine(dir, entry.ImageFile));
         }
 
+        if (entry.AnnotatedFile is not null)
+        {
+            TryDelete(Path.Combine(dir, entry.AnnotatedFile));
+        }
+
         lock (_gate)
         {
             _entries.RemoveAll(e => e.Id == entry.Id);
@@ -174,10 +178,42 @@ public sealed class HistoryStore
     }
 
     /// <summary>Réécrit une entrée modifiée (son image reste inchangée).</summary>
-    public void Update(HistoryEntry entry)
+    public void Update(HistoryEntry entry, byte[]? image = null, byte[]? annotated = null)
     {
         Directory.CreateDirectory(MonthFolder(entry.At));
+        WriteImages(entry, image, Path.GetExtension(entry.ImageFile) is { Length: > 0 } ext ? ext : ".jpg", annotated);
         File.WriteAllText(Path.Combine(MonthFolder(entry.At), entry.Id + ".json"), JsonSerializer.Serialize(entry, Json));
+    }
+
+    private void WriteImages(HistoryEntry entry, byte[]? image, string extension, byte[]? annotated)
+    {
+        var dir = MonthFolder(entry.At);
+        if (image is { Length: > 0 })
+        {
+            entry.ImageFile = entry.Id + extension;
+            File.WriteAllBytes(Path.Combine(dir, entry.ImageFile), image);
+        }
+
+        if (annotated is { Length: > 0 })
+        {
+            entry.AnnotatedFile = entry.Id + "-codes.jpg";
+            File.WriteAllBytes(Path.Combine(dir, entry.AnnotatedFile), annotated);
+        }
+    }
+
+    /// <summary>Image annotée (codes encadrés) si elle existe, sinon l'image d'origine.</summary>
+    public string? DisplayImagePath(HistoryEntry entry)
+    {
+        if (entry.AnnotatedFile is not null)
+        {
+            var path = Path.Combine(MonthFolder(entry.At), entry.AnnotatedFile);
+            if (File.Exists(path))
+            {
+                return path;
+            }
+        }
+
+        return ImagePath(entry);
     }
 
     /// <summary>Range une entrée dans un autre dossier.</summary>

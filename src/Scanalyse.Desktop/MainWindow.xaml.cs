@@ -34,6 +34,7 @@ public partial class MainWindow : Window
     private int _lastImageSequence = -1;
     private HistoryEntry? _lastImageEntry;
     private HistoryEntry? _lastComparison;
+    private HistoryEntry? _reopened;
     private readonly ObservableCollection<LogEntry> _log = [];
     private readonly DispatcherTimer _captureTimer = new() { Interval = TimeSpan.FromMilliseconds(300) };
     private uint _clipboardSequence;
@@ -304,14 +305,22 @@ public partial class MainWindow : Window
                 : a.Label?.Verdict == "warn" ? Severity.Warning
                 : Severity.Ok;
             var codes = a.Codes.Select(c => new HistoryCode(c.Format, c.Text, c.SymbologyIdentifier, c.Kind,
-                c.Health, c.HealthClass, c.Content, c.Technical, c.Alerts)).ToList();
+                c.Health, c.HealthClass, c.Content, c.Technical, c.Alerts, c.Hex)).ToList();
+            // Analyse rouverte depuis l'historique : elle complète son entrée (fiches, image annotée) au lieu d'en créer une.
+            if (_reopened is { } reopened && a.Source.StartsWith("Historique · ", StringComparison.Ordinal))
+            {
+                _reopened = null;
+                _lastImageSequence = a.Sequence;
+                _lastImageEntry = reopened;
+            }
+
             if (a.Sequence == _lastImageSequence && _lastImageEntry is { } existing && _history.Entries.Contains(existing))
             {
                 existing.Codes = codes;
                 existing.Worst = worst;
                 existing.LabelVerdict = a.Label?.Verdict ?? string.Empty;
                 existing.LabelNotes = [.. a.Label?.Problems ?? []];
-                _history.Update(existing);
+                _history.Update(existing, existing.ImageFile is null ? a.Image : null, a.Annotated);
             }
             else
             {
@@ -325,7 +334,7 @@ public partial class MainWindow : Window
                     Worst = worst,
                     LabelVerdict = a.Label?.Verdict ?? string.Empty,
                     LabelNotes = [.. a.Label?.Problems ?? []],
-                }, a.Image, ".jpg");
+                }, a.Image, ".jpg", a.Annotated);
             }
 
             HistoryPage.Refresh();
@@ -387,7 +396,8 @@ public partial class MainWindow : Window
 
             NavAnalyse.IsChecked = true;
             var mime = path.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/jpeg";
-            await _atelier.LoadImageAsync(await File.ReadAllBytesAsync(path), $"Historique · {entry.Source}", mime, record: false);
+            _reopened = entry;
+            await _atelier.LoadImageAsync(await File.ReadAllBytesAsync(path), $"Historique · {entry.Source}", mime, record: true);
             return;
         }
 
@@ -471,7 +481,7 @@ public partial class MainWindow : Window
 
     private string? ImageDataUrl(HistoryEntry entry)
     {
-        var path = _history.ImagePath(entry);
+        var path = _history.DisplayImagePath(entry);
         if (path is null)
         {
             return null;

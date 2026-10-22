@@ -66,8 +66,15 @@ public sealed class ServiceCase
 /// <param name="Content">Ce que contient le code (libellé, valeur), comme dans l'analyseur.</param>
 /// <param name="Technical">Caractéristiques techniques (libellé, valeur).</param>
 /// <param name="Alerts">Remarques (gravité « info », « warn », « bad » ; message).</param>
+/// <param name="Hex">Données brutes en hexadécimal.</param>
 public sealed record HistoryCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "",
-    string Health = "", string HealthClass = "", List<HistoryDetail>? Content = null, List<HistoryDetail>? Technical = null, List<HistoryNote>? Alerts = null);
+    string Health = "", string HealthClass = "", List<HistoryDetail>? Content = null, List<HistoryDetail>? Technical = null, List<HistoryNote>? Alerts = null,
+    string Hex = "")
+{
+    /// <summary>La fiche complète a été enregistrée (versions récentes) ; sinon seul le contenu est connu.</summary>
+    [JsonIgnore]
+    public bool HasDetails => Technical is { Count: > 0 } || Content is { Count: > 0 };
+}
 
 /// <summary>Ligne « libellé : valeur » de la fiche d'un code.</summary>
 public sealed record HistoryDetail(string Label, string Value);
@@ -98,6 +105,9 @@ public sealed class HistoryEntry
 
     /// <summary>Nom du fichier image enregistré à côté de l'entrée (sans dossier), s'il y en a un.</summary>
     public string? ImageFile { get; set; }
+
+    /// <summary>Même image avec les codes encadrés et numérotés (rapport, vignette).</summary>
+    public string? AnnotatedFile { get; set; }
 
     /// <summary>Codes lus (analyse d'image).</summary>
     public List<HistoryCode> Codes { get; set; } = [];

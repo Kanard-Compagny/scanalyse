@@ -22,7 +22,7 @@ public sealed record LabelCheck(string Verdict, IReadOnlyList<string> Problems);
 /// <summary>Code trouvé par l'Atelier dans une image.</summary>
 public sealed record DecodedCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "",
     string Health = "", string HealthClass = "", List<Scanalyse.Core.History.HistoryDetail>? Content = null,
-    List<Scanalyse.Core.History.HistoryDetail>? Technical = null, List<Scanalyse.Core.History.HistoryNote>? Alerts = null);
+    List<Scanalyse.Core.History.HistoryDetail>? Technical = null, List<Scanalyse.Core.History.HistoryNote>? Alerts = null, string Hex = "");
 
 /// <summary>Résultat complet de l'analyse d'une image par l'Atelier.</summary>
 /// <param name="Source">Origine (« Capture d'écran », nom de fichier, « Caméra : … »).</param>
@@ -31,7 +31,8 @@ public sealed record DecodedCode(string Format, string Text, string SymbologyIde
 /// <param name="Image">Image réduite (JPEG), pour l'historique.</param>
 /// <param name="Codes">Codes lus.</param>
 /// <param name="Label">Bilan de cohérence d'étiquette, s'il y a lieu.</param>
-public sealed record ImageAnalysis(string Source, int Sequence, bool Record, byte[]? Image, IReadOnlyList<DecodedCode> Codes, LabelCheck? Label);
+/// <param name="Annotated">Même image avec les codes encadrés et numérotés.</param>
+public sealed record ImageAnalysis(string Source, int Sequence, bool Record, byte[]? Image, IReadOnlyList<DecodedCode> Codes, LabelCheck? Label, byte[]? Annotated = null);
 
 /// <summary>
 /// Héberge l'Atelier (page web embarquée dans l'exécutable) dans le composant WebView2,
@@ -242,7 +243,7 @@ internal sealed class AtelierHost
                         {
                             items.Add(new DecodedCode(Get(it, "format"), Get(it, "text"), Get(it, "symbologyIdentifier"), Get(it, "kind"),
                                 Get(it, "health"), Get(it, "healthClass"), Pairs(it, "rows"), Pairs(it, "spec"),
-                                [.. Pairs(it, "alerts").Select(p => new Scanalyse.Core.History.HistoryNote(p.Label, p.Value))]));
+                                [.. Pairs(it, "alerts").Select(p => new Scanalyse.Core.History.HistoryNote(p.Label, p.Value))], Get(it, "hex")));
                         }
                     }
 
@@ -260,7 +261,7 @@ internal sealed class AtelierHost
 
                     var seq = root.TryGetProperty("seq", out var s) && s.TryGetInt32(out var n) ? n : 0;
                     var record = !root.TryGetProperty("record", out var rec) || rec.ValueKind != JsonValueKind.False;
-                    Analyzed?.Invoke(new ImageAnalysis(Get(root, "source"), seq, record, FromDataUrl(Get(root, "image")), items, check));
+                    Analyzed?.Invoke(new ImageAnalysis(Get(root, "source"), seq, record, FromDataUrl(Get(root, "image")), items, check, FromDataUrl(Get(root, "annotated"))));
                     break;
             }
         }

@@ -192,6 +192,11 @@ public static class ReportBuilder
                     sb.Append("</ul>");
                 }
 
+                if (!c.HasDetails)
+                {
+                    sb.Append("<p class=\"meta\">Fiche détaillée non enregistrée (analyse faite avec une version précédente) : rouvre l'analyse depuis l'historique pour la compléter.</p>");
+                }
+
                 var hasContent = c.Content is { Count: > 0 };
                 var hasTech = c.Technical is { Count: > 0 };
                 if (hasContent || hasTech)
@@ -212,6 +217,11 @@ public static class ReportBuilder
                 else if (!string.IsNullOrEmpty(c.SymbologyIdentifier))
                 {
                     sb.Append("<p class=\"meta\">Identifiant de symbologie ").Append(H(c.SymbologyIdentifier)).Append("</p>");
+                }
+
+                if (!string.IsNullOrEmpty(c.Hex))
+                {
+                    sb.Append("<h4>Données brutes (hexadécimal)</h4><pre class=\"hex\">").Append(H(c.Hex)).Append("</pre>");
                 }
 
                 sb.Append("</section>");
@@ -370,6 +380,7 @@ public static class ReportBuilder
         .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
         .kv th{width:40%;color:#5D656C;font-weight:500}
         .kv td,.kv th{font-size:9pt;padding:4px 6px}
+        .hex{font-family:"Cascadia Mono",Consolas,monospace;font-size:7.5pt;line-height:1.35;background:#F4F5F6;border-radius:7px;padding:7px 10px;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
         .case-head{margin-top:16px;border-left:4px solid #F07F13;padding-left:10px}
         .case-head h2{margin:0}
         .case-head p{margin:4px 0}

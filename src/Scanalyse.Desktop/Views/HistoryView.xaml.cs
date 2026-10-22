@@ -358,7 +358,7 @@ public sealed record EntryView(HistoryEntry Entry, string Title, string Meta, st
             ? $"Attendu : {e.Expected}\nReçu : {(e.Received.Length == 0 ? "(rien)" : e.Received)}"
             : string.Join("\n", e.Codes.Take(3).Select(c => c.Text)) + (e.Codes.Count > 3 ? $"\n… et {e.Codes.Count - 3} autres" : string.Empty);
         return new EntryView(e, e.Title, $"{e.At:dd/MM/yyyy HH:mm} · {e.Source}", detail, ReportBuilder.Verdict(e), e.Worst,
-            LoadThumb(store.ImagePath(e)), e.Kind == HistoryKind.Comparison ? "Comparaison" : "Image");
+            LoadThumb(store.DisplayImagePath(e)), e.Kind == HistoryKind.Comparison ? "Comparaison" : "Image");
     }
 
     private static BitmapImage? LoadThumb(string? path)
