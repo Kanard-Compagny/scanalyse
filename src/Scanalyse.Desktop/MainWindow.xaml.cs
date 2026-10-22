@@ -61,6 +61,12 @@ public partial class MainWindow : Window
         Bench.Compared += OnBenchCompared;
         Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         Devices.Renderer = (text, type) => _atelier.RenderAsync(text, type);
+        Bench.RecreateRequested += async (text, type) =>
+        {
+            NavCreate.IsChecked = true;
+            await _atelier.CreateFromAsync(text, type);
+            AddLog(LogKind.Info, "CRÉER", "Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.");
+        };
         _atelier.ModeChanged += OnAtelierModeChanged;
         Symbols.CreateRequested += OnCreateRequested;
         Devices.Scanned += OnDeviceScanned;

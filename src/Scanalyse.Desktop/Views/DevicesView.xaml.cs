@@ -16,13 +16,12 @@ namespace Scanalyse.Desktop.Views;
 /// <param name="Error">La dernière tentative a échoué ou la liaison est perdue.</param>
 public sealed record ScannerStatus(ScanSourceKind Kind, string Text, bool Error = false);
 
-/// <summary>Page Douchettes : détection, connexion en port série ou HID POS, moniteur des lectures.</summary>
+/// <summary>Page Douchettes : connexion des douchettes (série, HID POS), des terminaux Android (relais) et des caméras.</summary>
 public partial class DevicesView : UserControl
 {
-    private const int MaxMonitorItems = 200;
-
-    private readonly ObservableCollection<MonitorItem> _monitor = [];
     private readonly Relay.RelayServer _relay = new();
+    private readonly Dictionary<string, Relay.AdbDevice> _openedUsb = [];
+    private ScannerStatus _deviceStatus = new(ScanSourceKind.Keyboard, "Douchette en mode clavier");
     private string? _adb;
     private IScanSource? _source;
     private DeviceEntry? _connected;
@@ -31,7 +30,6 @@ public partial class DevicesView : UserControl
     public DevicesView()
     {
         InitializeComponent();
-        MonitorList.ItemsSource = _monitor;
         LoadSerialPreferences(AppSettings.Load().Scanner.Serial);
     }
 
@@ -59,6 +57,7 @@ public partial class DevicesView : UserControl
     {
         _relay.Scanned += e => Dispatcher.InvokeAsync(() => OnScanned(e));
         _relay.Log += (kind, text) => Dispatcher.InvokeAsync(() => Log?.Invoke(kind, text));
+        _relay.SessionsChanged += () => Dispatcher.InvokeAsync(OnSessionsChanged);
         var settings = AppSettings.Load();
         WifiCheck.IsChecked = settings.RelayWifi;
         await StartRelayAsync(settings.RelayWifi);
@@ -210,8 +209,26 @@ public partial class DevicesView : UserControl
             sub.SetResourceReference(TextBlock.ForegroundProperty, d.Ready ? "Muted" : "WarnFg");
             text.Children.Add(sub);
             grid.Children.Add(text);
-            var open = new Button { Content = "Ouvrir le relais", Style = (Style)FindResource("BtnSecondary"), IsEnabled = d.Ready, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
-            open.Click += async (_, _) => await OpenRelayAsync(d);
+            var opened = _openedUsb.ContainsKey(d.Serial);
+            var open = new Button
+            {
+                Content = opened ? "Arrêter la liaison" : "Ouvrir le relais",
+                Style = (Style)FindResource("BtnSecondary"),
+                IsEnabled = d.Ready,
+                Margin = new Thickness(10, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            open.Click += async (_, _) =>
+            {
+                if (_openedUsb.ContainsKey(d.Serial))
+                {
+                    await StopUsbRelayAsync(d);
+                }
+                else
+                {
+                    await OpenRelayAsync(d);
+                }
+            };
             Grid.SetColumn(open, 1);
             grid.Children.Add(open);
             row.Child = grid;
@@ -231,8 +248,69 @@ public partial class DevicesView : UserControl
             await StartRelayAsync(WifiCheck.IsChecked == true);
         }
 
+        _relay.UsbModelHint = device.Model;
+        _relay.Unblock(device.Model, "USB");
         var error = await Relay.Adb.OpenRelayAsync(_adb, device.Serial);
+        if (error is null)
+        {
+            _openedUsb[device.Serial] = device;
+        }
+
         Log?.Invoke(error is null ? LogKind.Ok : LogKind.Error, error ?? $"Relais ouvert sur {device.Model} : scanne un code avec le terminal, la lecture arrive au banc d'essai.");
+        await RefreshTerminalsAsync();
+    }
+
+    /// <summary>Coupe la liaison avec un terminal USB : redirection ADB retirée, page bloquée.</summary>
+    private async Task StopUsbRelayAsync(Relay.AdbDevice device)
+    {
+        _openedUsb.Remove(device.Serial);
+        _relay.Block(device.Model, "USB");
+        if (_adb is not null)
+        {
+            await Relay.Adb.StopRelayAsync(_adb, device.Serial);
+        }
+
+        Log?.Invoke(LogKind.Info, $"Liaison avec {device.Model} arrêtée.");
+        await RefreshTerminalsAsync();
+    }
+
+    /// <summary>Terminaux reliés : liste, pastille de la barre d'outils.</summary>
+    private void OnSessionsChanged()
+    {
+        var sessions = _relay.Sessions;
+        SessionList.Children.Clear();
+        foreach (var s in sessions)
+        {
+            var row = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 7, 12, 7), Margin = new Thickness(0, 0, 0, 6) };
+            row.SetResourceReference(Border.BackgroundProperty, "BrandSoft");
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var label = new TextBlock { Text = $"● {s.Model} · relais {s.Origin}", FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
+            label.SetResourceReference(TextBlock.ForegroundProperty, "BrandText");
+            grid.Children.Add(label);
+            var stop = new Button { Content = "Arrêter la liaison", Style = (Style)FindResource("BtnSmall") };
+            stop.Click += async (_, _) =>
+            {
+                var usb = _openedUsb.Values.FirstOrDefault(d => s.Origin == "USB" && d.Model == s.Model);
+                if (usb is not null)
+                {
+                    await StopUsbRelayAsync(usb);
+                }
+                else
+                {
+                    _relay.Block(s.Model, s.Origin);
+                    Log?.Invoke(LogKind.Info, $"Liaison avec {s.Model} ({s.Origin}) arrêtée.");
+                }
+            };
+            Grid.SetColumn(stop, 1);
+            grid.Children.Add(stop);
+            row.Child = grid;
+            SessionList.Children.Add(row);
+        }
+
+        SessionPanel.Visibility = sessions.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        PublishStatus();
     }
 
     // ------------------------------------------------------------------ Liste des douchettes
@@ -256,6 +334,8 @@ public partial class DevicesView : UserControl
         }
 
         DeviceList.Children.Clear();
+        FillCameras(devices.Where(d => d.Kind == ScanSourceKind.Camera));
+        devices = [.. devices.Where(d => d.Kind != ScanSourceKind.Camera)];
         foreach (var d in devices)
         {
             var card = new RadioButton
@@ -277,6 +357,34 @@ public partial class DevicesView : UserControl
         if (_source is null)
         {
             StatusText.Text = "Douchette en mode clavier";
+        }
+    }
+
+    /// <summary>Caméras : carte à part, chacune avec « Lire en direct ».</summary>
+    private void FillCameras(IEnumerable<DeviceEntry> cameras)
+    {
+        CameraList.Children.Clear();
+        foreach (var c in cameras)
+        {
+            var row = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 9, 12, 9), Margin = new Thickness(0, 0, 0, 8) };
+            row.SetResourceReference(Border.BackgroundProperty, "Surface2");
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.Children.Add(new TextBlock { Text = c.Name, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
+            var live = new Button { Content = "Lire en direct", Style = (Style)FindResource("BtnSecondary"), Margin = new Thickness(10, 0, 0, 0) };
+            live.Click += (_, _) => CameraRequested?.Invoke(c.Name);
+            Grid.SetColumn(live, 1);
+            grid.Children.Add(live);
+            row.Child = grid;
+            CameraList.Children.Add(row);
+        }
+
+        if (CameraList.Children.Count == 0)
+        {
+            var none = new TextBlock { Text = "Aucune caméra détectée.", FontSize = 12.5 };
+            none.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            CameraList.Children.Add(none);
         }
     }
 
@@ -399,20 +507,7 @@ public partial class DevicesView : UserControl
         UpdateButtons();
     }
 
-    private void OnScanned(ScanEvent e)
-    {
-        var header = $"{e.At:HH:mm:ss} · {e.Source} · {e.Raw.Length} octet{(e.Raw.Length > 1 ? "s" : string.Empty)}"
-            + (e.Symbology is null ? string.Empty : $" · symbologie annoncée : {e.Symbology}")
-            + (e.Detail is null ? string.Empty : $" · {e.Detail}");
-        _monitor.Insert(0, new MonitorItem(header, ControlCharacters.Visualize(e.Text), e.Hex));
-        while (_monitor.Count > MaxMonitorItems)
-        {
-            _monitor.RemoveAt(_monitor.Count - 1);
-        }
-
-        MonitorEmpty.Visibility = Visibility.Collapsed;
-        Scanned?.Invoke(e);
-    }
+    private void OnScanned(ScanEvent e) => Scanned?.Invoke(e);
 
     private async void OnFaulted(string message)
     {
@@ -428,16 +523,23 @@ public partial class DevicesView : UserControl
 
     private void SetStatus(ScannerStatus status)
     {
+        _deviceStatus = status;
         StatusText.Text = status.Text;
         StatusDot.SetResourceReference(Shape.FillProperty,
             status.Error ? "BadFg" : status.Kind == ScanSourceKind.Keyboard ? "Muted" : "OkFg");
-        StatusChanged?.Invoke(status);
+        PublishStatus();
     }
 
-    private void ClearMonitor_Click(object sender, RoutedEventArgs e)
+    /// <summary>Source affichée dans la barre d'outils : un terminal relié passe avant la douchette du PC.</summary>
+    private void PublishStatus()
     {
-        _monitor.Clear();
-        MonitorEmpty.Visibility = Visibility.Visible;
+        var sessions = _relay.Sessions;
+        StatusChanged?.Invoke(sessions.Count switch
+        {
+            0 => _deviceStatus,
+            1 => new ScannerStatus(ScanSourceKind.Relay, $"{sessions[0].Model} · relais {sessions[0].Origin}"),
+            _ => new ScannerStatus(ScanSourceKind.Relay, $"{sessions.Count} terminaux reliés"),
+        });
     }
 
     // ------------------------------------------------------------------ Réglages série
@@ -492,5 +594,3 @@ public partial class DevicesView : UserControl
     }
 }
 
-/// <summary>Ligne du moniteur.</summary>
-public sealed record MonitorItem(string Header, string Visual, string Hex);

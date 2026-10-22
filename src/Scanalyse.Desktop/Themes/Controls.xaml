@@ -315,6 +315,35 @@
     </Setter>
   </Style>
 
+  <!-- Bouton dépliant discret (« Octets reçus ») -->
+  <Style x:Key="HexToggle" TargetType="ToggleButton">
+    <Setter Property="Foreground" Value="{DynamicResource BrandText}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ToggleButton">
+          <StackPanel Orientation="Horizontal" Background="Transparent">
+            <Path x:Name="Chev" Data="M2 1l4 4-4 4" Width="9" Height="10" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" VerticalAlignment="Center" RenderTransformOrigin="0.4,0.5">
+              <Path.RenderTransform><RotateTransform x:Name="Rot" Angle="0" /></Path.RenderTransform>
+            </Path>
+            <ContentPresenter Margin="6,0,0,0" VerticalAlignment="Center" />
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Chev" Property="RenderTransform">
+                <Setter.Value><RotateTransform Angle="90" /></Setter.Value>
+              </Setter>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Case à cocher -->
   <Style x:Key="CheckLine" TargetType="CheckBox">
     <Setter Property="Foreground" Value="{DynamicResource Ink}" />

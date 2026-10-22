@@ -133,6 +133,10 @@ internal sealed class AtelierHost
     public Task SetModeAsync(string mode) =>
         ExecuteAsync($"window.atelierSetMode&&window.atelierSetMode({JsonSerializer.Serialize(mode)},false)");
 
+    /// <summary>Ouvre « Créer un code » avec un contenu brut (GS réels) et un type donné.</summary>
+    public Task CreateFromAsync(string text, string typeId) =>
+        ExecuteAsync($"window.atelierCreateFrom&&window.atelierCreateFrom({JsonSerializer.Serialize(text)},{JsonSerializer.Serialize(typeId)})");
+
     /// <summary>Ouvre « Créer un code » sur un type donné (identifiant de l'Atelier : « ean13 », « gs1datamatrix »…).</summary>
     public Task SetCreateTypeAsync(string typeId) =>
         ExecuteAsync($"window.atelierSetCreateType&&window.atelierSetCreateType({JsonSerializer.Serialize(typeId)})");

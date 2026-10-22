@@ -16,6 +16,9 @@ public enum ScanSourceKind
 
     /// <summary>Caméra (webcam, caméra document) : lecture en direct dans « Analyser une image ».</summary>
     Camera,
+
+    /// <summary>Terminal Android relié par la page de relais (USB via ADB, ou Wi-Fi).</summary>
+    Relay,
 }
 
 /// <summary>Une lecture reçue d'une douchette connectée.</summary>

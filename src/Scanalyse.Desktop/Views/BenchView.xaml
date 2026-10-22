@@ -73,7 +73,11 @@
           </Grid.RowDefinitions>
 
           <StackPanel>
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Contenu réel du code (accepte &lt;GS&gt;, &lt;CR&gt;… pour les caractères invisibles)" />
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Analyser la référence" Click="Analyze_Click" Padding="8,2" Margin="0,-6,0,0"
+                      ToolTip="Analyse le contenu attendu (champ du haut)" />
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Référence : contenu réel du code (accepte &lt;GS&gt;, &lt;CR&gt;… pour les caractères invisibles)" />
+            </DockPanel>
             <TextBlock x:Name="ExpectedSource" Style="{StaticResource FieldLabel}" Foreground="{DynamicResource BrandText}" FontWeight="SemiBold" Visibility="Collapsed" />
           </StackPanel>
           <TextBox x:Name="ExpectedBox" Grid.Row="1" Style="{StaticResource Input}" AcceptsReturn="True" MinHeight="90"
@@ -89,12 +93,22 @@
           <StackPanel Grid.Row="4" Margin="0,8,0,0">
             <TextBlock x:Name="ReceivedOrigin" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource BrandText}" TextWrapping="Wrap" Visibility="Collapsed" />
             <TextBlock x:Name="ReceivedVisual" FontFamily="{StaticResource MonoFont}" FontSize="12"
-                       Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+                       Foreground="{DynamicResource Muted}" TextWrapping="Wrap" MaxHeight="120" TextTrimming="CharacterEllipsis" />
+            <ToggleButton x:Name="HexToggle" Style="{StaticResource HexToggle}" Content="Octets reçus (hexadécimal)" Margin="0,6,0,0"
+                          HorizontalAlignment="Left" Visibility="Collapsed" Checked="HexToggle_Changed" Unchecked="HexToggle_Changed" />
+            <TextBox x:Name="HexBox" Visibility="Collapsed" IsReadOnly="True" BorderThickness="0" Background="{DynamicResource Surface2}" Padding="10,8"
+                     FontFamily="{StaticResource MonoFont}" FontSize="11.5" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" MaxHeight="140"
+                     VerticalScrollBarVisibility="Auto" Margin="0,4,0,0" />
           </StackPanel>
 
           <WrapPanel Grid.Row="5" Margin="0,16,0,0">
             <Button Style="{StaticResource BtnAction}" Content="Comparer" Click="Compare_Click" Margin="0,0,8,8" />
-            <Button Style="{StaticResource BtnSecondary}" Content="Analyser le contenu" Click="Analyze_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Analyser la lecture" Click="AnalyzeReceived_Click" Margin="0,0,8,8"
+                    ToolTip="Analyse ce que la douchette a envoyé (champ du bas)" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Prendre comme référence" Click="UseAsReference_Click" Margin="0,0,8,8"
+                    ToolTip="La lecture devient le contenu attendu ; scanne à nouveau pour vérifier qu'elle se lit toujours pareil" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Recréer ce code" Click="Recreate_Click" Margin="0,0,8,8"
+                    ToolTip="Ouvre « Créer un code » avec ce contenu, pour l'imprimer ou le tester" />
             <Button Style="{StaticResource BtnGhost}" Content="Effacer la lecture" Click="Clear_Click" Margin="0,0,8,8" />
             <Button Style="{StaticResource BtnGhost}" Content="Nouveau test" Click="NewTest_Click" Margin="0,0,0,8"
                     ToolTip="Efface la référence, la lecture, l'aperçu et le résultat" />
@@ -151,14 +165,13 @@
         </Border>
 
       <Border Grid.Row="1" Style="{StaticResource Card}">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto">
           <StackPanel>
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Résultat" />
             <TextBlock x:Name="ResultSubtitle" Style="{StaticResource PageSubtitle}" Margin="0,4,0,14"
                        Text="Scanne un code : il est analysé. Avec une référence, la lecture est comparée au contenu attendu." />
             <WrapPanel x:Name="ResultActions" Margin="0,-4,0,12" Visibility="Collapsed">
               <Button Style="{StaticResource BtnSecondary}" Content="Prendre cette lecture comme référence" Click="UseAsReference_Click" Margin="0,0,8,8" />
-              <Button x:Name="AnalyzeReceivedButton" Style="{StaticResource BtnSecondary}" Content="Analyser cette lecture" Click="AnalyzeReceived_Click" Margin="0,0,0,8" />
             </WrapPanel>
 
             <ItemsControl x:Name="FindingsList">

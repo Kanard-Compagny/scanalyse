@@ -32,6 +32,10 @@ const DEFAULTS={datamatrix:"SCANALYSE-0001",pdf417:"Scanalyse · PDF417 · exemp
   ean13:"300123456789",ean8:"9638507",upca:"03600029145",upce:"0123456",itf14:"1345312000001",databar:"0950600013435",
   code128:"LOT-2026-ABC",code39:"ABC-123",code93:"CODE93",codabar:"A12345B",itf:"12345678"};
 const byId=Object.fromEntries(TYPES.map(t=>[t.id,t]));
+/* Caractères invisibles écrits <GS>, <RS>, <EOT>… dans le champ texte (comme au banc d'essai) */
+const CTRL=["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"];
+function fromNotation(s){return s.replace(/<(NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC1|DC2|DC3|DC4|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|DEL)>/g,(m,n)=>n==="DEL"?"\x7f":String.fromCharCode(CTRL.indexOf(n)));}
+function toNotation(s){return s.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":CTRL[c.charCodeAt(0)])+">");}
 // QR simple (sans personnalisation), pour les codes que dessine le programme (adresse du relais terminal…)
 byId.qrplain={id:"qrplain",fmt:"QRCode",label:"QR Code"};
 let current="qr";
@@ -97,7 +101,7 @@ function selectType(id,keepValues){
   if(qr)return;
   ["stdText","stdDigits","stdGs1"].forEach(p=>$(p).hidden=true);
   if(t.input==="text"){$("stdText").hidden=false;$("stdTextInput").value=values[current]??DEFAULTS[current]??"";
-    $("stdTextHelp").textContent=t.upper?"Les minuscules sont converties en majuscules.":t.id==="codabar"?"Commence et termine par A, B, C ou D.":"";}
+    $("stdTextHelp").textContent=t.upper?"Les minuscules sont converties en majuscules.":t.id==="codabar"?"Commence et termine par A, B, C ou D.":"Caractères invisibles : écris <GS>, <RS>, <EOT>, <CR>…";}
   if(t.input==="digits"){$("stdDigits").hidden=false;$("stdDigitsInput").value=values[current]??DEFAULTS[current]??"";
     $("stdDigitsLabel").textContent=t.len?`Numéro (${t.len[0]} chiffres, ou ${t.len[1]} avec la clé)`:"Numéro (nombre pair de chiffres)";}
   if(t.input==="gs1"){$("stdGs1").hidden=false;if(!gs1Rows)gs1Rows=defaultGs1();renderGs1();}
@@ -172,9 +176,9 @@ function currentInput(){
     }
     return{data:d,shown:d};
   }
-  let s=$("stdTextInput").value;if(t.upper)s=s.toUpperCase();
+  const raw=$("stdTextInput").value;let s=fromNotation(raw);if(t.upper)s=s.toUpperCase();
   if(!s.length)return{err:"Le contenu est vide."};
-  return{data:s,shown:s};
+  return{data:s,shown:raw};
 }
 function recolor(svg,fg,bg,transparent){
   const m=svg.match(/<svg[^>]*\swidth="(\d+(?:\.\d+)?)"[^>]*\sheight="(\d+(?:\.\d+)?)"/);
@@ -288,8 +292,21 @@ window.atelierLoad=function(text,opts){
   saveInput();
   const t=byId[id];
   if(t.input==="gs1"){const rows=parseHri(text);gs1Rows=rows.length?rows:defaultGs1();}
-  else values[id]=text;
+  else values[id]=toNotation(text);
   selectType(id,true);
+};
+/* « Recréer ce code » depuis le banc d'essai du programme : contenu brut (GS réels) et type choisi */
+window.atelierCreateFrom=function(text,id){
+  if(window.atelierSetMode)window.atelierSetMode("create",false);
+  const t=byId[id];
+  if(!t||id==="qr"||!t.fmt){selectType("qr");if(qrLoad)qrLoad(text);return;}
+  saveInput();
+  if(t.input==="gs1"){
+    let hri=text;
+    if(!/^\(/.test(text)&&window.atelierParseGs1){const els=window.atelierParseGs1(text)||[];hri=els.map(([a,v])=>"("+a+")"+v).join("");}
+    const rows=parseHri(hri);gs1Rows=rows.length?rows:defaultGs1();
+  }else values[id]=t.input==="text"?toNotation(text):text;
+  selectType(id,true);window.scrollTo({top:0});
 };
 /* Rendu d'un aperçu pour le banc d'essai du programme Windows */
 window.atelierRender=async function(reqId,text,typeId){

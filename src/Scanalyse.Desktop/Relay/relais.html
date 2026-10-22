@@ -25,6 +25,12 @@ textarea:focus{outline:none}
 .item:first-child{border-top:0}
 .item small{display:block;color:var(--muted);font-family:"Segoe UI",Roboto,sans-serif;font-size:11.5px}
 .sent{color:var(--ok)}.err{color:var(--bad)}
+.stop{display:block;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--bad)}
+.stopped textarea{border-color:var(--line);opacity:.5}
+.banner{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--badbg);color:var(--bad);font-size:13.5px}
+.stopped .banner{display:block}
+.again{display:none;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:0;background:var(--brand);color:#fff}
+.stopped .again{display:block}.stopped .stop{display:none}
 </style>
 </head>
 <body>
@@ -34,23 +40,32 @@ textarea:focus{outline:none}
     <h1>Scanne un code</h1>
     <p>La lecture du terminal arrive dans le champ ci-dessous puis part au banc d'essai de Scanalyse, avec le détail des touches reçues. Garde cette page au premier plan.</p>
     <textarea id="in" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" aria-label="Lecture reçue"></textarea>
+    <div class="banner">Liaison arrêtée : les lectures ne sont plus envoyées au PC. Tu peux fermer cette page.</div>
+    <button class="stop" id="stop" type="button">Arrêter la liaison</button>
+    <button class="again" id="again" type="button">Reprendre la liaison</button>
   </section>
   <section class="card"><h1 style="font-size:15px">Dernières lectures</h1><div id="log" class="last"><p>Aucune lecture pour l'instant.</p></div></section>
 </main>
 <script>
 (function(){
 const box=document.getElementById("in"),log=document.getElementById("log"),st=document.getElementById("state");
-let text="",keys=[],timer=0,count=0;
+let text="",keys=[],timer=0,count=0,stopped=false;
 function state(ok,msg){st.textContent=msg;st.className="state "+(ok?"ok":"bad");}
-function ping(){fetch("/ping",{cache:"no-store"}).then(r=>state(r.ok,r.ok?"relié au PC":"PC injoignable")).catch(()=>state(false,"PC injoignable"));}
+function stop(msg){stopped=true;document.body.classList.add("stopped");box.disabled=true;state(false,msg);}
+function ping(){if(stopped)return;fetch("/ping",{cache:"no-store"}).then(r=>{if(r.status===410){stop("arrêtée par le PC");return;}state(r.ok,r.ok?"relié au PC":"PC injoignable");}).catch(()=>state(false,"PC injoignable"));}
 ping();setInterval(ping,5000);
 // Garder le champ actif : la douchette intégrée tape là où se trouve le curseur.
-setInterval(()=>{if(document.activeElement!==box)box.focus();},800);
+setInterval(()=>{if(!stopped&&document.activeElement!==box)box.focus();},800);
+document.getElementById("stop").addEventListener("click",()=>{
+  stop("liaison arrêtée");
+  fetch("/bye",{method:"POST"}).catch(()=>{});
+});
+document.getElementById("again").addEventListener("click",()=>location.reload());
 function vis(t){return t.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)])+">");}
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function flush(){
   clearTimeout(timer);timer=0;
-  if(!text&&!keys.length)return;
+  if(stopped||!text){text="";keys=[];box.value="";return;}
   const payload={text,keys,userAgent:navigator.userAgent};text="";keys=[];box.value="";
   const div=document.createElement("div");div.className="item";
   div.innerHTML=`${esc(vis(payload.text))}<small>${new Date().toLocaleTimeString("fr-FR")} · ${payload.text.length} caractères · ${payload.keys.length} touches · <span>envoi…</span></small>`;
@@ -60,7 +75,8 @@ function flush(){
     .then(r=>{s.textContent=r.ok?"reçu par le PC":"refusé";s.className=r.ok?"sent":"err";})
     .catch(()=>{s.textContent="PC injoignable";s.className="err";});
 }
-function arm(){clearTimeout(timer);timer=setTimeout(flush,150);}
+// Les codes longs arrivent parfois en plusieurs morceaux (saisie par le clavier virtuel) : on attend 300 ms de silence.
+function arm(){clearTimeout(timer);timer=setTimeout(flush,300);}
 // Chaque touche est notée telle que le terminal l'envoie : c'est ce qui permet de voir un GS perdu ou un mauvais clavier.
 box.addEventListener("keydown",e=>{
   keys.push({key:e.key,code:e.code,keyCode:e.keyCode,shift:e.shiftKey,ctrl:e.ctrlKey,alt:e.altKey});

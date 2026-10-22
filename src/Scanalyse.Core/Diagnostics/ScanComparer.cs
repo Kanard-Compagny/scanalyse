@@ -209,9 +209,10 @@ public static class ScanComparer
             return new ComparisonResult(false, false, findings);
         }
 
-        // 10. Préfixe / suffixe quelconques autour des données.
+        // 10. Préfixe / suffixe quelconques autour des données. Un scanner ajoute quelques caractères ;
+        // si la lecture est bien plus longue, c'est un autre code qui contient la référence (n° de série dans un code transporteur…).
         var at = r.IndexOf(e, StringComparison.Ordinal);
-        if (at >= 0)
+        if (at >= 0 && r.Length - e.Length <= Math.Max(20, e.Length / 2))
         {
             var pre = ControlCharacters.Visualize(r[..at]);
             var post = ControlCharacters.Visualize(r[(at + e.Length)..]);
@@ -307,7 +308,9 @@ public static class ScanComparer
 
         if (a.Contains(b, StringComparison.Ordinal) || b.Contains(a, StringComparison.Ordinal))
         {
-            return Math.Min(1, 0.5 + 0.5 * Math.Min(a.Length, b.Length) / Math.Max(a.Length, b.Length));
+            // Inclusion : la ressemblance dépend de la part commune (un n° de série dans un code de 400 caractères reste un autre code).
+            var part = (double)Math.Min(a.Length, b.Length) / Math.Max(a.Length, b.Length);
+            return part >= 0.6 ? 0.5 + 0.5 * part : part;
         }
 
         a = a.Length > 2000 ? a[..2000] : a;
@@ -338,8 +341,11 @@ public static class ScanComparer
         // Presque rien en commun : ce n'est pas un défaut de lecture, c'est un autre code (ou une référence périmée).
         if (Similarity(e, r) < 0.35)
         {
+            var contains = r.Contains(e, StringComparison.Ordinal);
             return new Finding("OTHER_CODE", Severity.Warning, "Ce n'est pas le même code",
-                $"La lecture n'a presque rien en commun avec la référence ({r.Length} caractères reçus, {e.Length} attendus) : un autre code a sans doute été scanné (code voisin sur l'étiquette), ou la référence vient d'un test précédent.",
+                contains
+                    ? $"La lecture contient la référence, mais c'est un code bien plus long ({r.Length} caractères reçus, {e.Length} attendus) : un autre code de l'étiquette qui reprend la même donnée (code transporteur, code 2D…)."
+                    : $"La lecture n'a presque rien en commun avec la référence ({r.Length} caractères reçus, {e.Length} attendus) : un autre code a sans doute été scanné (code voisin sur l'étiquette), ou la référence vient d'un test précédent.",
                 "Scanne le bon code, ou prends cette lecture comme nouvelle référence.");
         }
 

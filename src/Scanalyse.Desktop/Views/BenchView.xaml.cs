@@ -83,8 +83,10 @@ public partial class BenchView : UserControl
         ReceivedBox.Text = scan.Text;
         _settingReceived = false;
         _lastScan = scan;
-        ReceivedOrigin.Text = $"Reçu en direct · {scan.Source}"
-            + (scan.Symbology is null ? string.Empty : $" · symbologie annoncée : {scan.Symbology}");
+        ReceivedOrigin.Text = $"Reçu en direct · {scan.Source} · {scan.Raw.Length} octets"
+            + (scan.Symbology is null ? string.Empty : $" · symbologie annoncée : {scan.Symbology}")
+            + (string.IsNullOrEmpty(scan.Detail) ? string.Empty : $" · {scan.Detail}");
+        HexBox.Text = scan.Hex;
         ReceivedOrigin.Visibility = Visibility.Visible;
 
         if (!string.IsNullOrWhiteSpace(ExpectedBox.Text))
@@ -111,9 +113,28 @@ public partial class BenchView : UserControl
         FieldsList.ItemsSource = analysis.Fields
             .Select(f => new FieldView(f.Label, f.Sensitive ? "•••••• (masqué)" : f.Value, f.Hint ?? string.Empty))
             .ToList();
-        ResultActions.Visibility = ReceivedBox.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        AnalyzeReceivedButton.Visibility = Visibility.Collapsed;
+        ResultActions.Visibility = Visibility.Collapsed;
+        ResultScroll.ScrollToTop();
     }
+
+    /// <summary>« Recréer ce code » : la lecture (sinon la référence) part dans « Créer un code ».</summary>
+    public event Action<string, string>? RecreateRequested;
+
+    private void Recreate_Click(object sender, RoutedEventArgs e)
+    {
+        var source = ReceivedBox.Text.Length > 0 ? ReceivedBox.Text : ControlCharacters.FromVisualized(ExpectedBox.Text);
+        var text = source.TrimEnd('\r', '\n', '\t');
+        if (text.Length == 0)
+        {
+            return;
+        }
+
+        var chosen = PreviewTypes.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? "auto";
+        RecreateRequested?.Invoke(text, chosen == "auto" ? GuessType(text) : chosen);
+    }
+
+    private void HexToggle_Changed(object sender, RoutedEventArgs e) =>
+        HexBox.Visibility = HexToggle.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
 
     /// <summary>La lecture devient la référence : on rescanne ensuite pour vérifier la régularité.</summary>
     private void UseAsReference_Click(object sender, RoutedEventArgs e)
@@ -216,6 +237,16 @@ public partial class BenchView : UserControl
         {
             ReceivedOrigin.Visibility = Visibility.Collapsed;
             _lastScan = null;
+            HexBox.Text = Scanalyse.Core.Devices.RawData.ToHex(System.Text.Encoding.UTF8.GetBytes(ReceivedBox.Text));
+        }
+
+        if (HexToggle is not null)
+        {
+            HexToggle.Visibility = ReceivedBox.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (ReceivedBox.Text.Length == 0)
+            {
+                HexToggle.IsChecked = false;
+            }
         }
     }
 
@@ -428,7 +459,7 @@ public partial class BenchView : UserControl
 
         var result = ScanComparer.Compare(ExpectedBox.Text, ReceivedBox.Text);
         ResultActions.Visibility = result.OtherCode ? Visibility.Visible : Visibility.Collapsed;
-        AnalyzeReceivedButton.Visibility = Visibility.Visible;
+        ResultScroll.ScrollToTop();
         ResultTitle.Text = result.OtherCode ? "Lecture d'un autre code" : result.WorstSeverity switch
         {
             Severity.Ok => "Lecture conforme",

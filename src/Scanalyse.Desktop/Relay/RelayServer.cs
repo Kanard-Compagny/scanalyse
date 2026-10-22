@@ -19,10 +19,44 @@ namespace Scanalyse.Desktop.Relay;
 /// En USB, ADB redirige les ports du terminal vers le PC (« adb reverse ») : le serveur n'écoute que sur la
 /// machine locale. En Wi-Fi, il écoute sur le réseau ; Windows demande alors l'autorisation du pare-feu.
 /// </remarks>
+/// <summary>Terminal relié au relais (page ouverte et active).</summary>
+/// <param name="Key">Identifiant (origine + modèle).</param>
+/// <param name="Model">Modèle du terminal.</param>
+/// <param name="Origin">« USB » ou « Wi-Fi 192.168… ».</param>
+public sealed record RelaySession(string Key, string Model, string Origin);
+
 internal sealed partial class RelayServer : IAsyncDisposable
 {
     public const int HttpPort = 8765;
     public const int RawPort = 8766;
+
+    /// <summary>Sans signe de vie de la page pendant ce délai, le terminal est considéré comme déconnecté.</summary>
+    private static readonly TimeSpan SessionTimeout = TimeSpan.FromSeconds(15);
+
+    private readonly object _gate = new();
+    private readonly Dictionary<string, (RelaySession Session, DateTime Seen)> _sessions = [];
+    private readonly HashSet<string> _blocked = [];
+    private Timer? _sweeper;
+
+    /// <summary>
+    /// Modèle du terminal relié en USB, connu par ADB : les navigateurs récents masquent le modèle dans leur identifiant.
+    /// </summary>
+    public string? UsbModelHint { get; set; }
+
+    /// <summary>Terminaux actuellement reliés.</summary>
+    public IReadOnlyList<RelaySession> Sessions
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return [.. _sessions.Values.Select(v => v.Session)];
+            }
+        }
+    }
+
+    /// <summary>La liste des terminaux reliés a changé (thread quelconque).</summary>
+    public event Action? SessionsChanged;
 
     private TcpListener? _http;
     private TcpListener? _raw;
@@ -59,6 +93,7 @@ internal sealed partial class RelayServer : IAsyncDisposable
 
         Lan = lan;
         _cts = new CancellationTokenSource();
+        _sweeper = new Timer(_ => Sweep(), null, 3000, 3000);
         _ = AcceptLoopAsync(_http, HandleHttpAsync, _cts.Token);
         _ = AcceptLoopAsync(_raw, HandleRawAsync, _cts.Token);
         return null;
@@ -66,6 +101,14 @@ internal sealed partial class RelayServer : IAsyncDisposable
 
     public Task StopAsync()
     {
+        _sweeper?.Dispose();
+        _sweeper = null;
+        lock (_gate)
+        {
+            _sessions.Clear();
+        }
+
+        SessionsChanged?.Invoke();
         _cts?.Cancel();
         _http?.Stop();
         _raw?.Stop();
@@ -155,20 +198,42 @@ internal sealed partial class RelayServer : IAsyncDisposable
     {
         client.ReceiveTimeout = 10000;
         var stream = client.GetStream();
-        var (method, path, body) = await ReadRequestAsync(stream, token);
+        var (method, path, body, userAgent) = await ReadRequestAsync(stream, token);
         if (method is null)
         {
             return;
         }
 
+        var origin = Origin(client);
+        var model = ModelOf(userAgent, origin);
         if (method == "GET" && path is "/" or "/relais")
         {
+            // Ouvrir la page (ou « Reprendre la liaison » sur le terminal) relance la liaison.
+            Unblock(model, origin);
             await RespondAsync(stream, 200, "text/html; charset=utf-8", RelayPage.Value);
-            Log?.Invoke(LogKind.Info, $"Page de relais ouverte sur un terminal ({Origin(client)}).");
+            Log?.Invoke(LogKind.Info, $"Page de relais ouverte sur {model} ({origin}).");
         }
         else if (method == "GET" && path == "/ping")
         {
+            // 410 : liaison arrêtée depuis le PC, la page passe en « liaison arrêtée ».
+            if (IsBlocked(model, origin))
+            {
+                await RespondAsync(stream, 410, "text/plain; charset=utf-8", "stop"u8.ToArray());
+                return;
+            }
+
+            Touch(model, origin);
             await RespondAsync(stream, 200, "text/plain; charset=utf-8", "ok"u8.ToArray());
+        }
+        else if (method == "POST" && path == "/bye")
+        {
+            Forget(model, origin);
+            Log?.Invoke(LogKind.Info, $"Liaison arrêtée depuis {model} ({origin}).");
+            await RespondAsync(stream, 200, "text/plain; charset=utf-8", "ok"u8.ToArray());
+        }
+        else if (method == "POST" && path == "/scan" && IsBlocked(model, origin))
+        {
+            await RespondAsync(stream, 410, "text/plain; charset=utf-8", "stop"u8.ToArray());
         }
         else if (method == "POST" && path == "/scan")
         {
@@ -177,12 +242,11 @@ internal sealed partial class RelayServer : IAsyncDisposable
                 using var doc = JsonDocument.Parse(body);
                 var root = doc.RootElement;
                 var text = root.TryGetProperty("text", out var t) ? t.GetString() ?? string.Empty : string.Empty;
-                var ua = root.TryGetProperty("userAgent", out var u) ? u.GetString() ?? string.Empty : string.Empty;
-                var model = ModelPattern().Match(ua) is { Success: true } m && m.Groups[1].Value.Trim().Length > 2 ? m.Groups[1].Value.Trim() : "Terminal Android";
+                Touch(model, origin);
                 var detail = DescribeKeys(root);
                 if (text.Length > 0)
                 {
-                    Scanned?.Invoke(new ScanEvent(DateTime.Now, $"{model} · relais {Origin(client)}", Encoding.UTF8.GetBytes(text), text, null, detail));
+                    Scanned?.Invoke(new ScanEvent(DateTime.Now, $"{model} · relais {origin}", Encoding.UTF8.GetBytes(text), text, null, detail));
                 }
 
                 await RespondAsync(stream, 200, "text/plain; charset=utf-8", "ok"u8.ToArray());
@@ -224,7 +288,96 @@ internal sealed partial class RelayServer : IAsyncDisposable
             : $"{total} touches dont {unknown.Count} non reconnue{(unknown.Count > 1 ? "s" : string.Empty)} par le navigateur ({string.Join(", ", unknown.Distinct().Take(4))})";
     }
 
-    private static async Task<(string? Method, string Path, byte[] Body)> ReadRequestAsync(Stream stream, CancellationToken token)
+    /// <summary>Modèle du terminal : identifiant du navigateur, sinon modèle connu par ADB pour l'USB.</summary>
+    private string ModelOf(string userAgent, string origin)
+    {
+        var fromAgent = ModelPattern().Match(userAgent) is { Success: true } m ? m.Groups[1].Value.Trim() : string.Empty;
+        if (fromAgent.Length > 2)
+        {
+            return fromAgent;
+        }
+
+        return origin == "USB" && !string.IsNullOrEmpty(UsbModelHint) ? UsbModelHint : "Terminal Android";
+    }
+
+    /// <summary>La page a donné signe de vie.</summary>
+    private void Touch(string model, string origin)
+    {
+        var key = $"{origin}|{model}";
+        bool added;
+        lock (_gate)
+        {
+            added = !_sessions.ContainsKey(key);
+            _sessions[key] = (new RelaySession(key, model, origin), DateTime.UtcNow);
+        }
+
+        if (added)
+        {
+            SessionsChanged?.Invoke();
+        }
+    }
+
+    /// <summary>Arrêt demandé depuis le PC : la page du terminal est refusée jusqu'à ce qu'elle soit rouverte.</summary>
+    public void Block(string model, string origin)
+    {
+        lock (_gate)
+        {
+            _blocked.Add($"{origin}|{model}");
+        }
+
+        Forget(model, origin);
+    }
+
+    public void Unblock(string model, string origin)
+    {
+        lock (_gate)
+        {
+            _blocked.Remove($"{origin}|{model}");
+        }
+    }
+
+    private bool IsBlocked(string model, string origin)
+    {
+        lock (_gate)
+        {
+            return _blocked.Contains($"{origin}|{model}");
+        }
+    }
+
+    /// <summary>Oublie un terminal (« Arrêter la liaison » sur le terminal ou sur le PC).</summary>
+    public void Forget(string model, string origin) => ForgetKey($"{origin}|{model}");
+
+    public void ForgetKey(string key)
+    {
+        bool removed;
+        lock (_gate)
+        {
+            removed = _sessions.Remove(key);
+        }
+
+        if (removed)
+        {
+            SessionsChanged?.Invoke();
+        }
+    }
+
+    private void Sweep()
+    {
+        bool removed;
+        lock (_gate)
+        {
+            var old = _sessions.Where(s => DateTime.UtcNow - s.Value.Seen > SessionTimeout).Select(s => s.Key).ToList();
+            old.ForEach(k => _sessions.Remove(k));
+            removed = old.Count > 0;
+        }
+
+        if (removed)
+        {
+            SessionsChanged?.Invoke();
+        }
+    }
+
+    private static async Task<(string? Method, string Path, byte[] Body, string UserAgent)> ReadRequestAsync(Stream stream, CancellationToken token)
     {
         var buffer = new byte[64 * 1024];
         var used = 0;
@@ -233,13 +386,13 @@ internal sealed partial class RelayServer : IAsyncDisposable
         {
             if (used == buffer.Length)
             {
-                return (null, string.Empty, []);
+                return (null, string.Empty, [], string.Empty);
             }
 
             var n = await stream.ReadAsync(buffer.AsMemory(used), token);
             if (n == 0)
             {
-                return (null, string.Empty, []);
+                return (null, string.Empty, [], string.Empty);
             }
 
             used += n;
@@ -249,7 +402,7 @@ internal sealed partial class RelayServer : IAsyncDisposable
         var parts = head[0].Split(' ');
         if (parts.Length < 2)
         {
-            return (null, string.Empty, []);
+            return (null, string.Empty, [], string.Empty);
         }
 
         var length = head.Skip(1).Select(h => h.Split(':', 2)).Where(h => h.Length == 2 && h[0].Trim().Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
@@ -270,14 +423,16 @@ internal sealed partial class RelayServer : IAsyncDisposable
         }
 
         var path = parts[1].Split('?')[0];
-        return (parts[0].ToUpperInvariant(), path, body);
+        var agent = head.Skip(1).Select(h => h.Split(':', 2)).Where(h => h.Length == 2 && h[0].Trim().Equals("User-Agent", StringComparison.OrdinalIgnoreCase))
+            .Select(h => h[1].Trim()).FirstOrDefault() ?? string.Empty;
+        return (parts[0].ToUpperInvariant(), path, body, agent);
     }
 
     private static int IndexOf(byte[] data, int count, ReadOnlySpan<byte> pattern) => data.AsSpan(0, count).IndexOf(pattern);
 
     private static async Task RespondAsync(Stream stream, int status, string type, byte[] body)
     {
-        var reason = status switch { 200 => "OK", 400 => "Bad Request", _ => "Not Found" };
+        var reason = status switch { 200 => "OK", 400 => "Bad Request", 410 => "Gone", _ => "Not Found" };
         var head = Encoding.ASCII.GetBytes($"HTTP/1.1 {status} {reason}\r\nContent-Type: {type}\r\nContent-Length: {body.Length}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n");
         await stream.WriteAsync(head);
         await stream.WriteAsync(body);

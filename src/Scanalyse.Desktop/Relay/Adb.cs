@@ -123,6 +123,15 @@ internal static class Adb
         return list;
     }
 
+    /// <summary>Coupe la redirection des ports : la page du terminal ne joint plus le PC.</summary>
+    public static async Task StopRelayAsync(string adb, string serial)
+    {
+        foreach (var port in new[] { RelayServer.HttpPort, RelayServer.RawPort })
+        {
+            await RunAsync(adb, $"-s \"{serial}\" reverse --remove tcp:{port}");
+        }
+    }
+
     /// <summary>
     /// Relie le terminal au relais par le câble USB : ses ports 8765/8766 renvoient vers ceux du PC,
     /// puis la page de relais s'ouvre dans son navigateur.

@@ -140,4 +140,20 @@ public class ScanComparerTests
         Assert.Equal(1, ScanComparer.Similarity("abc<GS>def", "ABCDEF<CR>"));
         Assert.True(ScanComparer.Similarity("ABCDEF", "XYZ123") < 0.2);
     }
+
+    [Fact]
+    public void Long_code_containing_the_reference_is_another_code()
+    {
+        var big = "[)><RS>01<GS>02<GS>0044470<GS>901<GS>898<GS>XR630094657248<GS>GEOP<GS>53767501<GS>292<GS>FLORIAN MARTINEAU XXRAN261701571<GS>MARTINEAU<GS>FLORI<RS><EOT>";
+        var r = ScanComparer.Compare("XXRAN261701571", big);
+        Assert.True(r.OtherCode);
+        Assert.False(r.DataMatches);
+    }
+
+    [Fact]
+    public void Short_prefix_and_suffix_are_still_recognized()
+    {
+        var r = ScanComparer.Compare("ABC123456", "#ABC123456*");
+        Assert.Contains(r.Findings, f => f.Code == "PREFIX_SUFFIX");
+    }
 }
