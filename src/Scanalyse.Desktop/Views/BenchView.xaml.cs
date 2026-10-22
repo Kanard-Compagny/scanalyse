@@ -25,6 +25,7 @@ public partial class BenchView : UserControl
     public BenchView()
     {
         InitializeComponent();
+        HintAligner.Attach(ExpectedBox, ExpectedHint);
     }
 
     /// <summary>Dessine un code (texte, type de l'Atelier) : fourni par la fenêtre principale.</summary>

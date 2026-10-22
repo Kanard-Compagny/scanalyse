@@ -62,6 +62,9 @@ public partial class PrintView : UserControl
         CodeBox.SizeChanged += (_, _) => AlignOverlay();
         CodeBox.Loaded += (_, _) => Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
         _colorTimer.Tick += (_, _) => Recolor();
+        HintAligner.Attach(AddressBox, AddressHint);
+        HintAligner.Attach(QueueSearch, QueueSearchHint);
+        HintAligner.Attach(CodeBox, CodeHint);
         BuildLegend();
         _readTimer.Tick += async (_, _) =>
         {
@@ -737,25 +740,18 @@ public partial class PrintView : UserControl
         var owner = Window.GetWindow(this);
         RightPane.Children.Remove(ProgramCard);
         ProgramCard.Visibility = Visibility.Visible;
-        var host = new Border { Padding = new Thickness(16), Child = ProgramCard };
-        var w = new Window
+        var w = new ProgramWindow
         {
-            Title = (_readMode ? "Programme ZPL du client" : ProgramTitle.Text) + " — Scanalyse",
+            Heading = _readMode ? "Programme ZPL du client" : ProgramTitle.Text,
             Owner = owner,
-            Icon = owner?.Icon,
             Width = Math.Max(720, (owner?.ActualWidth ?? 1400) * 0.5),
             Height = Math.Max(600, (owner?.ActualHeight ?? 900) * 0.85),
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            Content = host,
-            ShowInTaskbar = false,
         };
-        w.SetResourceReference(BackgroundProperty, "Bg");
-        w.SetResourceReference(ForegroundProperty, "Ink");
-        w.SetResourceReference(FontFamilyProperty, "UiFont");
-        w.FontSize = 14;
+        w.Host.Child = ProgramCard;
         w.Closed += (_, _) =>
         {
-            host.Child = null;
+            w.Host.Child = null;
             RightPane.Children.Add(ProgramCard);
             Grid.SetRow(ProgramCard, 1);
             _programWindow = null;
@@ -764,7 +760,6 @@ public partial class PrintView : UserControl
             ApplyLayout();
             owner?.Activate();
         };
-        w.SourceInitialized += (_, _) => DarkTitleBar(w, ThemeManager.IsDark);
         _programWindow = w;
         DetachButton.Content = "Rattacher";
         DetachButton.ToolTip = "Remet le programme dans la page (ou ferme simplement cette fenêtre)";
@@ -773,17 +768,6 @@ public partial class PrintView : UserControl
         w.Show();
         CodeBox.Focus();
     }
-
-    /// <summary>Barre de titre Windows sombre quand le thème l'est (Windows 10 20H1 et plus).</summary>
-    private static void DarkTitleBar(Window w, bool dark)
-    {
-        var hwnd = new System.Windows.Interop.WindowInteropHelper(w).Handle;
-        var on = dark ? 1 : 0;
-        _ = DwmSetWindowAttribute(hwnd, 20, ref on, sizeof(int));
-    }
-
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 
     private const string DetachTip = "Ouvre le programme dans une fenêtre à part (idéal sur un deuxième écran) : l'aperçu prend toute la place ici";
 
@@ -893,7 +877,12 @@ public partial class PrintView : UserControl
         try
         {
             var origin = host.TranslatePoint(new Point(0, 0), CodeBox);
-            CodeOverlay.Clip = new RectangleGeometry(new Rect(origin.X, origin.Y, Math.Max(0, host.ViewportWidth), Math.Max(0, host.ViewportHeight)));
+            // Largeur : zone de texte sans la barre de défilement. Hauteur : tout l'intérieur du champ (marges comprises),
+            // pour que la première et la dernière ligne restent entières.
+            var bottom = host.ComputedHorizontalScrollBarVisibility == Visibility.Visible
+                ? origin.Y + host.ViewportHeight
+                : CodeBox.ActualHeight - 1;
+            CodeOverlay.Clip = new RectangleGeometry(new Rect(origin.X, 1, Math.Max(0, host.ViewportWidth), Math.Max(0, bottom - 1)));
             var first = CodeBox.GetRectFromCharacterIndex(0);
             if (first.IsEmpty || double.IsInfinity(first.Top))
             {
