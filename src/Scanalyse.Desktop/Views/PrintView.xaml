@@ -34,7 +34,7 @@
       </Grid.ColumnDefinitions>
 
       <!-- Contenu et étiquette -->
-      <Border Style="{StaticResource Card}">
+      <Border x:Name="SettingsCard" Style="{StaticResource Card}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,-8,0" Padding="0,0,8,0">
           <StackPanel>
             <TextBlock Style="{StaticResource FieldLabel}" Text="Contenu du code (accepte &lt;GS&gt;, &lt;RS&gt;… et la forme « (01)… » pour GS1)" />
@@ -138,19 +138,19 @@
       </Border>
 
       <!-- Aperçu + programme -->
-      <Grid Grid.Column="2">
+      <Grid x:Name="RightPane" Grid.Column="2">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
           <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+        <Border x:Name="PreviewCard" Style="{StaticResource Card}" Margin="0,0,0,14">
           <StackPanel>
             <DockPanel>
               <TextBlock x:Name="PreviewInfo" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
               <TextBlock Style="{StaticResource CardTitle}" Text="Aperçu de l'étiquette" />
             </DockPanel>
-            <Border Margin="0,10,0,0" Height="200" Background="{DynamicResource Surface2}" CornerRadius="10" Padding="14">
+            <Border Margin="0,10,0,0" Height="170" Background="{DynamicResource Surface2}" CornerRadius="10" Padding="14">
               <Viewbox Stretch="Uniform" StretchDirection="Both">
                 <Border BorderBrush="#33000000" BorderThickness="1" Background="White" CornerRadius="3">
                   <Canvas x:Name="LabelCanvas" Width="400" Height="200" ClipToBounds="True">
@@ -175,6 +175,8 @@
               <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <DockPanel>
+              <Button x:Name="ExpandButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="Expand_Click" Margin="10,0,0,6"
+                      VerticalAlignment="Center" ToolTip="Affiche le programme sur toute la page (Échap pour revenir)" />
               <WrapPanel x:Name="LangChips" DockPanel.Dock="Right">
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Zpl" Content="ZPL II" IsChecked="True" Checked="Any_Changed"
                              ToolTip="Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Citizen…)" />
@@ -214,7 +216,15 @@
                 </Grid>
               </DockPanel>
               <StackPanel x:Name="QueuePanel" Visibility="Collapsed" Margin="0,2,0,0">
-                <WrapPanel x:Name="QueueChips" />
+                <DockPanel Margin="0,0,0,4">
+                  <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Actualiser" Click="RefreshQueues_Click" Padding="8,2" />
+                  <TextBlock x:Name="QueueCount" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
+                </DockPanel>
+                <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="10" Padding="8,8,2,2" Margin="0,0,0,6">
+                  <ScrollViewer x:Name="QueueScroll" MaxHeight="92" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <WrapPanel x:Name="QueueChips" />
+                  </ScrollViewer>
+                </Border>
                 <TextBlock x:Name="QueueHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"
                            Text="Les données partent en mode RAW : le pilote de l'imprimante ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »)." />
               </StackPanel>

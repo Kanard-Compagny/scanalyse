@@ -517,6 +517,42 @@ public partial class PrintView : UserControl
         }
     }
 
+    private void RefreshQueues_Click(object sender, RoutedEventArgs e) => LoadQueues();
+
+    // ------------------------------------------------------------------ Programme agrandi
+
+    private bool _expanded;
+
+    private void Expand_Click(object sender, RoutedEventArgs e) => SetExpanded(!_expanded);
+
+    /// <summary>Programme sur toute la page : réglages et aperçu masqués, la zone de code prend toute la place.</summary>
+    private void SetExpanded(bool on)
+    {
+        _expanded = on;
+        SettingsCard.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        PreviewCard.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        Grid.SetColumn(RightPane, on ? 0 : 2);
+        Grid.SetColumnSpan(RightPane, on ? 3 : 1);
+        ExpandButton.Content = on ? "Réduire" : "Agrandir";
+        CodeBox.FontSize = on ? 14 : 13;
+        if (on)
+        {
+            CodeBox.Focus();
+        }
+    }
+
+    protected override void OnPreviewKeyDown(System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Escape && _expanded)
+        {
+            SetExpanded(false);
+            e.Handled = true;
+            return;
+        }
+
+        base.OnPreviewKeyDown(e);
+    }
+
     private void LoadQueues()
     {
         var current = SelectedQueue ?? _savedQueue;
@@ -535,7 +571,20 @@ public partial class PrintView : UserControl
             QueueChips.Children.Add(chip);
         }
 
-        if (QueueChips.Children.Count == 0)
+        var n = QueueChips.Children.Count;
+        QueueCount.Text = n switch
+        {
+            0 => "Aucune imprimante trouvée",
+            1 => "1 imprimante installée",
+            _ => $"{n} imprimantes installées" + (n > 6 ? " (fais défiler la liste)" : string.Empty),
+        };
+        QueueScroll.ScrollToTop();
+        var selected = QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true);
+        if (selected is not null)
+        {
+            Dispatcher.BeginInvoke(new Action(() => selected.BringIntoView()), DispatcherPriority.Loaded);
+        }
+        if (n == 0)
         {
             QueueHint.Text = "Aucune imprimante installée sur ce PC. Utilise l'envoi réseau, ou installe le pilote de l'imprimante d'étiquettes.";
         }
