@@ -135,6 +135,13 @@ kbd{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:5px;b
 .pill.warn{background:var(--warn-bg);color:var(--warn)}
 .pill.bad{background:var(--bad-bg);color:var(--bad)}
 .content{font-family:var(--f-mono);font-size:13px;background:var(--bg);border-radius:9px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-all;max-height:220px;overflow:auto;margin:0;color:var(--ink)}
+.struct{display:grid;gap:8px}
+.struct-sec{background:var(--bg);border-radius:9px;padding:10px 12px}
+.struct-sec b{display:block;font-size:13px;color:var(--accent);margin-bottom:6px}
+.struct-sec dl{display:grid;grid-template-columns:minmax(56px,max-content) minmax(0,1fr);gap:3px 12px;margin:0;font-size:13px}
+.struct-sec dt{color:var(--muted);font-family:var(--f-mono);font-size:12px}
+.struct-sec dt small{display:block;font-family:inherit;font-size:10.5px}
+.struct-sec dd{margin:0;font-family:var(--f-mono);overflow-wrap:anywhere;word-break:break-all}
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .acts a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .res h4{margin:0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -1634,7 +1641,7 @@ function render(ms,reg){
       rows:it.rows.map(([k,v])=>[plainText(k),plainText(v)]),spec:spec.map(([k,v])=>[plainText(k),plainText(v)]),alerts:al.map(([t,m])=>[t,m])};
     html+=`<article class="res" data-i="${i}">
       <div class="res-head"><span class="num">${i+1}</span><h3>${esc(it.kind)}</h3><span class="pill">${esc(fmt)}</span><span class="pill ${health[1]}">${health[0]}</span></div>
-      <pre class="content">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
+      ${structHtml(r.text||"",i)}<pre class="content" ${structOf(r.text||"")?'hidden':''} data-raw="${i}">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
       <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
       ${al.length?`<div class="alerts">${al.map(([t,m])=>`<div class="alert ${t}">${esc(m)}</div>`).join("")}</div>`:""}
       ${it.rows.length?`<h4>Ce que contient le code</h4><dl class="kv">${it.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`:""}
@@ -1650,6 +1657,9 @@ function render(ms,reg){
       return {verdict:c.worst,bad:n("bad"),warn:n("warn"),notes:c.notes.filter(x=>x[0]==="bad"||x[0]==="warn").map(x=>x[1])};}catch(e){return null;}})()}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
   box.querySelectorAll(".res").forEach(el=>{el.addEventListener("mouseenter",()=>setFocus(+el.dataset.i,false));});
+  box.querySelectorAll("[data-struct]").forEach(b=>b.addEventListener("click",()=>{const i=b.dataset.struct;const on=b.getAttribute("aria-pressed")!=="true";
+    b.setAttribute("aria-pressed",String(on));b.textContent=on?"Afficher le texte brut":"Vue structurée";
+    box.querySelector(`[data-structview="${i}"]`).hidden=!on;box.querySelector(`[data-raw="${i}"]`).hidden=on;}));
   box.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setFocus(+b.dataset.goto,true)));
   box.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>{const t=results[+b.dataset.copy].text||"";
     const done=()=>{b.textContent="Copié";setTimeout(()=>b.textContent="Copier le contenu",1800);};
@@ -1661,6 +1671,40 @@ function render(ms,reg){
   box.querySelectorAll("[data-recreate]").forEach(b=>b.addEventListener("click",()=>{const r=results[+b.dataset.recreate];if(window.atelierLoad){setMode("create",true);window.atelierLoad(r.text||"",{format:r.format,gs1:GS1SYM.test(r.symId||"")});window.scrollTo({top:0});}}));
 }
 function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
+/* ================= Vue structurée (ISO/IEC 15434, séparateurs RS / GS / US) ================= */
+const ISO_FORMATS={"01":"données de transport (ANSI MH10.8.3, transporteurs)","02":"message EDI complet","03":"EDI ANSI ASC X12","04":"EDI UN/EDIFACT","05":"identifiants d'application GS1","06":"identifiants de données ASC MH10 (DI)","07":"texte libre","08":"CII","09":"données binaires","12":"identifiants d'éléments texte"};
+const DI_NAMES={"P":"référence article du client","1P":"référence article du fournisseur","S":"numéro de série","Q":"quantité","1T":"numéro de lot","K":"référence de commande","V":"code fournisseur"};
+function structOf(text){
+  const NAMES=["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"];
+  // Le décodeur affiche les caractères de contrôle sous forme de symboles (␝, ␞, ␄, ␠) : on revient aux vrais caractères.
+  text=text.replace(/[\u2400-\u241f]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x2400)).replace(/\u2420/g," ").replace(/\u2421/g,"\x7f");
+  let t=text.replace(/<(NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC1|DC2|DC3|DC4|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US)>/g,(m,n)=>String.fromCharCode(NAMES.indexOf(n))).replace(/[\r\n\t]+$/,"");
+  if(GS1_HRI.test(t)||!/[\x1c-\x1f]/.test(t))return null;
+  const fields=(block,di)=>block.split("\x1d").map((v,k)=>{const parts=v.split(/[\x1f\x1c]/);let id=null;
+    if(di){const m=v.match(/^(\d{0,3}[A-Z])/);if(m)id=m[1];}
+    return{n:k+1,v:id?v.slice(id.length):v,parts:parts.length>1?parts:null,id,name:id?DI_NAMES[id]||"":""};});
+  const sections=[],remarks=[];let envelope=null;
+  if(t.startsWith("[)>\x1e")){
+    envelope="Enveloppe ISO/IEC 15434 « [)> »";let body=t.slice(4);
+    if(body.endsWith("\x04"))body=body.slice(0,-1);else remarks.push("Fin de transmission <EOT> absente : le message est peut-être tronqué.");
+    body.split("\x1e").filter(Boolean).forEach(b=>{const code=b.slice(0,2);const rest=b[2]==="\x1d"?b.slice(3):b.slice(2);
+      sections.push({title:"Format "+code+(ISO_FORMATS[code]?" : "+ISO_FORMATS[code]:""),fields:rest?fields(rest,code==="06"):[]});});
+  }else{const blocks=t.split("\x1e");blocks.forEach((b,k)=>{if(!b&&blocks.length>1)return;sections.push({title:blocks.length>1?"Bloc "+(k+1):"Contenu",fields:fields(b,false)});});}
+  const empty=sections.reduce((s,x)=>s+x.fields.filter(f=>!f.v&&!f.id).length,0);
+  if(empty)remarks.push(`${empty} champ${empty>1?"s":""} vide${empty>1?"s":""} (séparateurs consécutifs) : normal pour un format positionnel, à vérifier sinon.`);
+  return{envelope,sections,remarks};
+}
+const GS1_HRI=/^\(\d{2,4}\)/;
+function structHtml(text,i){
+  const s=structOf(text);if(!s)return "";
+  const vis=v=>esc(ControlCharactersVisual(v));
+  return `<div class="acts"><button class="btn small" type="button" data-struct="${i}" aria-pressed="true">Afficher le texte brut</button></div>
+    <div class="struct" data-structview="${i}">${s.envelope?`<p class="hint" style="margin:0 0 6px">${esc(s.envelope)}</p>`:""}
+    ${s.sections.map(sec=>`<div class="struct-sec"><b>${esc(sec.title)} · ${sec.fields.length} champ${sec.fields.length>1?"s":""}</b>
+      <dl>${sec.fields.map(f=>`<dt>#${f.n}${f.id?" "+esc(f.id):""}${f.name?`<small>${esc(f.name)}</small>`:""}</dt><dd>${f.parts?f.parts.map(vis).join('<span class="hint"> │ </span>'):(f.v?vis(f.v):'<span class="hint">(vide)</span>')}</dd>`).join("")}</dl></div>`).join("")}
+    ${s.remarks.map(r=>`<p class="hint" style="margin:4px 0 0">• ${esc(r)}</p>`).join("")}</div>`;
+}
+
 /* Image analysée, réduite, pour l'historique du programme */
 // Les codes y sont encadrés et numérotés comme à l'écran : le rapport montre « qui est quoi ».
 function thumbImage(withBoxes){

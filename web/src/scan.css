@@ -37,6 +37,13 @@ kbd{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:5px;b
 .pill.warn{background:var(--warn-bg);color:var(--warn)}
 .pill.bad{background:var(--bad-bg);color:var(--bad)}
 .content{font-family:var(--f-mono);font-size:13px;background:var(--bg);border-radius:9px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-all;max-height:220px;overflow:auto;margin:0;color:var(--ink)}
+.struct{display:grid;gap:8px}
+.struct-sec{background:var(--bg);border-radius:9px;padding:10px 12px}
+.struct-sec b{display:block;font-size:13px;color:var(--accent);margin-bottom:6px}
+.struct-sec dl{display:grid;grid-template-columns:minmax(56px,max-content) minmax(0,1fr);gap:3px 12px;margin:0;font-size:13px}
+.struct-sec dt{color:var(--muted);font-family:var(--f-mono);font-size:12px}
+.struct-sec dt small{display:block;font-family:inherit;font-size:10.5px}
+.struct-sec dd{margin:0;font-family:var(--f-mono);overflow-wrap:anywhere;word-break:break-all}
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .acts a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .res h4{margin:0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}

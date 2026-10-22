@@ -20,6 +20,9 @@ public sealed class AppSettings
     /// <summary>Relais terminal accessible en Wi-Fi (sinon seulement en USB via ADB).</summary>
     public bool RelayWifi { get; set; }
 
+    /// <summary>Adresse du PC choisie pour le relais Wi-Fi (plusieurs cartes réseau possibles).</summary>
+    public string RelayAddress { get; set; } = string.Empty;
+
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 

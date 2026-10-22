@@ -170,6 +170,9 @@
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Résultat" />
             <TextBlock x:Name="ResultSubtitle" Style="{StaticResource PageSubtitle}" Margin="0,4,0,14"
                        Text="Scanne un code : il est analysé. Avec une référence, la lecture est comparée au contenu attendu." />
+            <ToggleButton x:Name="StructToggle" Style="{StaticResource HexToggle}" Content="Vue structurée (sections et champs)" Margin="0,-6,0,10"
+                          HorizontalAlignment="Left" Visibility="Collapsed" Checked="StructToggle_Changed" Unchecked="StructToggle_Changed" />
+            <StackPanel x:Name="StructPanel" Visibility="Collapsed" Margin="0,0,0,10" />
             <WrapPanel x:Name="ResultActions" Margin="0,-4,0,12" Visibility="Collapsed">
               <Button Style="{StaticResource BtnSecondary}" Content="Prendre cette lecture comme référence" Click="UseAsReference_Click" Margin="0,0,8,8" />
             </WrapPanel>

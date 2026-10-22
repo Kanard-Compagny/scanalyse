@@ -92,22 +92,97 @@ public partial class DevicesView : UserControl
             Log?.Invoke(LogKind.Error, error);
         }
 
-        var ips = Relay.RelayServer.LanAddresses();
-        RawHint.Text = $"dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {Relay.RelayServer.RawPort} pour un terminal relié en USB (après « Ouvrir le relais »)"
-            + (wifi && ips.Count > 0 ? $", ou vers {ips[0]} port {Relay.RelayServer.RawPort} en Wi-Fi." : ".");
         WifiPanel.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
-        if (wifi)
+        WifiNetworks.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
+        WifiHelp.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
+        RawHint.Text = $"dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {Relay.RelayServer.RawPort} pour un terminal relié en USB (après « Ouvrir le relais »).";
+        if (!wifi)
         {
-            if (ips.Count == 0)
+            return;
+        }
+
+        // Une puce par carte réseau : la plus probable (Wi-Fi ou Ethernet avec passerelle) en premier.
+        var networks = Relay.RelayServer.Networks();
+        AddressChips.Children.Clear();
+        if (networks.Count == 0)
+        {
+            WifiUrl.Text = "Aucun réseau local détecté sur ce PC.";
+            WifiQr.Source = null;
+            return;
+        }
+
+        var saved = AppSettings.Load().RelayAddress;
+        var chosen = networks.FirstOrDefault(n => n.Address == saved) ?? networks[0];
+        foreach (var n in networks)
+        {
+            var chip = new RadioButton
             {
-                WifiUrl.Text = "Aucun réseau local détecté sur ce PC.";
-                WifiQr.Source = null;
-                return;
+                Style = (Style)FindResource("Chip"),
+                GroupName = "RelayNet",
+                Content = $"{n.Adapter} · {n.Address}",
+                Tag = n.Address,
+                IsChecked = n == chosen,
+                ToolTip = n.Likely ? "Carte réseau physique avec passerelle" : "Carte virtuelle, VPN ou sans passerelle : peu probable pour le terminal",
+            };
+            chip.Checked += async (_, _) =>
+            {
+                var settings = AppSettings.Load();
+                settings.RelayAddress = (string)chip.Tag;
+                settings.Save();
+                await ShowAddressAsync((string)chip.Tag);
+            };
+            AddressChips.Children.Add(chip);
+        }
+
+        await ShowAddressAsync(chosen.Address);
+    }
+
+    private async Task ShowAddressAsync(string address)
+    {
+        var url = $"http://{address}:{Relay.RelayServer.HttpPort}/relais";
+        WifiUrl.Text = url;
+        RawHint.Text = $"dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {Relay.RelayServer.RawPort} pour un terminal relié en USB (après « Ouvrir le relais »), ou vers {address} port {Relay.RelayServer.RawPort} en Wi-Fi.";
+        await ShowQrAsync(url);
+    }
+
+    /// <summary>
+    /// Règle de pare-feu pour les ports du relais, limitée au réseau local (sous-réseau du PC), tous profils.
+    /// Demande les droits administrateur (fenêtre de contrôle de compte Windows).
+    /// </summary>
+    private async void Firewall_Click(object sender, RoutedEventArgs e)
+    {
+        const string name = "Scanalyse - relais terminal";
+        var ports = $"{Relay.RelayServer.HttpPort}-{Relay.RelayServer.RawPort}";
+        var command = $"/c netsh advfirewall firewall delete rule name=\"{name}\" >nul 2>&1 & "
+            + $"netsh advfirewall firewall add rule name=\"{name}\" dir=in action=allow protocol=TCP localport={ports} remoteip=localsubnet profile=any";
+        try
+        {
+            using var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", command)
+            {
+                Verb = "runas",
+                UseShellExecute = true,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+            });
+            if (p is not null)
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                try
+                {
+                    await p.WaitForExitAsync(cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                }
             }
 
-            var url = $"http://{ips[0]}:{Relay.RelayServer.HttpPort}/relais";
-            WifiUrl.Text = url + (ips.Count > 1 ? $"\n(autres adresses : {string.Join(", ", ips.Skip(1))})" : string.Empty);
-            await ShowQrAsync(url);
+            var ok = p is { HasExited: true, ExitCode: 0 };
+            Log?.Invoke(ok ? LogKind.Ok : LogKind.Warning, ok
+                ? $"Pare-feu : ports {ports} ouverts pour le réseau local. Recharge la page sur le terminal."
+                : "La règle de pare-feu n'a pas pu être ajoutée.");
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            Log?.Invoke(LogKind.Warning, "Autorisation refusée : la règle de pare-feu n'a pas été ajoutée.");
         }
     }
 

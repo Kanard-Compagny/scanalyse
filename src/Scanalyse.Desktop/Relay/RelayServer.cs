@@ -119,10 +119,18 @@ internal sealed partial class RelayServer : IAsyncDisposable
 
     public async ValueTask DisposeAsync() => await StopAsync();
 
-    /// <summary>Adresses IPv4 du PC sur le réseau local (pour l'adresse Wi-Fi du relais).</summary>
-    public static IReadOnlyList<string> LanAddresses()
+    /// <summary>Adresse réseau du PC, avec la carte qui la porte.</summary>
+    /// <param name="Address">Adresse IPv4.</param>
+    /// <param name="Adapter">Nom de la carte réseau (« Wi-Fi », « Ethernet »…).</param>
+    /// <param name="Likely">Carte Wi-Fi ou Ethernet physique avec passerelle : la plus probable pour joindre le terminal.</param>
+    public sealed record LanAddress(string Address, string Adapter, bool Likely);
+
+    private static readonly string[] VirtualHints = ["virtual", "hyper-v", "vmware", "virtualbox", "wsl", "vethernet", "tap", "vpn", "tunnel", "bluetooth", "loopback", "docker", "zerotier", "tailscale", "fortinet", "cisco anyconnect", "globalprotect"];
+
+    /// <summary>Adresses du PC, la plus probable en premier (cartes virtuelles et VPN en dernier).</summary>
+    public static IReadOnlyList<LanAddress> Networks()
     {
-        var list = new List<string>();
+        var list = new List<(LanAddress A, int Rank)>();
         try
         {
             foreach (var nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
@@ -134,20 +142,17 @@ internal sealed partial class RelayServer : IAsyncDisposable
                 }
 
                 var props = nic.GetIPProperties();
-                var hasGateway = props.GatewayAddresses.Any(g => g.Address.AddressFamily == AddressFamily.InterNetwork && !g.Address.Equals(IPAddress.Any));
+                var gateway = props.GatewayAddresses.Any(g => g.Address.AddressFamily == AddressFamily.InterNetwork && !g.Address.Equals(IPAddress.Any));
+                var label = (nic.Name + " " + nic.Description).ToLowerInvariant();
+                var isVirtual = VirtualHints.Any(label.Contains);
+                var wifi = nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211;
+                var rank = (isVirtual ? 100 : 0) + (gateway ? 0 : 10) + (wifi ? 0 : 1);
                 foreach (var a in props.UnicastAddresses)
                 {
                     if (a.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(a.Address)
                         && !a.Address.ToString().StartsWith("169.254.", StringComparison.Ordinal))
                     {
-                        if (hasGateway)
-                        {
-                            list.Insert(0, a.Address.ToString());
-                        }
-                        else
-                        {
-                            list.Add(a.Address.ToString());
-                        }
+                        list.Add((new LanAddress(a.Address.ToString(), nic.Name, !isVirtual && gateway), rank));
                     }
                 }
             }
@@ -156,8 +161,12 @@ internal sealed partial class RelayServer : IAsyncDisposable
         {
         }
 
-        return list.Distinct().ToList();
+        return [.. list.OrderBy(x => x.Rank).Select(x => x.A).DistinctBy(a => a.Address)];
     }
+
+    /// <summary>Adresses IPv4 du PC sur le réseau local (pour l'adresse Wi-Fi du relais).</summary>
+    public static IReadOnlyList<string> LanAddresses() => [.. Networks().Select(n => n.Address)];
+
 
     private static async Task AcceptLoopAsync(TcpListener listener, Func<TcpClient, CancellationToken, Task> handler, CancellationToken token)
     {

@@ -114,7 +114,109 @@ public partial class BenchView : UserControl
             .Select(f => new FieldView(f.Label, f.Sensitive ? "•••••• (masqué)" : f.Value, f.Hint ?? string.Empty))
             .ToList();
         ResultActions.Visibility = Visibility.Collapsed;
+        ShowStructure(text);
         ResultScroll.ScrollToTop();
+    }
+
+    // ------------------------------------------------------------------ Vue structurée
+
+    private bool _structOn = true;
+    private string _structRaw = string.Empty;
+
+    /// <summary>Découpe le contenu en sections et champs (séparateurs RS, GS, US) ; bouton pour revenir au texte brut.</summary>
+    private void ShowStructure(string text, bool touchSubtitle = true)
+    {
+        StructPanel.Children.Clear();
+        var view = StructuredData.Parse(text);
+        _structRaw = touchSubtitle ? ResultSubtitle.Text : string.Empty;
+        StructToggle.Visibility = view is null ? Visibility.Collapsed : Visibility.Visible;
+        if (view is null)
+        {
+            StructPanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        if (view.Envelope is not null)
+        {
+            StructPanel.Children.Add(Muted(view.Envelope, 12.5, new Thickness(0, 0, 0, 6)));
+        }
+
+        foreach (var section in view.Sections)
+        {
+            var box = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 9, 12, 9), Margin = new Thickness(0, 0, 0, 8) };
+            box.SetResourceReference(Border.BackgroundProperty, "Surface2");
+            var stack = new StackPanel();
+            var head = new TextBlock { Text = $"{section.Title} · {section.Fields.Count} champ{(section.Fields.Count > 1 ? "s" : string.Empty)}", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6), TextWrapping = TextWrapping.Wrap };
+            head.SetResourceReference(TextBlock.ForegroundProperty, "BrandText");
+            stack.Children.Add(head);
+            foreach (var f in section.Fields)
+            {
+                var row = new Grid { Margin = new Thickness(0, 1, 0, 1) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                var label = new StackPanel();
+                label.Children.Add(Muted(f.Identifier is null ? $"#{f.Index}" : $"#{f.Index} {f.Identifier}", 12, default));
+                if (f.IdentifierName is not null)
+                {
+                    label.Children.Add(Muted(f.IdentifierName, 10.5, default));
+                }
+
+                row.Children.Add(label);
+                var raw = f.Identifier is null ? f.Value : f.Value[f.Identifier.Length..];
+                var shown = f.Parts.Count > 1 ? string.Join("   │   ", f.Parts.Select(ControlCharacters.Visualize)) : ControlCharacters.Visualize(raw);
+                var value = new TextBox
+                {
+                    Text = shown.Length == 0 ? "(vide)" : shown,
+                    IsReadOnly = true,
+                    BorderThickness = new Thickness(0),
+                    Background = Brushes.Transparent,
+                    Padding = new Thickness(0),
+                    FontFamily = (FontFamily)FindResource("MonoFont"),
+                    FontSize = 12.5,
+                    TextWrapping = TextWrapping.Wrap,
+                };
+                value.SetResourceReference(Control.ForegroundProperty, shown.Length == 0 ? "Muted" : "Ink");
+                Grid.SetColumn(value, 1);
+                row.Children.Add(value);
+                stack.Children.Add(row);
+            }
+
+            box.Child = stack;
+            StructPanel.Children.Add(box);
+        }
+
+        foreach (var r in view.Remarks)
+        {
+            StructPanel.Children.Add(Muted("• " + r, 12, new Thickness(0, 2, 0, 0)));
+        }
+
+        StructToggle.IsChecked = _structOn;
+        ApplyStructure();
+    }
+
+    private TextBlock Muted(string text, double size, Thickness margin)
+    {
+        var t = new TextBlock { Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap, Margin = margin };
+        t.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+        return t;
+    }
+
+    private void StructToggle_Changed(object sender, RoutedEventArgs e)
+    {
+        _structOn = StructToggle.IsChecked == true;
+        ApplyStructure();
+    }
+
+    /// <summary>Vue structurée : sections affichées et texte brut condensé ; sinon texte brut complet.</summary>
+    private void ApplyStructure()
+    {
+        var on = _structOn && StructToggle.Visibility == Visibility.Visible;
+        StructPanel.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+        if (_structRaw.Length > 0)
+        {
+            var count = _structRaw.Split(" · ")[0];
+            ResultSubtitle.Text = on ? $"{count} · affichage par sections (décoche pour le texte brut)" : _structRaw;
+        }
     }
 
     /// <summary>« Recréer ce code » : la lecture (sinon la référence) part dans « Créer un code ».</summary>
@@ -459,6 +561,7 @@ public partial class BenchView : UserControl
 
         var result = ScanComparer.Compare(ExpectedBox.Text, ReceivedBox.Text);
         ResultActions.Visibility = result.OtherCode ? Visibility.Visible : Visibility.Collapsed;
+        ShowStructure(ReceivedBox.Text.Length > 0 ? ReceivedBox.Text : ControlCharacters.FromVisualized(ExpectedBox.Text), touchSubtitle: false);
         ResultScroll.ScrollToTop();
         ResultTitle.Text = result.OtherCode ? "Lecture d'un autre code" : result.WorstSeverity switch
         {
