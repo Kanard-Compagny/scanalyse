@@ -16,6 +16,9 @@ public enum PrinterLanguage
 
     /// <summary>EPL2 : anciennes Zebra (LP/TLP 2844…) ; codes 1D uniquement ici.</summary>
     Epl2,
+
+    /// <summary>DPL : Honeywell / Datamax (séries I, H, M, E, PD, PM…).</summary>
+    Dpl,
 }
 
 /// <summary>Symbologie à imprimer.</summary>
@@ -84,6 +87,7 @@ public static class LabelCode
     {
         PrinterLanguage.Zpl => ".zpl",
         PrinterLanguage.Tspl => ".prn",
+        PrinterLanguage.Dpl => ".dpl",
         _ => ".epl",
     };
 
@@ -101,6 +105,7 @@ public static class LabelCode
         {
             PrinterLanguage.Zpl => Zpl(job, data, warnings),
             PrinterLanguage.Tspl => Tspl(job, data, warnings),
+            PrinterLanguage.Dpl => Dpl(job, data, warnings),
             _ => Epl(job, data, warnings),
         };
     }
@@ -419,6 +424,123 @@ public static class LabelCode
     }
 
     private static string EplQuote(string s) => "\"" + s.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal) + "\"";
+
+    // ------------------------------------------------------------------ DPL (Honeywell / Datamax)
+
+    /// <summary>
+    /// DPL en unités métriques (0,1 mm). Origine en bas à gauche de l'étiquette : la ligne (row) se compte depuis le bas.
+    /// Enregistrement : rotation, identifiant (police ou code), largeurs, hauteur, ligne, colonne, données.
+    /// </summary>
+    private static PrinterOutput Dpl(LabelJob job, Prepared p, List<string> warnings)
+    {
+        if (job.Symbology is LabelSymbology.Gs1_128 or LabelSymbology.Gs1DataMatrix or LabelSymbology.Pdf417 or LabelSymbology.Aztec)
+        {
+            return new PrinterOutput(string.Empty, false,
+                [$"{Name(job.Symbology)} n'est pas généré en DPL (FNC1 et paramètres propres à chaque firmware). Utilise le ZPL : les Honeywell PM/PD/PX le comprennent en émulation."]);
+        }
+
+        if (p.Raw.Any(c => c < ' '))
+        {
+            return new PrinterOutput(string.Empty, false, ["DPL : les caractères de contrôle (<GS>, <RS>…) ne sont pas transmis de façon fiable. Utilise le ZPL pour ce contenu."]);
+        }
+
+        static string Tenth(double mm, int digits) => Math.Clamp((int)Math.Round(mm * 10), 0, (int)Math.Pow(10, digits) - 1).ToString("D" + digits, CultureInfo.InvariantCulture);
+        static char Mult(int v) => v < 10 ? (char)('0' + v) : (char)('A' + v - 10);
+
+        var m = Math.Clamp(job.ModuleDots, 1, 9);
+        var moduleMm = m * 25.4 / job.Dpi;
+        var rotation = job.Rotation switch { 90 => '2', 180 => '3', 270 => '4', _ => '1' };
+        var hri = job.HumanReadable;
+        string record;
+        double heightMm;
+        switch (job.Symbology)
+        {
+            case LabelSymbology.QrCode or LabelSymbology.DataMatrix:
+            {
+                // W1d = QR automatique (modèle 2, correction M) ; W1c = Data Matrix ECC 200. Taille d'un module en 0,1 mm.
+                var cell = Math.Clamp((int)Math.Round(moduleMm * 10), 1, 35);
+                var modules = job.Symbology == LabelSymbology.QrCode ? QrModules(p.Raw.Length) : DataMatrixModules(p.Raw.Length);
+                heightMm = modules * cell / 10.0;
+                var id = job.Symbology == LabelSymbology.QrCode ? "W1d" : "W1c";
+                var row = Tenth(job.HeightMm - job.YMm - heightMm, 4);
+                record = $"{rotation}{id}{Mult(cell)}{Mult(cell)}000{row}{Tenth(job.XMm, 4)}{p.Raw}";
+                if (job.Symbology == LabelSymbology.QrCode)
+                {
+                    record += "\r"; // QR automatique : données terminées par deux retours chariot.
+                }
+
+                warnings.Add($"Taille du code estimée à {heightMm.ToString("0.#", CultureInfo.InvariantCulture)} mm pour le placer depuis le bas de l'étiquette (origine DPL).");
+                break;
+            }
+
+            default:
+            {
+                var id = job.Symbology switch
+                {
+                    LabelSymbology.Code39 => 'A',
+                    LabelSymbology.UpcA => 'B',
+                    LabelSymbology.Itf => 'D',
+                    LabelSymbology.Code128 => 'E',
+                    LabelSymbology.Ean13 => 'F',
+                    _ => 'G', // EAN-8
+                };
+                if (!hri)
+                {
+                    id = char.ToLowerInvariant(id);
+                }
+
+                var wide = job.Symbology is LabelSymbology.Code39 or LabelSymbology.Itf ? Math.Min(9, m * 3) : m;
+                heightMm = Math.Min(99.9, job.HeightMmBars);
+                var row = Tenth(job.HeightMm - job.YMm - heightMm - (hri ? 3 : 0), 4);
+                record = $"{rotation}{id}{Mult(wide)}{Mult(m)}{Tenth(heightMm, 3)}{row}{Tenth(job.XMm, 4)}{p.Raw}";
+                break;
+            }
+        }
+
+        var sb = new StringBuilder();
+        sb.Append("\u0002L\r\n");
+        sb.Append("m\r\n");     // unités métriques : 0,1 mm
+        sb.Append("D11\r\n");   // taille de point 1 × 1
+        sb.Append(record).Append("\r\n");
+        if (!string.IsNullOrWhiteSpace(job.Caption))
+        {
+            // Police interne 2, taille 1 × 1 : texte libre sous le code.
+            var captionTop = job.CaptionYMm ?? job.YMm + heightMm + (hri && !Is2D(job.Symbology) ? 5 : 3);
+            sb.Append(CultureInfo.InvariantCulture, $"1211000{Tenth(job.HeightMm - captionTop - 3, 4)}{Tenth(job.XMm, 4)}{job.Caption.Trim()}\r\n");
+        }
+
+        sb.Append(CultureInfo.InvariantCulture, $"Q{Math.Clamp(job.Copies, 1, 9999):D4}\r\nE\r\n");
+        if (job.Rotation != 0)
+        {
+            warnings.Add("DPL : la rotation tourne le code autour de son point d'ancrage ; vérifie sa position sur l'étiquette.");
+        }
+
+        warnings.Add("DPL généré d'après le manuel Honeywell / Datamax (unités 0,1 mm, origine en bas à gauche) : valide l'étiquette sur l'imprimante.");
+        return new PrinterOutput(sb.ToString(), true, warnings);
+    }
+
+    /// <summary>Côté d'un QR Code (modèle 2, correction M, octets) selon la longueur des données.</summary>
+    private static int QrModules(int length)
+    {
+        int[] capacity = [14, 26, 42, 62, 84, 106, 122, 152, 180, 213, 251, 287, 331, 362, 412, 450, 504, 560, 624, 666];
+        var version = Array.FindIndex(capacity, c => c >= length) + 1;
+        return 17 + 4 * (version <= 0 ? 20 : version);
+    }
+
+    /// <summary>Côté d'un Data Matrix carré (ECC 200, caractères ASCII) selon la longueur des données.</summary>
+    private static int DataMatrixModules(int length)
+    {
+        (int Size, int Capacity)[] sizes = [(10, 3), (12, 5), (14, 8), (16, 12), (18, 18), (20, 22), (22, 30), (24, 36), (26, 44), (32, 62), (36, 86), (40, 114), (44, 144), (48, 174), (52, 204), (64, 280), (72, 368), (80, 456)];
+        foreach (var (size, cap) in sizes)
+        {
+            if (cap >= length)
+            {
+                return size;
+            }
+        }
+
+        return 88;
+    }
 
     /// <summary>Nom affiché d'une symbologie.</summary>
     public static string Name(LabelSymbology s) => s switch

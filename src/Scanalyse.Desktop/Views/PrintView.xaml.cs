@@ -282,7 +282,7 @@ public partial class PrintView : UserControl
         }
 
         WarningsList.ItemsSource = warnings;
-        ProgramTitle.Text = Language switch { PrinterLanguage.Tspl => "Programme TSPL", PrinterLanguage.Epl2 => "Programme EPL2", _ => "Programme ZPL" };
+        ProgramTitle.Text = Language switch { PrinterLanguage.Tspl => "Programme TSPL", PrinterLanguage.Epl2 => "Programme EPL2", PrinterLanguage.Dpl => "Programme DPL", _ => "Programme ZPL" };
         if (!_edited)
         {
             _updating = true;
@@ -1017,7 +1017,7 @@ public partial class PrintView : UserControl
 
         PageSubtitle.Text = on
             ? "Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi."
-            : "Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
+            : "Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
         LangChips.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
         ZplTools.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
         ProgramTitle.Text = on ? "Programme du client" : "Programme ZPL";
@@ -1159,13 +1159,14 @@ public partial class PrintView : UserControl
         var name = ProgramFile.Name(kind);
         ZplEmpty.Text = kind == ProgramKind.Unknown
             ? "Langage non reconnu : ce texte n'est pas un programme ZPL, TSPL, EPL2, DPL, SBPL ou Fingerprint connu."
-            : $"Programme {name} : l'aperçu de l'étiquette est dessiné pour le ZPL uniquement. Les codes-barres du programme sont listés à gauche.";
+            : $"Programme {name} : l'aperçu de l'étiquette est dessiné pour le ZPL uniquement. Les codes-barres du programme sont listés à gauche."
+              + (kind == ProgramKind.Dpl ? " En DPL, la position « y » se compte depuis le bas de l'étiquette (0,1 mm ou 0,01 pouce)." : string.Empty);
         var lines = text.Split('\n').Length;
         ReadSummary.Text = kind == ProgramKind.Unknown
             ? $"{lines} ligne{(lines > 1 ? "s" : string.Empty)} · langage non reconnu. Vérifie que c'est bien le fichier d'impression (et non un export PDF ou image)."
             : $"Programme {name} · {lines} lignes. Il peut être envoyé tel quel à une imprimante qui parle {name}.";
 
-        if (kind is ProgramKind.Dpl or ProgramKind.Sbpl or ProgramKind.Fingerprint)
+        if (kind is ProgramKind.Sbpl or ProgramKind.Fingerprint)
         {
             ReadPanel.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Info,
                 $"{name} : lecture détaillée non disponible. Pour retrouver le contenu des codes, imprime l'étiquette et passe-la dans « Analyser une image » (photo ou capture), ou scanne-la au banc d'essai.")));

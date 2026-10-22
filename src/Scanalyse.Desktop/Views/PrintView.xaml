@@ -44,7 +44,7 @@
       <StackPanel>
         <TextBlock Style="{StaticResource PageTitle}" Text="Code imprimante" />
         <TextBlock x:Name="PageSubtitle" Style="{StaticResource PageSubtitle}" TextWrapping="Wrap"
-                   Text="Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement." />
+                   Text="Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement." />
       </StackPanel>
       <WrapPanel x:Name="HeaderChips" Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
         <!-- Ce qu'on affiche à droite : l'aperçu, le programme, ou les deux l'un sous l'autre -->
@@ -333,6 +333,8 @@
                              ToolTip="TSC et nombreuses imprimantes d'entrée de gamme" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Epl2" Content="EPL2" Checked="Any_Changed"
                              ToolTip="Anciennes Zebra (LP/TLP 2844…), codes 1D" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Dpl" Content="DPL" Checked="Any_Changed"
+                             ToolTip="Honeywell / Datamax (I-Class, H-Class, M-Class, E-Class…) : codes 1D, QR Code, Data Matrix" />
               </WrapPanel>
               <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="OpenProgram_Click" Margin="0,0,12,6"
                       VerticalAlignment="Center" ToolTip="Ouvre un fichier du PC (.zpl, .prn, .txt, .epl…) : le programme s'affiche en lecture. Tu peux aussi glisser le fichier sur la page." />

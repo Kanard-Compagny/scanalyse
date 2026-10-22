@@ -24,6 +24,7 @@
 - Éditeur de programme avec numéros de ligne, « Coller un programme client », « Voir la ligne » depuis chaque code lu.
 - Les pages Code imprimante et Banc d'essai défilent quand la fenêtre est trop basse : plus rien n'est coupé.
 - Programme et aperçu agrandissables ; choix de l'imprimante Windows dans une liste avec recherche.
+- **DPL (Honeywell / Datamax)** : génération (Code 128, EAN-13/8, UPC-A, Code 39, ITF, QR Code, Data Matrix ; unités 0,1 mm, origine en bas à gauche) et lecture des programmes DPL (codes-barres, contenu, données GS1). À valider sur l'imprimante.
 - Fenêtre réduite : la barre d'outils garde ses icônes (bulles d'aide) sans les libellés et le menu se replie tout seul sous 1 180 points de large ; boutons du dossier (Historique) qui passent à la ligne ; colonnes de l'Historique et des Symbologies qui s'adaptent ; fiches des symbologies redimensionnées selon la place.
 - Page « Douchettes » renommée « Appareils de lecture » : elle regroupe douchettes, terminaux Android et caméras.
 - Bouton « Code imprimante » sur chaque code analysé, au banc d'essai et dans « Créer un code » (QR compris) : on recrée le code d'un client en un clic.

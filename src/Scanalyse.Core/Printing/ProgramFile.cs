@@ -172,6 +172,26 @@ public static partial class ProgramFile
                 var gs1 = type is "EAN128" or "EAN128M" || data.StartsWith('(');
                 list.Add(new ProgramBarcode(n, cmd, name, Int(args, 0), Int(args, 1), data, gs1));
             }
+            else if (kind == ProgramKind.Dpl)
+            {
+                // Enregistrement DPL : rotation, identifiant (lettre ou W1x), largeurs, hauteur, ligne, colonne, données.
+                var m = DplCode().Match(line.TrimStart('\u0002'));
+                if (!m.Success)
+                {
+                    continue;
+                }
+
+                var id = m.Groups[2].Value;
+                var name = DplType(id);
+                if (name is null)
+                {
+                    continue;
+                }
+
+                var data = m.Groups[8].Value.TrimEnd('\r');
+                var gs1 = id is "Q" or "q" or "R" or "r" || data.StartsWith('(');
+                list.Add(new ProgramBarcode(n, id, name, int.Parse(m.Groups[7].Value, CultureInfo.InvariantCulture), int.Parse(m.Groups[6].Value, CultureInfo.InvariantCulture), data, gs1));
+            }
             else if (kind == ProgramKind.Epl2)
             {
                 var m = EplCode().Match(line);
@@ -222,6 +242,27 @@ public static partial class ProgramFile
         "CODA" => "Codabar",
         _ => "Code " + t,
     };
+
+    /// <summary>Identifiants de codes-barres DPL (majuscule : avec texte lisible, minuscule : sans).</summary>
+    private static string? DplType(string id) => id.Length == 3
+        ? char.ToLowerInvariant(id[2]) switch { 'c' => "Data Matrix", 'd' => "QR Code", 'f' => "Aztec", var x => "Code W1" + x }
+        : char.ToUpperInvariant(id[0]) switch
+        {
+            'A' => "Code 39",
+            'B' => "UPC-A",
+            'C' => "UPC-E",
+            'D' => "ITF",
+            'E' => "Code 128",
+            'F' => "EAN-13",
+            'G' => "EAN-8",
+            'I' => "Codabar",
+            'J' => "ITF",
+            'O' => "Code 93",
+            'Q' or 'R' => "GS1-128",
+            'U' => "MaxiCode",
+            'Z' => "PDF417",
+            _ => null, // chiffres : polices de texte ; X : traits et cadres
+        };
 
     private static string EplType(string t) => t switch
     {
@@ -301,6 +342,9 @@ public static partial class ProgramFile
 
     [GeneratedRegex(@"^(BARCODE|QRCODE|DMATRIX|PDF417|AZTEC|MAXICODE)\s+(.*)$", RegexOptions.IgnoreCase)]
     private static partial Regex TsplCode();
+
+    [GeneratedRegex(@"^([1-4])(W1[A-Za-z]|[A-WYZa-wyz])([0-9A-Za-z])([0-9A-Za-z])([0-9A-Za-z]{3})(\d{4})(\d{4})(.*)$")]
+    private static partial Regex DplCode();
 
     [GeneratedRegex(@"^([Bb])(\d+,.*)$")]
     private static partial Regex EplCode();

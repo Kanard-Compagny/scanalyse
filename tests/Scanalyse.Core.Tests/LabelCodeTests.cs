@@ -67,3 +67,27 @@ public class LabelCodeTests
         Assert.Equal(LabelSymbology.DataMatrix, LabelCode.FromFormat(null, "[)><RS>01<GS>02<RS><EOT>"));
     }
 }
+
+public class DplTests
+{
+    [Fact]
+    public void Generates_and_reads_back_dpl()
+    {
+        var o = LabelCode.Generate(PrinterLanguage.Dpl, new LabelJob("ABC-123", LabelSymbology.Code128, WidthMm: 100, HeightMm: 50, XMm: 5, YMm: 5, ModuleDots: 2, HeightMmBars: 15));
+        Assert.True(o.Supported);
+        Assert.True(o.Code.StartsWith("\u0002L", StringComparison.Ordinal));
+        // 50 - 5 - 15 - 3 (texte lisible) = 27 mm depuis le bas ; 5 mm depuis la gauche ; hauteur 15 mm
+        Assert.Contains("1E221500270" + "0050ABC-123", o.Code);
+        Assert.Contains("Q0001\r\nE", o.Code);
+        Assert.Equal(ProgramKind.Dpl, ProgramFile.Detect(o.Code));
+        var code = ProgramFile.Barcodes(o.Code, ProgramKind.Dpl).Single();
+        Assert.Equal("Code 128", code.Symbology);
+        Assert.Equal("ABC-123", code.Data);
+        Assert.Equal(50, code.X);
+
+        var qr = LabelCode.Generate(PrinterLanguage.Dpl, new LabelJob("https://a.b", LabelSymbology.QrCode));
+        Assert.Contains("1W1d", qr.Code);
+        Assert.Equal("QR Code", ProgramFile.Barcodes(qr.Code, ProgramKind.Dpl).Single().Symbology);
+        Assert.False(LabelCode.Generate(PrinterLanguage.Dpl, new LabelJob("(01)03453120000011", LabelSymbology.Gs1_128)).Supported);
+    }
+}
