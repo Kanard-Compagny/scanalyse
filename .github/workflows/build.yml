@@ -1,5 +1,6 @@
 # Compilation automatique : tests à chaque envoi, exécutable portable téléchargeable.
-# Pour publier une version : créer un tag vX.Y.Z (ex. v0.9.0) ; la version est alors jointe à une « Release » GitHub.
+# Pour publier une version : Actions → Compilation → « Run workflow », saisir la version (ex. 0.10.0) ;
+# ou créer un tag vX.Y.Z. L'exécutable est alors joint à une « Release » GitHub.
 name: Compilation
 
 on:
@@ -8,6 +9,11 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      publier:
+        description: "Version à publier (ex. 0.10.0) : crée l'étiquette vX.Y.Z et la Release avec Scanalyse.exe. Vide : simple compilation."
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -30,7 +36,10 @@ jobs:
         shell: pwsh
         run: |
           $prefix = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.VersionPrefix
-          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") } else { $v = "$prefix-dev.${{ github.run_number }}" }
+          $publish = "${{ github.event.inputs.publier }}".Trim().TrimStart("v")
+          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") }
+          elseif ($publish) { $v = $publish }
+          else { $v = "$prefix-dev.${{ github.run_number }}" }
           "value=$v" >> $env:GITHUB_OUTPUT
 
       - name: Exécutable portable
@@ -42,9 +51,12 @@ jobs:
           path: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe
 
       - name: Release
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' || github.event.inputs.publier != ''
         uses: softprops/action-gh-release@v2
         with:
+          # Bouton « Run workflow » : l'étiquette vX.Y.Z est créée sur ce commit si elle n'existe pas.
+          tag_name: v${{ steps.version.outputs.value }}
+          target_commitish: ${{ github.sha }}
           name: Scanalyse ${{ steps.version.outputs.value }}
           body_path: CHANGELOG.md
           files: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe
