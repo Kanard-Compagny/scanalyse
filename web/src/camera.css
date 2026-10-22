@@ -12,3 +12,7 @@
 .cam-live span{font-family:var(--f-mono);font-size:12px;padding:5px 9px;border-radius:8px;background:rgba(0,0,0,.72);color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cam-live span b{color:#7EE2B8;font-weight:600;margin-right:6px}
 .cam-live .wait{color:#d9dde0}
+.cam-sharp{position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:8px;padding:6px 10px 6px 8px;border-radius:9px;background:rgba(0,0,0,.72);color:#fff;font-size:12.5px;font-weight:600;pointer-events:none;max-width:calc(100% - 20px)}
+.cam-sharp i{width:44px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);position:relative;overflow:hidden;flex:none}
+.cam-sharp i::after{content:"";position:absolute;inset:0;width:var(--v,0%);background:var(--c,#7EE2B8);border-radius:3px;transition:width .2s}
+.cam-sharp.ok{--c:#7EE2B8}.cam-sharp.mid{--c:#F5D57E}.cam-sharp.bad{--c:#FF8A80}

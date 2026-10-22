@@ -355,6 +355,33 @@ async function analyze(opts){
   if(id!==runId) return;
   focusIdx=-1;draw();render(performance.now()-t0,r);
 }
+/* ================= Accentuation (codes légèrement flous) ================= */
+// Niveaux de gris, masque flou (« unsharp mask ») puis étirement du contraste : redonne des bords francs
+// aux barres d'une photo un peu floue. Ne recrée pas ce qui est perdu : un flou plus large qu'une barre reste illisible.
+function boxBlur(src,w,h,r){
+  const tmp=new Float32Array(w*h),out=new Float32Array(w*h),n=2*r+1;
+  for(let y=0;y<h;y++){let acc=0;const o=y*w;
+    for(let x=-r;x<=r;x++)acc+=src[o+Math.min(w-1,Math.max(0,x))];
+    for(let x=0;x<w;x++){tmp[o+x]=acc/n;acc+=src[o+Math.min(w-1,x+r+1)]-src[o+Math.max(0,x-r)];}}
+  for(let x=0;x<w;x++){let acc=0;
+    for(let y=-r;y<=r;y++)acc+=tmp[Math.min(h-1,Math.max(0,y))*w+x];
+    for(let y=0;y<h;y++){out[y*w+x]=acc/n;acc+=tmp[Math.min(h-1,y+r+1)*w+x]-tmp[Math.max(0,y-r)*w+x];}}
+  return out;
+}
+function enhanceImage(img,amount,radius){
+  const w=img.width,h=img.height,d=img.data,g=new Float32Array(w*h);
+  for(let i=0,j=0;j<g.length;i+=4,j++)g[j]=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000;
+  let b=g;for(let k=0;k<3;k++)b=boxBlur(b,w,h,Math.max(1,Math.round(radius)));// 3 flous en boîte ≈ flou gaussien
+  const v=new Float32Array(w*h);const hist=new Uint32Array(256);
+  for(let j=0;j<g.length;j++){const x=g[j]+amount*(g[j]-b[j]);v[j]=x;hist[Math.max(0,Math.min(255,x|0))]++;}
+  let lo=0,hi=255,c=0;const n1=g.length*.01;
+  for(let i=0;i<256;i++){c+=hist[i];if(c>=n1){lo=i;break;}}c=0;
+  for(let i=255;i>=0;i--){c+=hist[i];if(c>=n1){hi=i;break;}}
+  const k=255/Math.max(16,hi-lo);const out=new ImageData(w,h);const o=out.data;
+  for(let j=0,i=0;j<v.length;j++,i+=4){const y=Math.max(0,Math.min(255,(v[j]-lo)*k));o[i]=o[i+1]=o[i+2]=y;o[i+3]=255;}
+  return out;
+}
+
 async function cascade(r,read,id,isZX){
   const m=Math.max(r.w,r.h);const bg=edgeColor(r);let found=[];
   const scales=[m>3000?3000/m:1];
@@ -374,6 +401,23 @@ async function cascade(r,read,id,isZX){
       if(id!==runId) return null;
       if(f.length){f.forEach(o=>{o.pts=o.pts.map(p=>({x:r.x+(p.x-pad)/k,y:r.y+(p.y-pad)/k}));});found=f;}
       if(!isZX) break;
+    }
+  }
+  // Dernier recours : image accentuée (léger puis fort), à l'échelle d'origine et agrandie pour les petites images.
+  if(!found.length){
+    const ks=m<1600?[1,2]:[m>2400?2400/m:1];
+    outer2: for(const [amount,radius] of [[1.6,1.5],[3,2.5],[4.5,4]]){
+      for(const k of ks){
+        if(k*m>4200) continue;
+        const pad=Math.round(m*k*.06)+6;
+        const c=document.createElement("canvas");c.width=Math.round(r.w*k)+pad*2;c.height=Math.round(r.h*k)+pad*2;
+        const x=c.getContext("2d",{willReadFrequently:true});
+        x.fillStyle=bg;x.fillRect(0,0,c.width,c.height);x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";
+        x.drawImage(src,r.x,r.y,r.w,r.h,pad,pad,Math.round(r.w*k),Math.round(r.h*k));
+        let f=[];try{f=await read(enhanceImage(x.getImageData(0,0,c.width,c.height),amount,radius*Math.max(1,k)),{});}catch(e){console.warn(e);}
+        if(id!==runId) return null;
+        if(f.length){f.forEach(o=>{o.pts=o.pts.map(p=>({x:r.x+(p.x-pad)/k,y:r.y+(p.y-pad)/k}));o.enhanced=true;});found=f;break outer2;}
+      }
     }
   }
   return found;
@@ -757,6 +801,7 @@ function render(ms,reg){
     const al=it.alerts.filter((a,j,arr)=>arr.findIndex(b=>b[1]===a[1])===j);
     if(modPx&&modPx<2.5)al.push(["warn",`Modules très petits dans l'image (≈ ${modPx.toFixed(1)} px). Pour une impression, prévois au moins 0,3 mm par module.`]);
     if(qz&&qz.state==="busy")al.push(["warn","La marge autour du code semble encombrée : certains lecteurs peuvent échouer."]);
+    if(r.enhanced)al.push(["warn","Lu seulement après accentuation de l'image : la photo est floue. Une douchette ou une caméra moins tolérante risque de ne pas le lire ; refais la photo plus nette si possible."]);
     if(r.inverted)al.push(["warn","Code inversé : de nombreux lecteurs (caisses, vieux smartphones) ne le lisent pas."]);
     if(r.uec!=null&&r.uec<.25)al.push(["bad","Presque toute la correction d'erreur est consommée : le code est abîmé, masqué (logo trop grand) ou mal imprimé."]);
     details[i]={health:health[0],healthClass:health[1],kind:it.kind,
