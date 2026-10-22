@@ -198,6 +198,7 @@ public partial class MainWindow : Window
     private async void OnAtelierReady()
     {
         await _atelier.SetThemeAsync(ThemeManager.IsDark);
+        await _atelier.SetLanguageAsync();
         await _atelier.SetModeAsync(_atelierMode);
     }
 

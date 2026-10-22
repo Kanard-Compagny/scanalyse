@@ -8,6 +8,9 @@ namespace Scanalyse.Desktop;
 /// <summary>Préférences de l'utilisateur, enregistrées dans %LOCALAPPDATA%\Scanalyse\settings.json.</summary>
 public sealed class AppSettings
 {
+    /// <summary>Langue de l'interface : « fr » ou « en » (appliquée au démarrage).</summary>
+    public string Language { get; set; } = "fr";
+
     /// <summary>Thème choisi.</summary>
     public AppTheme Theme { get; set; } = AppTheme.System;
 

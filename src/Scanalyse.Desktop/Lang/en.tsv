@@ -1,0 +1,665 @@
+# Traductions de l'interface : français (clé) → anglais. {0}, {1}… : parties variables. Une ligne par texte.
+(facultatif)	(optional)
+(rien)	(nothing)
+(vide)	(empty)
+1 an	1 year
+1 imprimante	1 printer
+1 · Contenu du code	1 · Code content
+1. Pare-feu : Windows bloque souvent les connexions entrantes, surtout sur un réseau classé « public ». Autorise Scanalyse avec le bouton ci-dessous (droits administrateur, réseau local seulement).	1. Firewall: Windows often blocks incoming connections, especially on a network classified as “public”. Allow Scanalyse with the button below (administrator rights, local network only).
+2 · Type de code	2 · Code type
+2. Adresse : choisis la carte du réseau sur lequel est le terminal (pas un VPN ni une carte virtuelle).	2. Address: choose the adapter of the network the terminal is on (not a VPN or a virtual adapter).
+203 dpi (8 points/mm)	203 dpi (8 dots/mm)
+2D empilé	2D stacked
+2D matriciel	2D matrix
+3 mois	3 months
+3 · Imprimante : résolution de la tête	3 · Printer: print head resolution
+3. Wi-Fi d'entreprise ou invité : l'« isolation des clients » empêche les appareils de se joindre entre eux. Dans ce cas, passe par le câble USB.	3. Corporate or guest Wi-Fi: “client isolation” prevents devices from reaching each other. In that case, use the USB cable.
+30 jours	30 days
+300 dpi (12 points/mm)	300 dpi (12 dots/mm)
+4 · Étiquette, position et taille du code	4 · Label, position and code size
+5 · Rotation et texte	5 · Rotation and text
+6 mois	6 months
+600 dpi (24 points/mm)	600 dpi (24 dots/mm)
+ADB introuvable : indique où se trouve adb.exe (Platform Tools, outil SAV…). Le Wi-Fi fonctionne sans ADB.	ADB not found: indicate where adb.exe is (Platform Tools, service tool…). Wi-Fi works without ADB.
+ADB ne démarre pas :	ADB doesn't start:
+ATELIER	WORKSHOP
+Abandonne les retouches manuelles et repart des réglages	Discards manual edits and starts again from the settings
+Accepte <GS>, <RS>… et la forme « (01)… » pour GS1	Accepts <GS>, <RS>… and the “(01)…” form for GS1
+Accepter aussi les terminaux en Wi-Fi (même réseau que le PC)	Also accept terminals over Wi-Fi (same network as the PC)
+Action irréversible : les analyses supprimées ne pourront pas être récupérées.	Irreversible action: deleted analyses cannot be recovered.
+Action irréversible.	Irreversible action.
+Activé	On
+Actualiser	Refresh
+Adresse du relais :	Relay address:
+Affiche l'aperçu sur toute la page (Échap pour revenir)	Show the preview on the whole page (Esc to go back)
+Affiche le programme sur toute la page (Échap pour revenir)	Show the program on the whole page (Esc to go back)
+Afficher	Show
+Agrandir	Expand
+Agrandir / restaurer	Maximize / restore
+Agrandir pour scanner	Enlarge to scan
+Agrandir pour scanner à l'écran	Enlarge to scan from the screen
+Ajuster	Fit
+Analyse ce que la douchette a envoyé (champ du bas)	Analyzes what the scanner sent (bottom field)
+Analyse complète de l'étiquette	Full label analysis
+Analyse de {0}.	Analyzing {0}.
+Analyse le contenu attendu (champ du haut)	Analyzes the expected content (top field)
+Analyse non enregistrée :	Analysis not saved:
+Analyser l'image du presse-papiers (Ctrl + Maj + V)	Analyze the clipboard image (Ctrl + Shift + V)
+Analyser la lecture	Analyze the reading
+Analyser la référence	Analyze the reference
+Analyser une image	Analyze an image
+Analyses non classées	Unfiled analyses
+Analyses, images, fiches des dossiers clients.	Analyses, images, customer case records.
+Anciennes Zebra (LP/TLP 2844…), codes 1D	Older Zebra (LP/TLP 2844…), 1D codes
+Annuler	Cancel
+Aperçu	Preview
+Aperçu de l'étiquette	Label preview
+Aperçu généré · {0}	Preview generated · {0}
+Aperçu généré · {0} (type choisi automatiquement)	Preview generated · {0} (type chosen automatically)
+Aperçu impossible :	Preview impossible:
+Aperçu impossible en {0} : {1}	Preview impossible as {0}: {1}
+Aperçu indicatif (polices approchées). Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer.	Indicative preview (approximate fonts). Click an element to see its line; ↺ ↻ to rotate, Ctrl + wheel to zoom.
+Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante.	Indicative preview drawn by Scanalyse: the final rendering depends on the printer firmware.
+Appareils de lecture	Reading devices
+Appareils de lecture : douchettes, terminaux Android, caméras	Reading devices: scanners, Android terminals, cameras
+Apparence, dossiers de rangement, prise en main et informations sur le programme.	Appearance, storage folders, getting started and program information.
+Appliqué à chaque démarrage. Les dossiers SAV et leurs fiches sont conservés, seules les analyses anciennes sont retirées.	Applied at each startup. Service cases and their records are kept; only old analyses are removed.
+Arrêter la liaison	Stop the link
+Attendu : {0}\nReçu : {1}	Expected: {0}\nReceived: {1}
+Aucun	None
+Aucun aperçu	No preview
+Aucun code-barres	No barcode
+Aucun code-barres trouvé	No barcode found
+Aucun port COM, scanner HID POS ni caméra trouvé. La douchette est sans doute en mode clavier : voir « Passer en liaison directe » plus bas.	No COM port, HID POS scanner or camera found. The scanner is probably in keyboard mode: see “Switch to a direct link” below.
+Aucun réseau local détecté sur ce PC.	No local network detected on this PC.
+Aucun terminal branché. Active le débogage USB (Options pour les développeurs) et branche le câble.	No terminal connected. Enable USB debugging (Developer options) and plug in the cable.
+Aucune	None
+Aucune analyse dans ce dossier pour l'instant.	No analysis in this case yet.
+Aucune analyse dans ce dossier pour l'instant. Analyse une image ou compare une lecture : elle s'enregistre ici.	No analysis in this case yet. Analyze an image or compare a reading: it is saved here.
+Aucune analyse ne correspond à la recherche.	No analysis matches the search.
+Aucune analyse à mettre dans le rapport (dossier vide, ou toutes les analyses sont décochées).	No analysis to put in the report (empty case, or all analyses are unchecked).
+Aucune caméra détectée.	No camera detected.
+Aucune capture reçue.	No capture received.
+Aucune image à coller. Fais une capture (Win + Maj + S) ou copie une image, puis réessaie.	No image to paste. Take a screenshot (Win + Shift + S) or copy an image, then try again.
+Aucune imprimante installée sur ce PC. Utilise l'envoi réseau, ou installe le pilote de l'imprimante d'étiquettes.	No printer installed on this PC. Use network sending, or install the label printer driver.
+Aucune symbologie ne correspond.	No symbology matches.
+Autorisation refusée : la règle de pare-feu n'a pas été ajoutée.	Permission denied: the firewall rule was not added.
+Autoriser Scanalyse dans le pare-feu	Allow Scanalyse in the firewall
+Avec la douchette, dans le champ « Données reçues », puis clique sur Comparer.	With the scanner, in the “Received data” field, then click Compare.
+Banc d'essai	Test bench
+Banc d'essai douchette	Scanner test bench
+Banc d'essai et impression	Test bench and printing
+Bienvenue dans Scanalyse	Welcome to Scanalyse
+Bits d'arrêt	Stop bits
+Bits de données	Data bits
+Brut	Raw
+C'est parti	Let's go
+C'est prêt. Une visite de 30 secondes montre où se trouve chaque outil : la barre du haut, le menu, le dossier SAV en cours.	All set. A 30-second tour shows where each tool is: the top bar, the menu, the current service case.
+CAMÉRA	CAMERA
+COMPARER	COMPARE
+CRÉER	CREATE
+Cadre {0} × {1}, trait {2}	Box {0} × {1}, line {2}
+Cadres et traits	Boxes and lines
+Caméra	Camera
+Caméra · lecture des codes en direct dans « Analyser une image »	Camera · live code reading in “Analyze an image”
+Caméras	Cameras
+Capacité	Capacity
+Capture d'écran	Screenshot
+Capturer une zone	Capture an area
+Caractères	Characters
+Carré plein {0} points	Solid square {0} dots
+Carte réseau physique avec passerelle	Physical network adapter with gateway
+Carte virtuelle, VPN ou sans passerelle : peu probable pour le terminal	Virtual adapter, VPN or no gateway: unlikely for the terminal
+Ce que la douchette transmet comparé au vrai contenu : préfixes, GS perdus, clavier mal réglé…	What the scanner transmits compared with the real content: prefixes, lost GS, wrong keyboard layout…
+Changement de dossier impossible :	Unable to change folder:
+Changer de dossier…	Change folder…
+Changer de thème	Change theme
+Changer…	Change…
+Chaque analyse d'image et chaque comparaison douchette est enregistrée dans le dossier en cours. Un dossier par intervention, et un rapport PDF à remettre au client.	Every image analysis and every scanner comparison is saved in the current case. One case per job, and a PDF report to give the customer.
+Chaque analyse est rangée dans le dossier choisi ici. Retrouve-les dans « Historique » pour les renommer, les commenter et produire le rapport PDF du client.	Every analysis is filed in the case chosen here. Find them in “History” to rename them, comment them and produce the customer's PDF report.
+Chaque analyse rangée dans le dossier du client, rapport PDF en un clic.	Every analysis filed in the customer's case, PDF report in one click.
+Choisir adb.exe (Android Platform Tools)	Choose adb.exe (Android Platform Tools)
+Choisir adb.exe…	Choose adb.exe…
+Choisir comment la douchette est reliée au PC	Choose how the scanner is connected to the PC
+Choisir l'imprimante (les données partent en mode RAW : le pilote ne les modifie pas)	Choose the printer (data is sent in RAW mode: the driver doesn't change it)
+Choisir une imprimante…	Choose a printer…
+Choisir…	Choose…
+Choisis d'abord une imprimante dans la liste.	First choose a printer in the list.
+Choisis la résolution de l'imprimante du client pour avoir les tailles en mm.	Choose the resolution of the customer's printer to get the sizes in mm.
+Choisis où Scanalyse range ce qu'il produit. Un dossier réseau permet de partager les dossiers SAV avec toute l'équipe. Modifiable à tout moment dans Paramètres.	Choose where Scanalyse stores what it produces. A network folder lets the whole team share service cases. Can be changed at any time in Settings.
+Clair	Light
+Client / site	Customer / site
+Clique pour renommer l'analyse (problème rencontré, repère…). Vide : nom automatique.	Click to rename the analysis (problem found, marker…). Empty: automatic name.
+Clique sur un élément de l'étiquette pour voir sa ligne et son détail	Click an element of the label to see its line and details
+Code imprimante	Printer code
+Code imprimante (ZPL, TSPL, EPL2)	Printer code (ZPL, TSPL, EPL2)
+Code repris ({0}) : choisis le langage de l'imprimante, puis copie, enregistre ou envoie le programme.	Code taken ({0}): choose the printer language, then copy, save or send the program.
+Code testé	Tested code
+Code-barres	Barcode
+Code-barres (^B…)	Barcode (^B…)
+Codes-barres ({0})	Barcodes ({0})
+Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ouvre-le avec « Ouvrir un fichier », ou glisse-le sur la page.	Paste here (“Program” area) the .zpl, .prn or .txt file sent by the customer, open it with “Open a file”, or drop it on the page.
+Colle ici le programme ZPL du client (Ctrl + V), ouvre son fichier, ou glisse-le sur la page.	Paste the customer's ZPL program here (Ctrl + V), open their file, or drop it on the page.
+Colle le programme ZPL du client dans la zone « Programme » : l'étiquette s'affiche ici.	Paste the customer's ZPL program in the “Program” area: the label shows here.
+Colle le programme d'un client : aperçu de l'étiquette, codes-barres et ce qu'ils contiennent, points à corriger	Paste a customer's program: label preview, barcodes and what they contain, issues to fix
+Colle le programme du client dans la zone « Programme », ou ouvre son fichier (.zpl, .prn, .txt…) : l'étiquette s'affiche ici.	Paste the customer's program in the “Program” area, or open their file (.zpl, .prn, .txt…): the label shows here.
+Colle le programme du presse-papiers (ZPL, TSPL, EPL2…) et l'affiche en lecture	Pastes the program from the clipboard (ZPL, TSPL, EPL2…) and shows it in read mode
+Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2, DPL…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi.	Paste or open a customer's program (ZPL, TSPL, EPL2, DPL…): label preview, barcodes and their content, issues to fix, then reprint or send.
+Coller un autre programme	Paste another program
+Coller un programme client	Paste a customer program
+Coller une image	Paste an image
+Comme Windows	Like Windows
+Comparaison non enregistrée :	Comparison not saved:
+Comparaisons	Comparisons
+Compare le contenu réel d'un code avec ce que la douchette transmet, et explique chaque écart.	Compares the actual content of a code with what the scanner transmits, and explains each difference.
+Comparer	Compare
+Comparer automatiquement chaque lecture reçue à la référence du banc d'essai	Automatically compare each received reading with the test bench reference
+Compatibles GS1	GS1 compatible
+Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.	Third-party components: zxing-cpp (Apache 2.0), zxing-wasm and qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2.
+Composants tiers et licences	Third-party components and licenses
+Connecter	Connect
+Connecté à {0}. Scanne un code : la lecture arrive au banc d'essai.	Connected to {0}. Scan a code: the reading arrives at the test bench.
+Connexion HID POS impossible à {0} : {1}	Unable to connect HID POS to {0}: {1}
+Connexion des appareils de lecture : douchettes USB, série et HID POS, terminaux Android, caméras. Les lectures reçues partent au banc d'essai.	Connect reading devices: USB, serial and HID POS scanners, Android terminals, cameras. Received readings go to the test bench.
+Connexion impossible	Unable to connect
+Connexion à {0}:{1} impossible ({2}) : vérifie l'adresse IP et que le port {3} est ouvert sur l'imprimante.	Unable to connect to {0}:{1} ({2}): check the IP address and that port {3} is open on the printer.
+Connexion à {0}…	Connecting to {0}…
+Contenu des codes dans le rapport :	Code content in the report:
+Contenu du programme	Program content
+Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.	Content taken from the test bench: choose the code type if needed, then export or print.
+Contenu tel que lu et octets en hexadécimal : pour un intégrateur ou un éditeur de logiciel	Content as read and bytes in hexadecimal: for an integrator or software vendor
+Contrôle de flux	Flow control
+Coordonnées (téléphone, e-mail…)	Contact details (phone, e-mail…)
+Copier	Copy
+Copier le diagnostic	Copy diagnostics
+Création du PDF…	Creating the PDF…
+Créer ce type de code	Create this type of code
+Créer un code	Create a code
+Créer une étiquette	Create a label
+DOUCHETTE	SCANNER
+Dans le rapport	In the report
+Depuis la gauche	From the left
+Depuis le haut	From the top
+Dessin de l'étiquette…	Drawing the label…
+Diagnostic (à joindre à une demande d'aide)	Diagnostics (attach to a support request)
+Diagnostic copié	Diagnostics copied
+Distribution	Retail
+Données (^FD)	Data (^FD)
+Données GS1	GS1 data
+Données brutes (Zebra DataWedge, sortie IP) :	Raw data (Zebra DataWedge, IP output):
+Données conformes, avec ajouts du scanner	Data compliant, with scanner additions
+Données lues par une douchette	Data read by a scanner
+Données reçues : clique dans le champ puis scanne avec la douchette (Entrée et Tab sont capturés)	Received data: click in the field, then scan with the scanner (Enter and Tab are captured)
+Données vérifiées : clés de contrôle et codes GS1 conformes.	Data checked: check digits and GS1 codes compliant.
+Dossier :	Case:
+Dossier : Non classé	Case: Unfiled
+Dossier : {0}	Case: {0}
+Dossier SAV dans lequel les analyses sont enregistrées	Service case where analyses are saved
+Dossier SAV en cours	Current service case
+Dossier de l'historique Scanalyse (local ou réseau)	Scanalyse history folder (local or network)
+Dossier des programmes d'étiquettes	Label programs folder
+Dossier des programmes d'étiquettes (ouvrir les fichiers clients, enregistrer les ZPL)	Label programs folder (open customer files, save ZPL)
+Dossier des rapports PDF	PDF reports folder
+Dossier en cours	Current case
+Dossier en cours : {0}. Les prochaines analyses y seront enregistrées.	Current case: {0}. The next analyses will be saved there.
+Dossier proposé pour enregistrer les rapports PDF	Folder suggested for saving PDF reports
+Dossier proposé pour ouvrir les fichiers des clients et enregistrer les programmes ZPL.	Folder suggested to open customer files and save ZPL programs.
+Dossier proposé quand tu enregistres un rapport.	Folder suggested when you save a report.
+Dossier « {0} » supprimé : ses analyses sont dans « Non classé ».	Case “{0}” deleted: its analyses are in “Unfiled”.
+Dossier « {0} » vidé : {1} analyse supprimée.	Case “{0}” emptied: {1} analysis deleted.
+Dossier « {0} » vidé : {1} analyses supprimées.	Case “{0}” emptied: {1} analyses deleted.
+Dossiers	Cases
+Dossiers SAV et rapports	Service cases and reports
+Dossiers de rangement	Storage folders
+Douchette déconnectée : retour au mode clavier.	Scanner disconnected: back to keyboard mode.
+Douchette en mode clavier	Scanner in keyboard mode
+Douchettes USB, série et HID POS	USB, serial and HID POS scanners
+Douchettes en port série ou HID POS, terminaux Android et caméras : leurs lectures arrivent directement au banc d'essai, octet par octet.	Serial or HID POS scanners, Android terminals and cameras: their readings go straight to the test bench, byte by byte.
+Début, fin (^XA ^FS ^XZ)	Start, end (^XA ^FS ^XZ)
+Déconnecter	Disconnect
+Délai dépassé.	Timed out.
+Démarrage et affichage	Startup and display
+Déplacer vers…	Move to…
+Désactivé	Off
+Détacher	Detach
+Détaillé	Detailed
+Dézoomer (Ctrl + molette)	Zoom out (Ctrl + wheel)
+Efface la référence, la lecture, l'aperçu et le résultat	Clears the reference, the reading, the preview and the result
+Effacer	Clear
+Effacer la lecture	Clear the reading
+Effacer le journal	Clear the log
+Effacer le journal ?	Clear the log?
+En DPL, la position « y » se compte depuis le bas de l'étiquette (0,1 mm ou 0,01 pouce).	In DPL, the “y” position is counted from the bottom of the label (0.1 mm or 0.01 inch).
+En cours	Current
+En-tête des rapports remis aux clients : ta société, ton nom et tes coordonnées, avec ton logo.	Header of the reports given to customers: your company, your name and contact details, with your logo.
+Encodage du texte	Text encoding
+Enregistrement des analyses	Saving analyses
+Enregistrement impossible :	Unable to save:
+Enregistrer automatiquement chaque analyse et chaque comparaison dans le dossier SAV en cours	Automatically save every analysis and every comparison in the current service case
+Enregistrer le programme d'étiquette	Save the label program
+Enregistrer le rapport	Save the report
+Enregistrer…	Save…
+Enregistré :	Saved:
+Envoi incomplet à « {0} » : {1}	Incomplete transfer to “{0}”: {1}
+Envoi à {0}…	Sending to {0}…
+Envoie l'aperçu dans « Analyser une image » : fiche de chaque code, cohérence GS1 de l'étiquette, historique et rapport	Sends the preview to “Analyze an image”: details of each code, GS1 consistency of the label, history and report
+Envoyer à l'imprimante	Send to printer
+Envoyé à {0}:{1} ({2} octets, {3}). Si rien ne sort, vérifie que l'imprimante est bien réglée en {4}.	Sent to {0}:{1} ({2} bytes, {3}). If nothing comes out, check that the printer is set to {4}.
+Envoyé à « {0} » ({1} octets, {2}).	Sent to “{0}” ({1} bytes, {2}).
+Erreur de transmission sur {0} ({1}) : vérifie la vitesse et la parité.	Transmission error on {0} ({1}): check the speed and parity.
+Exemplaires	Copies
+Fermer	Close
+Fermer (Échap)	Close (Esc)
+Fiche de référence de chaque type de code : ce qu'il sait encoder, sa capacité, ses usages et sa norme.	Reference sheet for each code type: what it can encode, its capacity, its uses and its standard.
+Fichier .zpl, .prn ou .txt envoyé par le client (tu peux aussi le glisser sur la page)	.zpl, .prn or .txt file sent by the customer (you can also drop it on the page)
+Fichier trop gros pour un programme d'étiquette (plus de 4 Mo) : il contient sans doute des images.	File too large for a label program (over 4 MB): it probably contains images.
+Fin de lecture : silence de (ms)	End of reading: silence of (ms)
+Fond blanc, menu vert	White background, green menu
+Graphique (^GB)	Graphics (^GB)
+Génère le programme ZPL / TSPL / EPL2 de ce code pour le réimprimer sur l'imprimante du client	Generates the ZPL / TSPL / EPL2 program of this code to reprint it on the customer's printer
+Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.	Generates the ZPL, TSPL, EPL2 or DPL program of a label to recreate a customer's code on their printer, and sends it directly.
+Génération de l'aperçu…	Generating the preview…
+Générer l'aperçu	Generate preview
+Généré depuis le modèle : modifie les champs à gauche, ou retouche les lignes ici (un changement de champ régénère le programme).	Generated from the template: edit the fields on the left, or touch up the lines here (changing a field regenerates the program).
+Généré depuis les réglages. Tu peux modifier les lignes directement, ou coller le programme d'un client pour le lire.	Generated from the settings. You can edit the lines directly, or paste a customer's program to read it.
+HID POS (Point de vente Windows)	HID POS (Windows Point of Service)
+HID POS :	HID POS:
+HISTORIQUE	HISTORY
+Hauteur	Height
+Hauteur (indicative)	Height (indicative)
+Hauteur des barres	Bar height
+Historique	History
+Historique : {0}	History: {0}
+Historique déplacé vers {0} ({1} fichiers copiés ; l'ancien dossier est conservé).	History moved to {0} ({1} files copied; the old folder is kept).
+Historique déplacé à côté du programme ({0} fichiers) : {1}	History moved next to the program ({0} files): {1}
+Historique et dossiers SAV	History and service cases
+Historique et rapports	History and reports
+Historique illisible :	History unreadable:
+Historique ·	History ·
+Historique · {0}	History · {0}
+Honeywell / Datamax (I-Class, H-Class, M-Class, E-Class…) : codes 1D, QR Code, Data Matrix	Honeywell / Datamax (I-Class, H-Class, M-Class, E-Class…): 1D codes, QR Code, Data Matrix
+IMPRESSION	PRINTING
+Image collée	Pasted image
+Image illisible :	Unreadable image:
+Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|Tous les fichiers|*.*	Images (PNG, JPG, BMP, GIF, WebP, TIFF)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.tif;*.tiff|All files|*.*
+Impaire	Odd
+Importe, colle ou capture une image : chaque code est lu, détaillé et peut être comparé à une lecture douchette.	Import, paste or capture an image: every code is read, detailed and can be compared with a scanner reading.
+Importer une image	Import an image
+Importer une image à analyser	Import an image to analyze
+Impossible d'ouvrir l'imprimante « {0} » : {1}	Unable to open printer “{0}”: {1}
+Impossible d'ouvrir {0} : {1}	Unable to open {0}: {1}
+Impossible d'écrire dans {0} : choisis un dossier où tu as les droits d'écriture.	Unable to write to {0}: choose a folder where you have write access.
+Impossible de démarrer l'Atelier :	Unable to start the Workshop:
+Imprimante	Printer
+Incohérences entre les codes de l'étiquette :	Inconsistencies between the codes of the label:
+Indique l'adresse IP de l'imprimante (menu réseau de l'imprimante ou étiquette de configuration).	Enter the printer's IP address (printer network menu or configuration label).
+Indispensables en RS-232 : ils doivent être identiques à ceux de la douchette. En port COM virtuel USB, vitesse et parité sont le plus souvent ignorées.	Essential for RS-232: they must match the scanner's. On a USB virtual COM port, speed and parity are usually ignored.
+Industriel	Industrial
+Installée sur ce PC	Installed on this PC
+Intervenant	Technician
+JOURNAL	LOG
+Jamais	Never
+Journal des lectures	Reading log
+Journal des lectures déplié au démarrage	Reading log expanded at startup
+L'Atelier n'est pas encore prêt.	The Workshop is not ready yet.
+L'Atelier ne peut pas s'afficher	The Workshop cannot be displayed
+L'accueil présente Scanalyse et le choix des dossiers ; la visite guidée montre où se trouve chaque outil.	The welcome screen introduces Scanalyse and the folder choices; the guided tour shows where each tool is.
+L'aperçu au-dessus du programme	The preview above the program
+L'atelier du technicien pour les codes-barres : comprendre ce qu'un client voit, ce que sa douchette envoie et ce que son imprimante imprime. Tout reste sur ce PC.	The technician's workshop for barcodes: understand what a customer sees, what their scanner sends and what their printer prints. Everything stays on this PC.
+L'image de cette analyse n'est plus disponible.	The image of this analysis is no longer available.
+L'impression a été refusée par « {0} » : {1}	Printing was refused by “{0}”: {1}
+L'imprimante (adresse IP ou imprimante Windows) et la taille d'étiquette utilisées en dernier sont retenues automatiquement.	The printer (IP address or Windows printer) and label size used last are remembered automatically.
+L'imprimante sort cette étiquette tournée de 180° (^POI).	The printer outputs this label rotated 180° (^POI).
+L'outil Capture de Windows est indisponible : fais Win + Maj + S, puis « Coller une image ».	The Windows Snipping Tool is unavailable: press Win + Shift + S, then “Paste an image”.
+L'étiquette en grand	The label, large
+La barre du haut	The top bar
+La fiche du dossier ne pourra pas être récupérée.	The case record cannot be recovered.
+La lecture arrive comme une frappe au clavier, dans le champ qui a le focus.	The reading arrives as keystrokes, in the field that has the focus.
+La lecture devient le contenu attendu ; scanne à nouveau pour vérifier qu'elle se lit toujours pareil	The reading becomes the expected content; scan again to check it always reads the same
+La lecture ne correspond pas à la référence affichée : vérifie le code scanné, ou prends cette lecture comme nouvelle référence.	The reading doesn't match the reference shown: check the scanned code, or use this reading as the new reference.
+La page de l'Atelier est absente de l'exécutable.	The Workshop page is missing from the executable.
+La page ne s'ouvre pas sur le terminal ?	The page doesn't open on the terminal?
+La règle de pare-feu n'a pas pu être ajoutée.	The firewall rule could not be added.
+La vignette s'affiche quand la référence vient d'une image analysée. Sinon, choisis le type et génère l'aperçu.	The thumbnail shows when the reference comes from an analyzed image. Otherwise, choose the type and generate the preview.
+Lancer la visite	Start the tour
+Lancer la visite guidée	Start the guided tour
+Langage d'imprimante par défaut (Code imprimante)	Default printer language (Printer code)
+Langage non reconnu : ce texte n'est pas un programme ZPL, TSPL, EPL2, DPL, SBPL ou Fingerprint connu.	Language not recognized: this text is not a known ZPL, TSPL, EPL2, DPL, SBPL or Fingerprint program.
+Largeur	Width
+Largeur de la barre la plus fine (1D) ou d'un carré (2D), en points de la tête	Width of the narrowest bar (1D) or of a square (2D), in print head dots
+Le choix est mémorisé. « Système » suit le réglage clair ou sombre de Windows.	Your choice is remembered. “System” follows the Windows light or dark setting.
+Le code (≈ {0} × {1} mm) dépasse de l'étiquette : réduis le module, la hauteur ou déplace-le.	The code (≈ {0} × {1} mm) goes beyond the label: reduce the module or the height, or move it.
+Le code en grand	The code, large
+Le composant Microsoft Edge WebView2 n'est pas installé sur ce PC. Il est présent d'office sur Windows 11 et sur les Windows 10 à jour ; sinon, installe le « WebView2 Runtime » depuis le site de Microsoft. Le banc d'essai reste utilisable.	The Microsoft Edge WebView2 component is not installed on this PC. It comes with Windows 11 and up-to-date Windows 10; otherwise, install the “WebView2 Runtime” from Microsoft's website. The test bench remains usable.
+Le dossier « {0} » est déjà vide.	The case “{0}” is already empty.
+Le dossier « {0} » et sa fiche (client, référence, intervenant, notes) seront supprimés.	The case “{0}” and its record (customer, reference, technician, notes) will be deleted.
+Le journal n'est pas sauvegardé : copie-le avant si tu en as besoin.	The log is not saved: copy it first if you need it.
+Le lecteur ne fait que taper le contenu du QR : scanné hors de la barre d'adresse, il ne se passe rien.	The scanner only types the QR content: scanned outside the address bar, nothing happens.
+Le moteur Edge WebView2 n'est pas disponible : enregistre le rapport en HTML et imprime-le depuis le navigateur.	The Edge WebView2 engine is not available: save the report as HTML and print it from the browser.
+Le presse-papiers est occupé par une autre application : réessaie.	The clipboard is used by another application: try again.
+Le presse-papiers ne contient pas de texte : copie d'abord le programme du client (Ctrl + A puis Ctrl + C dans son fichier), ou utilise « Ouvrir un fichier ».	The clipboard contains no text: first copy the customer's program (Ctrl + A then Ctrl + C in their file), or use “Open a file”.
+Le programme est dans sa propre fenêtre : l'aperçu prend toute la place ici.	The program is in its own window: the preview takes all the space here.
+Lecture conforme	Reading compliant
+Lecture d'un autre code	Reading of another code
+Lecture du fichier impossible :	Unable to read the file:
+Lecture en direct : présente le code devant la caméra, il est analysé dès qu'il est lu.	Live reading: hold the code in front of the camera, it is analyzed as soon as it is read.
+Lecture reçue	Received reading
+Les analyses faites sans dossier arrivent ici. Crée un dossier pour une intervention, puis range-y les analyses utiles.	Analyses made without a case land here. Create a case for a job, then file the useful analyses in it.
+Les deux	Both
+Les données partent en mode RAW : le pilote ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »).	Data is sent in RAW mode: the driver doesn't change it (Zebra, Honeywell, TSC… driver or “Generic / Text Only”).
+Les données reçues ne correspondent pas au contenu du code.	The received data doesn't match the content of the code.
+Les données utiles sont identiques au contenu du code.	The useful data is identical to the content of the code.
+Les {0} analyse du dossier « {1} » seront supprimées, avec leurs images, noms et commentaires. Le dossier et sa fiche sont conservés.	The {0} analysis of the case “{1}” will be deleted, with its image, name and comment. The case and its record are kept.
+Les {0} analyses du dossier « {1} » seront supprimées, avec leurs images, noms et commentaires. Le dossier et sa fiche sont conservés.	The {0} analyses of the case “{1}” will be deleted, with their images, names and comments. The case and its record are kept.
+Les {0} lignes du journal des lectures seront effacées. Les analyses et comparaisons enregistrées dans l'historique ne sont pas touchées.	The {0} lines of the reading log will be cleared. Analyses and comparisons saved in the history are not affected.
+Liaison arrêtée depuis {0} ({1}).	Link stopped from {0} ({1}).
+Liaison avec {0} ({1}) arrêtée.	Link with {0} ({1}) stopped.
+Liaison avec {0} arrêtée.	Link with {0} stopped.
+Liaison perdue	Link lost
+Lire en direct	Read live
+Lire le programme ZPL d'un client, partir d'un modèle ou recréer un code, et l'envoyer à l'imprimante.	Read a customer's ZPL program, start from a template or recreate a code, and send it to the printer.
+Lire les codes en direct avec une webcam ou une caméra document	Read codes live with a webcam or document camera
+Lire un programme	Read a program
+Lis le programme ZPL d'un client (aperçu de l'étiquette, contenu des codes, erreurs), pars d'un modèle (palette SSCC, colis…) ou recrée un code, puis envoie-le à l'imprimante.	Read a customer's ZPL program (label preview, code content, errors), start from a template (SSCC pallet, parcel…) or recreate a code, then send it to the printer.
+Logo de la société (en-tête des rapports)	Company logo (report header)
+Mode clavier	Keyboard mode
+Mode clavier (émulation)	Keyboard mode (emulation)
+Modifiable : chaque ligne peut être retouchée, l'envoi part tel quel	Editable: every line can be changed, it is sent as is
+Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne.	Edit the lines directly: the preview and analysis update. “Show line” on a code takes you to its line.
+Modifier le pare-feu Windows ?	Change the Windows firewall?
+Module de {0} mm : GS1 demande au moins 0,264 mm en point de vente (0,33 mm recommandé).	Module of {0} mm: GS1 requires at least 0.264 mm at point of sale (0.33 mm recommended).
+Module de {0} mm : pour la logistique, GS1 demande au moins 0,495 mm.	Module of {0} mm: for logistics, GS1 requires at least 0.495 mm.
+Modèle d'étiquette	Label template
+Modèles	Templates
+Non classé	Unfiled
+Norme	Standard
+Notes : matériel, contexte, conclusion (reprises dans le rapport)	Notes: equipment, context, conclusion (included in the report)
+Nouveau dossier	New case
+Nouveau dossier…	New case…
+Nouveau test	New test
+Octets reçus (hexadécimal)	Received bytes (hexadecimal)
+Ouverture du navigateur impossible : {0}	Unable to open the browser: {0}
+Ouvre le programme dans une fenêtre à part (idéal sur un deuxième écran) : l'aperçu prend toute la place ici	Opens the program in a separate window (ideal on a second screen): the preview takes all the space here
+Ouvre un fichier du PC (.zpl, .prn, .txt, .epl…) : le programme s'affiche en lecture. Tu peux aussi glisser le fichier sur la page.	Opens a file from the PC (.zpl, .prn, .txt, .epl…): the program is shown in read mode. You can also drop the file on the page.
+Ouvre « Créer un code » avec ce contenu, pour l'exporter en image ou le tester	Opens “Create a code” with this content, to export it as an image or test it
+Ouvrir	Open
+Ouvrir le dossier	Open folder
+Ouvrir le dossier des données	Open the data folder
+Ouvrir le programme d'étiquette du client	Open the customer's label program
+Ouvrir le relais	Open the relay
+Ouvrir un fichier…	Open a file…
+Ouvrir une image ou une photo à analyser (Ctrl + O)	Open an image or photo to analyze (Ctrl + O)
+Où ranger tes fichiers	Where to store your files
+PRESSE-PAPIERS	CLIPBOARD
+Page de relais absente.	Relay page missing.
+Page de relais ouverte sur {0} ({1}).	Relay page opened on {0} ({1}).
+Page ouverte au démarrage	Page opened at startup
+Paire	Even
+Par défaut, l'historique est rangé à côté de Scanalyse.exe : il suit le programme (clé USB, dossier partagé). Choisis un dossier réseau pour que toute l'équipe partage les mêmes dossiers SAV.	By default, the history is stored next to Scanalyse.exe: it follows the program (USB stick, shared folder). Choose a network folder so the whole team shares the same service cases.
+Paramètres	Settings
+Pare-feu : ports {0} ouverts pour le réseau local. Recharge la page sur le terminal.	Firewall: ports {0} open for the local network. Reload the page on the terminal.
+Parité	Parity
+Partir d'un modèle	Start from a template
+Pas de référence : chaque lecture est simplement analysée. Colle ici le contenu attendu, envoie un code depuis « Analyser une image », ou prends une lecture comme référence.	No reference: each reading is simply analyzed. Paste the expected content here, send a code from “Analyze an image”, or take a reading as reference.
+Pas de réponse de {0}:{1} en 5 secondes : vérifie l'adresse IP, que l'imprimante est allumée et sur le même réseau.	No answer from {0}:{1} within 5 seconds: check the IP address, that the printer is on and on the same network.
+Passer	Skip
+Passer en liaison directe	Switch to a direct link
+Pense à remettre la douchette dans son mode d'origine avant de la rendre au client.	Remember to put the scanner back in its original mode before returning it to the customer.
+Photo ou capture d'un client : chaque code lu, détaillé (GS1, contenu caché) et l'étiquette vérifiée.	A customer's photo or screenshot: every code read, detailed (GS1, hidden content) and the label checked.
+Pivoter l'aperçu d'un quart de tour à droite	Rotate the preview a quarter turn right
+Pivoter l'aperçu d'un quart de tour à gauche	Rotate the preview a quarter turn left
+Plus tard	Later
+Points à vérifier	Points to check
+Police, texte (^A ^CF)	Font, text (^A ^CF)
+Port COM virtuel :	Virtual COM port:
+Port série {0}	Serial port {0}
+Port série {0} · {1}	Serial port {0} · {1}
+Ports {0}/{1} indisponibles ({2}) : une autre instance de Scanalyse ou un autre programme les utilise.	Ports {0}/{1} unavailable ({2}): another Scanalyse instance or another program is using them.
+Pour les longues sessions	For long sessions
+Prendre cette lecture comme référence	Use this reading as reference
+Prendre comme référence	Use as reference
+Presse-papiers occupé : réessaie.	Clipboard busy: try again.
+Prise en main	Getting started
+Problème de lecture	Reading problem
+Problèmes	Problems
+Programme	Program
+Programme DPL	DPL program
+Programme EPL2	EPL2 program
+Programme TSPL	TSPL program
+Programme ZPL	ZPL program
+Programme ZPL du modèle	Template ZPL program
+Programme copié dans le presse-papiers.	Program copied to the clipboard.
+Programme du client	Customer program
+Programme enregistré :	Program saved:
+Programme ouvert : {0} ({1} octets, {2}, {3}).	Program opened: {0} ({1} bytes, {2}, {3}).
+Programme retouché à la main : il n'est plus régénéré tant que tu ne changes pas un réglage.	Program edited by hand: it is no longer regenerated until you change a setting.
+Programme {0} (*{1})|*{2}|Fichier d'impression (*.prn)|*.prn|Tous les fichiers (*.*)|*.*	{0} program (*{1})|*{2}|Print file (*.prn)|*.prn|All files (*.*)|*.*
+Programme {0} : l'aperçu de l'étiquette est dessiné pour le ZPL uniquement. Les codes-barres du programme sont listés à gauche.	{0} program: the label preview is drawn for ZPL only. The program's barcodes are listed on the left.
+Programme {0} collé : affiché en lecture (« Lire un programme »).	{0} program pasted: shown in read mode (“Read a program”).
+Programme {0} du client	Customer {0} program
+Programme {0} · {1} lignes. Il peut être envoyé tel quel à une imprimante qui parle {2}.	{0} program · {1} lines. It can be sent as is to a printer that speaks {2}.
+Programme — Scanalyse	Program — Scanalyse
+Programmes d'étiquette (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|Tous les fichiers (*.*)|*.*	Label programs (*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl)|*.zpl;*.prn;*.txt;*.lbl;*.epl;*.tspl;*.dpl;*.nlbl|All files (*.*)|*.*
+Programmes d'étiquettes	Label programs
+Précédent	Previous
+Prêt. L'analyse est faite sur ce PC, rien n'est envoyé sur Internet.	Ready. Analysis is done on this PC, nothing is sent to the Internet.
+Quoi de neuf	What's new
+RAPPORT	REPORT
+REÇU	RECEIVED
+Rapport PDF|*.pdf|Page web (HTML)|*.html	PDF report|*.pdf|Web page (HTML)|*.html
+Rapport Scanalyse	Scanalyse report
+Rapport client ({0} dossiers)	Customer report ({0} cases)
+Rapport du dossier (PDF)	Case report (PDF)
+Rapport enregistré : {0}	Report saved: {0}
+Rapport non créé :	Report not created:
+Rapports PDF	PDF reports
+Rattacher le programme à la page	Reattach the program to the page
+Rebranche-la, puis Actualiser et Connecter.	Plug it back in, then Refresh and Connect.
+Recherche des douchettes impossible :	Unable to search for scanners:
+Recherche des douchettes incomplète :	Scanner search incomplete:
+Recherche des douchettes…	Searching for scanners…
+Rechercher (nom, serveur…)	Search (name, server…)
+Rechercher : contenu, GTIN, lot, source…	Search: content, GTIN, lot, source…
+Rechercher : nom, usage, norme, caractères…	Search: name, use, standard, characters…
+Rechercher les terminaux branchés en USB	Search for terminals connected over USB
+Rechercher à nouveau les douchettes branchées	Search again for connected scanners
+Recréer ce code	Recreate this code
+Redirection du port {0} refusée : {1}	Port {0} forwarding refused: {1}
+Relais limité aux terminaux branchés en USB.	Relay limited to terminals connected over USB.
+Relais ouvert au Wi-Fi : les terminaux du même réseau peuvent s'y connecter.	Relay open to Wi-Fi: terminals on the same network can connect to it.
+Relais ouvert sur {0} : scanne un code avec le terminal, la lecture arrive au banc d'essai.	Relay open on {0}: scan a code with the terminal, the reading arrives at the test bench.
+Remet le programme dans la page (ou ferme simplement cette fenêtre)	Puts the program back in the page (or just close this window)
+Reprend ce code dans « Créer une étiquette » (même type, même contenu, même module) pour générer un programme propre	Takes this code into “Create a label” (same type, same content, same module) to generate a clean program
+Reprend ce code dans « Créer une étiquette » pour générer un programme ZPL, TSPL ou EPL2	Takes this code into “Create a label” to generate a ZPL, TSPL or EPL2 program
+Repris de :	Taken from:
+Repris de : {0}	Taken from: {0}
+Repris de l'analyse d'image : {0}{1}	Taken from the image analysis: {0}{1}
+Retirer	Remove
+Retour	Back
+Revenir à côté du programme	Back next to the program
+Revoir l'accueil	Show welcome again
+Reçu ({0} caractères) : {1}	Received ({0} characters): {1}
+Reçu en direct · {0} · {1} octets	Received live · {0} · {1} bytes
+Rien à envoyer : la combinaison langage / symbologie n'est pas prise en charge.	Nothing to send: this language / symbology combination is not supported.
+Rien à installer sur le terminal : Scanalyse ouvre une page de relais dans son navigateur, la douchette intégrée y tape la lecture, et elle arrive ici avec le détail des touches. Zebra, Honeywell, Datalogic… toutes marques.	Nothing to install on the terminal: Scanalyse opens a relay page in its browser, the built-in scanner types the reading there, and it arrives here with the key details. Zebra, Honeywell, Datalogic… all brands.
+Rouvrir	Reopen
+Réduire	Minimize
+Réduire ou afficher le journal	Collapse or show the log
+Réduire ou déployer le menu	Collapse or expand the menu
+Référence (ticket, intervention)	Reference (ticket, job)
+Référence : contenu réel du code (accepte <GS>, <CR>… pour les caractères invisibles)	Reference: actual content of the code (accepts <GS>, <CR>… for invisible characters)
+Référence enregistrée	Reference saved
+Référence reprise d'une lecture : scanne à nouveau le code pour vérifier qu'il se lit toujours pareil.	Reference taken from a reading: scan the code again to check it always reads the same.
+Référence reprise de l'image ({0}) : scanne le même code avec la douchette.	Reference taken from the image ({0}): scan the same code with the scanner.
+Réglages du port série	Serial port settings
+Régénérer	Regenerate
+Réimprimer ce code	Reprint this code
+Réimprimer en ZPL	Reprint as ZPL
+Réseau (IP, port 9100)	Network (IP, port 9100)
+Réseau du PC à utiliser (celui du terminal) :	PC network to use (the terminal's):
+Résolution par défaut	Default resolution
+Résultat	Result
+Scanalyse - Composants tiers.txt	Scanalyse - Third-party components.txt
+Scanalyse - Quoi de neuf.txt	Scanalyse - What's new.txt
+Scanalyse va ajouter une règle autorisant les connexions entrantes sur les ports {0} et {1}, uniquement depuis ton réseau local. Windows va demander les droits administrateur.	Scanalyse will add a rule allowing incoming connections on ports {0} and {1}, only from your local network. Windows will ask for administrator rights.
+Scanne le même code : la lecture sera comparée à cette référence.	Scan the same code: the reading will be compared with this reference.
+Scanne maintenant le même code	Now scan the same code
+Scanne un code : il est analysé. Avec une référence, la lecture est comparée au contenu attendu.	Scan a code: it is analyzed. With a reference, the reading is compared with the expected content.
+Scanne un code avec la douchette du client : Scanalyse compare ce qu'elle transmet au vrai contenu et explique chaque écart (préfixe, GS perdu, clavier mal réglé…).	Scan a code with the customer's scanner: Scanalyse compares what it transmits with the real content and explains each difference (prefix, lost GS, wrong keyboard layout…).
+Ses {0} analyse ne sont pas perdues : elles reviennent dans « Non classé ».	Its {0} analysis is not lost: it goes back to “Unfiled”.
+Ses {0} analyses ne sont pas perdues : elles reviennent dans « Non classé ».	Its {0} analyses are not lost: they go back to “Unfiled”.
+Signal DTR (PC prêt)	DTR signal (PC ready)
+Société	Company
+Sombre	Dark
+Suivant	Next
+Supprime toutes les analyses de ce dossier ; le dossier et sa fiche sont conservés	Deletes all analyses in this case; the case and its record are kept
+Supprimer	Delete
+Supprimer automatiquement les analyses plus anciennes que	Automatically delete analyses older than
+Supprimer ce dossier ?	Delete this case?
+Supprimer cette analyse ?	Delete this analysis?
+Supprimer l'analyse	Delete the analysis
+Supprimer le dossier	Delete the case
+Supprimer les {0} analyses	Delete the {0} analyses
+Sur le terminal : ouvre le navigateur, touche la barre d'adresse, puis scanne ce QR avec le lecteur du terminal. L'adresse s'écrit, la douchette envoie Entrée, et la page s'ouvre.	On the terminal: open the browser, tap the address bar, then scan this QR with the terminal's scanner. The address is typed, the scanner sends Enter and the page opens.
+Système	System
+Sélectionne la ligne de ce code dans le programme, pour la lire ou la corriger	Selects this code's line in the program, to read or fix it
+Sélectionne la zone qui contient le code : elle sera analysée automatiquement.	Select the area that contains the code: it will be analyzed automatically.
+Sélectionner une zone de l'écran avec l'outil Capture de Windows	Select an area of the screen with the Windows Snipping Tool
+TSC et nombreuses imprimantes d'entrée de gamme	TSC and many entry-level printers
+Taille de l'interface	Interface size
+Technicien (si le dossier n'en indique pas)	Technician (if the case doesn't name one)
+Terminal Android	Android terminal
+Terminal · sortie IP {0}	Terminal · IP output {0}
+Terminaux Android (relais)	Android terminals (relay)
+Terminaux reliés en ce moment	Terminals connected right now
+Terminer	Finish
+Texte imprimé sous le code	Text printed under the code
+Texte libre sous le code (facultatif : référence, n° de dossier…)	Free text under the code (optional: reference, case number…)
+Texte lisible sous le code (codes 1D)	Human-readable text under the code (1D codes)
+Thème	Theme
+Thème :	Theme:
+Thème : Clair	Theme: Light
+Thème : Sombre	Theme: Dark
+Thème : Système	Theme: System
+Tous les types de codes : QR personnalisés, Data Matrix, GS1, EAN, Code 128, PDF417… avec vérification par relecture et export.	All code types: custom QR codes, Data Matrix, GS1, EAN, Code 128, PDF417… with read-back check and export.
+Tout	All
+Toute l'analyse est faite sur ce PC : aucune image ni aucune donnée lue n'est envoyée sur Internet.	All analysis is done on this PC: no image or decoded data is sent to the Internet.
+Toute l'étiquette dans le cadre	The whole label in the frame
+Toutes	All
+Trait horizontal {0} points	Horizontal line {0} dots
+Trait vertical {0} points	Vertical line {0} dots
+Travailler sur ce dossier	Work on this case
+Tu pourras la relancer à tout moment depuis Paramètres → Prise en main.	You can start it again at any time from Settings → Getting started.
+Une douchette USB sort d'usine en mode clavier. Pour une liaison directe, scanne dans le guide de programmation du fabricant le code qui change l'interface USB :	A USB scanner ships in keyboard mode. For a direct link, scan the code that changes the USB interface in the manufacturer's programming guide:
+Une lecture est terminée quand la ligne reste silencieuse ce temps-là. Augmente-le si une lecture arrive coupée en deux.	A reading is complete when the line stays silent for this long. Increase it if a reading arrives split in two.
+Une visite guidée ?	A guided tour?
+Usages typiques	Typical uses
+Utiliser le mode clavier	Use keyboard mode
+Version {0}.{1}.{2} · analyse et diagnostic de lecture des codes-barres	Version {0}.{1}.{2} · barcode reading analysis and diagnostics
+Vider ce dossier ?	Empty this case?
+Vider le dossier	Empty the case
+Vignette de l'image analysée · {0}	Thumbnail of the analyzed image · {0}
+Vitesse (bauds)	Speed (baud)
+Voir la ligne {0}	Show line {0}
+Vue structurée (sections et champs)	Structured view (sections and fields)
+Vue structurée (sections, champs), interprétation et caractéristiques : lisible par le client	Structured view (sections, fields), interpretation and characteristics: readable by the customer
+Webcams et caméras document : lecture des codes en direct dans « Analyser une image ».	Webcams and document cameras: live code reading in “Analyze an image”.
+Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Citizen…)	Zebra, and most printers with ZPL emulation (Honeywell, SATO, TSC, Citizen…)
+Zone de silence	Quiet zone
+Zoomer (Ctrl + molette)	Zoom in (Ctrl + wheel)
+absent (installer « WebView2 Runtime » de Microsoft)	missing (install Microsoft's “WebView2 Runtime”)
+adb n'a pas démarré.	adb did not start.
+adb ne répond pas (délai dépassé).	adb doesn't answer (timed out).
+adb.exe|adb.exe|Programmes|*.exe	adb.exe|adb.exe|Programs|*.exe
+aucune analyse	no analysis
+aucune imprimante installée	no printer installed
+banc d'essai	test bench
+contenu refusé pour ce type de code.	content refused for this code type.
+dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {0} pour un terminal relié en USB (après « Ouvrir le relais »), ou vers {1} port {2} en Wi-Fi.	in DataWedge, IP output over TCP to 127.0.0.1 port {0} for a terminal connected over USB (after “Open the relay”), or to {1} port {2} over Wi-Fi.
+dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {0} pour un terminal relié en USB (après « Ouvrir le relais »).	in DataWedge, IP output over TCP to 127.0.0.1 port {0} for a terminal connected over USB (after “Open the relay”).
+erreur inconnue.	unknown error.
+etiquette-{0}	label-{0}
+ex. 192.168.1.50 ou 192.168.1.50:6101	e.g. 192.168.1.50 or 192.168.1.50:6101
+hors ligne : débranche et rebranche le câble	offline: unplug and plug the cable back in
+la page du rapport ne s'est pas chargée.	the report page did not load.
+le moteur Edge n'a pas pu créer le PDF (fichier ouvert dans un autre programme ?).	the Edge engine could not create the PDF (file open in another program?).
+module {0} points ({1} mm)	module {0} dots ({1} mm)
+module {0} points ({1} mm) · hauteur {2} mm	module {0} dots ({1} mm) · height {2} mm
+page de codes 850	code page 850
+points	dots
+points ({0} mm)	dots ({0} mm)
+police {0} · {1}×{2}	font {0} · {1}×{2}
+programme ZPL lu, ligne {0}	ZPL program read, line {0}
+programme {0} lu, ligne {1}	{0} program read, line {1}
+taille fixée par le programme	size set by the program
+taille réglée dans l'imprimante	size set in the printer
+tourné 180°	rotated 180°
+tourné 270°	rotated 270°
+tourné 90°	rotated 90°
+tous les dossiers	all cases
+{0}  (en cours)	{0}  (current)
+{0} : aucun code détecté.	{0}: no code detected.
+{0} : lecture détaillée non disponible. Pour retrouver le contenu des codes, imprime l'étiquette et passe-la dans « Analyser une image » (photo ou capture), ou scanne-la au banc d'essai.	{0}: detailed reading not available. To find the content of the codes, print the label and put it through “Analyze an image” (photo or capture), or scan it at the test bench.
+{0} : {1} code détecté.	{0}: {1} code detected.
+{0} : {1} codes détectés.	{0}: {1} codes detected.
+{0} analyse	{0} analysis
+{0} analyse de plus de {1} jours supprimée (Paramètres → Historique).	{0} analysis older than {1} days deleted (Settings → History).
+{0} analyses	{0} analyses
+{0} analyses de plus de {1} jours supprimées (Paramètres → Historique).	{0} analyses older than {1} days deleted (Settings → History).
+{0} caractères · {1}	{0} characters · {1}
+{0} codes-barres, {1} textes, {2} cadre(s) ou trait(s) · taille fixée par le programme · {3} · {4} exemplaires. Choisis la résolution de l'imprimante du client pour avoir les tailles en mm.	{0} barcodes, {1} texts, {2} box(es) or line(s) · size set by the program · {3} · {4} copies. Choose the resolution of the customer's printer to get the sizes in mm.
+{0} dossiers	{0} cases
+{0} débranché : liaison terminée.	{0} unplugged: link ended.
+{0} est déjà ouvert par un autre programme (logiciel du scanner, terminal série, autre instance de Scanalyse…). Ferme-le puis réessaie.	{0} is already open in another program (scanner software, serial terminal, another Scanalyse instance…). Close it and try again.
+{0} est déjà utilisée par une autre application (logiciel de caisse, utilitaire du fabricant…) ou ne répond pas.	{0} is already used by another application (POS software, manufacturer's utility…) or doesn't answer.
+{0} est hors ligne (débranchée ou éteinte).	{0} is offline (unplugged or switched off).
+{0} imprimantes	{0} printers
+{0} ligne	{0} line
+{0} ligne · langage non reconnu. Vérifie que c'est bien le fichier d'impression (et non un export PDF ou image).	{0} line · language not recognized. Check that it is really the print file (not a PDF or image export).
+{0} lignes	{0} lines
+{0} lignes · langage non reconnu. Vérifie que c'est bien le fichier d'impression (et non un export PDF ou image).	{0} lines · language not recognized. Check that it is really the print file (not a PDF or image export).
+{0} n'est plus disponible ou ne répond pas : rebranche-la puis actualise la liste.	{0} is no longer available or doesn't answer: plug it back in, then refresh the list.
+{0} ne répond plus (douchette débranchée ?).	{0} no longer answers (scanner unplugged?).
+{0} symbologie sur {1}	{0} symbology of {1}
+{0} symbologies sur {1}	{0} symbologies of {1}
+{0} terminaux reliés	{0} terminals connected
+{0} touches	{0} keys
+{0} touches dont {1} non reconnue par le navigateur ({2})	{0} keys, {1} not recognized by the browser ({2})
+{0} touches dont {1} non reconnues par le navigateur ({2})	{0} keys, {1} not recognized by the browser ({2})
+{0} · affichage par sections (décoche pour le texte brut)	{0} · shown by sections (uncheck for raw text)
+{0} · ligne {1} · x {2}, y {3}	{0} · line {1} · x {2}, y {3}
+{0} · ligne {1} · x {2}, y {3} (^FO){4}	{0} · line {1} · x {2}, y {3} (^FO){4}
+{0} · ligne {1} · x {2}, y {3} (^FT){4}	{0} · line {1} · x {2}, y {3} (^FT){4}
+{0} · relais {1}	{0} · relay {1}
+{0} · scanne l'écran avec la douchette : la lecture arrive directement dans « Données reçues ».	{0} · scan the screen with the scanner: the reading goes straight into “Received data”.
+{0} · {1} champ	{0} · {1} field
+{0} · {1} champs	{0} · {1} fields
+{0} Étiquette {1} × {2} mm, valeurs d'exemple à remplacer.	{0} Label {1} × {2} mm, sample values to replace.
+« Source » indique comment la douchette est reliée au PC. Importer, Coller (Ctrl + Maj + V), Capturer une zone ou Caméra : l'image part dans « Analyser une image », où chaque code est lu et détaillé.	“Source” shows how the scanner is connected to the PC. Import, Paste (Ctrl + Shift + V), Capture an area or Camera: the image goes to “Analyze an image”, where every code is read and detailed.
+« USB CDC » chez Zebra, « USB Serial » chez Honeywell, « USB-COM » chez Datalogic. Windows crée un port COM, puis clique sur Actualiser.	“USB CDC” at Zebra, “USB Serial” at Honeywell, “USB-COM” at Datalogic. Windows creates a COM port; then click Refresh.
+« USB HID POS », si le modèle le propose. Windows le reconnaît sans pilote et indique en plus la symbologie lue.	“USB HID POS”, if the model offers it. Windows recognizes it without a driver and also reports the symbology read.
+« {0} » du {1} sera supprimée, avec son image, son nom et son commentaire.	“{0}” of {1} will be deleted, with its image, name and comment.
+« {0} » rangé dans {1}.	“{0}” filed in {1}.
+· créé le {0}	· created on {0}
+· identifiant {0}	· identifier {0}
+· inversé	· reversed
+· symbologie annoncée : {0}	· announced symbology: {0}
+· tourné 180°	· rotated 180°
+· tourné 270°	· rotated 270°
+· tourné 90°	· rotated 90°
+· trop fin pour la logistique GS1 (0,495 mm min.)	· too thin for GS1 logistics (0.495 mm min.)
+À faire :	To do:
+À propos de Scanalyse	About Scanalyse
+À vérifier	To check
+ÉTIQUETTE	LABEL
+Étiquette cohérente : les données sont identiques d'un code à l'autre et respectent les règles GS1.	Consistent label: data is identical from one code to another and follows the GS1 rules.
+Étiquette du programme ZPL envoyée à l'analyse : chaque code est relu comme sur une photo.	Label from the ZPL program sent for analysis: each code is read again as from a photo.
+Étiquette {0} envoyée à {1}:{2}.	{0} label sent to {1}:{2}.
+Étiquette {0} envoyée à « {1} ».	{0} label sent to “{1}”.
+Étiquette à vérifier :	Label to check:
+Étiquettes complètes prêtes à l'emploi : remplis les champs, les clés de contrôle et les codes GS1 sont calculés, le programme ZPL est prêt à envoyer.	Complete ready-to-use labels: fill in the fields, check digits and GS1 codes are computed, the ZPL program is ready to send.
+Étiquettes prêtes à l'emploi : palette GS1 (SSCC), colis, produit, emplacement, inventaire	Ready-to-use labels: GS1 pallet (SSCC), parcel, product, location, inventory
+à autoriser : accepte le débogage USB sur l'écran du terminal	to authorize: accept USB debugging on the terminal's screen
+•••••• (masqué)	•••••• (hidden)
+… et {0} autres	… and {0} more
+● {0} · relais {1}	● {0} · relay {1}

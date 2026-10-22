@@ -77,6 +77,7 @@ public partial class SettingsView : UserControl
     {
         _loadingOptions = true;
         var s = AppSettings.Load();
+        Check(LanguageChips, s.Language);
         Check(StartChips, s.StartPage);
         Check(ScaleChips, s.UiScale.ToString(System.Globalization.CultureInfo.InvariantCulture));
         LogOpenCheck.IsChecked = s.LogOpen;
@@ -127,6 +128,21 @@ public partial class SettingsView : UserControl
             DisplaySettingsChanged?.Invoke();
         }
     }
+
+    private void Language_Checked(object sender, RoutedEventArgs e)
+    {
+        if (_loadingOptions || !IsLoaded || Selected(LanguageChips) is not { } lang)
+        {
+            return;
+        }
+
+        var s = AppSettings.Load();
+        s.Language = lang;
+        s.Save();
+        RestartButton.Visibility = lang == Localization.Language ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private void Restart_Click(object sender, RoutedEventArgs e) => App.Restart();
 
     private void Report_LostFocus(object sender, RoutedEventArgs e)
     {

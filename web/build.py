@@ -50,7 +50,7 @@ def assemble():
     scan_js = read(SRC, "scan.js")
     # La caméra partage la portée de scan.js (moteur de lecture, source, rendu) : insérée avant la fermeture.
     body, end = scan_js.rstrip().rsplit("})();", 1)
-    scan_js = body + read(SRC, "camera.js") + read(SRC, "label.js") + "\n})();" + end
+    scan_js = body + read(SRC, "camera.js") + read(SRC, "label.js") + "\n})();" + read(SRC, "i18n.js") + end
     create_css = read(SRC, "create.css")
     create_html = read(SRC, "create.html")
     create_std_html = read(SRC, "create-std.html")

@@ -35,6 +35,20 @@
 
       <Border Style="{StaticResource Card}" Margin="0,0,0,16">
         <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Langue / Language" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
+                     Text="Langue de l'interface. Le changement s'applique après le redémarrage de Scanalyse. / Interface language, applied after restarting Scanalyse." />
+          <WrapPanel x:Name="LanguageChips">
+            <RadioButton Style="{StaticResource Chip}" GroupName="Language" Tag="fr" Content="Français" Checked="Language_Checked" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Language" Tag="en" Content="English" Checked="Language_Checked" />
+          </WrapPanel>
+          <Button x:Name="RestartButton" Style="{StaticResource BtnAction}" Content="Redémarrer maintenant / Restart now" Click="Restart_Click"
+                  HorizontalAlignment="Left" Margin="0,8,0,0" Visibility="Collapsed" />
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
           <TextBlock Style="{StaticResource CardTitle}" Text="Démarrage et affichage" />
           <TextBlock Style="{StaticResource FieldLabel}" Text="Page ouverte au démarrage" Margin="0,12,0,6" />
           <WrapPanel x:Name="StartChips">

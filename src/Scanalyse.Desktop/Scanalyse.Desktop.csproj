@@ -32,6 +32,8 @@
     <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Scanalyse.Changelog.md" />
     <!-- Page ouverte dans le navigateur du terminal Android par le relais. -->
     <EmbeddedResource Include="Relay\relais.html" LogicalName="Scanalyse.Relay.relais.html" />
+    <!-- Traductions de l'interface (français → anglais), voir Localization.cs. -->
+    <EmbeddedResource Include="Lang\en.tsv" LogicalName="Scanalyse.Lang.en.tsv" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,6 +24,7 @@
 - Éditeur de programme avec numéros de ligne, « Coller un programme client », « Voir la ligne » depuis chaque code lu.
 - Les pages Code imprimante et Banc d'essai défilent quand la fenêtre est trop basse : plus rien n'est coupé.
 - Programme et aperçu agrandissables ; choix de l'imprimante Windows dans une liste avec recherche.
+- **Langue de l'interface (anglais / français)** : choix dans Paramètres, appliqué au redémarrage (bouton « Redémarrer maintenant »). Première étape : l'interface Windows complète (menus, pages, boutons, messages, journal) est traduite ; l'Atelier (analyse, création) et les textes d'analyse suivront.
 - **Paramètres** : en-tête des rapports (société, technicien, coordonnées, logo) ; page d'ouverture, taille de l'interface (100 / 115 / 130 %), journal déplié ou non ; enregistrement automatique des analyses et suppression des anciennes (30 jours à 1 an) ; comparaison automatique au banc d'essai ; langage et résolution d'imprimante par défaut.
 - **Prise en main** : accueil au premier lancement (présentation, choix des dossiers Historique / Rapports / Programmes d'étiquettes), visite guidée en 5 bulles (barre du haut, banc d'essai, code imprimante, appareils, dossier SAV), relançables dans Paramètres → Prise en main.
 - « Analyser une image » s'ouvre vide avec quatre boutons (Coller, Capturer une zone, Importer, Caméra) au lieu d'un QR de démonstration ; « Lire un programme » vide propose Coller, Ouvrir un fichier, Partir d'un modèle.

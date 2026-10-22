@@ -18,6 +18,19 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         _instance = new Mutex(initiallyOwned: true, InstanceName, out var first);
+        if (!first && e.Args.Contains("--restart"))
+        {
+            // Redémarrage demandé (changement de langue) : on attend que l'ancienne fenêtre se ferme.
+            try
+            {
+                first = _instance.WaitOne(TimeSpan.FromSeconds(15));
+            }
+            catch (AbandonedMutexException)
+            {
+                first = true;
+            }
+        }
+
         if (!first)
         {
             // Déjà ouvert : on remet la fenêtre existante au premier plan et on s'arrête là.
@@ -52,10 +65,24 @@ public partial class App : Application
         { IsBackground = true, Name = "Scanalyse - activation" };
         listener.Start();
 
+        Localization.Initialize(AppSettings.Load().Language);
         ThemeManager.Initialize(AppSettings.Load().Theme);
         base.OnStartup(e);
         MainWindow = new MainWindow();
         MainWindow.Show();
+    }
+
+    /// <summary>Relance Scanalyse (changement de langue) : la nouvelle instance attend la fermeture de celle-ci.</summary>
+    public static void Restart()
+    {
+        var exe = Environment.ProcessPath;
+        if (exe is null)
+        {
+            return;
+        }
+
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(exe, "--restart") { UseShellExecute = false });
+        Current.Shutdown();
     }
 
     private void BringToFront()

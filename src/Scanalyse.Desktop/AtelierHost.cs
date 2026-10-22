@@ -145,6 +145,18 @@ internal sealed class AtelierHost
         _view.Source = new Uri($"https://{Host}/index.html");
     }
 
+    /// <summary>Envoie la table de traduction à l'Atelier (interface en anglais).</summary>
+    public Task SetLanguageAsync()
+    {
+        if (!Localization.IsEnglish)
+        {
+            return Task.CompletedTask;
+        }
+
+        var entries = Localization.Entries.Select(e => new[] { e.Fr, e.En });
+        return ExecuteAsync($"window.atelierSetLanguage&&window.atelierSetLanguage({JsonSerializer.Serialize(entries)})");
+    }
+
     /// <summary>Aligne l'Atelier sur le thème du programme.</summary>
     public Task SetThemeAsync(bool dark) =>
         ExecuteAsync($"document.documentElement.dataset.theme='{(dark ? "dark" : "light")}'");
