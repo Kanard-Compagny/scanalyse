@@ -21,6 +21,12 @@ public sealed record CompareRequest(string Text, string Format, string Symbology
 /// <param name="Source">Origine, pour l'affichage.</param>
 public sealed record PrintRequest(string Text, string Format, bool Gs1, string Source);
 
+/// <summary>Étiquette ZPL dessinée par l'Atelier.</summary>
+/// <param name="Png">Image de l'étiquette (1 pixel = 1 point d'imprimante).</param>
+/// <param name="Error">Message d'erreur, si le dessin a échoué.</param>
+/// <param name="Boxes">Emprise de chaque champ (x0, y0, x1, y1), dans l'ordre du programme ; null s'il n'est pas dessiné.</param>
+public sealed record LabelRender(byte[]? Png, string? Error, IReadOnlyList<int[]?> Boxes);
+
 /// <summary>Bilan de cohérence d'une étiquette à plusieurs codes.</summary>
 /// <param name="Verdict">« good », « warn » ou « bad ».</param>
 /// <param name="Problems">Incohérences et points à vérifier.</param>
@@ -52,6 +58,7 @@ internal sealed class AtelierHost
 
     private readonly WebView2 _view;
     private readonly Dictionary<string, TaskCompletionSource<(byte[]? Png, string? Error)>> _renders = new();
+    private readonly Dictionary<string, TaskCompletionSource<LabelRender>> _labelRenders = new();
     private bool _ready;
 
     public AtelierHost(WebView2 view) => _view = view;
@@ -171,20 +178,21 @@ internal sealed class AtelierHost
     }
 
     /// <summary>Dessine une étiquette décrite en JSON (programme ZPL lu) ; renvoie l'image PNG ou un message d'erreur.</summary>
-    public async Task<(byte[]? Png, string? Error)> RenderLabelAsync(string json)
+    /// <remarks>Boxes : emprise de chaque champ dans l'image (x0, y0, x1, y1), ou null s'il n'a pas été dessiné.</remarks>
+    public async Task<LabelRender> RenderLabelAsync(string json)
     {
         if (!_ready || _view.CoreWebView2 is null)
         {
-            return (null, "L'Atelier n'est pas encore prêt.");
+            return new LabelRender(null, "L'Atelier n'est pas encore prêt.", []);
         }
 
         var id = Guid.NewGuid().ToString("N");
-        var tcs = new TaskCompletionSource<(byte[]? Png, string? Error)>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _renders[id] = tcs;
+        var tcs = new TaskCompletionSource<LabelRender>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _labelRenders[id] = tcs;
         await ExecuteAsync($"window.atelierRenderLabel&&window.atelierRenderLabel({JsonSerializer.Serialize(id)},{json})");
         var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(20)));
-        _renders.Remove(id);
-        return done == tcs.Task ? tcs.Task.Result : (null, "Délai dépassé.");
+        _labelRenders.Remove(id);
+        return done == tcs.Task ? tcs.Task.Result : new LabelRender(null, "Délai dépassé.", []);
     }
 
     /// <summary>Convertit une image « data:image/png;base64,… » en octets.</summary>
@@ -261,6 +269,22 @@ internal sealed class AtelierHost
                 case "mode":
                     ModeChanged?.Invoke(Get(root, "mode"));
                     break;
+
+                case "rendered" when _labelRenders.TryGetValue(Get(root, "id"), out var ltcs):
+                {
+                    var boxes = new List<int[]?>();
+                    if (root.TryGetProperty("boxes", out var bx) && bx.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var b in bx.EnumerateArray())
+                        {
+                            boxes.Add(b.ValueKind == JsonValueKind.Array && b.GetArrayLength() == 4 ? [.. b.EnumerateArray().Select(v => v.TryGetInt32(out var n) ? n : 0)] : null);
+                        }
+                    }
+
+                    var lerror = Get(root, "error");
+                    ltcs.TrySetResult(lerror.Length > 0 ? new LabelRender(null, lerror, []) : new LabelRender(FromDataUrl(Get(root, "image")), null, boxes));
+                    break;
+                }
 
                 case "rendered":
                     if (_renders.TryGetValue(Get(root, "id"), out var tcs))

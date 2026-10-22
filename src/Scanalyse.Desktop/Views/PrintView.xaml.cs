@@ -57,9 +57,14 @@ public partial class PrintView : UserControl
         }
 
         DataBox.Text = "SCANALYSE-0001";
-        // Numéros de ligne : ils suivent le défilement du programme.
+        // Numéros de ligne et texte coloré : ils suivent le défilement du programme.
         CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, e) =>
-            LineNumbers.RenderTransform = new TranslateTransform(0, -e.VerticalOffset)));
+        {
+            LineNumbers.RenderTransform = new TranslateTransform(0, -e.VerticalOffset);
+            CodeColors.RenderTransform = new TranslateTransform(-e.HorizontalOffset, -e.VerticalOffset);
+        }));
+        _colorTimer.Tick += (_, _) => Recolor();
+        BuildLegend();
         _readTimer.Tick += async (_, _) =>
         {
             _readTimer.Stop();
@@ -654,10 +659,11 @@ public partial class PrintView : UserControl
         Grid.SetColumn(RightPane, any ? 0 : 2);
         Grid.SetColumnSpan(RightPane, any ? 3 : 1);
         RightPane.RowDefinitions[0].Height = zoom == Zoom.Preview ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+        RightPane.RowDefinitions[1].Height = zoom == Zoom.Preview ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
         PreviewBox.Height = zoom == Zoom.Preview ? double.NaN : _readMode ? 330 : 170;
         ExpandButton.Content = zoom == Zoom.Program ? "Réduire" : "Agrandir";
         ExpandPreviewButton.Content = zoom == Zoom.Preview ? "Réduire" : "Agrandir";
-        CodeBox.FontSize = zoom == Zoom.Program ? 14 : 13;
+        CodeBox.FontSize = CodeColors.FontSize = LineNumbers.FontSize = zoom == Zoom.Program ? 14 : 13;
         if (zoom == Zoom.Program)
         {
             CodeBox.Focus();
@@ -687,7 +693,7 @@ public partial class PrintView : UserControl
     private string _readProgram = string.Empty;
 
     /// <summary>Dessine une étiquette ZPL (description JSON) : fourni par la fenêtre principale.</summary>
-    public Func<string, Task<(byte[]? Png, string? Error)>>? LabelRenderer { get; set; }
+    public Func<string, Task<LabelRender>>? LabelRenderer { get; set; }
 
     /// <summary>« Analyse complète de l'étiquette » : l'aperçu part dans « Analyser une image ».</summary>
     public event Action<byte[], string>? AnalyzeRequested;
@@ -710,6 +716,78 @@ public partial class PrintView : UserControl
         var count = Math.Max(1, CodeBox.Text.Count(c => c == '\n') + 1);
         LineNumbers.Text = string.Join("\n", Enumerable.Range(1, count));
         CodeHint.Visibility = CodeBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _colorTimer.Stop();
+        _colorTimer.Start();
+    }
+
+    // ------------------------------------------------------------------ Coloration du programme
+
+    private readonly DispatcherTimer _colorTimer = new() { Interval = TimeSpan.FromMilliseconds(90) };
+
+    private static string ColorKey(SyntaxKind k) => k switch
+    {
+        SyntaxKind.Structure => "SynStruct",
+        SyntaxKind.Position => "SynPos",
+        SyntaxKind.Text => "SynText",
+        SyntaxKind.Barcode => "SynCode",
+        SyntaxKind.Graphic => "SynGfx",
+        SyntaxKind.Setting => "SynSet",
+        SyntaxKind.Parameter => "SynParam",
+        SyntaxKind.Comment => "SynComment",
+        _ => "SynData",
+    };
+
+    /// <summary>Redessine le texte coloré sous la zone de saisie (couleurs suivant le thème).</summary>
+    private void Recolor()
+    {
+        _colorTimer.Stop();
+        var text = CodeBox.Text;
+        CodeColors.Inlines.Clear();
+        if (text.Length > 300_000)
+        {
+            // Programme énorme (images ^GF) : pas de coloration, texte affiché normalement.
+            CodeBox.Foreground = Res("Ink");
+            return;
+        }
+
+        CodeBox.Foreground = Brushes.Transparent;
+        foreach (var t in ProgramSyntax.Tokenize(text))
+        {
+            var run = new System.Windows.Documents.Run(text.Substring(t.Start, t.Length));
+            run.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, ColorKey(t.Kind));
+            if (t.Kind is SyntaxKind.Structure or SyntaxKind.Position or SyntaxKind.Text or SyntaxKind.Barcode or SyntaxKind.Graphic)
+            {
+                run.FontWeight = FontWeights.SemiBold;
+            }
+
+            CodeColors.Inlines.Add(run);
+        }
+
+        Legend.Visibility = text.Contains('^', StringComparison.Ordinal) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void BuildLegend()
+    {
+        (string Key, string Label)[] items =
+        [
+            ("SynStruct", "Début, fin (^XA ^FS ^XZ)"),
+            ("SynPos", "Position (^FO ^FT)"),
+            ("SynText", "Police, texte (^A ^CF)"),
+            ("SynCode", "Code-barres (^B…)"),
+            ("SynGfx", "Graphique (^GB)"),
+            ("SynParam", "Paramètres"),
+            ("SynData", "Données (^FD)"),
+            ("SynSet", "Réglages"),
+        ];
+        foreach (var (key, label) in items)
+        {
+            var dot = new System.Windows.Shapes.Ellipse { Width = 8, Height = 8, Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
+            dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, key);
+            var sp = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 14, 2) };
+            sp.Children.Add(dot);
+            sp.Children.Add(new TextBlock { Text = label, FontSize = 11.5, Foreground = Res("Muted"), VerticalAlignment = VerticalAlignment.Center });
+            Legend.Children.Add(sp);
+        }
     }
 
     /// <summary>Sélectionne une ligne du programme et la fait défiler à l'écran.</summary>
@@ -784,6 +862,7 @@ public partial class PrintView : UserControl
             ? "Colle le programme ZPL d'un client : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou analyse complète."
             : "Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.";
         LangChips.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        ZplTools.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
         ProgramTitle.Text = on ? "Programme ZPL du client" : "Programme ZPL";
         ProgramHint.Text = on
             ? "Modifie les lignes directement : l'aperçu et l'analyse se mettent à jour. « Voir la ligne » sur un code te place sur sa ligne."
@@ -801,7 +880,7 @@ public partial class PrintView : UserControl
         }
         else
         {
-            ZplFrame.Visibility = ZplEmpty.Visibility = Visibility.Collapsed;
+            ZplScroll.Visibility = ZplEmpty.Visibility = Visibility.Collapsed;
             PreviewNote.Text = "Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante.";
             _renderedKey = string.Empty;
             _ = RefreshAsync();
@@ -812,6 +891,8 @@ public partial class PrintView : UserControl
     public void LoadProgram(string zpl)
     {
         _readProgram = zpl;
+        _newProgram = true;
+        _selected = -1;
         if (_readMode)
         {
             _updating = true;
@@ -842,7 +923,7 @@ public partial class PrintView : UserControl
         {
             _label = null;
             _labelPng = null;
-            ZplFrame.Visibility = Visibility.Collapsed;
+            ZplScroll.Visibility = Visibility.Collapsed;
             ZplEmpty.Visibility = Visibility.Visible;
             ReadSummary.Text = text.Trim().Length == 0
                 ? "Colle ici (zone « Programme ») le fichier .zpl, .prn ou .txt envoyé par le client, ou le texte capturé sur son poste."
@@ -861,16 +942,18 @@ public partial class PrintView : UserControl
         }
 
         PreviewNote.Text = "Dessin de l'étiquette…";
-        var (png, error) = await LabelRenderer(ZplReader.RenderJson(label));
+        var render = await LabelRenderer(ZplReader.RenderJson(label));
+        var (png, error) = (render.Png, render.Error);
         if (seq != _readSeq)
         {
             return;
         }
 
         _labelPng = png;
+        _boxes = render.Boxes;
         if (png is null)
         {
-            ZplFrame.Visibility = Visibility.Collapsed;
+            ZplScroll.Visibility = Visibility.Collapsed;
             PreviewNote.Text = "Aperçu impossible : " + (error ?? "erreur inconnue.");
             return;
         }
@@ -881,10 +964,22 @@ public partial class PrintView : UserControl
         img.StreamSource = new MemoryStream(png);
         img.EndInit();
         img.Freeze();
+        var firstRender = ZplImage.Source is null;
         ZplImage.Source = img;
-        ZplFrame.Visibility = Visibility.Visible;
-        PreviewNote.Text = "Aperçu indicatif dessiné par Scanalyse (polices approchées)"
-            + (label.Inverted ? " ; l'étiquette est montrée telle que dessinée, l'imprimante la sort tournée de 180° (^POI)." : ".");
+        ZplScroll.Visibility = Visibility.Visible;
+        if (firstRender || _newProgram)
+        {
+            // Sens de lecture : on tourne l'aperçu pour que la plupart des textes se lisent à l'endroit.
+            var main = label.Texts.GroupBy(t => t.Orientation).OrderByDescending(g => g.Sum(t => t.Text.Trim().Length)).FirstOrDefault()?.Key ?? ZplOrientation.N;
+            _zplRotation = main switch { ZplOrientation.B => 90, ZplOrientation.R => 270, ZplOrientation.I => 180, _ => 0 };
+            _zplZoom = null;
+            _newProgram = false;
+        }
+
+        ApplyZplTransform();
+        ShowSelection();
+        PreviewNote.Text = "Aperçu indicatif (polices approchées). Clique sur un élément pour voir sa ligne ; ↺ ↻ pour pivoter, Ctrl + molette pour zoomer."
+            + (label.Inverted ? " L'imprimante sort cette étiquette tournée de 180° (^POI)." : string.Empty);
         ShowLabelSize();
     }
 
@@ -930,6 +1025,7 @@ public partial class PrintView : UserControl
     private void BuildReadPanel(ZplLabel label)
     {
         ReadPanel.Children.Clear();
+        _cards.Clear();
         var dpi = ReadDpi;
 
         // Constats sur le programme
@@ -970,7 +1066,7 @@ public partial class PrintView : UserControl
                 ToolTip = "Sélectionne la ligne de ce code dans le programme, pour la lire ou la corriger",
             };
             DockPanel.SetDock(show, Dock.Right);
-            show.Click += (_, _) => GoToLine(c.Line);
+            show.Click += (_, _) => Select(label.Elements.ToList().IndexOf(c), fromEditor: false);
             head.Children.Add(show);
             head.Children.Add(new TextBlock { Text = $"Code {n} · {c.Symbology}", FontWeight = FontWeights.SemiBold, FontSize = 14, VerticalAlignment = VerticalAlignment.Center });
             card.Children.Add(head);
@@ -1025,7 +1121,8 @@ public partial class PrintView : UserControl
                 card.Children.Add(AlertBox(note));
             }
 
-            ReadPanel.Children.Add(new Border
+            var index = label.Elements.ToList().IndexOf(c);
+            var cardBorder = new Border
             {
                 Child = card,
                 Tag = c,
@@ -1034,42 +1131,297 @@ public partial class PrintView : UserControl
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(12, 10, 12, 6),
                 Margin = new Thickness(0, 0, 0, 10),
-            });
+                Background = Brushes.Transparent,
+                Cursor = System.Windows.Input.Cursors.Hand,
+            };
+            cardBorder.MouseLeftButtonUp += (_, e) =>
+            {
+                if (e.OriginalSource is not TextBox)
+                {
+                    Select(index, fromEditor: false);
+                }
+            };
+            _cards[index] = cardBorder;
+            ReadPanel.Children.Add(cardBorder);
         }
 
-        // Textes
-        var texts = label.Texts.ToList();
-        if (texts.Count > 0)
-        {
-            var toggle = new System.Windows.Controls.Primitives.ToggleButton
-            {
-                Style = (Style)FindResource("HexToggle"),
-                Content = $"Textes de l'étiquette ({texts.Count})",
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Margin = new Thickness(0, 6, 0, 4),
-            };
-            var list = new TextBox
-            {
-                Visibility = Visibility.Collapsed,
-                IsReadOnly = true,
-                BorderThickness = new Thickness(0),
-                Background = Res("Surface2"),
-                Padding = new Thickness(10, 8, 10, 8),
-                FontFamily = (FontFamily)FindResource("MonoFont"),
-                FontSize = 12,
-                Foreground = Res("Ink"),
-                TextWrapping = TextWrapping.NoWrap,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Text = string.Join(Environment.NewLine, texts.Select(t =>
-                    $"l.{t.Line,-4} {t.Font}{t.Orientation} {t.Height,3}×{t.Width,-3} {(t.Reverse ? "inversé " : string.Empty)}« {t.Text.TrimEnd()} »")),
-            };
-            toggle.Checked += (_, _) => list.Visibility = Visibility.Visible;
-            toggle.Unchecked += (_, _) => list.Visibility = Visibility.Collapsed;
-            ReadPanel.Children.Add(toggle);
-            ReadPanel.Children.Add(list);
-        }
-
+        // Textes, cadres et traits : une ligne par champ, cliquable
+        _rows.Clear();
+        var indexed = label.Elements.Select((el, k) => (el, k)).ToList();
+        AddElementSection("Textes", [.. indexed.Where(x => x.el is ZplText)], expanded: true);
+        AddElementSection("Cadres et traits", [.. indexed.Where(x => x.el is ZplBox)], expanded: false);
         ShowLabelSize();
+    }
+
+    // ------------------------------------------------------------------ Sélection d'un élément (aperçu ⇄ programme ⇄ liste)
+
+    private readonly Dictionary<int, Border> _rows = [];
+    private readonly Dictionary<int, Border> _cards = [];
+    private IReadOnlyList<int[]?> _boxes = [];
+    private int _selected = -1;
+    private bool _newProgram = true;
+    private bool _selecting;
+    private int _zplRotation;
+    private double? _zplZoom;
+
+    private void AddElementSection(string title, List<(ZplElement El, int Index)> items, bool expanded)
+    {
+        if (items.Count == 0)
+        {
+            return;
+        }
+
+        var toggle = new System.Windows.Controls.Primitives.ToggleButton
+        {
+            Style = (Style)FindResource("HexToggle"),
+            Content = $"{title} ({items.Count})",
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(0, 8, 0, 4),
+            IsChecked = expanded,
+        };
+        var list = new StackPanel { Visibility = expanded ? Visibility.Visible : Visibility.Collapsed };
+        toggle.Checked += (_, _) => list.Visibility = Visibility.Visible;
+        toggle.Unchecked += (_, _) => list.Visibility = Visibility.Collapsed;
+        foreach (var (el, index) in items)
+        {
+            var text = el switch
+            {
+                ZplText t => $"« {t.Text.TrimEnd()} »",
+                ZplBox b => b.Width <= b.Thickness * 2 || b.Height <= b.Thickness * 2
+                    ? (b.Width > b.Height ? $"Trait horizontal {b.Width} points" : b.Width == b.Height ? $"Carré plein {b.Width} points" : $"Trait vertical {b.Height} points")
+                    : $"Cadre {b.Width} × {b.Height}, trait {b.Thickness}",
+                _ => string.Empty,
+            };
+            var detail = el switch
+            {
+                ZplText t => $"police {t.Font} · {t.Height}×{t.Width}" + (t.Orientation == ZplOrientation.N ? string.Empty : $" · {OrientationText(t.Orientation)}") + (t.Reverse ? " · inversé" : string.Empty),
+                ZplBox b => b.Reverse ? "inversé" : b.White ? "blanc" : string.Empty,
+                _ => string.Empty,
+            };
+            var row = new Border
+            {
+                Padding = new Thickness(8, 4, 8, 4),
+                CornerRadius = new CornerRadius(6),
+                Background = Brushes.Transparent,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                BorderThickness = new Thickness(3, 0, 0, 0),
+                BorderBrush = Brushes.Transparent,
+            };
+            var dock = new DockPanel();
+            var line = new TextBlock { Text = $"l.{el.Line}", Width = 44, FontFamily = (FontFamily)FindResource("MonoFont"), FontSize = 12, Foreground = Res("Muted"), VerticalAlignment = VerticalAlignment.Center };
+            var info = new TextBlock { Text = detail, FontSize = 11.5, Foreground = Res("Muted"), Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            DockPanel.SetDock(line, Dock.Left);
+            DockPanel.SetDock(info, Dock.Right);
+            dock.Children.Add(line);
+            dock.Children.Add(info);
+            dock.Children.Add(new TextBlock { Text = text, FontSize = 12.5, TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = VerticalAlignment.Center });
+            row.Child = dock;
+            row.MouseEnter += (_, _) => { if (_selected != index) { row.Background = Res("Surface2"); } };
+            row.MouseLeave += (_, _) => { if (_selected != index) { row.Background = Brushes.Transparent; } };
+            row.MouseLeftButtonUp += (_, _) => Select(index, fromEditor: false);
+            _rows[index] = row;
+            list.Children.Add(row);
+        }
+
+        ReadPanel.Children.Add(toggle);
+        ReadPanel.Children.Add(list);
+    }
+
+    private static string OrientationText(ZplOrientation o) => o switch
+    {
+        ZplOrientation.R => "tourné 90°",
+        ZplOrientation.I => "tourné 180°",
+        ZplOrientation.B => "tourné 270°",
+        _ => "normal",
+    };
+
+    /// <summary>Met en avant un élément partout : cadre dans l'aperçu, ligne dans le programme, entrée dans la liste.</summary>
+    private void Select(int index, bool fromEditor)
+    {
+        if (_label is null || index < 0 || index >= _label.Elements.Count)
+        {
+            return;
+        }
+
+        _selected = index;
+        ShowSelection();
+        if (!fromEditor)
+        {
+            _selecting = true;
+            GoToLine(_label.Elements[index].Line);
+            _selecting = false;
+        }
+
+        if (_rows.TryGetValue(index, out var row))
+        {
+            if (row.Parent is StackPanel { Visibility: Visibility.Collapsed } list)
+            {
+                list.Visibility = Visibility.Visible;
+                if (ReadPanel.Children.IndexOf(list) is var k and > 0 && ReadPanel.Children[k - 1] is System.Windows.Controls.Primitives.ToggleButton t)
+                {
+                    t.IsChecked = true;
+                }
+            }
+
+            row.BringIntoView();
+        }
+        else if (_cards.TryGetValue(index, out var card))
+        {
+            card.BringIntoView();
+        }
+    }
+
+    private void ShowSelection()
+    {
+        foreach (var (k, row) in _rows)
+        {
+            row.Background = k == _selected ? Res("Surface2") : Brushes.Transparent;
+            row.BorderBrush = k == _selected ? Res("Brand") : Brushes.Transparent;
+        }
+
+        foreach (var (k, card) in _cards)
+        {
+            card.BorderBrush = k == _selected ? Res("Brand") : Res("Line");
+            card.BorderThickness = new Thickness(k == _selected ? 2 : 1);
+        }
+
+        ZplOverlay.Children.Clear();
+        if (_selected < 0 || _selected >= _boxes.Count || _boxes[_selected] is not { } b || ZplImage.Source is null)
+        {
+            return;
+        }
+
+        var zoom = CurrentZoom();
+        const double pad = 4;
+        var rect = new System.Windows.Shapes.Rectangle
+        {
+            Width = Math.Max(4, b[2] - b[0] + pad * 2),
+            Height = Math.Max(4, b[3] - b[1] + pad * 2),
+            Stroke = new SolidColorBrush(Color.FromRgb(0xF0, 0x7F, 0x13)),
+            StrokeThickness = Math.Max(2, 2.5 / zoom),
+            Fill = new SolidColorBrush(Color.FromArgb(0x30, 0xF0, 0x7F, 0x13)),
+            RadiusX = 3 / zoom,
+            RadiusY = 3 / zoom,
+        };
+        Canvas.SetLeft(rect, b[0] - pad);
+        Canvas.SetTop(rect, b[1] - pad);
+        ZplOverlay.Children.Add(rect);
+        Dispatcher.BeginInvoke(new Action(() => rect.BringIntoView()), DispatcherPriority.Loaded);
+    }
+
+    private void ZplFrame_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        var p = e.GetPosition(ZplImage);
+        var best = -1;
+        var bestArea = double.MaxValue;
+        for (var k = 0; k < _boxes.Count; k++)
+        {
+            if (_boxes[k] is { } b && p.X >= b[0] - 3 && p.X <= b[2] + 3 && p.Y >= b[1] - 3 && p.Y <= b[3] + 3)
+            {
+                var area = (double)(b[2] - b[0]) * (b[3] - b[1]);
+                if (area < bestArea)
+                {
+                    best = k;
+                    bestArea = area;
+                }
+            }
+        }
+
+        if (best >= 0)
+        {
+            Select(best, fromEditor: false);
+        }
+    }
+
+    private void CodeBox_SelectionChanged(object sender, RoutedEventArgs e)
+    {
+        if (!_readMode || _selecting || _label is null || !CodeBox.IsKeyboardFocused)
+        {
+            return;
+        }
+
+        var line = CodeBox.GetLineIndexFromCharacterIndex(CodeBox.CaretIndex) + 1;
+        var index = _label.Elements.ToList().FindIndex(el => el.Line == line);
+        if (index >= 0 && index != _selected)
+        {
+            Select(index, fromEditor: true);
+        }
+    }
+
+    // ------------------------------------------------------------------ Pivoter / zoomer l'aperçu
+
+    private double CurrentZoom() => _zplZoom ?? FitZoom();
+
+    private double FitZoom()
+    {
+        if (ZplImage.Source is not BitmapSource bmp || ZplScroll.ActualWidth < 10)
+        {
+            return 1;
+        }
+
+        double w = bmp.PixelWidth + 2, h = bmp.PixelHeight + 2;
+        if (_zplRotation is 90 or 270)
+        {
+            (w, h) = (h, w);
+        }
+
+        return Math.Max(0.05, Math.Min((ZplScroll.ActualWidth - 6) / w, (ZplScroll.ActualHeight - 6) / h));
+    }
+
+    private void ApplyZplTransform()
+    {
+        var z = CurrentZoom();
+        var t = new TransformGroup();
+        t.Children.Add(new RotateTransform(_zplRotation));
+        t.Children.Add(new ScaleTransform(z, z));
+        ZplFrame.LayoutTransform = t;
+        ZoomFitButton.Content = _zplZoom is null ? "Ajuster" : $"{Math.Round(z * 100)} %";
+        ShowSelection();
+    }
+
+    private void RotateLeft_Click(object sender, RoutedEventArgs e)
+    {
+        _zplRotation = (_zplRotation + 270) % 360;
+        ApplyZplTransform();
+    }
+
+    private void RotateRight_Click(object sender, RoutedEventArgs e)
+    {
+        _zplRotation = (_zplRotation + 90) % 360;
+        ApplyZplTransform();
+    }
+
+    private void ZoomIn_Click(object sender, RoutedEventArgs e) => ZoomBy(1.25);
+
+    private void ZoomOut_Click(object sender, RoutedEventArgs e) => ZoomBy(0.8);
+
+    private void ZoomFit_Click(object sender, RoutedEventArgs e)
+    {
+        _zplZoom = _zplZoom is null ? 1 : null; // « Ajuster » ⇄ taille réelle (1 point = 1 pixel)
+        ApplyZplTransform();
+    }
+
+    private void ZoomBy(double factor)
+    {
+        _zplZoom = Math.Clamp(CurrentZoom() * factor, 0.05, 8);
+        ApplyZplTransform();
+    }
+
+    private void ZplScroll_Wheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    {
+        if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+        {
+            ZoomBy(e.Delta > 0 ? 1.15 : 1 / 1.15);
+            e.Handled = true;
+        }
+    }
+
+    private void ZplScroll_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (_zplZoom is null)
+        {
+            ApplyZplTransform();
+        }
     }
 
     /// <summary>Reprend un code lu dans le générateur, avec ses réglages, pour produire un programme propre.</summary>

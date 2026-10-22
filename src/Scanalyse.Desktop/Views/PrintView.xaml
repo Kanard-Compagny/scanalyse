@@ -9,6 +9,13 @@
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="Margin" Value="6,0,0,0" />
     </Style>
+    <!-- Titre de section numéroté : les réglages se lisent comme des étapes -->
+    <Style x:Key="Step" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="13.5" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+      <Setter Property="Margin" Value="0,18,0,8" />
+    </Style>
     <Style x:Key="Num" TargetType="TextBox" BasedOn="{StaticResource FieldInput}">
       <Setter Property="Width" Value="72" />
       <Setter Property="HorizontalContentAlignment" Value="Right" />
@@ -47,11 +54,12 @@
       <Border x:Name="SettingsCard" Style="{StaticResource Card}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,-8,0" Padding="0,0,8,0">
           <StackPanel>
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Contenu du code (accepte &lt;GS&gt;, &lt;RS&gt;… et la forme « (01)… » pour GS1)" />
+            <TextBlock Style="{StaticResource Step}" Text="1 · Contenu du code" Margin="0,0,0,2" />
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Accepte &lt;GS&gt;, &lt;RS&gt;… et la forme « (01)… » pour GS1" />
             <TextBlock x:Name="SourceText" Style="{StaticResource FieldLabel}" Foreground="{DynamicResource BrandText}" FontWeight="SemiBold" Visibility="Collapsed" />
             <TextBox x:Name="DataBox" Style="{StaticResource Input}" AcceptsReturn="False" MinHeight="64" TextWrapping="Wrap" TextChanged="Any_Changed" />
 
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Symbologie" Margin="0,16,0,6" />
+            <TextBlock Style="{StaticResource Step}" Text="2 · Type de code" />
             <WrapPanel x:Name="SymChips">
               <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Code128" Content="Code 128" IsChecked="True" Checked="Any_Changed" />
               <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Gs1_128" Content="GS1-128" Checked="Any_Changed" />
@@ -67,14 +75,14 @@
               <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Aztec" Content="Aztec" Checked="Any_Changed" />
             </WrapPanel>
 
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution de la tête" Margin="0,14,0,6" />
+            <TextBlock Style="{StaticResource Step}" Text="3 · Imprimante : résolution de la tête" />
             <WrapPanel x:Name="DpiChips">
               <RadioButton Style="{StaticResource Chip}" GroupName="Dpi" Tag="203" Content="203 dpi (8 points/mm)" IsChecked="True" Checked="Any_Changed" />
               <RadioButton Style="{StaticResource Chip}" GroupName="Dpi" Tag="300" Content="300 dpi (12 points/mm)" Checked="Any_Changed" />
               <RadioButton Style="{StaticResource Chip}" GroupName="Dpi" Tag="600" Content="600 dpi (24 points/mm)" Checked="Any_Changed" />
             </WrapPanel>
 
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Étiquette et position du code" Margin="0,14,0,6" />
+            <TextBlock Style="{StaticResource Step}" Text="4 · Étiquette, position et taille du code" />
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -125,7 +133,7 @@
               </StackPanel>
             </Grid>
 
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Rotation" Margin="0,14,0,6" />
+            <TextBlock Style="{StaticResource Step}" Text="5 · Rotation et texte" />
             <WrapPanel x:Name="RotChips">
               <RadioButton Style="{StaticResource Chip}" GroupName="Rot" Tag="0" Content="0°" IsChecked="True" Checked="Any_Changed" />
               <RadioButton Style="{StaticResource Chip}" GroupName="Rot" Tag="90" Content="90°" Checked="Any_Changed" />
@@ -136,7 +144,7 @@
             <CheckBox x:Name="HriCheck" Style="{StaticResource CheckLine}" Content="Texte lisible sous le code (codes 1D)" IsChecked="True" Margin="0,8,0,0"
                       Checked="Any_Changed" Unchecked="Any_Changed" />
 
-            <TextBlock Style="{StaticResource FieldLabel}" Text="Texte libre sous le code (facultatif : référence, n° de dossier…)" Margin="0,14,0,5" />
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Texte libre sous le code (facultatif : référence, n° de dossier…)" Margin="0,12,0,5" />
             <TextBox x:Name="CaptionBox" Style="{StaticResource FieldInput}" TextChanged="Any_Changed" />
 
             <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
@@ -183,6 +191,14 @@
         <Border x:Name="PreviewCard" Style="{StaticResource Card}" Margin="0,0,0,14">
           <DockPanel>
             <DockPanel DockPanel.Dock="Top">
+              <StackPanel x:Name="ZplTools" DockPanel.Dock="Right" Orientation="Horizontal" Visibility="Collapsed" Margin="10,-4,0,0">
+                <Button Style="{StaticResource BtnGhost}" Content="↺" Click="RotateLeft_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à gauche" />
+                <Button Style="{StaticResource BtnGhost}" Content="↻" Click="RotateRight_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à droite" />
+                <Rectangle Width="1" Height="18" Fill="{DynamicResource Line}" Margin="6,0" />
+                <Button Style="{StaticResource BtnGhost}" Content="−" Click="ZoomOut_Click" Padding="9,2" FontSize="15" ToolTip="Dézoomer (Ctrl + molette)" />
+                <Button x:Name="ZoomFitButton" Style="{StaticResource BtnGhost}" Content="Ajuster" Click="ZoomFit_Click" Padding="8,2" ToolTip="Toute l'étiquette dans le cadre" />
+                <Button Style="{StaticResource BtnGhost}" Content="+" Click="ZoomIn_Click" Padding="9,2" FontSize="15" ToolTip="Zoomer (Ctrl + molette)" />
+              </StackPanel>
               <Button x:Name="ExpandPreviewButton" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="ExpandPreview_Click" Margin="10,-4,0,0" Padding="8,2"
                       ToolTip="Affiche l'aperçu sur toute la page (Échap pour revenir)" />
               <TextBlock x:Name="PreviewInfo" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
@@ -200,9 +216,16 @@
                     </Canvas>
                   </Border>
                 </Viewbox>
-                <Border x:Name="ZplFrame" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="#33000000" BorderThickness="1" Background="White">
-                  <Image x:Name="ZplImage" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
-                </Border>
+                <ScrollViewer x:Name="ZplScroll" Visibility="Collapsed" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Focusable="False"
+                              PreviewMouseWheel="ZplScroll_Wheel" SizeChanged="ZplScroll_SizeChanged">
+                  <Border x:Name="ZplFrame" HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="#33000000" BorderThickness="1" Background="White"
+                          Cursor="Hand" MouseLeftButtonUp="ZplFrame_Click" ToolTip="Clique sur un élément de l'étiquette pour voir sa ligne et son détail">
+                    <Grid>
+                      <Image x:Name="ZplImage" Stretch="None" RenderOptions.BitmapScalingMode="HighQuality" />
+                      <Canvas x:Name="ZplOverlay" IsHitTestVisible="False" />
+                    </Grid>
+                  </Border>
+                </ScrollViewer>
                 <TextBlock x:Name="ZplEmpty" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
                            Foreground="{DynamicResource Muted}" Text="Colle le programme ZPL du client dans la zone « Programme » : l'étiquette s'affiche ici." />
               </Grid>
@@ -257,15 +280,25 @@
                 <TextBlock x:Name="LineNumbers" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Muted}" TextAlignment="Right"
                            MinWidth="34" Padding="8,0,8,0" Margin="0,9,0,0" Text="1" />
               </Border>
+              <!-- Coloration : le texte coloré est dessiné sous la zone de saisie, dont les caractères sont transparents. -->
+              <Border Grid.Column="1" Background="{DynamicResource Surface2}" CornerRadius="0,8,8,0" />
+              <Canvas Grid.Column="1" Margin="11,9,11,9" ClipToBounds="True" IsHitTestVisible="False">
+                <TextBlock x:Name="CodeColors" Canvas.Left="2" Canvas.Top="0" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" />
+              </Canvas>
               <TextBox x:Name="CodeBox" Grid.Column="1" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
+                       Background="Transparent" Foreground="Transparent" SelectionOpacity="0.35"
                        VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Top"
-                       TextChanged="CodeBox_TextChanged" ToolTip="Modifiable : chaque ligne peut être retouchée, l'envoi part tel quel" />
+                       TextChanged="CodeBox_TextChanged" SelectionChanged="CodeBox_SelectionChanged"
+                       ToolTip="Modifiable : chaque ligne peut être retouchée, l'envoi part tel quel" />
               <TextBlock x:Name="CodeHint" Grid.Column="1" Margin="14,10,14,0" IsHitTestVisible="False" TextWrapping="Wrap" Visibility="Collapsed"
                          FontSize="13" Foreground="{DynamicResource Muted}"
                          Text="Colle ici le programme ZPL du client (Ctrl + V), ouvre son fichier, ou glisse-le sur la page." />
             </Grid>
-            <TextBlock x:Name="EditedNote" Grid.Row="3" FontSize="12" Foreground="{DynamicResource BrandText}" Margin="0,6,0,0" Visibility="Collapsed" TextWrapping="Wrap"
+            <StackPanel Grid.Row="3">
+            <WrapPanel x:Name="Legend" Margin="0,6,0,0" />
+            <TextBlock x:Name="EditedNote" FontSize="12" Foreground="{DynamicResource BrandText}" Margin="0,6,0,0" Visibility="Collapsed" TextWrapping="Wrap"
                        Text="Programme retouché à la main : il n'est plus régénéré tant que tu ne changes pas un réglage." />
+            </StackPanel>
 
             <StackPanel Grid.Row="4" Margin="0,12,0,0">
               <TextBlock Style="{StaticResource FieldLabel}" Text="Imprimante" Margin="0,0,0,6" />

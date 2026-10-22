@@ -81,4 +81,15 @@
   <SolidColorBrush x:Key="Check" Color="#24292C" />
   <Color x:Key="ScrollThumbColor">#3A4246</Color>
   <SolidColorBrush x:Key="ScrollThumb" Color="#3A4246" />
+
+  <!-- Coloration des programmes d'imprimante -->
+  <SolidColorBrush x:Key="SynStruct" Color="#5FD39B" />
+  <SolidColorBrush x:Key="SynPos" Color="#7DB3F0" />
+  <SolidColorBrush x:Key="SynText" Color="#C49BEB" />
+  <SolidColorBrush x:Key="SynCode" Color="#F59A4A" />
+  <SolidColorBrush x:Key="SynGfx" Color="#4FC7CF" />
+  <SolidColorBrush x:Key="SynSet" Color="#9AA6AD" />
+  <SolidColorBrush x:Key="SynParam" Color="#D9B86A" />
+  <SolidColorBrush x:Key="SynData" Color="#EEF2F3" />
+  <SolidColorBrush x:Key="SynComment" Color="#6F7C82" />
 </ResourceDictionary>

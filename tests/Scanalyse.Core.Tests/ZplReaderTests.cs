@@ -80,3 +80,29 @@ public class ZplReaderTests
         Assert.Equal("010345312000001110LOT42", bc.Content);
     }
 }
+
+public class ProgramSyntaxTests
+{
+    [Fact]
+    public void Zpl_tokens_cover_the_whole_text_and_are_classified()
+    {
+        const string zpl = "^XA\r\n^FO10,20^A0N,30,30^FDHello ~ world^FS\r\n^BY2^BCN,80^FD123^FS^FXnote\r\n^XZ";
+        var t = ProgramSyntax.Tokenize(zpl);
+        Assert.Equal(zpl.Length, t.Sum(x => x.Length));
+        string Of(SyntaxKind k) => string.Join("|", t.Where(x => x.Kind == k).Select(x => zpl.Substring(x.Start, x.Length)));
+        Assert.Equal("^FO", Of(SyntaxKind.Position));
+        Assert.Equal("^A0", Of(SyntaxKind.Text));
+        Assert.Contains("Hello ~ world", Of(SyntaxKind.Data));
+        Assert.Equal("^BY|^BC", Of(SyntaxKind.Barcode));
+        Assert.Contains("note", Of(SyntaxKind.Comment));
+    }
+
+    [Fact]
+    public void Tspl_lines_are_tokenized()
+    {
+        const string tspl = "SIZE 100 mm,50 mm\r\nBARCODE 40,40,\"128\",120,1,0,3,3,\"A\\[\"]B\"\r\nPRINT 1,1\r\n";
+        var t = ProgramSyntax.Tokenize(tspl);
+        Assert.Equal(tspl.Length, t.Sum(x => x.Length));
+        Assert.Equal(3, t.Count(x => x.Kind == SyntaxKind.Structure));
+    }
+}

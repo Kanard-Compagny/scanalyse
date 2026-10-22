@@ -344,7 +344,7 @@ public static class ZplReader
                 var w = Math.Max(t, B(0, t));
                 var h = Math.Max(t, B(1, t));
                 var col = (b.ElementAtOrDefault(3)?.Trim() ?? "B").StartsWith('W');
-                elements.Add(new ZplBox(f.X, f.Y, f.Typeset, line, w, h, t, col, Math.Clamp(B(4, 0), 0, 8), f.Reverse));
+                elements.Add(new ZplBox(f.X, f.Y, f.Typeset, at, w, h, t, col, Math.Clamp(B(4, 0), 0, 8), f.Reverse));
                 return;
             }
 

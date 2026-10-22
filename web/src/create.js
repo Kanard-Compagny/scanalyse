@@ -338,8 +338,10 @@ window.atelierRenderLabel=async function(reqId,lbl){
     const W=lbl.width||3000,H=lbl.height||4000;
     const cv=document.createElement("canvas");cv.width=W;cv.height=H;
     const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,H);x.imageSmoothingEnabled=false;
-    let maxX=0,maxY=0;
-    const track=(px,py,w,h)=>{const m=x.getTransform();[[px,py],[px+w,py],[px,py+h],[px+w,py+h]].forEach(([a,b])=>{const p=m.transformPoint(new DOMPoint(a,b));maxX=Math.max(maxX,p.x);maxY=Math.max(maxY,p.y);});};
+    let maxX=0,maxY=0,eb=null;const boxes=[];
+    // Emprise de chaque champ (pour le surligner dans l'aperçu et retrouver sa ligne au clic)
+    const track=(px,py,w,h)=>{const m=x.getTransform();[[px,py],[px+w,py],[px,py+h],[px+w,py+h]].forEach(([a,b])=>{const p=m.transformPoint(new DOMPoint(a,b));maxX=Math.max(maxX,p.x);maxY=Math.max(maxY,p.y);
+      if(eb){eb[0]=Math.min(eb[0],p.x);eb[1]=Math.min(eb[1],p.y);eb[2]=Math.max(eb[2],p.x);eb[3]=Math.max(eb[3],p.y);}});};
     const ANG={N:0,R:90,I:180,B:270};
     /* Place le repère sur le champ : ^FT = ligne de base (texte) ou bas gauche (code) ; ^FO = coin haut gauche du champ tourné. */
     const frame=(e,w,h)=>{
@@ -353,6 +355,7 @@ window.atelierRenderLabel=async function(reqId,lbl){
     x.font='bold 100px "Arial Narrow"';const nW=x.measureText("0123456789").width;x.font="bold 100px Arial";const aW=x.measureText("0123456789").width;
     const narrow=Math.abs(nW-aW)>1;
     for(const e of lbl.elements){
+      eb=[Infinity,Infinity,-Infinity,-Infinity];
       x.save();
       try{
         if(e.k==="b"){
@@ -386,11 +389,12 @@ window.atelierRenderLabel=async function(reqId,lbl){
         }
       }catch(err){/* champ non dessinable : ignoré */}
       x.restore();
+      boxes.push(isFinite(eb[0])?eb.map(Math.round):null);
     }
     const outW=lbl.width||Math.min(W,Math.ceil(maxX)+16),outH=lbl.height||Math.min(H,Math.ceil(maxY)+16);
     const out=document.createElement("canvas");out.width=Math.max(outW,40);out.height=Math.max(outH,40);
     const o=out.getContext("2d");o.fillStyle="#fff";o.fillRect(0,0,out.width,out.height);o.drawImage(cv,0,0);
-    reply({image:out.toDataURL("image/png")});
+    reply({image:out.toDataURL("image/png"),boxes});
   }catch(e){reply({error:"Aperçu de l'étiquette impossible."});}
 };
 

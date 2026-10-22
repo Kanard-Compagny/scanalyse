@@ -9,6 +9,9 @@
 - Programme modifiable, copie, enregistrement (.zpl, .prn), envoi direct à l'imprimante en réseau (port 9100) ou par une imprimante installée sur le PC (mode RAW).
 - **Lire un programme ZPL** : colle (ou ouvre, ou glisse) le fichier d'un client pour voir l'étiquette dessinée, chaque code-barres avec ce qu'une douchette lira, les données GS1 et leurs clés de contrôle, les réglages (module, hauteur, rotation, position) et les points à corriger (^XZ manquant, accents sans ^CI28 et ce qu'ils impriment vraiment, taille non fixée, Data Matrix ECC ancien…).
 - Depuis la lecture : « Réimprimer ce code » reprend un code dans le générateur, « Analyse complète de l'étiquette » l'envoie dans Analyser une image (fiches, cohérence GS1, historique, rapport).
+- Programme coloré par catégorie (début/fin, position, texte, code-barres, graphique, paramètres, données) avec légende.
+- Lecture : aperçu pivotable (↺ ↻, sens de lecture choisi automatiquement), zoom (Ctrl + molette, « Ajuster » / taille réelle) ; clic sur un élément de l'étiquette → sa ligne dans le programme et sa fiche ; liste des textes, cadres et traits cliquable ; le curseur dans le programme surligne l'élément dans l'aperçu.
+- Réglages du générateur présentés en étapes numérotées.
 - Éditeur de programme avec numéros de ligne, « Coller un programme client », « Voir la ligne » depuis chaque code lu.
 - Les pages Code imprimante et Banc d'essai défilent quand la fenêtre est trop basse : plus rien n'est coupé.
 - Programme et aperçu agrandissables ; choix de l'imprimante Windows dans une liste avec recherche.
