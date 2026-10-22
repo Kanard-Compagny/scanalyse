@@ -92,6 +92,13 @@
               <TextBlock x:Name="ThemeLabel" Text="Thème : Système" Margin="8,0,0,0" />
             </StackPanel>
           </Button>
+          <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="CaseButton_Click" VerticalAlignment="Center" Margin="0,0,8,0"
+                  ToolTip="Dossier SAV dans lequel les analyses sont enregistrées">
+            <StackPanel Orientation="Horizontal">
+              <Viewbox Width="16" Height="16"><Path Data="{StaticResource IconFolder}" Width="24" Height="24" Stroke="{DynamicResource BrandText}" StrokeThickness="1.8" StrokeLineJoin="Round" /></Viewbox>
+              <TextBlock x:Name="CaseLabel" Text="Dossier : Non classé" Margin="8,0,0,0" MaxWidth="260" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+          </Button>
         </DockPanel>
       </Border>
 
@@ -122,6 +129,7 @@
               <RadioButton x:Name="NavCreate" Style="{StaticResource NavItem}" Tag="{StaticResource IconCreate}" Content="Créer un code" ToolTip="Créer un code" Checked="Nav_Checked" />
               <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="{StaticResource IconBench}" Content="Banc d'essai douchette" ToolTip="Banc d'essai douchette" Checked="Nav_Checked" />
               <RadioButton x:Name="NavDevices" Style="{StaticResource NavItem}" Tag="{StaticResource IconScanner}" Content="Douchettes" ToolTip="Douchettes" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavHistory" Style="{StaticResource NavItem}" Tag="{StaticResource IconHistory}" Content="Historique" ToolTip="Historique et rapports" Checked="Nav_Checked" />
               <RadioButton x:Name="NavSymbols" Style="{StaticResource NavItem}" Tag="{StaticResource IconSymbols}" Content="Symbologies" ToolTip="Symbologies" Checked="Nav_Checked" />
             </StackPanel>
           </DockPanel>
@@ -157,6 +165,7 @@
 
           <views:BenchView x:Name="Bench" Visibility="Collapsed" />
           <views:DevicesView x:Name="Devices" Visibility="Collapsed" />
+          <views:HistoryView x:Name="HistoryPage" Visibility="Collapsed" />
           <views:SymbologiesView x:Name="Symbols" Visibility="Collapsed" />
           <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" />
 

@@ -848,7 +848,9 @@ window.atelierSetMode=setMode;
 window.atelierEngine=()=>engine();
 window.atelierParseGs1=t=>parseGS1Elements(t);
 // Appelé par le programme Windows : image venant du presse-papiers ou de l'outil Capture d'écran de Windows
-window.atelierLoadImageData=function(dataUrl,label){
+// opts.record === false : image rouverte depuis l'historique ou code créé, à ne pas réenregistrer.
+window.atelierLoadImageData=function(dataUrl,label,opts){
+  nextNoRecord=!!(opts&&opts.record===false);
   fetch(dataUrl).then(r=>r.blob()).then(b=>{setMode("scan",false);loadBlob(b,label||"Image");}).catch(()=>showMessage("Image illisible","L'image reçue n'a pas pu être ouverte."));
 };
 
@@ -907,11 +909,13 @@ async function jsqrRead(img){
 }
 
 /* ================= Source et canevas ================= */
+let srcSeq=0, srcRecord=true, nextNoRecord=false;
 let srcBlob=null, srcOrigW=1, src=null, srcLabel="", lum=null, region=null, results=[], focusIdx=-1, drag=null, selecting=false;
 const cv=$("scanCanvas"), stage=$("scanStage");
 const MAXSRC=4096;
 function setSource(drawable,w,h,label,keepBlob){
   if(CAM.stream)camStop(true);
+  srcSeq++;srcRecord=!nextNoRecord;nextNoRecord=false;
   if(!keepBlob)srcBlob=null;
   const k=Math.min(1,MAXSRC/Math.max(w,h));
   const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w*k));c.height=Math.max(1,Math.round(h*k));
@@ -1015,11 +1019,11 @@ $("scanScreen").addEventListener("click",async()=>{
 });
 function loadSample(silent){
   const c=document.querySelector("#qr canvas");
-  if(c&&c.width){setSource(c,c.width,c.height,"Code créé : QR personnalisé");}
+  if(c&&c.width){nextNoRecord=true;setSource(c,c.width,c.height,"Code créé : QR personnalisé");}
   else if(!silent) showMessage("Aucun QR dans l'atelier","Crée d'abord un QR code dans l'onglet Créer.");
 }
 $("scanSample").addEventListener("click",()=>loadSample(false));
-$("qrAnalyse").addEventListener("click",()=>{setMode("scan",false);loadSample(false);});
+$("qrAnalyse").addEventListener("click",()=>{setMode("scan",false);nextNoRecord=true;loadSample(false);});
 if(DESKTOP)$("scanEmpty").innerHTML="<b>Dépose une image ici</b>ou utilise Importer, Coller ou Capturer dans la barre du haut.";
 
 /* ================= Visionneuse plein écran (zoom + sélection) ================= */
@@ -1538,7 +1542,7 @@ function render(ms,reg){
       <ul><li>Trace un rectangle serré autour du code, avec un peu de marge blanche.</li><li>Évite le flou, les reflets et les angles trop prononcés.</li><li>Un code trop petit à l'écran : zoome avant la capture.</li><li>Un QR très stylisé ou un logo trop grand peut empêcher toute lecture.</li></ul>
       <div class="acts"><button class="btn small primary" type="button" data-zoomsel>Agrandir et sélectionner</button>${region?"":`<button class="btn small" type="button" data-deep>Recherche approfondie</button>`}</div></div>`;
     box.querySelector("[data-zoomsel]").addEventListener("click",()=>vOpen());
-    if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,items:[]}));}catch(e){}}
+    if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(),items:[]}));}catch(e){}}
     const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
     return;
   }
@@ -1588,8 +1592,8 @@ function render(ms,reg){
     </article>`;
   });
   box.innerHTML=html;
-  if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,
-    items:results.map(r=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||"")})),
+  if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"decoded",source:srcLabel,seq:srcSeq,record:srcRecord,image:thumbImage(),
+    items:results.map((r,i)=>({format:FMT[r.format]||r.format,text:ControlCharactersVisual(r.text||""),symbologyIdentifier:r.symId||"",kind:(kinds[i]&&kinds[i].kind)||""})),
     label:(()=>{try{const c=labelCheck(results);if(!c)return null;const n=k=>c.notes.filter(x=>x[0]===k).length;
       return {verdict:c.worst,bad:n("bad"),warn:n("warn"),notes:c.notes.filter(x=>x[0]==="bad"||x[0]==="warn").map(x=>x[1])};}catch(e){return null;}})()}));}catch(e){}}
   const dp=box.querySelector("[data-deep]");if(dp)dp.addEventListener("click",()=>analyze({deep:true}));
@@ -1605,6 +1609,12 @@ function render(ms,reg){
   box.querySelectorAll("[data-recreate]").forEach(b=>b.addEventListener("click",()=>{const r=results[+b.dataset.recreate];if(window.atelierLoad){setMode("create",true);window.atelierLoad(r.text||"",{format:r.format,gs1:GS1SYM.test(r.symId||"")});window.scrollTo({top:0});}}));
 }
 function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
+/* Image analysée, réduite, pour l'historique du programme */
+function thumbImage(){
+  try{if(!src)return "";const k=Math.min(1,1600/Math.max(src.width,src.height));const c=document.createElement("canvas");
+    c.width=Math.round(src.width*k);c.height=Math.round(src.height*k);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
+    x.drawImage(src,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.86);}catch(e){return "";}
+}
 /* Vignette du code (zone de l'image autour du code), pour le banc d'essai */
 function cropImage(r){
   try{const b=bbox(r.pts);const m=Math.max(12,Math.round((b.x1-b.x0+b.y1-b.y0)*.08));
@@ -2120,7 +2130,7 @@ $("stdCopy").addEventListener("click",()=>{if(!last)return;
 $("stdAnalyse").addEventListener("click",async()=>{
   if(!last){toast("Rien à analyser : corrige d'abord le contenu.");return;}
   try{const c=await svgToCanvas(last.svg,2,24,"#ffffff");
-    window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"));}
+    window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"),{record:false});}
   catch(e){toast("Analyse impossible.");}
 });
 

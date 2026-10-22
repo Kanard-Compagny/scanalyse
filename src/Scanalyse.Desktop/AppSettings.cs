@@ -11,6 +11,9 @@ public sealed class AppSettings
     /// <summary>Thème choisi.</summary>
     public AppTheme Theme { get; set; } = AppTheme.System;
 
+    /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
+    public string ActiveCaseId { get; set; } = "inbox";
+
     /// <summary>Dernière douchette connectée (reconnectée au démarrage si elle est présente).</summary>
     public ScannerPreferences Scanner { get; set; } = new();
 

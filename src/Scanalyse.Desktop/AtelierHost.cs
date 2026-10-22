@@ -20,7 +20,16 @@ public sealed record CompareRequest(string Text, string Format, string Symbology
 public sealed record LabelCheck(string Verdict, IReadOnlyList<string> Problems);
 
 /// <summary>Code trouvé par l'Atelier dans une image.</summary>
-public sealed record DecodedCode(string Format, string Text);
+public sealed record DecodedCode(string Format, string Text, string SymbologyIdentifier = "", string Kind = "");
+
+/// <summary>Résultat complet de l'analyse d'une image par l'Atelier.</summary>
+/// <param name="Source">Origine (« Capture d'écran », nom de fichier, « Caméra : … »).</param>
+/// <param name="Sequence">Numéro de l'image : une même image réanalysée (zone, recherche approfondie) garde le même.</param>
+/// <param name="Record">À enregistrer dans l'historique (faux pour une image rouverte ou un code créé).</param>
+/// <param name="Image">Image réduite (JPEG), pour l'historique.</param>
+/// <param name="Codes">Codes lus.</param>
+/// <param name="Label">Bilan de cohérence d'étiquette, s'il y a lieu.</param>
+public sealed record ImageAnalysis(string Source, int Sequence, bool Record, byte[]? Image, IReadOnlyList<DecodedCode> Codes, LabelCheck? Label);
 
 /// <summary>
 /// Héberge l'Atelier (page web embarquée dans l'exécutable) dans le composant WebView2,
@@ -44,10 +53,10 @@ internal sealed class AtelierHost
     public event Action<CompareRequest>? CompareRequested;
 
     /// <summary>L'Atelier a analysé une image (liste vide : aucun code trouvé).</summary>
-    public event Action<string, IReadOnlyList<DecodedCode>>? Decoded;
+    public event Action<ImageAnalysis>? Analyzed;
 
-    /// <summary>L'image contenait une étiquette à plusieurs codes : bilan de cohérence.</summary>
-    public event Action<LabelCheck>? LabelChecked;
+    /// <summary>Environnement du moteur web (pour générer les rapports PDF), disponible après l'initialisation.</summary>
+    public CoreWebView2Environment? Environment { get; private set; }
 
     /// <summary>L'Atelier est passé de lui-même en mode « scan » ou « create » (par exemple « Recréer ce code »).</summary>
     public event Action<string>? ModeChanged;
@@ -57,6 +66,7 @@ internal sealed class AtelierHost
     {
         var webFolder = ExtractPage();
         var env = await CoreWebView2Environment.CreateAsync(userDataFolder: Path.Combine(AppSettings.DataFolder, "WebView2"));
+        Environment = env;
         await _view.EnsureCoreWebView2Async(env);
 
         var core = _view.CoreWebView2;
@@ -170,8 +180,8 @@ internal sealed class AtelierHost
     public Task StopCameraAsync() => ExecuteAsync("window.atelierStopCamera&&window.atelierStopCamera()");
 
     /// <summary>Envoie une image à analyser (PNG par défaut, ou tout format lu par le navigateur).</summary>
-    public Task LoadImageAsync(byte[] image, string label, string mime = "image/png") =>
-        ExecuteAsync($"window.atelierLoadImageData('data:{mime};base64,{Convert.ToBase64String(image)}',{JsonSerializer.Serialize(label)})");
+    public Task LoadImageAsync(byte[] image, string label, string mime = "image/png", bool record = true) =>
+        ExecuteAsync($"window.atelierLoadImageData('data:{mime};base64,{Convert.ToBase64String(image)}',{JsonSerializer.Serialize(label)},{{record:{(record ? "true" : "false")}}})");
 
     private async Task ExecuteAsync(string script)
     {
@@ -228,11 +238,11 @@ internal sealed class AtelierHost
                     {
                         foreach (var it in arr.EnumerateArray())
                         {
-                            items.Add(new DecodedCode(Get(it, "format"), Get(it, "text")));
+                            items.Add(new DecodedCode(Get(it, "format"), Get(it, "text"), Get(it, "symbologyIdentifier"), Get(it, "kind")));
                         }
                     }
 
-                    Decoded?.Invoke(Get(root, "source"), items);
+                    LabelCheck? check = null;
                     if (root.TryGetProperty("label", out var label) && label.ValueKind == JsonValueKind.Object)
                     {
                         var problems = new List<string>();
@@ -241,8 +251,12 @@ internal sealed class AtelierHost
                             problems.AddRange(notes.EnumerateArray().Where(n => n.ValueKind == JsonValueKind.String).Select(n => n.GetString() ?? string.Empty));
                         }
 
-                        LabelChecked?.Invoke(new LabelCheck(Get(label, "verdict"), problems));
+                        check = new LabelCheck(Get(label, "verdict"), problems);
                     }
+
+                    var seq = root.TryGetProperty("seq", out var s) && s.TryGetInt32(out var n) ? n : 0;
+                    var record = !root.TryGetProperty("record", out var rec) || rec.ValueKind != JsonValueKind.False;
+                    Analyzed?.Invoke(new ImageAnalysis(Get(root, "source"), seq, record, FromDataUrl(Get(root, "image")), items, check));
                     break;
             }
         }

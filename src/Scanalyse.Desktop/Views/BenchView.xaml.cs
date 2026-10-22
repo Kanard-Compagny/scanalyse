@@ -20,6 +20,7 @@ public partial class BenchView : UserControl
     private string? _expectedAim;
     private bool _settingExpected;
     private bool _settingReceived;
+    private ScanEvent? _lastScan;
 
     public BenchView()
     {
@@ -29,8 +30,8 @@ public partial class BenchView : UserControl
     /// <summary>Dessine un code (texte, type de l'Atelier) : fourni par la fenêtre principale.</summary>
     public Func<string, string, Task<(byte[]? Png, string? Error)>>? Renderer { get; set; }
 
-    /// <summary>Déclenché après chaque comparaison (résultat, données reçues en notation lisible).</summary>
-    public event Action<ComparisonResult, string>? Compared;
+    /// <summary>Déclenché après chaque comparaison, avec tout ce qu'il faut pour l'historique.</summary>
+    public event Action<BenchSnapshot>? Compared;
 
     /// <summary>Place un code lu dans l'Atelier comme référence, puis attend la lecture douchette.</summary>
     public void SetExpected(CompareRequest request)
@@ -75,6 +76,7 @@ public partial class BenchView : UserControl
         _settingReceived = true;
         ReceivedBox.Text = scan.Text;
         _settingReceived = false;
+        _lastScan = scan;
         ReceivedOrigin.Text = $"Reçu en direct · {scan.Source}"
             + (scan.Symbology is null ? string.Empty : $" · symbologie annoncée : {scan.Symbology}");
         ReceivedOrigin.Visibility = Visibility.Visible;
@@ -134,6 +136,7 @@ public partial class BenchView : UserControl
         if (!_settingReceived && ReceivedOrigin is not null)
         {
             ReceivedOrigin.Visibility = Visibility.Collapsed;
+            _lastScan = null;
         }
     }
 
@@ -327,7 +330,7 @@ public partial class BenchView : UserControl
         _ => id,
     };
 
-    private void Compare_Click(object sender, RoutedEventArgs e)
+    private async void Compare_Click(object sender, RoutedEventArgs e)
     {
         var result = ScanComparer.Compare(ExpectedBox.Text, ReceivedBox.Text);
         ResultTitle.Text = result.WorstSeverity switch
@@ -342,11 +345,37 @@ public partial class BenchView : UserControl
             : "Les données reçues ne correspondent pas au contenu du code.";
         FindingsList.ItemsSource = result.Findings.Select(FindingView.From).ToList();
         FieldsList.ItemsSource = null;
-        Compared?.Invoke(result, ControlCharacters.Visualize(ReceivedBox.Text));
+        var expected = ExpectedBox.Text;
+        var received = ReceivedBox.Text;
+        var scan = _lastScan;
         if (PreviewImage.Source is null)
         {
-            _ = GeneratePreviewAsync();
+            await GeneratePreviewAsync();
         }
+
+        Compared?.Invoke(new BenchSnapshot(
+            ControlCharacters.Visualize(ControlCharacters.FromVisualized(expected)),
+            ControlCharacters.Visualize(received),
+            scan?.Source ?? "Douchette en mode clavier",
+            scan?.Symbology,
+            ResultTitle.Text,
+            PreviewPng(),
+            result));
+    }
+
+    /// <summary>Vignette du code testé en PNG (pour l'historique).</summary>
+    private byte[]? PreviewPng()
+    {
+        if (PreviewImage.Source is not BitmapSource bmp)
+        {
+            return null;
+        }
+
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bmp));
+        using var ms = new MemoryStream();
+        encoder.Save(ms);
+        return ms.ToArray();
     }
 
     private void Analyze_Click(object sender, RoutedEventArgs e)
@@ -380,6 +409,16 @@ public sealed record FindingView(Severity Severity, string Title, string Explana
     public static FindingView From(Finding f) =>
         new(f.Severity, f.Title, f.Explanation, string.IsNullOrWhiteSpace(f.Fix) ? string.Empty : "À faire : " + f.Fix);
 }
+
+/// <summary>Comparaison terminée, telle qu'elle est enregistrée dans l'historique.</summary>
+/// <param name="Expected">Contenu du code (notation lisible).</param>
+/// <param name="Received">Données reçues (notation lisible).</param>
+/// <param name="Via">Liaison de la douchette (« COM5 · 9600 8N1 », mode clavier…).</param>
+/// <param name="Symbology">Symbologie annoncée (HID POS).</param>
+/// <param name="Verdict">Titre du résultat.</param>
+/// <param name="Image">Vignette du code testé (PNG).</param>
+/// <param name="Result">Résultat détaillé.</param>
+public sealed record BenchSnapshot(string Expected, string Received, string Via, string? Symbology, string Verdict, byte[]? Image, ComparisonResult Result);
 
 /// <summary>Information extraite prête à afficher.</summary>
 public sealed record FieldView(string Label, string Value, string Hint);

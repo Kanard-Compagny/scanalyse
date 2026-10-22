@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using Microsoft.Web.WebView2.Core;
 using Scanalyse.Core.Content;
 using Scanalyse.Core.Diagnostics;
+using Scanalyse.Core.History;
 using Scanalyse.Core.Text;
 using Scanalyse.Desktop.Scanners;
 using Scanalyse.Desktop.Views;
@@ -29,6 +30,10 @@ public partial class MainWindow : Window
     private const double SidebarNarrow = 66;
 
     private readonly AtelierHost _atelier;
+    private readonly HistoryStore _history = new(Path.Combine(AppSettings.DataFolder, "Historique"));
+    private int _lastImageSequence = -1;
+    private HistoryEntry? _lastImageEntry;
+    private HistoryEntry? _lastComparison;
     private readonly ObservableCollection<LogEntry> _log = [];
     private readonly DispatcherTimer _captureTimer = new() { Interval = TimeSpan.FromMilliseconds(300) };
     private uint _clipboardSequence;
@@ -46,8 +51,11 @@ public partial class MainWindow : Window
         _atelier = new AtelierHost(Web);
         _atelier.Ready += OnAtelierReady;
         _atelier.CompareRequested += OnCompareRequested;
-        _atelier.Decoded += OnDecoded;
-        _atelier.LabelChecked += OnLabelChecked;
+        _atelier.Analyzed += OnAnalyzed;
+        HistoryPage.ActiveCaseChanged += OnActiveCaseChanged;
+        HistoryPage.ReopenRequested += OnReopenRequested;
+        HistoryPage.ReportRequested = GenerateReportAsync;
+        HistoryPage.Log += (kind, text) => AddLog(kind, "HISTORIQUE", text);
         Bench.Compared += OnBenchCompared;
         Bench.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         _atelier.ModeChanged += OnAtelierModeChanged;
@@ -71,6 +79,7 @@ public partial class MainWindow : Window
         {
             // L'Atelier d'abord ; la recherche des douchettes tourne à côté sans jamais le bloquer.
             _ = InitializeDevicesAsync();
+            await LoadHistoryAsync();
             await StartAtelierAsync();
         };
         Closed += async (_, _) =>
@@ -144,18 +153,30 @@ public partial class MainWindow : Window
         AddLog(LogKind.Info, "COMPARER", $"Référence reprise de l'image ({request.Format}) : scanne le même code avec la douchette.");
     }
 
-    private void OnDecoded(string source, IReadOnlyList<DecodedCode> codes)
+    private void OnAnalyzed(ImageAnalysis a)
     {
+        var codes = a.Codes;
         if (codes.Count == 0)
         {
-            AddLog(LogKind.Warning, "IMAGE", $"{source} : aucun code détecté.");
-            return;
+            AddLog(LogKind.Warning, "IMAGE", $"{a.Source} : aucun code détecté.");
+        }
+        else
+        {
+            AddLog(LogKind.Ok, "IMAGE", $"{a.Source} : {codes.Count} code{(codes.Count > 1 ? "s" : string.Empty)} détecté{(codes.Count > 1 ? "s" : string.Empty)}.");
+            foreach (var c in codes)
+            {
+                AddLog(LogKind.Info, c.Format.ToUpperInvariant(), c.Text);
+            }
         }
 
-        AddLog(LogKind.Ok, "IMAGE", $"{source} : {codes.Count} code{(codes.Count > 1 ? "s" : string.Empty)} détecté{(codes.Count > 1 ? "s" : string.Empty)}.");
-        foreach (var c in codes)
+        if (a.Label is { } label)
         {
-            AddLog(LogKind.Info, c.Format.ToUpperInvariant(), c.Text);
+            OnLabelChecked(label);
+        }
+
+        if (a.Record)
+        {
+            RecordImage(a);
         }
     }
 
@@ -175,9 +196,11 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OnBenchCompared(ComparisonResult result, string receivedVisual)
+    private void OnBenchCompared(BenchSnapshot snapshot)
     {
-        AddLog(LogKind.Info, "REÇU", receivedVisual.Length > 0 ? receivedVisual : "(rien)");
+        var result = snapshot.Result;
+        RecordComparison(snapshot);
+        AddLog(LogKind.Info, "REÇU", snapshot.Received.Length > 0 ? snapshot.Received : "(rien)");
         var main = result.Findings.FirstOrDefault();
         if (main is null)
         {
@@ -192,6 +215,210 @@ public partial class MainWindow : Window
             _ => LogKind.Error,
         };
         AddLog(kind, "DIAGNOSTIC", main.Title);
+    }
+
+    // ------------------------------------------------------------------ Historique et rapports
+
+    private async Task LoadHistoryAsync()
+    {
+        try
+        {
+            await Task.Run(_history.Load);
+            HistoryPage.Attach(_history, AppSettings.Load().ActiveCaseId);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AddLog(LogKind.Warning, "HISTORIQUE", "Historique illisible : " + ex.Message);
+        }
+    }
+
+    private void OnActiveCaseChanged(ServiceCase c)
+    {
+        CaseLabel.Text = "Dossier : " + c.DisplayName;
+        var settings = AppSettings.Load();
+        if (settings.ActiveCaseId != c.Id)
+        {
+            settings.ActiveCaseId = c.Id;
+            settings.Save();
+        }
+    }
+
+    private void CaseButton_Click(object sender, RoutedEventArgs e) => NavHistory.IsChecked = true;
+
+    /// <summary>
+    /// Enregistre une analyse d'image. Une même image réanalysée (zone, recherche approfondie) met à jour
+    /// son entrée au lieu d'en créer une nouvelle.
+    /// </summary>
+    private void RecordImage(ImageAnalysis a)
+    {
+        try
+        {
+            var worst = a.Codes.Count == 0 ? Severity.Warning
+                : a.Label?.Verdict == "bad" ? Severity.Error
+                : a.Label?.Verdict == "warn" ? Severity.Warning
+                : Severity.Ok;
+            var codes = a.Codes.Select(c => new HistoryCode(c.Format, c.Text, c.SymbologyIdentifier, c.Kind)).ToList();
+            if (a.Sequence == _lastImageSequence && _lastImageEntry is { } existing && _history.Entries.Contains(existing))
+            {
+                existing.Codes = codes;
+                existing.Worst = worst;
+                existing.LabelVerdict = a.Label?.Verdict ?? string.Empty;
+                existing.LabelNotes = [.. a.Label?.Problems ?? []];
+                _history.Update(existing);
+            }
+            else
+            {
+                _lastImageSequence = a.Sequence;
+                _lastImageEntry = _history.Add(new HistoryEntry
+                {
+                    Kind = HistoryKind.ImageAnalysis,
+                    CaseId = HistoryPage.ActiveCaseId,
+                    Source = a.Source,
+                    Codes = codes,
+                    Worst = worst,
+                    LabelVerdict = a.Label?.Verdict ?? string.Empty,
+                    LabelNotes = [.. a.Label?.Problems ?? []],
+                }, a.Image, ".jpg");
+            }
+
+            HistoryPage.Refresh();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AddLog(LogKind.Warning, "HISTORIQUE", "Analyse non enregistrée : " + ex.Message);
+        }
+    }
+
+    /// <summary>Enregistre une comparaison ; la même comparaison relancée dans les 2 minutes met à jour l'entrée.</summary>
+    private void RecordComparison(BenchSnapshot s)
+    {
+        try
+        {
+            var findings = s.Result.Findings.Select(f => new HistoryFinding(f.Severity, f.Title, f.Explanation, f.Fix)).ToList();
+            if (_lastComparison is { } last && _history.Entries.Contains(last) && last.Expected == s.Expected && last.Received == s.Received
+                && DateTimeOffset.Now - last.At < TimeSpan.FromMinutes(2))
+            {
+                last.Findings = findings;
+                last.Verdict = s.Verdict;
+                last.Worst = s.Result.WorstSeverity;
+                _history.Update(last);
+            }
+            else
+            {
+                _lastComparison = _history.Add(new HistoryEntry
+                {
+                    Kind = HistoryKind.Comparison,
+                    CaseId = HistoryPage.ActiveCaseId,
+                    Source = s.Via,
+                    Expected = s.Expected,
+                    Received = s.Received,
+                    AnnouncedSymbology = s.Symbology,
+                    Verdict = s.Verdict,
+                    Worst = s.Result.WorstSeverity,
+                    Findings = findings,
+                }, s.Image, ".png");
+            }
+
+            HistoryPage.Refresh();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            AddLog(LogKind.Warning, "HISTORIQUE", "Comparaison non enregistrée : " + ex.Message);
+        }
+    }
+
+    private async void OnReopenRequested(HistoryEntry entry)
+    {
+        var path = _history.ImagePath(entry);
+        if (entry.Kind == HistoryKind.ImageAnalysis)
+        {
+            if (path is null)
+            {
+                AddLog(LogKind.Warning, "HISTORIQUE", "L'image de cette analyse n'est plus disponible.");
+                return;
+            }
+
+            NavAnalyse.IsChecked = true;
+            var mime = path.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/jpeg";
+            await _atelier.LoadImageAsync(await File.ReadAllBytesAsync(path), $"Historique · {entry.Source}", mime, record: false);
+            return;
+        }
+
+        var png = path is null ? null : await File.ReadAllBytesAsync(path);
+        Bench.SetExpected(new CompareRequest(ControlCharacters.FromVisualized(entry.Expected), "historique", string.Empty, png));
+        NavBench.IsChecked = true;
+    }
+
+    /// <summary>Rapport du dossier : HTML autonome converti en PDF par le moteur Edge, puis ouvert.</summary>
+    private async Task GenerateReportAsync(ServiceCase serviceCase)
+    {
+        var entries = _history.EntriesOf(serviceCase.Id);
+        var name = string.Join(" - ", new[] { "Rapport Scanalyse", serviceCase.Client, serviceCase.Reference, DateTime.Now.ToString("yyyy-MM-dd") }
+            .Where(p => !string.IsNullOrWhiteSpace(p)));
+        foreach (var bad in Path.GetInvalidFileNameChars())
+        {
+            name = name.Replace(bad, '_');
+        }
+
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = "Enregistrer le rapport",
+            FileName = name + ".pdf",
+            DefaultExt = ".pdf",
+            Filter = "Rapport PDF|*.pdf|Page web (HTML)|*.html",
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        };
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        var v = Assembly.GetExecutingAssembly().GetName().Version;
+        var html = ReportBuilder.Build(serviceCase, entries, ImageDataUrl, DateTimeOffset.Now, v is null ? string.Empty : $"{v.Major}.{v.Minor}.{v.Build}");
+        try
+        {
+            if (dialog.FileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+            {
+                await File.WriteAllTextAsync(dialog.FileName, html);
+            }
+            else
+            {
+                if (_atelier.Environment is null)
+                {
+                    AddLog(LogKind.Error, "RAPPORT", "Le moteur Edge WebView2 n'est pas disponible : enregistre le rapport en HTML et imprime-le depuis le navigateur.");
+                    return;
+                }
+
+                AddLog(LogKind.Info, "RAPPORT", "Création du PDF…");
+                await ReportPrinter.SavePdfAsync(_atelier.Environment, new System.Windows.Interop.WindowInteropHelper(this).Handle, html, dialog.FileName);
+            }
+
+            AddLog(LogKind.Ok, "RAPPORT", $"Rapport enregistré : {dialog.FileName}");
+            Process.Start(new ProcessStartInfo(dialog.FileName) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or COMException or Win32Exception)
+        {
+            AddLog(LogKind.Error, "RAPPORT", "Rapport non créé : " + ex.Message);
+        }
+    }
+
+    private string? ImageDataUrl(HistoryEntry entry)
+    {
+        var path = _history.ImagePath(entry);
+        if (path is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var mime = path.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/jpeg";
+            return $"data:{mime};base64,{Convert.ToBase64String(File.ReadAllBytes(path))}";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
     }
 
     // ------------------------------------------------------------------ Douchettes
@@ -256,6 +483,7 @@ public partial class MainWindow : Window
         Symbols.Visibility = Visibility.Collapsed;
         Devices.Visibility = Visibility.Collapsed;
         SettingsPage.Visibility = Visibility.Collapsed;
+        HistoryPage.Visibility = Visibility.Collapsed;
 
         if (sender == NavAnalyse || sender == NavCreate)
         {
@@ -272,6 +500,11 @@ public partial class MainWindow : Window
         {
             Bench.Visibility = Visibility.Visible;
             Bench.FocusReception();
+        }
+        else if (sender == NavHistory)
+        {
+            HistoryPage.Visibility = Visibility.Visible;
+            HistoryPage.Refresh();
         }
         else if (sender == NavDevices)
         {

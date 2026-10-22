@@ -266,7 +266,7 @@ $("stdCopy").addEventListener("click",()=>{if(!last)return;
 $("stdAnalyse").addEventListener("click",async()=>{
   if(!last){toast("Rien à analyser : corrige d'abord le contenu.");return;}
   try{const c=await svgToCanvas(last.svg,2,24,"#ffffff");
-    window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"));}
+    window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"),{record:false});}
   catch(e){toast("Analyse impossible.");}
 });
 
