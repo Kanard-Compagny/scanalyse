@@ -51,14 +51,26 @@
 
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Style="{StaticResource CardTitle}" Text="À propos" />
-          <TextBlock x:Name="VersionText" Style="{StaticResource PageSubtitle}" Margin="0,4,0,12" />
-          <TextBlock TextWrapping="Wrap" Margin="0,0,0,8"
+          <StackPanel Orientation="Horizontal">
+            <Image Source="/Assets/logo-64.png" Width="40" Height="40" RenderOptions.BitmapScalingMode="HighQuality" />
+            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+              <TextBlock Style="{StaticResource CardTitle}" Text="À propos de Scanalyse" />
+              <TextBlock x:Name="VersionText" Style="{StaticResource PageSubtitle}" Margin="0,2,0,0" />
+            </StackPanel>
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" Margin="0,14,0,8"
                      Text="Toute l'analyse est faite sur ce PC : aucune image ni aucune donnée lue n'est envoyée sur Internet." />
           <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,0,0,14"
-                     Text="Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), Microsoft Edge WebView2." />
+                     Text="Composants tiers : zxing-cpp (Apache 2.0), zxing-wasm et qr-code-styling (MIT), System.IO.Ports (MIT), Microsoft Edge WebView2." />
+
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Diagnostic (à joindre à une demande d'aide)" />
+          <TextBox x:Name="DiagBox" IsReadOnly="True" BorderThickness="0" Background="{DynamicResource Surface2}" Padding="12,10"
+                   FontFamily="{StaticResource MonoFont}" FontSize="12" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" Margin="0,0,0,14" />
           <WrapPanel>
-            <Button Style="{StaticResource BtnSecondary}" Content="Ouvrir le dossier des données" Click="OpenData_Click" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Copier le diagnostic" Click="CopyDiag_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Quoi de neuf" Click="Changelog_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnSecondary}" Content="Composants tiers et licences" Click="Licenses_Click" Margin="0,0,8,8" />
+            <Button Style="{StaticResource BtnGhost}" Content="Ouvrir le dossier des données" Click="OpenData_Click" Margin="0,0,0,8" />
           </WrapPanel>
         </StackPanel>
       </Border>

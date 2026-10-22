@@ -1,0 +1,29 @@
+# Scanalyse — Quoi de neuf
+
+## 0.9.0 — octobre 2026
+
+Première version complète, prête à être diffusée à l'équipe.
+
+### Analyser une image
+- Lecture de tous les types de codes (QR, Data Matrix, PDF417, Aztec, MaxiCode, EAN/UPC, Code 128, GS1, DataBar…) depuis une image, un collage, une capture d'écran ou une caméra.
+- Fiche complète de chaque code : contenu interprété (GS1, liens, Wi-Fi, profils Zebra StageNow…), caractéristiques techniques, contraste, zone de silence, octets.
+- Vue structurée des messages ISO/IEC 15434 (codes transporteurs, identifiants de données) : sections et champs.
+- Cohérence d'une étiquette complète : mêmes données d'un code à l'autre, règles GS1, dates, poids.
+- Caméra en direct avec indicateur de netteté ; accentuation des images légèrement floues.
+
+### Créer un code
+- QR personnalisé et 20 symbologies, assistant GS1, vérification par relecture, taille d'impression, export PNG/SVG.
+- Caractères invisibles saisis en notation <GS>, <RS>, <EOT>…
+
+### Banc d'essai douchette
+- Comparaison entre le contenu réel du code et ce que la douchette transmet, avec explication de chaque écart (clavier, GS perdu, préfixes, suffixes, troncature…).
+- Référence prise depuis une image ou depuis une lecture, aperçu du code testé, agrandissement pour scanner l'écran.
+
+### Douchettes et terminaux
+- Douchettes en port série (COM) ou HID POS, caméras.
+- Relais terminal Android (USB via ADB, ou Wi-Fi) : la douchette intégrée envoie ses lectures au banc d'essai, sans application à installer.
+
+### Historique et rapports
+- Dossiers SAV par client et par ticket, analyses enregistrées automatiquement, noms et commentaires.
+- Rapport PDF (dossier ou client complet), photo annotée, contenu détaillé ou brut.
+- Historique à côté du programme ou dans un dossier partagé de l'équipe.

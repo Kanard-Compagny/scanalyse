@@ -49,7 +49,14 @@ Modifier les fichiers de `web/src/`, puis lancer `python web/build.py` (Python 3
 ## Publier l'exécutable portable
 
 Clic droit sur **Scanalyse.Desktop** → *Publier* → profil **Portable** → *Publier*.
-On obtient un unique `Scanalyse.exe` autonome dans `src/Scanalyse.Desktop/bin/Portable/` : il se lance sans installation, depuis une clé USB, sur n'importe quel PC Windows 10/11 64 bits.
+On obtient un unique `Scanalyse.exe` autonome dans `src/Scanalyse.Desktop/bin/Portable/` : il se lance sans installation, depuis une clé USB, sur n'importe quel PC Windows 10 (2004 ou plus récent) ou 11, 64 bits.
+
+## Diffuser Scanalyse à l'équipe
+
+- **Compilation automatique (GitHub Actions)** : à chaque envoi sur `main`, les tests tournent et `Scanalyse.exe` est disponible dans l'onglet *Actions* du dépôt (artefact de la compilation).
+- **Version officielle** : créer un tag `vX.Y.Z` (Visual Studio : *Git → Gérer les branches → Nouveau tag*, puis *Envoyer*). GitHub crée une *Release* avec l'exécutable et le contenu de `CHANGELOG.md`.
+- **Sur le PC d'un collègue** : copier `Scanalyse.exe` où il veut. Prérequis : le composant Microsoft Edge WebView2 (présent sur Windows 11 et Windows 10 à jour). L'historique se range dans `Historique` à côté de l'exe ; pour partager les dossiers SAV, chacun choisit le même dossier réseau dans *Paramètres → Historique et rapports*.
+- **Support** : *Paramètres → À propos → Copier le diagnostic* donne versions et emplacements à joindre à une demande d'aide.
 
 ## Façon de travailler (Git)
 

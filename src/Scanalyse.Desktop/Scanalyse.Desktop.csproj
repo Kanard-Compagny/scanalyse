@@ -10,6 +10,7 @@
     <AssemblyName>Scanalyse</AssemblyName>
     <Description>Scanalyse : analyse et diagnostic de lecture des codes-barres.</Description>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Scanalyse.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,8 +27,16 @@
   <ItemGroup>
     <!-- Atelier (création + analyse d'images), généré par web/build.py et embarqué dans l'exécutable. -->
     <EmbeddedResource Include="Web\index.html" LogicalName="Scanalyse.Web.index.html" />
+    <!-- Mentions des composants tiers, affichées depuis Paramètres → À propos. -->
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="Scanalyse.ThirdParty.md" />
+    <EmbeddedResource Include="..\..\CHANGELOG.md" LogicalName="Scanalyse.Changelog.md" />
     <!-- Page ouverte dans le navigateur du terminal Android par le relais. -->
     <EmbeddedResource Include="Relay\relais.html" LogicalName="Scanalyse.Relay.relais.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Scanalyse.ico" />
+    <Resource Include="Assets\logo-64.png" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,49 @@
+# Compilation automatique : tests à chaque envoi, exécutable portable téléchargeable.
+# Pour publier une version : créer un tag vX.Y.Z (ex. v0.9.0) ; la version est alors jointe à une « Release » GitHub.
+name: Compilation
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Tests du cœur d'analyse
+        run: dotnet test tests/Scanalyse.Core.Tests -c Release
+
+      - name: Version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") } else { $v = "0.9.0-dev.${{ github.run_number }}" }
+          "value=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Exécutable portable
+        run: dotnet publish src/Scanalyse.Desktop -p:PublishProfile=Portable -p:Version=${{ steps.version.outputs.value }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Scanalyse-${{ steps.version.outputs.value }}
+          path: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe
+
+      - name: Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Scanalyse ${{ steps.version.outputs.value }}
+          body_path: CHANGELOG.md
+          files: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe

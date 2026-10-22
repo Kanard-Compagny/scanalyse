@@ -5,6 +5,7 @@
         xmlns:views="clr-namespace:Scanalyse.Desktop.Views"
         xmlns:local="clr-namespace:Scanalyse.Desktop"
         Title="Scanalyse"
+        Icon="/Assets/Scanalyse.ico"
         Width="1380" Height="880" MinWidth="1000" MinHeight="640"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Bg}" Foreground="{DynamicResource Ink}"
@@ -26,13 +27,7 @@
       <!-- Barre de titre -->
       <Grid Background="{DynamicResource TitleBg}">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
-          <Viewbox Width="20" Height="20">
-            <Canvas Width="24" Height="24">
-              <Rectangle Canvas.Left="2" Canvas.Top="2" Width="20" Height="20" RadiusX="6" RadiusY="6" Fill="{DynamicResource Brand}" Stroke="{DynamicResource TitleInk}" StrokeThickness="0.6" />
-              <Path Data="M7 8v8M10 8v8M13 8v8M17 8v8" Stroke="White" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-              <Path Data="M5 12h14" Stroke="{DynamicResource Action}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-            </Canvas>
-          </Viewbox>
+          <Image Source="/Assets/logo-64.png" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" />
           <TextBlock Text="Scanalyse" Margin="10,0,0,0" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource TitleInk}" VerticalAlignment="Center" />
           <TextBlock x:Name="VersionText" Margin="10,0,0,0" FontSize="12" Foreground="{DynamicResource TitleMuted}" VerticalAlignment="Center" />
         </StackPanel>
