@@ -8,11 +8,15 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <StackPanel Margin="0,0,0,18">
+    <DockPanel Margin="0,0,0,18">
+      <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Codes de configuration" Click="ConfigCodes_Click" VerticalAlignment="Top" Margin="12,4,0,0"
+              ToolTip="Codes-barres à scanner pour régler la douchette : clavier AZERTY, suffixe Entrée, séparateur GS1, réglages par défaut" />
+      <StackPanel>
       <TextBlock Style="{StaticResource PageTitle}" Text="Appareils de lecture" />
       <TextBlock Style="{StaticResource PageSubtitle}"
                  Text="Connexion des appareils de lecture : douchettes USB, série et HID POS, terminaux Android, caméras. Les lectures reçues partent au banc d'essai." />
-    </StackPanel>
+      </StackPanel>
+    </DockPanel>
 
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>

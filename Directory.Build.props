@@ -9,7 +9,7 @@
     <Product>Scanalyse</Product>
     <Copyright>© 2026 Scanalyse. Tous droits réservés.</Copyright>
     <!-- Version : modifier ici (ou -p:Version=… à la publication ; la compilation GitHub reprend le tag vX.Y.Z). -->
-    <VersionPrefix>0.10.0</VersionPrefix>
+    <VersionPrefix>0.11.0</VersionPrefix>
     <NeutralLanguage>fr-FR</NeutralLanguage>
     <SatelliteResourceLanguages>fr</SatelliteResourceLanguages>
   </PropertyGroup>

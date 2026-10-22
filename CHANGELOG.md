@@ -1,7 +1,15 @@
 # Scanalyse — Quoi de neuf
 
-## 0.10.1 — octobre 2026
+## 0.11.0 — octobre 2026
 
+### Nouveautés
+- **Codes de configuration de douchettes** (bouton dans « Banc d'essai » et « Appareils de lecture ») : codes Honeywell à scanner (réglages par défaut, clavier AZERTY / QWERTY, Entrée après chaque lecture, suppression des préfixes et suffixes, séparateur GS1, activation GS1-128 et Code 128) et Datalogic (réglages par défaut, entrée et sortie du mode programmation). Codes tirés des manuels des fabricants, relus et vérifiés ; impression d'une feuille de codes. Zebra : lien vers le guide officiel (contenu des codes non publié).
+- **Maintenance de l'imprimante** (Code imprimante) : lire l'état (papier, ruban, tête ouverte, pause…), calibrer, imprimer la page de configuration, redémarrer, en ZPL, TSPL, EPL2 et DPL. L'état se lit par le réseau (adresse IP, ou file Windows reliée à un port TCP/IP).
+- **Mises à jour** : Scanalyse cherche une version plus récente dans le dossier de diffusion de l'équipe (et sur GitHub si le dépôt devient public) ; un bouton dans la barre de titre propose de l'installer et redémarre, sans script.
+- **Profil d'équipe** : exporter / importer les réglages communs (en-tête et logo des rapports, dossiers partagés, mises à jour, impression) ; import proposé dès l'accueil.
+- **Analyse en lot** : plusieurs images ou un PDF (une image par page) importés ou déposés d'un coup ; chaque image est enregistrée dans le dossier SAV puis le rapport du dossier est proposé.
+
+### Corrections et améliorations
 - **Premier lancement** : choix de la langue (français / English) avant l'accueil et la visite guidée ; le programme démarre directement dans la langue choisie. Langue proposée d'office : celle de Windows.
 - **Anglais** : traduction complète de l'interface (certains écrans restaient en français), des titres des fenêtres d'ouverture et d'enregistrement, et de « Créer un code » (styles du QR, alertes, export).
 - **Visite guidée** : l'encadré et la bulle se placent sur l'élément présenté (ils restaient au centre de l'écran).

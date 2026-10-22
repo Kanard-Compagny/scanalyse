@@ -19,6 +19,9 @@ public sealed record ScannerStatus(ScanSourceKind Kind, string Text, bool Error 
 /// <summary>Page Appareils de lecture : connexion des douchettes (série, HID POS), des terminaux Android (relais) et des caméras.</summary>
 public partial class DevicesView : UserControl
 {
+    private void ConfigCodes_Click(object sender, RoutedEventArgs e) =>
+        new ConfigCodesWindow { Owner = Window.GetWindow(this) }.Show();
+
     private readonly Relay.RelayServer _relay = new();
     private readonly Dictionary<string, Relay.AdbDevice> _openedUsb = [];
     private readonly System.Windows.Threading.DispatcherTimer _usbWatch = new() { Interval = TimeSpan.FromSeconds(3) };
@@ -752,4 +755,3 @@ public partial class DevicesView : UserControl
         settings.Save();
     }
 }
-

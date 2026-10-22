@@ -49,11 +49,15 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <StackPanel Margin="0,0,0,18">
+    <DockPanel Margin="0,0,0,18">
+      <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Codes de configuration" Click="ConfigCodes_Click" VerticalAlignment="Top" Margin="12,4,0,0"
+              ToolTip="Codes-barres à scanner pour régler la douchette : clavier AZERTY, suffixe Entrée, séparateur GS1, réglages par défaut" />
+      <StackPanel>
       <TextBlock Style="{StaticResource PageTitle}" Text="Banc d'essai douchette" />
       <TextBlock Style="{StaticResource PageSubtitle}"
                  Text="Compare le contenu réel d'un code avec ce que la douchette transmet, et explique chaque écart." />
-    </StackPanel>
+      </StackPanel>
+    </DockPanel>
 
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
