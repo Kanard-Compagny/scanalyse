@@ -148,3 +148,17 @@ public class HistoryTests
         Assert.Contains("0044470&lt;GS&gt;", raw);
     }
 }
+
+public class ReportIssuerTests
+{
+    [Fact]
+    public void Issuer_header_and_default_technician()
+    {
+        var html = Scanalyse.Core.History.ReportBuilder.Build(new Scanalyse.Core.History.ServiceCase { Client = "C" }, [], _ => null, DateTimeOffset.Now, "1",
+            issuer: new Scanalyse.Core.History.ReportIssuer("ACME Services", "Paul", "02 40 00 00 00", "data:image/png;base64,AAAA"));
+        Assert.Contains("ACME Services", html);
+        Assert.Contains("02 40 00 00 00", html);
+        Assert.Contains("class=\"logo\"", html);
+        Assert.Contains("<dd>Paul</dd>", html);
+    }
+}

@@ -20,7 +20,7 @@
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="38" />
-        <RowDefinition Height="60" />
+        <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
       </Grid.RowDefinitions>
 
@@ -45,7 +45,7 @@
       </Grid>
 
       <!-- Barre d'outils -->
-      <Border Grid.Row="1" Background="{DynamicResource ToolbarBg}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
+      <Border x:Name="ToolbarHost" Grid.Row="1" MinHeight="60" Background="{DynamicResource ToolbarBg}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
         <DockPanel Margin="16,0" LastChildFill="False">
           <StackPanel x:Name="ToolbarLeft" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock Text="Source" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,10,0" />
@@ -143,7 +143,7 @@
               <RowDefinition Height="Auto" />
               <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Margin="28,22,28,6">
+            <StackPanel x:Name="AtelierHeader" Margin="28,22,28,6">
               <TextBlock x:Name="AtelierTitle" Style="{StaticResource PageTitle}" Text="Analyser une image" />
               <TextBlock x:Name="AtelierSubtitle" Style="{StaticResource PageSubtitle}"
                          Text="Importe, colle ou capture une image : chaque code est lu, détaillé et peut être comparé à une lecture douchette." />
@@ -167,7 +167,7 @@
           <views:SettingsView x:Name="SettingsPage" Visibility="Collapsed" />
 
           <!-- Journal des lectures -->
-          <Border Grid.Row="1" Margin="28,4,28,18" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource Line}" Background="{DynamicResource ConsoleBg}">
+          <Border x:Name="LogHost" Grid.Row="1" Margin="28,4,28,18" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource Line}" Background="{DynamicResource ConsoleBg}">
             <DockPanel>
               <DockPanel DockPanel.Dock="Top" Height="42" Margin="14,0,8,0" LastChildFill="False">
                 <TextBlock DockPanel.Dock="Left" Text="Journal des lectures" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource Ink}" />

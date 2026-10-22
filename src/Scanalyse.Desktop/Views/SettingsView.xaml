@@ -35,7 +35,107 @@
 
       <Border Style="{StaticResource Card}" Margin="0,0,0,16">
         <StackPanel>
-          <TextBlock Style="{StaticResource CardTitle}" Text="Historique et rapports" />
+          <TextBlock Style="{StaticResource CardTitle}" Text="Démarrage et affichage" />
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Page ouverte au démarrage" Margin="0,12,0,6" />
+          <WrapPanel x:Name="StartChips">
+            <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="analyse" Content="Analyser une image" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="create" Content="Créer un code" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="print" Content="Code imprimante" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="bench" Content="Banc d'essai" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="devices" Content="Appareils de lecture" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="history" Content="Historique" Checked="Option_Changed" />
+          </WrapPanel>
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Taille de l'interface" Margin="0,10,0,6" />
+          <WrapPanel x:Name="ScaleChips">
+            <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="1" Content="100 %" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="1.15" Content="115 %" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="1.3" Content="130 %" Checked="Option_Changed" />
+          </WrapPanel>
+          <CheckBox x:Name="LogOpenCheck" Style="{StaticResource CheckLine}" Content="Journal des lectures déplié au démarrage" Margin="0,10,0,0"
+                    Checked="Option_Changed" Unchecked="Option_Changed" />
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Rapports PDF" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,8"
+                     Text="En-tête des rapports remis aux clients : ta société, ton nom et tes coordonnées, avec ton logo." />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="14" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Société" Margin="0,6,0,5" />
+              <TextBox x:Name="CompanyBox" Style="{StaticResource FieldInput}" LostFocus="Report_LostFocus" />
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Technicien (si le dossier n'en indique pas)" Margin="0,10,0,5" />
+              <TextBox x:Name="TechnicianBox" Style="{StaticResource FieldInput}" LostFocus="Report_LostFocus" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Coordonnées (téléphone, e-mail…)" Margin="0,6,0,5" />
+              <TextBox x:Name="ContactBox" Style="{StaticResource FieldInput}" LostFocus="Report_LostFocus" />
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Logo" Margin="0,10,0,5" />
+              <DockPanel>
+                <Button x:Name="LogoClear" DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Retirer" Click="LogoClear_Click" Margin="6,0,0,0" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Choisir…" Click="LogoPick_Click" Margin="8,0,0,0" />
+                <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="8,6" Height="40">
+                  <DockPanel>
+                    <Image x:Name="LogoPreview" DockPanel.Dock="Left" Height="26" MaxWidth="80" Margin="0,0,8,0" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock x:Name="LogoName" VerticalAlignment="Center" FontSize="12.5" Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis" Text="Aucun" />
+                  </DockPanel>
+                </Border>
+              </DockPanel>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Enregistrement des analyses" />
+          <CheckBox x:Name="AutoRecordCheck" Style="{StaticResource CheckLine}" Margin="0,12,0,0" Checked="Option_Changed" Unchecked="Option_Changed"
+                    Content="Enregistrer automatiquement chaque analyse et chaque comparaison dans le dossier SAV en cours" />
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Supprimer automatiquement les analyses plus anciennes que" Margin="0,12,0,6" />
+          <WrapPanel x:Name="RetentionChips">
+            <RadioButton Style="{StaticResource Chip}" GroupName="Retention" Tag="0" Content="Jamais" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Retention" Tag="30" Content="30 jours" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Retention" Tag="90" Content="3 mois" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Retention" Tag="180" Content="6 mois" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="Retention" Tag="365" Content="1 an" Checked="Option_Changed" />
+          </WrapPanel>
+          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                     Text="Appliqué à chaque démarrage. Les dossiers SAV et leurs fiches sont conservés, seules les analyses anciennes sont retirées." />
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Banc d'essai et impression" />
+          <CheckBox x:Name="AutoCompareCheck" Style="{StaticResource CheckLine}" Margin="0,12,0,0" Checked="Option_Changed" Unchecked="Option_Changed"
+                    Content="Comparer automatiquement chaque lecture reçue à la référence du banc d'essai" />
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Langage d'imprimante par défaut (Code imprimante)" Margin="0,12,0,6" />
+          <WrapPanel x:Name="LangChips">
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefLang" Tag="Zpl" Content="ZPL II" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefLang" Tag="Tspl" Content="TSPL" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefLang" Tag="Epl2" Content="EPL2" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefLang" Tag="Dpl" Content="DPL" Checked="Option_Changed" />
+          </WrapPanel>
+          <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution par défaut" Margin="0,10,0,6" />
+          <WrapPanel x:Name="DpiChips">
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefDpi" Tag="203" Content="203 dpi" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefDpi" Tag="300" Content="300 dpi" Checked="Option_Changed" />
+            <RadioButton Style="{StaticResource Chip}" GroupName="DefDpi" Tag="600" Content="600 dpi" Checked="Option_Changed" />
+          </WrapPanel>
+          <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0"
+                     Text="L'imprimante (adresse IP ou imprimante Windows) et la taille d'étiquette utilisées en dernier sont retenues automatiquement." />
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Style="{StaticResource CardTitle}" Text="Dossiers de rangement" />
           <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
                      Text="Par défaut, l'historique est rangé à côté de Scanalyse.exe : il suit le programme (clé USB, dossier partagé). Choisis un dossier réseau pour que toute l'équipe partage les mêmes dossiers SAV." />
           <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,9" Margin="0,0,0,12">

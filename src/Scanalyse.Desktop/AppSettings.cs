@@ -29,6 +29,40 @@ public sealed class AppSettings
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 
+    // ---- Rapport
+    /// <summary>Société qui édite les rapports (en-tête).</summary>
+    public string ReportCompany { get; set; } = string.Empty;
+
+    /// <summary>Technicien par défaut (si le dossier n'en indique pas).</summary>
+    public string ReportTechnician { get; set; } = string.Empty;
+
+    /// <summary>Coordonnées imprimées en en-tête (téléphone, e-mail…).</summary>
+    public string ReportContact { get; set; } = string.Empty;
+
+    /// <summary>Logo de la société (fichier image), ou vide.</summary>
+    public string ReportLogoPath { get; set; } = string.Empty;
+
+    // ---- Démarrage et affichage
+    /// <summary>Page ouverte au démarrage : analyse, create, print, bench, devices, history.</summary>
+    public string StartPage { get; set; } = "analyse";
+
+    /// <summary>Journal des lectures déplié au démarrage.</summary>
+    public bool LogOpen { get; set; } = true;
+
+    /// <summary>Taille de l'interface : 1, 1.15 ou 1.3.</summary>
+    public double UiScale { get; set; } = 1;
+
+    // ---- Historique
+    /// <summary>Les analyses et comparaisons sont enregistrées automatiquement dans le dossier SAV en cours.</summary>
+    public bool AutoRecord { get; set; } = true;
+
+    /// <summary>Suppression automatique des analyses plus anciennes que ce nombre de jours (0 : jamais).</summary>
+    public int RetentionDays { get; set; }
+
+    // ---- Banc d'essai
+    /// <summary>Chaque lecture reçue est comparée tout de suite à la référence.</summary>
+    public bool AutoCompare { get; set; } = true;
+
     /// <summary>L'accueil du premier lancement a été vu (terminé ou passé).</summary>
     public bool WelcomeDone { get; set; }
 

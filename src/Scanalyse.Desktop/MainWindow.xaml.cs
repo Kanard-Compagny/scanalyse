@@ -138,7 +138,23 @@ public partial class MainWindow : Window
         InputBindings.Add(new KeyBinding(new RelayCommand(() => Import_Click(this, new RoutedEventArgs())), Key.O, ModifierKeys.Control));
 
         _ready = true;
-        NavAnalyse.IsChecked = true;
+        var startup = AppSettings.Load();
+        (startup.StartPage switch
+        {
+            "create" => NavCreate,
+            "print" => NavPrint,
+            "bench" => NavBench,
+            "devices" => NavDevices,
+            "history" => NavHistory,
+            _ => NavAnalyse,
+        }).IsChecked = true;
+        if (!startup.LogOpen)
+        {
+            ToggleLog_Click(this, new RoutedEventArgs());
+        }
+
+        ApplyDisplaySettings();
+        SettingsPage.DisplaySettingsChanged += ApplyDisplaySettings;
         OnThemeChanged();
         AddLog(LogKind.Info, "SCANALYSE", "Prêt. L'analyse est faite sur ce PC, rien n'est envoyé sur Internet.");
 
@@ -314,11 +330,56 @@ public partial class MainWindow : Window
 
             ShowHistoryFolder();
             await Task.Run(_history.Load);
+            PurgeOldEntries();
             HistoryPage.Attach(_history, AppSettings.Load().ActiveCaseId);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             AddLog(LogKind.Warning, "HISTORIQUE", "Historique illisible : " + ex.Message);
+        }
+    }
+
+    /// <summary>Paramètres → Historique : suppression des analyses plus anciennes que N jours.</summary>
+    private void PurgeOldEntries()
+    {
+        var days = AppSettings.Load().RetentionDays;
+        if (days <= 0)
+        {
+            return;
+        }
+
+        var limit = DateTimeOffset.Now.AddDays(-days);
+        var old = _history.Entries.Where(e => e.At < limit).ToList();
+        foreach (var e in old)
+        {
+            _history.Delete(e);
+        }
+
+        if (old.Count > 0)
+        {
+            AddLog(LogKind.Info, "HISTORIQUE", $"{old.Count} analyse{(old.Count > 1 ? "s" : string.Empty)} de plus de {days} jours supprimée{(old.Count > 1 ? "s" : string.Empty)} (Paramètres → Historique).");
+        }
+    }
+
+    /// <summary>Applique les réglages d'affichage : taille de l'interface, journal.</summary>
+    public void ApplyDisplaySettings()
+    {
+        var s = AppSettings.Load();
+        var scale = Math.Clamp(s.UiScale, 1, 1.5);
+        // Tout ce qui est dessiné par WPF est agrandi ; l'Atelier (moteur web) suit par son propre zoom.
+        var t = scale == 1 ? Transform.Identity : new ScaleTransform(scale, scale);
+        foreach (var el in new FrameworkElement[] { ToolbarHost, Sidebar, AtelierHeader, Bench, Devices, HistoryPage, Symbols, SettingsPage, PrintPage, LogHost, Confirm, Welcome })
+        {
+            el.LayoutTransform = t;
+        }
+
+        try
+        {
+            Web.ZoomFactor = scale;
+        }
+        catch (InvalidOperationException)
+        {
+            // Moteur web pas encore prêt : le zoom sera appliqué par l'Atelier au chargement.
         }
     }
 
@@ -376,6 +437,11 @@ public partial class MainWindow : Window
     /// </summary>
     private void RecordImage(ImageAnalysis a)
     {
+        if (!AppSettings.Load().AutoRecord)
+        {
+            return;
+        }
+
         try
         {
             var worst = a.Codes.Count == 0 ? Severity.Warning
@@ -426,6 +492,11 @@ public partial class MainWindow : Window
     /// <summary>Enregistre une comparaison ; la même comparaison relancée dans les 2 minutes met à jour l'entrée.</summary>
     private void RecordComparison(BenchSnapshot s)
     {
+        if (!AppSettings.Load().AutoRecord)
+        {
+            return;
+        }
+
         // Lecture d'un autre code que la référence : ce n'est pas un résultat de test, on ne l'archive pas.
         if (s.Result.OtherCode)
         {
@@ -494,6 +565,27 @@ public partial class MainWindow : Window
     /// Rapport HTML autonome converti en PDF par le moteur Edge, puis ouvert : un dossier, ou tous les dossiers du client.
     /// Seules les analyses cochées « dans le rapport » sont reprises.
     /// </summary>
+    /// <summary>Société, technicien, coordonnées et logo des Paramètres, pour l'en-tête des rapports.</summary>
+    private static ReportIssuer ReportIssuerFromSettings()
+    {
+        var s = AppSettings.Load();
+        var logo = string.Empty;
+        try
+        {
+            if (File.Exists(s.ReportLogoPath) && new FileInfo(s.ReportLogoPath).Length < 2_000_000)
+            {
+                var ext = Path.GetExtension(s.ReportLogoPath).ToLowerInvariant();
+                var mime = ext switch { ".png" => "image/png", ".jpg" or ".jpeg" => "image/jpeg", ".svg" => "image/svg+xml", ".gif" => "image/gif", ".bmp" => "image/bmp", _ => "image/png" };
+                logo = $"data:{mime};base64,{Convert.ToBase64String(File.ReadAllBytes(s.ReportLogoPath))}";
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+        }
+
+        return new ReportIssuer(s.ReportCompany.Trim(), s.ReportTechnician.Trim(), s.ReportContact.Trim(), logo);
+    }
+
     private async Task GenerateReportAsync(ServiceCase serviceCase, bool wholeClient)
     {
         IReadOnlyList<ServiceCase> cases = wholeClient ? _history.CasesOfClient(serviceCase.Client) : [serviceCase];
@@ -535,7 +627,8 @@ public partial class MainWindow : Window
         }
 
         var v = Assembly.GetExecutingAssembly().GetName().Version;
-        var html = ReportBuilder.Build(header, entries, ImageDataUrl, DateTimeOffset.Now, v is null ? string.Empty : $"{v.Major}.{v.Minor}.{v.Build}", cases, HistoryPage.ReportContent);
+        var html = ReportBuilder.Build(header, entries, ImageDataUrl, DateTimeOffset.Now, v is null ? string.Empty : $"{v.Major}.{v.Minor}.{v.Build}", cases, HistoryPage.ReportContent,
+            ReportIssuerFromSettings());
         try
         {
             if (dialog.FileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase))

@@ -93,7 +93,10 @@ public partial class BenchView : UserControl
 
         if (!string.IsNullOrWhiteSpace(ExpectedBox.Text))
         {
-            Compare_Click(this, new RoutedEventArgs());
+            if (AppSettings.Load().AutoCompare)
+            {
+                Compare_Click(this, new RoutedEventArgs());
+            }
         }
         else
         {

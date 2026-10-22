@@ -22,6 +22,16 @@ public enum ReportContent
 /// Rapport SAV d'un dossier, en HTML autonome (images incluses) prêt à imprimer ou à convertir en PDF.
 /// Toujours en thème clair : c'est un document destiné au client.
 /// </summary>
+/// <summary>Émetteur du rapport (Paramètres → Rapport) : apparaît en en-tête.</summary>
+/// <param name="Company">Société.</param>
+/// <param name="Technician">Technicien par défaut (si le dossier n'en indique pas).</param>
+/// <param name="Contact">Coordonnées (téléphone, e-mail…).</param>
+/// <param name="LogoDataUrl">Logo en « data:image/… », ou vide.</param>
+public sealed record ReportIssuer(string Company, string Technician, string Contact, string LogoDataUrl)
+{
+    public bool IsEmpty => Company.Length == 0 && Contact.Length == 0 && LogoDataUrl.Length == 0;
+}
+
 public static class ReportBuilder
 {
     private static readonly CultureInfo Fr = CultureInfo.GetCultureInfo("fr-FR");
@@ -33,8 +43,10 @@ public static class ReportBuilder
     /// <param name="version">Version de Scanalyse.</param>
     /// <param name="content">Niveau de détail des contenus de codes (détaillé, brut ou les deux).</param>
     /// <param name="cases">Dossiers couverts, pour un rapport client sur plusieurs dossiers (détail regroupé par dossier).</param>
+    /// <param name="issuer">Société et technicien qui éditent le rapport (Paramètres), ou rien.</param>
     public static string Build(ServiceCase serviceCase, IEnumerable<HistoryEntry> entries, Func<HistoryEntry, string?> imageDataUrl,
-        DateTimeOffset generated, string version, IReadOnlyList<ServiceCase>? cases = null, ReportContent content = ReportContent.Both)
+        DateTimeOffset generated, string version, IReadOnlyList<ServiceCase>? cases = null, ReportContent content = ReportContent.Both,
+        ReportIssuer? issuer = null)
     {
         ArgumentNullException.ThrowIfNull(serviceCase);
         ArgumentNullException.ThrowIfNull(imageDataUrl);
@@ -46,14 +58,30 @@ public static class ReportBuilder
           .Append(H(title)).Append("</title><style>").Append(Css).Append("</style></head><body>");
 
         // En-tête
-        sb.Append("<header class=\"top\"><div class=\"brand\"><span class=\"mark\"></span><b>Scanalyse</b><span>Rapport d'analyse des codes-barres</span></div>")
-          .Append("<div class=\"gen\">Édité le ").Append(H(generated.ToString("dd MMMM yyyy 'à' HH:mm", Fr))).Append("</div></header>");
+        if (issuer is { IsEmpty: false })
+        {
+            // En-tête de la société qui édite le rapport (logo, nom, coordonnées).
+            sb.Append("<header class=\"top\"><div class=\"brand\">");
+            if (issuer.LogoDataUrl.StartsWith("data:image/", StringComparison.Ordinal))
+            {
+                sb.Append("<img class=\"logo\" alt=\"\" src=\"").Append(H(issuer.LogoDataUrl)).Append("\">");
+            }
+
+            sb.Append("<b>").Append(H(issuer.Company.Length > 0 ? issuer.Company : "Scanalyse")).Append("</b><span>Rapport d'analyse des codes-barres")
+              .Append(issuer.Contact.Length > 0 ? " · " + H(issuer.Contact) : string.Empty).Append("</span></div>");
+        }
+        else
+        {
+            sb.Append("<header class=\"top\"><div class=\"brand\"><span class=\"mark\"></span><b>Scanalyse</b><span>Rapport d'analyse des codes-barres</span></div>");
+        }
+
+        sb.Append("<div class=\"gen\">Édité le ").Append(H(generated.ToString("dd MMMM yyyy 'à' HH:mm", Fr))).Append("</div></header>");
 
         // Dossier
         sb.Append("<section class=\"case\"><h1>").Append(H(title)).Append("</h1><dl>");
         Row(sb, "Client / site", serviceCase.Client);
         Row(sb, "Référence", serviceCase.Reference);
-        Row(sb, "Intervenant", serviceCase.Technician);
+        Row(sb, "Intervenant", string.IsNullOrWhiteSpace(serviceCase.Technician) ? issuer?.Technician ?? string.Empty : serviceCase.Technician);
         if (list.Count > 0)
         {
             var first = list[0].At;
@@ -441,6 +469,7 @@ public static class ReportBuilder
         .top{display:flex;justify-content:space-between;align-items:center;background:#0F3D2E;color:#E6F0EB;padding:12px 16px;border-radius:10px}
         .brand{display:flex;align-items:center;gap:10px}
         .brand b{font-size:15pt;letter-spacing:.01em}
+        .brand .logo{height:34px;max-width:140px;object-fit:contain;background:#fff;border-radius:6px;padding:3px}
         .brand span{color:#A9C3B7;font-size:9.5pt}
         .mark{width:14px;height:14px;border-radius:4px;background:#F07F13;display:inline-block}
         .gen{font-size:9pt;color:#A9C3B7}

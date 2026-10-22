@@ -18,6 +18,7 @@ public partial class SettingsView : UserControl
         VersionText.Text = v is null ? "Scanalyse" : $"Version {v.Major}.{v.Minor}.{v.Build} · analyse et diagnostic de lecture des codes-barres";
         Loaded += (_, _) => DiagBox.Text = Diagnostic();
         Loaded += (_, _) => ShowFolders();
+        Loaded += (_, _) => LoadOptions();
         SyncTheme();
         ThemeManager.Changed += SyncTheme;
         Unloaded += (_, _) => ThemeManager.Changed -= SyncTheme;
@@ -54,6 +55,136 @@ public partial class SettingsView : UserControl
 
     /// <summary>L'utilisateur choisit un autre dossier d'historique (chaîne vide : emplacement par défaut).</summary>
     public event Action<string>? HistoryFolderChangeRequested;
+
+    // ------------------------------------------------------------------ Options
+
+    private bool _loadingOptions;
+
+    /// <summary>Taille de l'interface ou journal modifiés : la fenêtre principale applique tout de suite.</summary>
+    public event Action? DisplaySettingsChanged;
+
+    private static void Check(Panel chips, string tag)
+    {
+        foreach (var r in chips.Children.OfType<RadioButton>())
+        {
+            r.IsChecked = string.Equals(r.Tag as string, tag, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private static string? Selected(Panel chips) => chips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string;
+
+    private void LoadOptions()
+    {
+        _loadingOptions = true;
+        var s = AppSettings.Load();
+        Check(StartChips, s.StartPage);
+        Check(ScaleChips, s.UiScale.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        LogOpenCheck.IsChecked = s.LogOpen;
+        AutoRecordCheck.IsChecked = s.AutoRecord;
+        Check(RetentionChips, s.RetentionDays.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        AutoCompareCheck.IsChecked = s.AutoCompare;
+        Check(LangChips, s.Print.Language);
+        Check(DpiChips, s.Print.Dpi.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        CompanyBox.Text = s.ReportCompany;
+        TechnicianBox.Text = s.ReportTechnician;
+        ContactBox.Text = s.ReportContact;
+        ShowLogo(s.ReportLogoPath);
+        _loadingOptions = false;
+    }
+
+    private void Option_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_loadingOptions || !IsLoaded)
+        {
+            return;
+        }
+
+        var s = AppSettings.Load();
+        var scaleBefore = s.UiScale;
+        s.StartPage = Selected(StartChips) ?? s.StartPage;
+        if (double.TryParse(Selected(ScaleChips), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scale))
+        {
+            s.UiScale = scale;
+        }
+
+        s.LogOpen = LogOpenCheck.IsChecked == true;
+        s.AutoRecord = AutoRecordCheck.IsChecked == true;
+        if (int.TryParse(Selected(RetentionChips), out var days))
+        {
+            s.RetentionDays = days;
+        }
+
+        s.AutoCompare = AutoCompareCheck.IsChecked == true;
+        s.Print.Language = Selected(LangChips) ?? s.Print.Language;
+        if (int.TryParse(Selected(DpiChips), out var dpi))
+        {
+            s.Print.Dpi = dpi;
+        }
+
+        s.Save();
+        if (Math.Abs(scaleBefore - s.UiScale) > 0.001)
+        {
+            DisplaySettingsChanged?.Invoke();
+        }
+    }
+
+    private void Report_LostFocus(object sender, RoutedEventArgs e)
+    {
+        var s = AppSettings.Load();
+        s.ReportCompany = CompanyBox.Text.Trim();
+        s.ReportTechnician = TechnicianBox.Text.Trim();
+        s.ReportContact = ContactBox.Text.Trim();
+        s.Save();
+    }
+
+    private void LogoPick_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Logo de la société (en-tête des rapports)",
+            Filter = "Images (*.png;*.jpg;*.jpeg;*.svg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.svg;*.bmp;*.gif",
+        };
+        if (dialog.ShowDialog(Window.GetWindow(this)) == true)
+        {
+            var s = AppSettings.Load();
+            s.ReportLogoPath = dialog.FileName;
+            s.Save();
+            ShowLogo(dialog.FileName);
+        }
+    }
+
+    private void LogoClear_Click(object sender, RoutedEventArgs e)
+    {
+        var s = AppSettings.Load();
+        s.ReportLogoPath = string.Empty;
+        s.Save();
+        ShowLogo(string.Empty);
+    }
+
+    private void ShowLogo(string path)
+    {
+        LogoPreview.Source = null;
+        LogoName.Text = path.Length == 0 ? "Aucun" : Path.GetFileName(path);
+        LogoClear.Visibility = path.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        if (path.Length == 0 || !File.Exists(path) || path.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            var img = new System.Windows.Media.Imaging.BitmapImage();
+            img.BeginInit();
+            img.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            img.UriSource = new Uri(path);
+            img.EndInit();
+            LogoPreview.Source = img;
+        }
+        catch (Exception ex) when (ex is IOException or NotSupportedException or UriFormatException)
+        {
+            LogoName.Text = "Image illisible : " + Path.GetFileName(path);
+        }
+    }
 
     /// <summary>« Revoir l'accueil » (Prise en main).</summary>
     public event Action? WelcomeRequested;
