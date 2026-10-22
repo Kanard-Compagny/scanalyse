@@ -809,7 +809,7 @@ function render(ms,reg){
     html+=`<article class="res" data-i="${i}">
       <div class="res-head"><span class="num">${i+1}</span><h3>${esc(it.kind)}</h3><span class="pill">${esc(fmt)}</span><span class="pill ${health[1]}">${health[0]}</span></div>
       ${structHtml(r.text||"",i)}<pre class="content" ${structOf(r.text||"")?'hidden':''} data-raw="${i}">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
-      <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
+      <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small" type="button" data-print="${i}" title="Programme ZPL / TSPL / EPL2 pour réimprimer ce code sur une imprimante d'étiquettes">Code imprimante</button><button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
       ${al.length?`<div class="alerts">${al.map(([t,m])=>`<div class="alert ${t}">${esc(m)}</div>`).join("")}</div>`:""}
       ${it.rows.length?`<h4>Ce que contient le code</h4><dl class="kv">${it.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`:""}
       <h4>Caractéristiques techniques</h4><dl class="kv">${spec.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
@@ -835,6 +835,9 @@ function render(ms,reg){
     // Données brutes, telles qu'un scanner les transmet (GS réel, pas la forme lisible « (01)… »)
     let raw=r.text||"";if(r.bytes&&r.bytes.length){try{raw=new TextDecoder("utf-8",{fatal:true}).decode(r.bytes);}catch(e){raw=String.fromCharCode(...r.bytes);}}
     window.chrome.webview.postMessage(JSON.stringify({type:"compare",text:raw,display:r.text||"",format:FMT[r.format]||r.format||"",symbologyIdentifier:r.symId||"",image:cropImage(r)}));}));
+  box.querySelectorAll("[data-print]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.print,r=results[i];const gs1=GS1SYM.test(r.symId||"");
+    let raw=r.text||"";if(!gs1&&r.bytes&&r.bytes.length){try{raw=new TextDecoder("utf-8",{fatal:true}).decode(r.bytes);}catch(e){raw=String.fromCharCode(...r.bytes);}}
+    window.chrome.webview.postMessage(JSON.stringify({type:"print",text:raw,format:FMT[r.format]||r.format||"",gs1,source:`${srcLabel||"image analysée"} · code ${i+1}`}));}));
   box.querySelectorAll("[data-recreate]").forEach(b=>b.addEventListener("click",()=>{const r=results[+b.dataset.recreate];if(window.atelierLoad){setMode("create",true);window.atelierLoad(r.text||"",{format:r.format,gs1:GS1SYM.test(r.symId||"")});window.scrollTo({top:0});}}));
 }
 function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}

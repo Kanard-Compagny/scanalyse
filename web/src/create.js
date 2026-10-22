@@ -276,6 +276,14 @@ $("stdAnalyse").addEventListener("click",async()=>{
   catch(e){toast("Analyse impossible.");}
 });
 
+/* Programme d'impression (ZPL…) dans le programme Windows */
+const PRINTABLE=new Set(["code128","gs1128","ean13","ean8","upca","code39","itf","itf14","datamatrix","gs1datamatrix","gs1qr","pdf417","aztec"]);
+if(DESKTOP){$("stdPrintCode").hidden=false;
+  $("stdPrintCode").addEventListener("click",()=>{
+    if(!last){toast("Rien à imprimer : corrige d'abord le contenu.");return;}
+    if(!PRINTABLE.has(last.type)){toast(`${byId[last.type].label} n'a pas d'équivalent fiable dans les langages d'imprimante proposés (ZPL, TSPL, EPL2).`);return;}
+    window.chrome.webview.postMessage(JSON.stringify({type:"print",text:last.data,format:last.type,gs1:!!byId[last.type].gs1,source:"Créer un code · "+byId[last.type].label}));});}
+
 /* ================= Liens avec l'analyse et le programme Windows ================= */
 const FROM_FORMAT={DataMatrix:"datamatrix",PDF417:"pdf417",CompactPDF417:"pdf417",Aztec:"aztec",AztecCode:"aztec",MicroQRCode:"microqr",RMQRCode:"rmqr",
   EAN13:"ean13",ISBN:"ean13",EAN8:"ean8",UPCA:"upca",UPCE:"upce",ITF14:"itf14",ITF:"itf",DataBar:"databar",DataBarOmni:"databar",DataBarExp:"databarexp",

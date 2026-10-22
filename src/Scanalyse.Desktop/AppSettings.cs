@@ -29,6 +29,9 @@ public sealed class AppSettings
     /// <summary>Dossier SAV en cours (les analyses y sont enregistrées).</summary>
     public string ActiveCaseId { get; set; } = "inbox";
 
+    /// <summary>Réglages de l'onglet Impression (étiquette, langage, imprimante).</summary>
+    public PrintPreferences Print { get; set; } = new();
+
     /// <summary>Dernière douchette connectée (reconnectée au démarrage si elle est présente).</summary>
     public ScannerPreferences Scanner { get; set; } = new();
 
@@ -79,4 +82,23 @@ public sealed class ScannerPreferences
     public string DeviceId { get; set; } = string.Empty;
 
     public SerialSettings Serial { get; set; } = new();
+}
+
+/// <summary>Derniers réglages de l'onglet Impression.</summary>
+public sealed class PrintPreferences
+{
+    public string Language { get; set; } = "Zpl";
+
+    public int Dpi { get; set; } = 203;
+
+    public double WidthMm { get; set; } = 100;
+
+    public double HeightMm { get; set; } = 50;
+
+    /// <summary>« tcp » (adresse IP) ou « queue » (file Windows).</summary>
+    public string Mode { get; set; } = "tcp";
+
+    public string Address { get; set; } = string.Empty;
+
+    public string Queue { get; set; } = string.Empty;
 }

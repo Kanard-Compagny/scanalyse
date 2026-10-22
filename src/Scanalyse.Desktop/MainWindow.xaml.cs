@@ -79,6 +79,10 @@ public partial class MainWindow : Window
             await _atelier.CreateFromAsync(text, type);
             AddLog(LogKind.Info, "CRÉER", "Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.");
         };
+        Bench.PrintRequested += (text, type) => OpenPrint(text, PrintView.SymbologyFor(type, text), "banc d'essai");
+        PrintPage.Renderer = (text, type) => _atelier.RenderAsync(text, type);
+        PrintPage.Log += (kind, text) => AddLog(kind, "IMPRESSION", text);
+        _atelier.PrintRequested += r => OpenPrint(r.Text, PrintView.SymbologyFor(r.Format, r.Text, r.Gs1), r.Source);
         _atelier.ModeChanged += OnAtelierModeChanged;
         Symbols.CreateRequested += OnCreateRequested;
         Devices.Scanned += OnDeviceScanned;
@@ -157,6 +161,14 @@ public partial class MainWindow : Window
     {
         NavCreate.IsChecked = true;
         await _atelier.SetCreateTypeAsync(typeId);
+    }
+
+    /// <summary>Ouvre l'onglet « Code imprimante » avec un code venu d'un autre onglet.</summary>
+    private void OpenPrint(string text, Scanalyse.Core.Printing.LabelSymbology symbology, string source)
+    {
+        PrintPage.Load(text, symbology, source);
+        NavPrint.IsChecked = true;
+        AddLog(LogKind.Info, "IMPRESSION", $"Code repris ({source}) : choisis le langage de l'imprimante, puis copie, enregistre ou envoie le programme.");
     }
 
     private void ShowWebError(string message)
@@ -586,6 +598,7 @@ public partial class MainWindow : Window
         Devices.Visibility = Visibility.Collapsed;
         SettingsPage.Visibility = Visibility.Collapsed;
         HistoryPage.Visibility = Visibility.Collapsed;
+        PrintPage.Visibility = Visibility.Collapsed;
 
         if (sender == NavAnalyse || sender == NavCreate)
         {
@@ -602,6 +615,10 @@ public partial class MainWindow : Window
         {
             Bench.Visibility = Visibility.Visible;
             Bench.FocusReception();
+        }
+        else if (sender == NavPrint)
+        {
+            PrintPage.Visibility = Visibility.Visible;
         }
         else if (sender == NavHistory)
         {

@@ -1,0 +1,235 @@
+<UserControl x:Class="Scanalyse.Desktop.Views.PrintView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <Style x:Key="Unit" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="6,0,0,0" />
+    </Style>
+    <Style x:Key="Num" TargetType="TextBox" BasedOn="{StaticResource FieldInput}">
+      <Setter Property="Width" Value="72" />
+      <Setter Property="HorizontalContentAlignment" Value="Right" />
+    </Style>
+  </UserControl.Resources>
+
+  <Grid Margin="28,22,28,16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Margin="0,0,0,18">
+      <TextBlock Style="{StaticResource PageTitle}" Text="Code imprimante" />
+      <TextBlock Style="{StaticResource PageSubtitle}"
+                 Text="Génère le programme ZPL, TSPL ou EPL2 d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement." />
+    </StackPanel>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5*" />
+        <ColumnDefinition Width="18" />
+        <ColumnDefinition Width="6*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Contenu et étiquette -->
+      <Border Style="{StaticResource Card}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,-8,0" Padding="0,0,8,0">
+          <StackPanel>
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Contenu du code (accepte &lt;GS&gt;, &lt;RS&gt;… et la forme « (01)… » pour GS1)" />
+            <TextBlock x:Name="SourceText" Style="{StaticResource FieldLabel}" Foreground="{DynamicResource BrandText}" FontWeight="SemiBold" Visibility="Collapsed" />
+            <TextBox x:Name="DataBox" Style="{StaticResource Input}" AcceptsReturn="False" MinHeight="64" TextWrapping="Wrap" TextChanged="Any_Changed" />
+
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Symbologie" Margin="0,16,0,6" />
+            <WrapPanel x:Name="SymChips">
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Code128" Content="Code 128" IsChecked="True" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Gs1_128" Content="GS1-128" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Ean13" Content="EAN-13" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Ean8" Content="EAN-8" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="UpcA" Content="UPC-A" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Code39" Content="Code 39" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Itf" Content="ITF" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="QrCode" Content="QR Code" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="DataMatrix" Content="Data Matrix" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Gs1DataMatrix" Content="GS1 DataMatrix" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Pdf417" Content="PDF417" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Sym" Tag="Aztec" Content="Aztec" Checked="Any_Changed" />
+            </WrapPanel>
+
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution de la tête" Margin="0,14,0,6" />
+            <WrapPanel x:Name="DpiChips">
+              <RadioButton Style="{StaticResource Chip}" GroupName="Dpi" Tag="203" Content="203 dpi (8 points/mm)" IsChecked="True" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Dpi" Tag="300" Content="300 dpi (12 points/mm)" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Dpi" Tag="600" Content="600 dpi (24 points/mm)" Checked="Any_Changed" />
+            </WrapPanel>
+
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Étiquette et position du code" Margin="0,14,0,6" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="8" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <TextBlock Text="Largeur" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="WidthBox" Style="{StaticResource Num}" Text="100" TextChanged="Any_Changed" />
+                <TextBlock Style="{StaticResource Unit}" Text="mm" />
+              </StackPanel>
+              <TextBlock Grid.Column="3" Text="Hauteur" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <StackPanel Grid.Column="4" Orientation="Horizontal">
+                <TextBox x:Name="HeightBox" Style="{StaticResource Num}" Text="50" TextChanged="Any_Changed" />
+                <TextBlock Style="{StaticResource Unit}" Text="mm" />
+              </StackPanel>
+
+              <TextBlock Grid.Row="2" Text="Depuis la gauche" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="XBox" Style="{StaticResource Num}" Text="5" TextChanged="Any_Changed" />
+                <TextBlock Style="{StaticResource Unit}" Text="mm" />
+              </StackPanel>
+              <TextBlock Grid.Row="2" Grid.Column="3" Text="Depuis le haut" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Horizontal">
+                <TextBox x:Name="YBox" Style="{StaticResource Num}" Text="5" TextChanged="Any_Changed" />
+                <TextBlock Style="{StaticResource Unit}" Text="mm" />
+              </StackPanel>
+
+              <TextBlock Grid.Row="4" Text="Module" VerticalAlignment="Center" Margin="0,0,10,0"
+                         ToolTip="Largeur de la barre la plus fine (1D) ou d'un carré (2D), en points de la tête" />
+              <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="ModuleBox" Style="{StaticResource Num}" Text="3" TextChanged="Any_Changed" />
+                <TextBlock x:Name="ModuleMm" Style="{StaticResource Unit}" Text="points" />
+              </StackPanel>
+              <TextBlock x:Name="BarsLabel" Grid.Row="4" Grid.Column="3" Text="Hauteur des barres" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <StackPanel x:Name="BarsPanel" Grid.Row="4" Grid.Column="4" Orientation="Horizontal">
+                <TextBox x:Name="BarsBox" Style="{StaticResource Num}" Text="15" TextChanged="Any_Changed" />
+                <TextBlock Style="{StaticResource Unit}" Text="mm" />
+              </StackPanel>
+            </Grid>
+
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Rotation" Margin="0,14,0,6" />
+            <WrapPanel x:Name="RotChips">
+              <RadioButton Style="{StaticResource Chip}" GroupName="Rot" Tag="0" Content="0°" IsChecked="True" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Rot" Tag="90" Content="90°" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Rot" Tag="180" Content="180°" Checked="Any_Changed" />
+              <RadioButton Style="{StaticResource Chip}" GroupName="Rot" Tag="270" Content="270°" Checked="Any_Changed" />
+            </WrapPanel>
+
+            <CheckBox x:Name="HriCheck" Style="{StaticResource CheckLine}" Content="Texte lisible sous le code (codes 1D)" IsChecked="True" Margin="0,8,0,0"
+                      Checked="Any_Changed" Unchecked="Any_Changed" />
+
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Texte libre sous le code (facultatif : référence, n° de dossier…)" Margin="0,14,0,5" />
+            <TextBox x:Name="CaptionBox" Style="{StaticResource FieldInput}" TextChanged="Any_Changed" />
+
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+              <TextBlock Text="Exemplaires" VerticalAlignment="Center" Margin="0,0,10,0" />
+              <TextBox x:Name="CopiesBox" Style="{StaticResource Num}" Text="1" TextChanged="Any_Changed" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <!-- Aperçu + programme -->
+      <Grid Grid.Column="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+          <StackPanel>
+            <DockPanel>
+              <TextBlock x:Name="PreviewInfo" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" />
+              <TextBlock Style="{StaticResource CardTitle}" Text="Aperçu de l'étiquette" />
+            </DockPanel>
+            <Border Margin="0,10,0,0" Height="200" Background="{DynamicResource Surface2}" CornerRadius="10" Padding="14">
+              <Viewbox Stretch="Uniform" StretchDirection="Both">
+                <Border BorderBrush="#33000000" BorderThickness="1" Background="White" CornerRadius="3">
+                  <Canvas x:Name="LabelCanvas" Width="400" Height="200" ClipToBounds="True">
+                    <Image x:Name="CodeImage" RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="Fill" />
+                    <TextBlock x:Name="CaptionPreview" Foreground="Black" FontFamily="Arial" />
+                  </Canvas>
+                </Border>
+              </Viewbox>
+            </Border>
+            <TextBlock x:Name="PreviewNote" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"
+                       Text="Aperçu indicatif, dessiné par Scanalyse : le rendu final dépend du firmware de l'imprimante." />
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DockPanel>
+              <WrapPanel x:Name="LangChips" DockPanel.Dock="Right">
+                <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Zpl" Content="ZPL II" IsChecked="True" Checked="Any_Changed"
+                             ToolTip="Zebra, et la plupart des imprimantes en émulation ZPL (Honeywell, SATO, TSC, Citizen…)" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Tspl" Content="TSPL" Checked="Any_Changed"
+                             ToolTip="TSC et nombreuses imprimantes d'entrée de gamme" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Lang" Tag="Epl2" Content="EPL2" Checked="Any_Changed"
+                             ToolTip="Anciennes Zebra (LP/TLP 2844…), codes 1D" />
+              </WrapPanel>
+              <TextBlock Style="{StaticResource CardTitle}" Text="Programme" VerticalAlignment="Center" />
+            </DockPanel>
+            <ItemsControl x:Name="WarningsList" Grid.Row="1" Margin="0,8,0,0">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="{DynamicResource WarnBg}" CornerRadius="8" Padding="10,7" Margin="0,0,0,6">
+                    <TextBlock Text="{Binding}" Foreground="{DynamicResource WarnFg}" TextWrapping="Wrap" FontSize="12.5" />
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBox x:Name="CodeBox" Grid.Row="2" Style="{StaticResource Input}" AcceptsReturn="True" TextWrapping="NoWrap" Margin="0,4,0,0"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Top" MinHeight="120"
+                     TextChanged="CodeBox_TextChanged" ToolTip="Modifiable : tes retouches sont envoyées telles quelles" />
+            <TextBlock x:Name="EditedNote" Grid.Row="3" FontSize="12" Foreground="{DynamicResource BrandText}" Margin="0,6,0,0" Visibility="Collapsed" TextWrapping="Wrap"
+                       Text="Programme retouché à la main : il n'est plus régénéré tant que tu ne changes pas un réglage." />
+
+            <StackPanel Grid.Row="4" Margin="0,12,0,0">
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Imprimante" Margin="0,0,0,6" />
+              <WrapPanel>
+                <RadioButton x:Name="ModeTcp" Style="{StaticResource Chip}" GroupName="Target" Content="Réseau (adresse IP, port 9100)" IsChecked="True" Checked="Mode_Changed" />
+                <RadioButton x:Name="ModeQueue" Style="{StaticResource Chip}" GroupName="Target" Content="Imprimante installée sur ce PC" Checked="Mode_Changed" />
+              </WrapPanel>
+              <DockPanel x:Name="AddressPanel" Margin="0,4,0,0">
+                <Grid>
+                  <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" />
+                  <TextBlock x:Name="AddressHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
+                             Text="ex. 192.168.1.50 ou 192.168.1.50:6101" />
+                </Grid>
+              </DockPanel>
+              <StackPanel x:Name="QueuePanel" Visibility="Collapsed" Margin="0,2,0,0">
+                <WrapPanel x:Name="QueueChips" />
+                <TextBlock x:Name="QueueHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"
+                           Text="Les données partent en mode RAW : le pilote de l'imprimante ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »)." />
+              </StackPanel>
+              <WrapPanel Margin="0,12,0,0">
+                <Button Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="0,0,8,8" />
+                <Button Style="{StaticResource BtnSecondary}" Content="Copier" Click="Copy_Click" Margin="0,0,8,8" />
+                <Button Style="{StaticResource BtnSecondary}" Content="Enregistrer…" Click="Save_Click" Margin="0,0,8,8" />
+                <Button Style="{StaticResource BtnGhost}" Content="Régénérer" Click="Regenerate_Click" Margin="0,0,0,8"
+                        ToolTip="Abandonne les retouches manuelles et repart des réglages" />
+              </WrapPanel>
+              <TextBlock x:Name="SendStatus" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

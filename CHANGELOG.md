@@ -1,5 +1,14 @@
 # Scanalyse — Quoi de neuf
 
+## 0.10.0 — octobre 2026
+
+### Code imprimante (nouvel onglet)
+- Génère le programme d'une étiquette en **ZPL II** (Zebra et émulations ZPL), **TSPL** (TSC…) ou **EPL2** (anciennes Zebra) : Code 128, GS1-128, EAN-13/8, UPC-A, Code 39, ITF, QR Code, Data Matrix, GS1 DataMatrix (FNC1), PDF417, Aztec.
+- Taille de l'étiquette, résolution de la tête (203 / 300 / 600 dpi), position, module, hauteur, rotation, texte lisible, texte libre, exemplaires ; aperçu de l'étiquette.
+- Caractères de contrôle (<GS>, <RS>, <EOT>…) et caractères réservés encodés correctement (^FH) ; alertes sur les clés de contrôle, les tailles de module GS1 et les combinaisons non prises en charge.
+- Programme modifiable, copie, enregistrement (.zpl, .prn), envoi direct à l'imprimante en réseau (port 9100) ou par une imprimante installée sur le PC (mode RAW).
+- Bouton « Code imprimante » sur chaque code analysé, au banc d'essai et dans « Créer un code » (QR compris) : on recrée le code d'un client en un clic.
+
 ## 0.9.0 — octobre 2026
 
 Première version complète, prête à être diffusée à l'équipe.

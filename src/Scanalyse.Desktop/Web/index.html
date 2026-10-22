@@ -496,6 +496,7 @@ input[type=date]:focus-visible{outline:2px solid var(--focus);outline-offset:2px
           <div class="exp">
             <button class="btn primary" id="stdDl" type="button">Télécharger</button>
             <button class="btn" id="stdCopy" type="button">Copier le contenu</button>
+            <button class="btn" id="stdPrintCode" type="button" hidden title="Programme ZPL / TSPL / EPL2 de ce code pour une imprimante d'étiquettes">Code imprimante</button>
             <button class="btn" id="stdAnalyse" type="button" title="Relit ce code comme une image reçue : contenu, symbologie, GS1…">Analyser ce code</button>
           </div>
           <p class="toast" id="stdToast" aria-live="polite"></p>
@@ -824,6 +825,13 @@ window.atelierLoad=function(t){
   if(isUrl)$("url").value=t.trim();else $("text").value=t;
   update();toast("Contenu repris depuis l'analyse.");
 };
+if(window.chrome&&window.chrome.webview){
+  const b=document.createElement("button");b.className="btn";b.type="button";b.id="qrPrintCode";b.textContent="Code imprimante";
+  b.title="Programme ZPL / TSPL / EPL2 de ce QR (sans couleurs ni logo : une imprimante thermique imprime en noir)";
+  $("dl").insertAdjacentElement("afterend",b);
+  b.addEventListener("click",()=>{const p=payload();if(!p){toast("Le contenu est vide.");return;}
+    window.chrome.webview.postMessage(JSON.stringify({type:"print",text:p,format:"qrplain",gs1:false,source:"Créer un code · QR Code"}));});
+}
 update();fillRanges();
 })();
 </script>
@@ -1642,7 +1650,7 @@ function render(ms,reg){
     html+=`<article class="res" data-i="${i}">
       <div class="res-head"><span class="num">${i+1}</span><h3>${esc(it.kind)}</h3><span class="pill">${esc(fmt)}</span><span class="pill ${health[1]}">${health[0]}</span></div>
       ${structHtml(r.text||"",i)}<pre class="content" ${structOf(r.text||"")?'hidden':''} data-raw="${i}">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
-      <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
+      <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small" type="button" data-print="${i}" title="Programme ZPL / TSPL / EPL2 pour réimprimer ce code sur une imprimante d'étiquettes">Code imprimante</button><button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
       ${al.length?`<div class="alerts">${al.map(([t,m])=>`<div class="alert ${t}">${esc(m)}</div>`).join("")}</div>`:""}
       ${it.rows.length?`<h4>Ce que contient le code</h4><dl class="kv">${it.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`:""}
       <h4>Caractéristiques techniques</h4><dl class="kv">${spec.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
@@ -1668,6 +1676,9 @@ function render(ms,reg){
     // Données brutes, telles qu'un scanner les transmet (GS réel, pas la forme lisible « (01)… »)
     let raw=r.text||"";if(r.bytes&&r.bytes.length){try{raw=new TextDecoder("utf-8",{fatal:true}).decode(r.bytes);}catch(e){raw=String.fromCharCode(...r.bytes);}}
     window.chrome.webview.postMessage(JSON.stringify({type:"compare",text:raw,display:r.text||"",format:FMT[r.format]||r.format||"",symbologyIdentifier:r.symId||"",image:cropImage(r)}));}));
+  box.querySelectorAll("[data-print]").forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.print,r=results[i];const gs1=GS1SYM.test(r.symId||"");
+    let raw=r.text||"";if(!gs1&&r.bytes&&r.bytes.length){try{raw=new TextDecoder("utf-8",{fatal:true}).decode(r.bytes);}catch(e){raw=String.fromCharCode(...r.bytes);}}
+    window.chrome.webview.postMessage(JSON.stringify({type:"print",text:raw,format:FMT[r.format]||r.format||"",gs1,source:`${srcLabel||"image analysée"} · code ${i+1}`}));}));
   box.querySelectorAll("[data-recreate]").forEach(b=>b.addEventListener("click",()=>{const r=results[+b.dataset.recreate];if(window.atelierLoad){setMode("create",true);window.atelierLoad(r.text||"",{format:r.format,gs1:GS1SYM.test(r.symId||"")});window.scrollTo({top:0});}}));
 }
 function ControlCharactersVisual(t){return t.replace(/[\x00-\x1f]/g,c=>"<"+["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)]+">");}
@@ -2290,6 +2301,14 @@ $("stdAnalyse").addEventListener("click",async()=>{
     window.atelierLoadImageData(c.toDataURL("image/png"),"Code créé : "+((byId[current]||{}).label||"code"),{record:false});}
   catch(e){toast("Analyse impossible.");}
 });
+
+/* Programme d'impression (ZPL…) dans le programme Windows */
+const PRINTABLE=new Set(["code128","gs1128","ean13","ean8","upca","code39","itf","itf14","datamatrix","gs1datamatrix","gs1qr","pdf417","aztec"]);
+if(DESKTOP){$("stdPrintCode").hidden=false;
+  $("stdPrintCode").addEventListener("click",()=>{
+    if(!last){toast("Rien à imprimer : corrige d'abord le contenu.");return;}
+    if(!PRINTABLE.has(last.type)){toast(`${byId[last.type].label} n'a pas d'équivalent fiable dans les langages d'imprimante proposés (ZPL, TSPL, EPL2).`);return;}
+    window.chrome.webview.postMessage(JSON.stringify({type:"print",text:last.data,format:last.type,gs1:!!byId[last.type].gs1,source:"Créer un code · "+byId[last.type].label}));});}
 
 /* ================= Liens avec l'analyse et le programme Windows ================= */
 const FROM_FORMAT={DataMatrix:"datamatrix",PDF417:"pdf417",CompactPDF417:"pdf417",Aztec:"aztec",AztecCode:"aztec",MicroQRCode:"microqr",RMQRCode:"rmqr",

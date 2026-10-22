@@ -235,6 +235,22 @@ public partial class BenchView : UserControl
         RecreateRequested?.Invoke(text, chosen == "auto" ? GuessType(text) : chosen);
     }
 
+    /// <summary>« Code imprimante » : la lecture (sinon la référence) part dans l'onglet d'impression.</summary>
+    public event Action<string, string>? PrintRequested;
+
+    private void Print_Click(object sender, RoutedEventArgs e)
+    {
+        var source = ReceivedBox.Text.Length > 0 ? ReceivedBox.Text : ControlCharacters.FromVisualized(ExpectedBox.Text);
+        var text = source.TrimEnd('\r', '\n', '\t');
+        if (text.Length == 0)
+        {
+            return;
+        }
+
+        var chosen = PreviewTypes.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? "auto";
+        PrintRequested?.Invoke(text, chosen == "auto" ? GuessType(text) : chosen);
+    }
+
     private void HexToggle_Changed(object sender, RoutedEventArgs e) =>
         HexBox.Visibility = HexToggle.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
 

@@ -85,6 +85,13 @@ window.atelierLoad=function(t){
   if(isUrl)$("url").value=t.trim();else $("text").value=t;
   update();toast("Contenu repris depuis l'analyse.");
 };
+if(window.chrome&&window.chrome.webview){
+  const b=document.createElement("button");b.className="btn";b.type="button";b.id="qrPrintCode";b.textContent="Code imprimante";
+  b.title="Programme ZPL / TSPL / EPL2 de ce QR (sans couleurs ni logo : une imprimante thermique imprime en noir)";
+  $("dl").insertAdjacentElement("afterend",b);
+  b.addEventListener("click",()=>{const p=payload();if(!p){toast("Le contenu est vide.");return;}
+    window.chrome.webview.postMessage(JSON.stringify({type:"print",text:p,format:"qrplain",gs1:false,source:"Créer un code · QR Code"}));});
+}
 update();fillRanges();
 })();""")
     wasm = base64.b64encode(read(VENDOR, f"zxing_full-{ZXING_VERSION}.wasm", mode="rb")).decode()

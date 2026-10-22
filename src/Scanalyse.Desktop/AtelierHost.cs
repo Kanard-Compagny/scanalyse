@@ -14,6 +14,13 @@ namespace Scanalyse.Desktop;
 /// <param name="ImagePng">Vignette du code découpée dans l'image analysée (PNG), si disponible.</param>
 public sealed record CompareRequest(string Text, string Format, string SymbologyIdentifier, byte[]? ImagePng = null);
 
+/// <summary>Demande « Code imprimante » envoyée par l'Atelier (analyse ou création).</summary>
+/// <param name="Text">Contenu brut du code (caractères GS réels) ou forme « (01)… ».</param>
+/// <param name="Format">Format lu ou type de l'Atelier.</param>
+/// <param name="Gs1">Le code porte des données GS1 (FNC1).</param>
+/// <param name="Source">Origine, pour l'affichage.</param>
+public sealed record PrintRequest(string Text, string Format, bool Gs1, string Source);
+
 /// <summary>Bilan de cohérence d'une étiquette à plusieurs codes.</summary>
 /// <param name="Verdict">« good », « warn » ou « bad ».</param>
 /// <param name="Problems">Incohérences et points à vérifier.</param>
@@ -54,6 +61,9 @@ internal sealed class AtelierHost
 
     /// <summary>L'utilisateur demande une comparaison depuis l'Atelier.</summary>
     public event Action<CompareRequest>? CompareRequested;
+
+    /// <summary>L'utilisateur veut le programme d'impression d'un code (ZPL…).</summary>
+    public event Action<PrintRequest>? PrintRequested;
 
     /// <summary>L'Atelier a analysé une image (liste vide : aucun code trouvé).</summary>
     public event Action<ImageAnalysis>? Analyzed;
@@ -224,6 +234,11 @@ internal sealed class AtelierHost
                 case "compare":
                     CompareRequested?.Invoke(new CompareRequest(Get(root, "text"), Get(root, "format"), Get(root, "symbologyIdentifier"),
                         FromDataUrl(Get(root, "image"))));
+                    break;
+
+                case "print":
+                    PrintRequested?.Invoke(new PrintRequest(Get(root, "text"), Get(root, "format"),
+                        root.TryGetProperty("gs1", out var g) && g.ValueKind == JsonValueKind.True, Get(root, "source")));
                     break;
 
                 case "mode":
