@@ -24,6 +24,7 @@
 - Éditeur de programme avec numéros de ligne, « Coller un programme client », « Voir la ligne » depuis chaque code lu.
 - Les pages Code imprimante et Banc d'essai défilent quand la fenêtre est trop basse : plus rien n'est coupé.
 - Programme et aperçu agrandissables ; choix de l'imprimante Windows dans une liste avec recherche.
+- Page « Douchettes » renommée « Appareils de lecture » : elle regroupe douchettes, terminaux Android et caméras.
 - Bouton « Code imprimante » sur chaque code analysé, au banc d'essai et dans « Créer un code » (QR compris) : on recrée le code d'un client en un clic.
 
 ## 0.9.0 — octobre 2026

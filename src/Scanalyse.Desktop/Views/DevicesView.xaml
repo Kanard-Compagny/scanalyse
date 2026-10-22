@@ -9,7 +9,7 @@
     </Grid.RowDefinitions>
 
     <StackPanel Margin="0,0,0,18">
-      <TextBlock Style="{StaticResource PageTitle}" Text="Douchettes" />
+      <TextBlock Style="{StaticResource PageTitle}" Text="Appareils de lecture" />
       <TextBlock Style="{StaticResource PageSubtitle}"
                  Text="Connexion des appareils de lecture : douchettes USB, série et HID POS, terminaux Android, caméras. Les lectures reçues partent au banc d'essai." />
     </StackPanel>

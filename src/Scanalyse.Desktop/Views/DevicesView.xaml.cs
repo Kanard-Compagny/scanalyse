@@ -16,7 +16,7 @@ namespace Scanalyse.Desktop.Views;
 /// <param name="Error">La dernière tentative a échoué ou la liaison est perdue.</param>
 public sealed record ScannerStatus(ScanSourceKind Kind, string Text, bool Error = false);
 
-/// <summary>Page Douchettes : connexion des douchettes (série, HID POS), des terminaux Android (relais) et des caméras.</summary>
+/// <summary>Page Appareils de lecture : connexion des douchettes (série, HID POS), des terminaux Android (relais) et des caméras.</summary>
 public partial class DevicesView : UserControl
 {
     private readonly Relay.RelayServer _relay = new();

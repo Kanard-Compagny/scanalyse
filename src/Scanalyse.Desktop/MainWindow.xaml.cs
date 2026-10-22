@@ -542,7 +542,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // ------------------------------------------------------------------ Douchettes
+    // ------------------------------------------------------------------ Appareils de lecture
 
     /// <summary>Lecture reçue en direct : journal, puis banc d'essai (qui compare si la référence est connue).</summary>
     private void OnDeviceScanned(ScanEvent scan)

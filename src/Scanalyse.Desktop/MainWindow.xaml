@@ -124,7 +124,7 @@
               <RadioButton x:Name="NavCreate" Style="{StaticResource NavItem}" Tag="{StaticResource IconCreate}" Content="Créer un code" ToolTip="Créer un code" Checked="Nav_Checked" />
               <RadioButton x:Name="NavPrint" Style="{StaticResource NavItem}" Tag="{StaticResource IconPrint}" Content="Code imprimante" ToolTip="Code imprimante (ZPL, TSPL, EPL2)" Checked="Nav_Checked" />
               <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="{StaticResource IconBench}" Content="Banc d'essai douchette" ToolTip="Banc d'essai douchette" Checked="Nav_Checked" />
-              <RadioButton x:Name="NavDevices" Style="{StaticResource NavItem}" Tag="{StaticResource IconScanner}" Content="Douchettes" ToolTip="Douchettes" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavDevices" Style="{StaticResource NavItem}" Tag="{StaticResource IconScanner}" Content="Appareils de lecture" ToolTip="Appareils de lecture : douchettes, terminaux Android, caméras" Checked="Nav_Checked" />
               <RadioButton x:Name="NavHistory" Style="{StaticResource NavItem}" Tag="{StaticResource IconHistory}" Content="Historique" ToolTip="Historique et rapports" Checked="Nav_Checked" />
               <RadioButton x:Name="NavSymbols" Style="{StaticResource NavItem}" Tag="{StaticResource IconSymbols}" Content="Symbologies" ToolTip="Symbologies" Checked="Nav_Checked" />
             </StackPanel>

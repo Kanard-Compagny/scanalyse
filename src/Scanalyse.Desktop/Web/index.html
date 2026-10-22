@@ -1814,7 +1814,7 @@ async function camStart(deviceId,preferLabel){
   // Mise au point continue quand la caméra la propose (utile pour les petits codes 1D).
   try{const caps=track.getCapabilities?track.getCapabilities():{};if(caps.focusMode&&caps.focusMode.includes("continuous"))await track.applyConstraints({advanced:[{focusMode:"continuous"}]});}catch(e){}
   await camList(id);
-  // Caméra demandée par son nom (page Douchettes du programme) : on bascule dessus si ce n'est pas celle ouverte.
+  // Caméra demandée par son nom (page Appareils de lecture du programme) : on bascule dessus si ce n'est pas celle ouverte.
   if(preferLabel){const want=preferLabel.toLowerCase();const opt=[...$("camSelect").options].find(o=>o.textContent.toLowerCase().includes(want)||want.includes(o.textContent.toLowerCase()));
     if(opt&&opt.value&&opt.value!==id){stream.getTracks().forEach(t=>t.stop());CAM.stream=null;return camStart(opt.value);}}
   CAM.video.srcObject=stream;try{await CAM.video.play();}catch(e){}
