@@ -1,5 +1,10 @@
 # Scanalyse — Quoi de neuf
 
+## 0.11.2 — octobre 2026
+
+- Le projet a déménagé : **github.com/Kanard-Compagny/scanalyse**. Les mises à jour sont cherchées à cette adresse.
+- Nouvelle page de présentation du projet sur GitHub.
+
 ## 0.11.1 — octobre 2026
 
 - **Logiciel libre** : Scanalyse est publié sous licence **GNU GPL v3** (Paramètres → À propos → « Licence GPL v3 »).

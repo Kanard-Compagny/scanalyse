@@ -13,7 +13,7 @@ namespace Scanalyse.Desktop;
 /// </summary>
 internal static class Updater
 {
-    private const string GitHubLatest = "https://api.github.com/repos/DuckMartine/scanalyse/releases/latest";
+    private const string GitHubLatest = "https://api.github.com/repos/Kanard-Compagny/scanalyse/releases/latest";
 
     /// <summary>Version en cours d'exécution.</summary>
     public static AppVersion Current { get; } =

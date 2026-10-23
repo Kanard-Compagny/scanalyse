@@ -1,86 +1,74 @@
 # Scanalyse
 
-Analyse et diagnostic de lecture des codes-barres : **ce que contient un code, à quoi il sert, et pourquoi il passe ou non** entre le code imprimé, le scanner et l'application.
+**La boîte à outils gratuite du technicien codes-barres.**
+Comprendre ce que contient un code, pourquoi une douchette le lit mal, et ce qu'une imprimante d'étiquettes va vraiment imprimer — sur un simple PC Windows, sans installation.
 
-> Logiciel libre et gratuit, créé par **Mr.Kanard** pour les techniciens qui en ont besoin — licence [GNU GPL v3](LICENSE).
+*Free Windows toolbox for barcode support technicians: decode and explain barcodes (GS1, QR, Data Matrix…), test scanners, read and send ZPL / TSPL / EPL2 / DPL label programs. French and English interface.*
 
-## Contenu de la solution
+[**⬇ Télécharger la dernière version**](https://github.com/Kanard-Compagny/scanalyse/releases/latest) · Windows 10 / 11 · un seul fichier `Scanalyse.exe`, rien à installer
 
-| Projet | Rôle | Cible |
-|---|---|---|
-| `src/Scanalyse.Core` | Cerveau de l'analyse : lecture GS1, interprétation du contenu (liens, Wi-Fi, vCard, SEPA, StageNow…), diagnostic « contenu du code ↔ données reçues ». Aucune dépendance externe. | .NET 10 (multi-plateforme) |
-| `src/Scanalyse.Desktop` | Programme Windows (WPF) : menu latéral avec **Analyser une image**, **Créer un code** (Atelier embarqué), **Code imprimante** (programme ZPL / TSPL / EPL2 / DPL, envoi réseau ou file Windows), **Banc d'essai douchette**, **Appareils de lecture** (douchettes en port COM, HID POS, caméras, relais pour terminaux Android par ADB ou Wi-Fi, moniteur des octets reçus), **Historique** (dossiers SAV, rapport PDF), **Symbologies** et **Paramètres** ; barre d'outils (coller une image, capturer une zone de l'écran, thème) ; journal des lectures. | .NET 10 Windows (10.0.19041+) |
-| `web/` | Sources de l'Atelier (HTML/CSS/JS) et bibliothèques figées dans `web/vendor`. `web/build.py` génère la page embarquée `src/Scanalyse.Desktop/Web/index.html`. | Navigateur / WebView2 |
-| `tests/Scanalyse.Core.Tests` | Tests automatiques du Core (xUnit). | .NET 10 |
+---
 
-À venir : douchettes HID POS / port COM / mode clavier avancé, application Android **Relais**, historique et rapports.
+## À quoi ça sert ?
 
-## Parcours type : « le client m'envoie une photo »
+Un client appelle : « la douchette ne lit pas », « l'étiquette sort mal », « le logiciel reçoit n'importe quoi ». Scanalyse aide à trouver **où** ça coince — dans le code imprimé, dans le réglage du lecteur ou dans le programme de l'imprimante — et à le **prouver** avec un rapport.
 
-1. **Coller une image** (Ctrl + Maj + V) ou **Capturer une zone** depuis la barre d'outils, ou importer un fichier dans *Analyser une image*.
-2. Sur la fiche du code : **Comparer avec une lecture douchette**.
-3. Le banc d'essai s'ouvre avec le contenu exact du code : scanner le même code avec la douchette, puis **Comparer**.
-   Avec une douchette reliée en port COM ou en HID POS (page **Appareils de lecture**), la comparaison se lance seule à chaque lecture, sur les octets exacts.
-4. Pour réimprimer le code chez le client : **Code imprimante** sur la fiche du code (ou au banc d'essai), choisir ZPL / TSPL / EPL2 et la taille de l'étiquette, puis **Envoyer à l'imprimante** (adresse IP, port 9100) ou enregistrer le fichier.
+Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logistiques, et à tous ceux qui travaillent avec des codes-barres, des douchettes, des terminaux mobiles et des imprimantes d'étiquettes, **quelle que soit la marque**.
 
-## Direction artistique
+## Ce que fait Scanalyse
 
-Direction C « Atelier » : menu latéral vert foncé, contenu sur fond neutre, **vert** pour l'identité et la sélection, **orange bec de canard** réservé à l'action principale de chaque écran (une seule fois), couleurs d'état dédiées (le jaune pour « à vérifier », jamais l'orange de marque). Polices natives Windows 11 : Segoe UI Variable et Cascadia Mono. Thèmes clair, sombre et « suivre Windows ».
+### 🔍 Analyser une image
+- Une photo, une capture d'écran ou un PDF du client : **chaque code est lu et expliqué** (lien, Wi-Fi, carte de visite, données GS1 avec leurs dates, lots, numéros de série…).
+- Les **erreurs sont signalées** : clé de contrôle fausse, code GS1 mal construit, contraste faible, zone blanche trop petite, codes incohérents sur une même étiquette.
+- **Plusieurs images ou un PDF de plusieurs pages** d'un coup, puis un seul rapport.
 
-**Source unique : `design/tokens.json`.** Après modification, lancer `python tools/build_theme.py` (thèmes WPF + variables CSS de l'Atelier), puis `python web/build.py`.
+### 🧪 Banc d'essai douchette
+- On scanne un code avec la douchette du client : Scanalyse **compare ce qu'elle transmet au vrai contenu** et explique chaque écart (clavier AZERTY/QWERTY, préfixe ou suffixe en trop, séparateur GS1 perdu…).
+- **Codes de configuration** prêts à scanner pour corriger : Honeywell, Datalogic et Zebra (réglages par défaut, clavier français, touche Entrée, interface USB…).
 
-## Modifier l'Atelier
+### 📱 Appareils de lecture
+- Douchettes USB, série (port COM) et HID POS.
+- **Terminaux Android** reliés en USB ou en Wi-Fi : leurs lectures arrivent sur le PC.
+- **Terminaux sans lecteur** : leur **caméra sert de douchette**.
 
-Modifier les fichiers de `web/src/`, puis lancer `python web/build.py` (Python 3) pour régénérer la page embarquée. Ne jamais modifier `src/Scanalyse.Desktop/Web/index.html` à la main.
+### 🖨️ Code imprimante
+- **Lire le programme d'un client** en ZPL (Zebra), TSPL (TSC), EPL2 ou DPL (Honeywell / Datamax) : aperçu de l'étiquette, contenu de chaque code, erreurs.
+- **Modèles d'étiquettes prêts à l'emploi** (palette SSCC, colis, produit, emplacement, inventaire) dans les quatre langages.
+- **Envoyer à l'imprimante** (réseau ou imprimante installée) et **la maintenir** : lire son état (papier, ruban, tête ouverte), calibrer, imprimer sa page de configuration.
 
-## Prérequis
+### ✏️ Créer un code
+- Plus de 25 types : QR personnalisé (couleurs, logo), Data Matrix, GS1, EAN, Code 128, PDF417, MaxiCode…
+- Export en image et réimpression directe.
 
-- Visual Studio 2026 avec la charge de travail **Développement .NET Desktop**.
-- Windows 10 ou 11 avec le composant Microsoft Edge **WebView2** (présent d'office sur Windows 11 et sur les Windows 10 à jour).
-- Python 3, uniquement pour modifier l'Atelier.
-- (Plus tard, pour Relais) la charge de travail **Développement mobile .NET**.
+### 📁 Historique et rapports
+- Chaque analyse est rangée par **dossier client** (dossier SAV).
+- **Rapport PDF** à votre en-tête et votre logo, à joindre à l'intervention.
+- Historique partageable sur un dossier réseau pour toute l'équipe.
 
-## Démarrer dans Visual Studio
+### ⚙️ Pratique au quotidien
+- **Français ou anglais**, thème clair ou sombre, adapté aux grands écrans.
+- **Mise à jour automatique** depuis cette page.
+- **Profil d'équipe** : un fichier pour configurer un nouveau poste en un clic.
+- **Tout reste sur le PC** : aucune image ni donnée n'est envoyée sur Internet.
 
-1. Ouvrir `Scanalyse.slnx`.
-2. Clic droit sur **Scanalyse.Desktop** → *Définir comme projet de démarrage*.
-3. **F5** pour lancer.
-4. Tests : menu *Test* → *Explorateur de tests* → *Exécuter tout*.
+## Démarrer en 2 minutes
 
-## Publier l'exécutable portable
+1. Téléchargez **`Scanalyse.exe`** depuis la [dernière version](https://github.com/Kanard-Compagny/scanalyse/releases/latest).
+2. Lancez-le (si Windows affiche « Windows a protégé votre ordinateur » : *Informations complémentaires* → *Exécuter quand même*).
+3. Choisissez la langue, vos dossiers, et suivez la petite visite guidée.
 
-Clic droit sur **Scanalyse.Desktop** → *Publier* → profil **Portable** → *Publier*.
-On obtient un unique `Scanalyse.exe` autonome dans `src/Scanalyse.Desktop/bin/Portable/` : il se lance sans installation, depuis une clé USB, sur n'importe quel PC Windows 10 (2004 ou plus récent) ou 11, 64 bits.
+**Prérequis :** Windows 10 (version 2004 ou plus récente) ou Windows 11, 64 bits, avec Microsoft Edge WebView2 (déjà présent sur les Windows à jour).
 
-## Diffuser Scanalyse à l'équipe
+**Désinstaller :** *Paramètres → Désinstaller Scanalyse* efface les réglages (et vos données si vous le cochez), puis il ne reste qu'à supprimer le fichier.
 
-- **Compilation automatique (GitHub Actions)** : à chaque envoi sur `main`, les tests tournent et `Scanalyse.exe` est disponible dans l'onglet *Actions* du dépôt (artefact de la compilation).
-- **Version officielle** : sur GitHub, *Actions → Compilation → Run workflow*, saisir la version (ex. `0.10.0`) puis *Run workflow*. L'étiquette `vX.Y.Z` et la *Release* (exécutable + contenu de `CHANGELOG.md`) sont créées automatiquement. Créer soi-même un tag `vX.Y.Z` fonctionne aussi.
-- **Sur le PC d'un collègue** : copier `Scanalyse.exe` où il veut. Prérequis : le composant Microsoft Edge WebView2 (présent sur Windows 11 et Windows 10 à jour). L'historique se range dans `Historique` à côté de l'exe ; pour partager les dossiers SAV, chacun choisit le même dossier réseau dans *Paramètres → Historique et rapports*.
-- **Support** : *Paramètres → À propos → Copier le diagnostic* donne versions et emplacements à joindre à une demande d'aide.
+## Un problème, une idée ?
 
-## Façon de travailler (Git)
-
-- `main` : version stable, qui compile et dont les tests passent.
-- Une branche par évolution (`feature/douchette-hid`, `fix/…`), fusionnée dans `main` quand elle est validée.
-- Dans Visual Studio : fenêtre **Modifications Git** (*Affichage → Modifications Git*) pour valider, **Récupérer / Tirer** pour récupérer le travail, sélecteur de branche en bas à droite.
-
-## Conventions
-
-- Code et commentaires en français pour la documentation, identifiants en anglais.
-- Avertissements traités comme des erreurs dans le Core.
-- Toute règle d'analyse ou de diagnostic s'accompagne d'un test.
+Ouvrez un **[ticket (Issues)](https://github.com/Kanard-Compagny/scanalyse/issues)** en décrivant le matériel concerné.
+Astuce : *Paramètres → À propos → Copier le diagnostic* donne les informations utiles à joindre.
 
 ## Licence
 
-Scanalyse — analyse et diagnostic de lecture des codes-barres
-Copyright © 2026 Mr.Kanard
+Logiciel **libre et gratuit**, créé par **Mr.Kanard**, sous licence [GNU GPL v3](LICENSE) : chacun peut l'utiliser, le partager et l'améliorer, à condition que ses versions restent libres. Fourni sans aucune garantie.
+Composants tiers : voir [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
-Ce programme est un logiciel libre : vous pouvez le redistribuer et/ou le modifier selon les termes de la
-**GNU General Public License version 3** publiée par la Free Software Foundation (voir [LICENSE](LICENSE)).
-Toute version modifiée et distribuée doit rester sous la même licence, avec son code source.
-
-Ce programme est distribué dans l'espoir qu'il sera utile, mais **sans aucune garantie** ; sans même la garantie
-implicite de qualité marchande ou d'adéquation à un usage particulier.
-
-Les composants tiers gardent leur propre licence (MIT, Apache 2.0…) : voir [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+Vous voulez contribuer au code ? Tout est expliqué dans [docs/DEVELOPPEMENT.md](docs/DEVELOPPEMENT.md).

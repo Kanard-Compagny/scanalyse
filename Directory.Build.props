@@ -11,7 +11,7 @@
     <Copyright>© 2026 Mr.Kanard — logiciel libre sous licence GNU GPL v3</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <!-- Version : modifier ici (ou -p:Version=… à la publication ; la compilation GitHub reprend le tag vX.Y.Z). -->
-    <VersionPrefix>0.11.1</VersionPrefix>
+    <VersionPrefix>0.11.2</VersionPrefix>
     <NeutralLanguage>fr-FR</NeutralLanguage>
     <SatelliteResourceLanguages>fr</SatelliteResourceLanguages>
   </PropertyGroup>
