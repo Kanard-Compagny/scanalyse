@@ -60,10 +60,55 @@ jobs:
       - name: Exécutable portable
         run: dotnet publish src/Scanalyse.Desktop -p:PublishProfile=Portable -p:Version=${{ steps.version.outputs.value }}
 
-      - uses: actions/upload-artifact@v4
+      - name: Exécutable à compiler
+        id: artifact
+        uses: actions/upload-artifact@v4
         with:
           name: Scanalyse-${{ steps.version.outputs.value }}
           path: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe
+
+      # Signature du code (SignPath Foundation), uniquement pour une version publiée et seulement une fois SignPath
+      # configuré (variables SIGNPATH_* et secret SIGNPATH_API_TOKEN du dépôt, voir docs/SIGNATURE.md).
+      # Tant que ce n'est pas le cas, l'exécutable est publié sans signature, comme avant.
+      - name: Signature (SignPath)
+        id: signature
+        if: >-
+          (github.ref_type == 'tag' || github.event.inputs.publier != '' || steps.version.outputs.release == 'true')
+          && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          github-artifact-id: ${{ steps.artifact.outputs.artifact-id }}
+          wait-for-completion: true
+          # La signature attend la validation manuelle de la version sur SignPath (jusqu'à 4 h).
+          wait-for-completion-timeout-in-seconds: 14400
+          output-artifact-directory: signe
+
+      - name: Fichiers de la version
+        if: github.ref_type == 'tag' || github.event.inputs.publier != '' || steps.version.outputs.release == 'true'
+        shell: pwsh
+        env:
+          SIGNATURE: ${{ steps.signature.outcome }}
+        run: |
+          New-Item -ItemType Directory -Force publication | Out-Null
+          $notes = ""
+          if ($env:SIGNATURE -eq "success") {
+            # Exécutable signé (dossier ou archive renvoyés par SignPath). Introuvable ou signature invalide :
+            # la publication s'arrête, rien n'est diffusé.
+            Get-ChildItem signe -Recurse -Filter *.zip | ForEach-Object { Expand-Archive $_.FullName -DestinationPath signe -Force }
+            $signed = Get-ChildItem signe -Recurse -Filter Scanalyse.exe | Select-Object -First 1
+            if (-not $signed) { throw "Exécutable signé introuvable dans le retour de SignPath." }
+            $sig = Get-AuthenticodeSignature $signed.FullName
+            if ($sig.Status -ne "Valid") { throw "Signature invalide : $($sig.Status) $($sig.StatusMessage)" }
+            Copy-Item $signed.FullName publication/Scanalyse.exe
+            $notes = "Exécutable signé. Signature gratuite fournie par [SignPath.io](https://about.signpath.io), certificat de [SignPath Foundation](https://signpath.org) — voir la [politique de signature du code](https://github.com/${{ github.repository }}#code-signing-policy).`n`n"
+          } else {
+            Copy-Item src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe publication/Scanalyse.exe
+          }
+          Set-Content -Encoding utf8 publication/notes.md ($notes + (Get-Content -Raw -Encoding utf8 CHANGELOG.md))
 
       - name: Release
         if: github.ref_type == 'tag' || github.event.inputs.publier != '' || steps.version.outputs.release == 'true'
@@ -73,5 +118,5 @@ jobs:
           tag_name: v${{ steps.version.outputs.value }}
           target_commitish: ${{ github.sha }}
           name: Scanalyse ${{ steps.version.outputs.value }}
-          body_path: CHANGELOG.md
-          files: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe
+          body_path: publication/notes.md
+          files: publication/Scanalyse.exe

@@ -66,6 +66,22 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 Ouvrez un **[ticket](https://github.com/Kanard-Compagny/scanalyse/issues/new/choose)** : un problème, un matériel à prendre en charge (toutes marques) ou une idée.
 Astuce : *Paramètres → À propos → Copier le diagnostic* donne les informations utiles à joindre.
 
+## Confidentialité
+
+Scanalyse fonctionne entièrement sur le PC : **aucune image, aucun code lu, aucun rapport ni aucune donnée client n'est envoyé sur Internet**, et il n'y a ni compte, ni publicité, ni mesure d'audience.
+La seule connexion est la **recherche de mise à jour** sur GitHub (adresse `api.github.com`, sans aucune information personnelle) ; on la désactive dans *Paramètres → Mises à jour* (« Rechercher au démarrage »). Le relais des terminaux Android reste sur le réseau local.
+
+## Code signing policy
+
+*Politique de signature du code — en cours de mise en place.*
+Les versions de Scanalyse seront signées gratuitement par [SignPath.io](https://about.signpath.io), avec un certificat de [SignPath Foundation](https://signpath.org).
+Chaque exécutable signé est compilé automatiquement par GitHub Actions à partir du code de ce dépôt, puis validé à la main avant signature.
+
+- Auteurs et relecteurs (*committers and reviewers*) : [Mr.Kanard](https://github.com/Kanard-Compagny)
+- Validation des versions (*approvers*) : [Mr.Kanard](https://github.com/Kanard-Compagny)
+
+Confidentialité : voir la section [Confidentialité](#confidentialité) ci-dessus.
+
 ## Licence
 
 Logiciel **libre et gratuit**, créé par **Mr.Kanard**, sous licence [GNU GPL v3](LICENSE) : chacun peut l'utiliser, le partager et l'améliorer, à condition que ses versions restent libres. Fourni sans aucune garantie.
