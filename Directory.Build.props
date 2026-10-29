@@ -10,7 +10,7 @@
     <Product>Scanalyse</Product>
     <Copyright>© 2026 Mr.Kanard — logiciel libre sous licence GNU GPL v3</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <!-- Version : modifier ici (ou -p:Version=… à la publication ; la compilation GitHub reprend le tag vX.Y.Z). -->
+    <!-- Version : modifier ici. Un envoi sur main avec une version encore jamais publiée crée la Release vX.Y.Z (voir docs/DEVELOPPEMENT.md). -->
     <VersionPrefix>0.11.2</VersionPrefix>
     <NeutralLanguage>fr-FR</NeutralLanguage>
     <SatelliteResourceLanguages>fr</SatelliteResourceLanguages>

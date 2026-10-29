@@ -50,7 +50,8 @@ On obtient un unique `Scanalyse.exe` autonome dans `src/Scanalyse.Desktop/bin/Po
 ## Diffuser Scanalyse à l'équipe
 
 - **Compilation automatique (GitHub Actions)** : à chaque envoi sur `main`, les tests tournent et `Scanalyse.exe` est disponible dans l'onglet *Actions* du dépôt (artefact de la compilation).
-- **Version officielle** : sur GitHub, *Actions → Compilation → Run workflow*, saisir la version (ex. `0.12.0`) puis *Run workflow*. L'étiquette `vX.Y.Z` et la *Release* (exécutable + contenu de `CHANGELOG.md`) sont créées automatiquement. Créer soi-même un tag `vX.Y.Z` fonctionne aussi.
+- **Version officielle** : changer `VersionPrefix` dans `Directory.Build.props` (ex. `0.12.0`), compléter `CHANGELOG.md`, puis envoyer sur `main`. Si l'étiquette `vX.Y.Z` n'existe pas encore, la compilation la crée avec la *Release* (exécutable + contenu de `CHANGELOG.md`), et Scanalyse la propose en mise à jour. Les envois suivants avec la même version donnent des compilations `-dev`.
+  Autres moyens : *Actions → Compilation → Run workflow* en saisissant la version, ou créer soi-même un tag `vX.Y.Z`.
 - **Sur le PC d'un collègue** : copier `Scanalyse.exe` où il veut. Prérequis : le composant Microsoft Edge WebView2 (présent sur Windows 11 et Windows 10 à jour). L'historique se range dans `Historique` à côté de l'exe ; pour partager les dossiers SAV, chacun choisit le même dossier réseau dans *Paramètres → Historique et rapports*.
 - **Support** : *Paramètres → À propos → Copier le diagnostic* donne versions et emplacements à joindre à une demande d'aide.
 

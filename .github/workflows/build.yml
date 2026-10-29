@@ -1,6 +1,7 @@
 # Compilation automatique : tests à chaque envoi, exécutable portable téléchargeable.
-# Pour publier une version : Actions → Compilation → « Run workflow », saisir la version (ex. 0.10.0) ;
-# ou créer un tag vX.Y.Z. L'exécutable est alors joint à une « Release » GitHub.
+# Publication automatique : un envoi sur main dont la version (VersionPrefix de Directory.Build.props) n'a pas encore
+# d'étiquette vX.Y.Z crée l'étiquette et la « Release » GitHub avec Scanalyse.exe. Sinon, compilation « -dev ».
+# Autres moyens : Actions → Compilation → « Run workflow » en saisissant la version (ex. 0.12.0), ou créer un tag vX.Y.Z.
 name: Compilation
 
 on:
@@ -17,6 +18,11 @@ on:
 
 permissions:
   contents: write
+
+# Une compilation à la fois par branche : deux envois rapprochés ne publient pas deux fois la même version.
+concurrency:
+  group: compilation-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -37,10 +43,19 @@ jobs:
         run: |
           $prefix = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.VersionPrefix
           $publish = "${{ github.event.inputs.publier }}".Trim().TrimStart("v")
+          $release = "false"
           if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart("v") }
           elseif ($publish) { $v = $publish }
-          else { $v = "$prefix-dev.${{ github.run_number }}" }
+          else {
+            $v = "$prefix-dev.${{ github.run_number }}"
+            # Envoi sur main avec une version encore jamais publiée : publication automatique.
+            if ("${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -eq "refs/heads/main") {
+              $existing = git ls-remote --tags origin "refs/tags/v$prefix"
+              if ($LASTEXITCODE -eq 0 -and -not $existing) { $v = $prefix; $release = "true" }
+            }
+          }
           "value=$v" >> $env:GITHUB_OUTPUT
+          "release=$release" >> $env:GITHUB_OUTPUT
 
       - name: Exécutable portable
         run: dotnet publish src/Scanalyse.Desktop -p:PublishProfile=Portable -p:Version=${{ steps.version.outputs.value }}
@@ -51,10 +66,10 @@ jobs:
           path: src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe
 
       - name: Release
-        if: github.ref_type == 'tag' || github.event.inputs.publier != ''
+        if: github.ref_type == 'tag' || github.event.inputs.publier != '' || steps.version.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          # Bouton « Run workflow » : l'étiquette vX.Y.Z est créée sur ce commit si elle n'existe pas.
+          # Bouton « Run workflow » ou publication automatique : l'étiquette vX.Y.Z est créée sur ce commit si elle n'existe pas.
           tag_name: v${{ steps.version.outputs.value }}
           target_commitish: ${{ github.sha }}
           name: Scanalyse ${{ steps.version.outputs.value }}
