@@ -806,12 +806,18 @@ public partial class PrintView : UserControl
         }
 
         var previewFills = showPreview && !showProgram;
+
+        // Lecture et modèles : aperçu et programme se partagent la hauteur (5/4), chacun avec un minimum, pour que
+        // l'éditeur ne soit jamais écrasé (l'aperçu à hauteur fixe ne lui laissait plus de place).
+        var split = showPreview && showProgram && _readMode;
         PreviewCard.Margin = new Thickness(0, 0, 0, showPreview && showProgram ? 14 : 0);
         Grid.SetColumn(RightPane, any ? 0 : 2);
         Grid.SetColumnSpan(RightPane, any ? 3 : 1);
-        RightPane.RowDefinitions[0].Height = previewFills ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
-        RightPane.RowDefinitions[1].Height = showProgram ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-        PreviewBox.Height = previewFills ? double.NaN : _readMode ? 330 : 170;
+        RightPane.RowDefinitions[0].Height = previewFills || split ? new GridLength(split ? 5 : 1, GridUnitType.Star) : GridLength.Auto;
+        RightPane.RowDefinitions[0].MinHeight = split ? 280 : 0;
+        RightPane.RowDefinitions[1].Height = showProgram ? new GridLength(split ? 4 : 1, GridUnitType.Star) : new GridLength(0);
+        RightPane.RowDefinitions[1].MinHeight = showProgram ? 400 : 0;
+        PreviewBox.Height = previewFills || split ? double.NaN : 170;
         ExpandButton.Content = zoom == Zoom.Program ? "Réduire" : "Agrandir";
         ExpandPreviewButton.Content = zoom == Zoom.Preview ? "Réduire" : "Agrandir";
         ExpandButton.Visibility = Detached ? Visibility.Collapsed : Visibility.Visible;

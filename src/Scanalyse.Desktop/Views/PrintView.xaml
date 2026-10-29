@@ -24,7 +24,7 @@
 
 <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
   <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : rien n'est jamais coupé. -->
-  <Grid x:Name="PageGrid" SizeChanged="PageGrid_SizeChanged" MinHeight="850" Height="{Binding ViewportHeight, ElementName=PageScroll}">
+  <Grid x:Name="PageGrid" SizeChanged="PageGrid_SizeChanged" MinHeight="920" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />

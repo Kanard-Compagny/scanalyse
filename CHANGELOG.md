@@ -6,6 +6,7 @@
   - SBPL : commandes ESC réelles ou notation `<ESC>`, programmes encadrés par STX / ETX, rotation, agrandissement, polices, codes 1D (Code 128 avec FNC1, SSCC « BI » complété de sa clé), QR Code et Data Matrix, cadres et zones inversées ; programme coloré dans l'éditeur. Un SSCC au mauvais nombre de chiffres est signalé.
   - Fingerprint : mots-clés complets ou abrégés (PP, PT, PB…), numéros de ligne, plusieurs étiquettes par fichier, ancrages (ALIGN), CHR$(128) = FNC1 ; position « y » comptée depuis le bas de l'étiquette.
 - Un programme SATO commençant par STX n'est plus pris pour du DPL.
+- **Code imprimante** : en lecture d'un programme et avec les modèles, la zone du programme n'est plus écrasée par l'aperçu (en plein écran comme en fenêtre réduite) ; aperçu et programme se partagent la hauteur, l'éditeur garde toujours une place lisible.
 - **Paramètres par catégories**, comme les réglages de GitHub ou Discord : menu à gauche (Général, Mises à jour, Prise en main, Rapports PDF, Historique, Impression et banc d'essai, Profil d'équipe, À propos, Désinstaller) et une catégorie à la fois. Chaque dossier est rangé avec ce qu'il concerne (rapports, historique, programmes d'étiquettes) ; le diagnostic a sa propre carte dans À propos.
 
 ## 0.11.2 — octobre 2026
