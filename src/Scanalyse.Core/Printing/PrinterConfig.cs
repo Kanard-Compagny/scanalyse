@@ -67,6 +67,7 @@ public static partial class PrinterConfig
         Ip,
         Do,
         Secret,
+        Password,
         ReadOnly,
     }
 
@@ -112,8 +113,8 @@ public static partial class PrinterConfig
         ["ip.gateway"] = new("Passerelle (filaire)", "Réseau", Kind.Ip),
         ["ip.dhcp.enable"] = new("Adresse automatique (DHCP)", "Réseau", Kind.OnOff),
         ["ip.protocol"] = new("Attribution de l'adresse IP", "Réseau", Kind.Choice, Choices: ["all", "bootp", "dhcp", "dhcp and bootp", "gleaning only", "rarp", "permanent"]),
-        ["ip.port"] = new("Port d'impression (9100 par défaut)", "Réseau", Kind.Integer, 1, 65535),
-        ["ip.port_alternate"] = new("Second port d'impression", "Réseau", Kind.Integer, 1, 65535),
+        ["ip.port"] = new("Port d'impression (9100 par défaut)", "Réseau", Kind.Integer, 0, 65535),
+        ["ip.port_alternate"] = new("Second port d'impression", "Réseau", Kind.Integer, 0, 65535),
         ["ip.telnet.enable"] = new("Accès Telnet", "Réseau", Kind.OnOff),
         ["ip.ftp.enable"] = new("Accès FTP", "Réseau", Kind.OnOff),
         ["ip.http.enable"] = new("Page web de l'imprimante", "Réseau", Kind.OnOff),
@@ -155,6 +156,54 @@ public static partial class PrinterConfig
         ["capture.channel1.port"] = new("Capture de flux (port)", "Communication", Kind.Text),
         ["ezpl.reprint_mode"] = new("Réimpression après une erreur", "Impression", Kind.OnOff),
         ["file.dir"] = new("Liste des fichiers", "Lecture", Kind.Do),
+        ["ip.port_single_conn"] = new("Une seule connexion à la fois sur le port d'impression", "Réseau", Kind.OnOff),
+        ["ip.https.enable"] = new("Page web sécurisée (HTTPS)", "Réseau", Kind.OnOff),
+        ["ip.http.admin_name"] = new("Identifiant administrateur de la page web", "Réseau", Kind.Text),
+        ["ip.http.admin_password"] = new("Mot de passe administrateur de la page web", "Réseau", Kind.Password),
+        ["ip.lpd.enable"] = new("Impression LPD (port 515)", "Réseau", Kind.OnOff),
+        ["ip.pop3.enable"] = new("Réception d'e-mails (POP3)", "Réseau", Kind.OnOff),
+        ["ip.smtp.enable"] = new("Envoi d'alertes par e-mail (SMTP)", "Réseau", Kind.OnOff),
+        ["ip.udp.enable"] = new("Protocole UDP", "Réseau", Kind.OnOff),
+        ["ip.ntp.enable"] = new("Mise à l'heure par le réseau (NTP)", "Réseau", Kind.OnOff),
+        ["ip.tcp.enable"] = new("Protocole TCP", "Réseau", Kind.OnOff),
+        ["ip.snmp.get_community_name"] = new("Communauté SNMP en lecture", "Réseau", Kind.Text),
+        ["ip.snmp.set_community_name"] = new("Communauté SNMP en écriture", "Réseau", Kind.Password),
+        ["ip.snmp.trap_community_name"] = new("Communauté SNMP des alertes", "Réseau", Kind.Text),
+        ["ip.dns.servers"] = new("Serveurs DNS", "Réseau", Kind.Text),
+        ["ip.dns.domain"] = new("Domaine DNS", "Réseau", Kind.Text),
+        ["ip.mirror.enable"] = new("Mise à jour automatique depuis un serveur (mirror)", "Réseau", Kind.OnOff),
+        ["ip.ftp.execute_file"] = new("Exécution des fichiers reçus par FTP", "Réseau", Kind.OnOff),
+        ["weblink.zebra_connector.enable"] = new("Connecteur Zebra (Link-OS, applications)", "Réseau", Kind.OnOff),
+        ["weblink.cloud_connect.enable"] = new("Connexion au cloud Zebra (Weblink)", "Réseau", Kind.OnOff),
+        ["weblink.ip.conn1.location"] = new("Adresse du serveur Weblink 1", "Réseau", Kind.Text),
+        ["weblink.ip.conn2.location"] = new("Adresse du serveur Weblink 2", "Réseau", Kind.Text),
+        ["weblink.enable"] = new("Weblink", "Réseau", Kind.OnOff),
+        ["zbi.enable"] = new("Programmes ZBI (Zebra Basic)", "Système", Kind.OnOff),
+        ["usb.host.lock_out"] = new("Ports USB hôte verrouillés (clés USB, claviers)", "Système", Kind.OnOff),
+        ["device.xml.enable"] = new("Commandes XML", "Système", Kind.OnOff),
+        ["device.syslog.enable"] = new("Journal système (syslog)", "Système", Kind.OnOff),
+        ["device.syslog.configuration"] = new("Destination du journal système (syslog)", "Système", Kind.Text),
+        ["device.product_name"] = new("Modèle de l'imprimante", "Système", Kind.ReadOnly),
+        ["device.uptime"] = new("Durée depuis la mise sous tension", "Système", Kind.ReadOnly),
+        ["device.host_status"] = new("État de l'imprimante", "Système", Kind.ReadOnly),
+        ["display.password.level"] = new("Menus protégés par le mot de passe du panneau", "Système", Kind.Text, Choices: ["selected", "all", "none"]),
+        ["display.password.current"] = new("Mot de passe du panneau de commande", "Système", Kind.Password),
+        ["display.password.enable"] = new("Mot de passe du panneau de commande", "Système", Kind.OnOff),
+        ["display.backlight"] = new("Rétroéclairage de l'écran", "Système", Kind.Text),
+        ["power.energy_star.enable"] = new("Mode économie d'énergie (Energy Star)", "Système", Kind.OnOff),
+        ["power.energy_star.timeout"] = new("Délai avant l'économie d'énergie (secondes)", "Système", Kind.Integer, 0, 86400),
+        ["bluetooth.minimum_security_mode"] = new("Sécurité Bluetooth minimale (1 à 4)", "Communication", Kind.Integer, 1, 4),
+        ["bluetooth.bluetooth_pin"] = new("Code PIN Bluetooth", "Communication", Kind.Password),
+        ["bluetooth.le.controller_mode"] = new("Bluetooth : classique, basse consommation ou les deux", "Communication", Kind.Text, Choices: ["both", "classic", "le"]),
+        ["comm.parity"] = new("Parité du port série", "Communication", Kind.Text),
+        ["comm.handshake"] = new("Contrôle de flux du port série", "Communication", Kind.Text),
+        ["interface.network.active.mac_addr"] = new("Adresse MAC active", "Réseau", Kind.ReadOnly),
+        ["interface.network.active.protocol"] = new("Attribution de l'adresse active", "Réseau", Kind.ReadOnly),
+        ["appl.bootblock"] = new("Version du chargeur de démarrage", "Système", Kind.ReadOnly),
+        ["odometer.total_label_count"] = new("Compteur d'étiquettes imprimées", "Système", Kind.ReadOnly),
+        ["alerts.configured"] = new("Alertes configurées", "Système", Kind.Text),
+        ["media.tof"] = new("Décalage du haut d'étiquette", "Support", Kind.Integer, -120, 120),
+        ["print.tone_zpl"] = new("Noirceur au format ZPL (~SD)", "Impression", Kind.Number, 0, 30),
         ["bluetooth.enable"] = new("Bluetooth", "Communication", Kind.OnOff),
         ["bluetooth.discoverable"] = new("Bluetooth visible", "Communication", Kind.OnOff),
         ["bluetooth.friendly_name"] = new("Nom Bluetooth", "Communication", Kind.Text),
@@ -181,6 +230,9 @@ public static partial class PrinterConfig
 
         public bool Risky { get; set; }
 
+        /// <summary>Réglages lus sur l'imprimante (Zebra) : la référence pour les noms et les valeurs quand ils sont connus.</summary>
+        public IReadOnlyDictionary<string, PrinterValue>? Printer { get; init; }
+
         public int ResetLine { get; set; }
 
         public int ZplSaveLine { get; set; }
@@ -206,11 +258,15 @@ public static partial class PrinterConfig
             Settings[key] = new ConfigSetting(key, label, value, line, comparable);
     }
 
-    /// <summary>Analyse un fichier de configuration (un ou plusieurs langages mêlés).</summary>
-    public static ConfigReport Analyze(string text)
+    /// <summary>
+    /// Analyse un fichier de configuration (un ou plusieurs langages mêlés). Avec les réglages lus sur l'imprimante
+    /// (<paramref name="printer"/>), ceux-ci font référence : un nom qu'elle connaît n'est jamais signalé, et ses valeurs
+    /// acceptées remplacent les limites intégrées (voir <see cref="Compare"/>).
+    /// </summary>
+    public static ConfigReport Analyze(string text, IReadOnlyDictionary<string, PrinterValue>? printer = null)
     {
         ArgumentNullException.ThrowIfNull(text);
-        var ctx = new Ctx();
+        var ctx = new Ctx { Printer = printer is { Count: > 0 } ? printer : null };
         text = text.TrimStart('﻿');
         var normalized = Notation(text);
         var fileKind = ProgramFile.Detect(normalized);
@@ -453,8 +509,9 @@ public static partial class PrinterConfig
                     return;
                 }
 
-                ctx.Item(n, language, raw, $"{label} → {(def?.Kind == Kind.Secret ? "••••••" : value)}", category);
-                ctx.Set(name, label, def?.Kind == Kind.Secret ? "••••••" : value, n, comparable: def?.Kind != Kind.Secret);
+                var hidden = def?.Kind is Kind.Secret or Kind.Password;
+                ctx.Item(n, language, raw, $"{label} → {(hidden ? "••••••" : value)}", category);
+                ctx.Set(name, label, hidden ? "••••••" : value, n, comparable: !hidden);
                 if (category == "Réseau")
                 {
                     ctx.Risky = true;
@@ -467,9 +524,31 @@ public static partial class PrinterConfig
 
     private static void CheckSgdValue(string name, string value, SgdDef? def, int n, Ctx ctx)
     {
+        // Imprimante lue : elle fait référence. Nom absent ou valeur refusée : signalés par la comparaison.
+        if (ctx.Printer is { } printer)
+        {
+            if (!printer.TryGetValue(name, out var onPrinter))
+            {
+                return;
+            }
+
+            if (onPrinter.Choices is not null && def?.Kind is not (Kind.Secret or Kind.Password or Kind.Ip))
+            {
+                return;
+            }
+        }
+
         if (def is null)
         {
-            var near = SgdTable.Keys.Select(k => (k, d: Distance(k, name))).Where(x => x.d is > 0 and <= 2).OrderBy(x => x.d).Select(x => x.k).FirstOrDefault();
+            // Faute de frappe probable seulement si le nom ressemble vraiment à un réglage connu de la même famille (ip., media.…).
+            var family = name.Split('.')[0];
+            var near = SgdTable.Keys
+                .Where(k => k.Split('.')[0] == family)
+                .Select(k => (k, d: Distance(k, name)))
+                .Where(x => x.d > 0 && x.d <= (name.Length < 12 ? 1 : 2))
+                .OrderBy(x => x.d)
+                .Select(x => x.k)
+                .FirstOrDefault();
             ctx.Find(n, Severity.Warning, near is null
                 ? $"« {name} » : réglage inconnu de Scanalyse. S'il n'existe pas sur l'imprimante, elle l'ignore sans message d'erreur : vérifie son nom en lisant l'imprimante (bouton « Lire l'imprimante »)."
                 : $"« {name} » n'existe pas : vouliez-vous écrire « {near} » ? Un nom inconnu est ignoré par l'imprimante, sans message d'erreur.");
@@ -493,6 +572,10 @@ public static partial class PrinterConfig
                 ctx.Find(n, closeChoice is null ? Severity.Warning : Severity.Error, closeChoice is not null
                     ? $"« {value} » : écris « {closeChoice} » (les valeurs SGD respectent les minuscules)."
                     : $"« {value} » n'est pas une valeur connue pour « {name} » ({string.Join(", ", choices)}). Selon le modèle, d'autres valeurs existent : vérifie en lisant l'imprimante.");
+                break;
+            case Kind.Integer when name is "ip.port" or "ip.port_alternate" && v == "0":
+                ctx.Find(n, Severity.Warning, $"« {name} » à 0 : selon le firmware, le port est coupé ou la valeur est refusée. Port coupé, l'impression réseau par ce port (9100 en général) "
+                    + "n'est plus possible : ni Scanalyse ni la plupart des logiciels ne pourront plus envoyer d'étiquettes par le réseau.");
                 break;
             case Kind.Number or Kind.Integer:
                 if (!double.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
@@ -521,6 +604,10 @@ public static partial class PrinterConfig
                 break;
             case Kind.Text when def.Max > 0 && v.Length > def.Max:
                 ctx.Find(n, Severity.Warning, $"« {value} » : {v.Length} caractères, l'imprimante en garde {def.Max.ToString(CultureInfo.InvariantCulture)} au plus.");
+                break;
+            case Kind.Password:
+                ctx.Find(n, Severity.Warning, $"« {name} » : mot de passe écrit en clair dans ce fichier ; toute personne qui l'ouvre peut le lire. "
+                    + "Ne diffuse pas ce fichier (e-mail, ticket), garde-le dans un dossier protégé et supprime-le après usage ; change ce mot de passe s'il a circulé.");
                 break;
             case Kind.Secret:
                 WifiSecret(ctx, n, v);
@@ -1592,7 +1679,7 @@ public static partial class PrinterConfig
         {
             if (!printer.TryGetValue(s.Key, out var current))
             {
-                list.Add(new ConfigFinding(s.Line, Severity.Warning, $"« {s.Key} » n'existe pas sur cette imprimante (modèle ou firmware) : le réglage sera ignoré."));
+                list.Add(new ConfigFinding(s.Line, Severity.Error, $"« {s.Key} » n'existe pas sur cette imprimante (modèle ou firmware) : elle l'ignore sans message d'erreur. Vérifie le nom, ou si ce réglage existe sur ce modèle."));
                 continue;
             }
 

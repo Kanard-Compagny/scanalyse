@@ -185,11 +185,13 @@ public static partial class PrinterConfig
     /// <summary>
     /// Propositions pour la ligne en cours de saisie (<paramref name="linePrefix"/> = texte de la ligne jusqu'au curseur) :
     /// nom ou valeur SGD entre guillemets, commande ZPL après ^ ou ~, ou commande en début de ligne (tous langages).
-    /// <paramref name="force"/> (Ctrl + Espace) propose toute la bibliothèque même sans rien de tapé.
+    /// <paramref name="force"/> (Ctrl + Espace) propose toute la bibliothèque même sans rien de tapé. Avec les réglages lus
+    /// sur l'imprimante (<paramref name="printer"/>), les noms et valeurs SGD proposés sont les siens.
     /// </summary>
-    public static ConfigCompletion Suggest(string linePrefix, bool force = false)
+    public static ConfigCompletion Suggest(string linePrefix, bool force = false, IReadOnlyDictionary<string, PrinterValue>? printer = null)
     {
         ArgumentNullException.ThrowIfNull(linePrefix);
+        printer = printer is { Count: > 0 } ? printer : null;
 
         // Valeur SGD : ! U1 setvar "nom" "…
         var value = SgdValueRegex().Match(linePrefix);
@@ -197,6 +199,20 @@ public static partial class PrinterConfig
         {
             var key = value.Groups[1].Value.ToLowerInvariant();
             var typed = value.Groups[2].Value;
+            SgdTable.TryGetValue(key, out var known);
+
+            // Imprimante lue : ses choix annoncés (liste, pas une plage de nombres).
+            if (printer is not null && printer.TryGetValue(key, out var onPrinter) && onPrinter.Choices is { } announced && !RangeChoice().IsMatch(announced.Trim()))
+            {
+                var fromPrinter = announced.Split(',')
+                    .Select(c => c.Trim())
+                    .Where(c => c.Length > 0 && c.Contains(typed, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(c => c.StartsWith(typed, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                    .Select(c => new ConfigSnippet("SGD", c, c + "\"", c.Length + 1, (known?.Label ?? key) + " (valeur acceptée par l'imprimante)"))
+                    .ToList();
+                return new ConfigCompletion(typed.Length, fromPrinter);
+            }
+
             // Valeurs proposées : choix fermés, on / off, ou valeurs usuelles d'un réglage libre (pays Wi-Fi, bandes…).
             if (SgdTable.TryGetValue(key, out var def) && (def.Kind is Kind.Choice or Kind.OnOff || def.Choices is not null))
             {
@@ -218,6 +234,26 @@ public static partial class PrinterConfig
         {
             var verb = name.Groups[1].Value.ToLowerInvariant();
             var typed = name.Groups[2].Value;
+            if (printer is not null && verb != "do")
+            {
+                var fromPrinter = printer
+                    .Where(kv => verb != "setvar" || !(SgdTable.TryGetValue(kv.Key, out var d) && d.Kind == Kind.ReadOnly))
+                    .Where(kv => typed.Length == 0 || kv.Key.Contains(typed, StringComparison.OrdinalIgnoreCase)
+                        || (SgdTable.TryGetValue(kv.Key, out var d2) && d2.Label.Contains(typed, StringComparison.OrdinalIgnoreCase)))
+                    .OrderBy(kv => kv.Key.StartsWith(typed, StringComparison.OrdinalIgnoreCase) ? 0 : kv.Key.Contains(typed, StringComparison.OrdinalIgnoreCase) ? 1 : 2)
+                    .ThenBy(kv => kv.Key, StringComparer.Ordinal)
+                    .Take(400)
+                    .Select(kv =>
+                    {
+                        var label = SgdTable.TryGetValue(kv.Key, out var d3) ? d3.Label : "Réglage de l'imprimante";
+                        var description = $"{label} · imprimante : « {kv.Value.Value} »" + (kv.Value.Choices is { Length: > 0 } c ? $" · accepte : {c}" : string.Empty);
+                        var text = verb == "getvar" ? kv.Key + "\"" : kv.Key + "\" \"\"";
+                        return new ConfigSnippet("SGD", kv.Key, text, verb == "getvar" ? text.Length : text.Length - 1, description);
+                    })
+                    .ToList();
+                return new ConfigCompletion(typed.Length, fromPrinter);
+            }
+
             var items = SgdKeys
                 .Where(k => (verb == "do") == (k.Def.Kind == Kind.Do) || verb == "getvar")
                 .Where(k => verb != "setvar" || k.Def.Kind != Kind.ReadOnly)

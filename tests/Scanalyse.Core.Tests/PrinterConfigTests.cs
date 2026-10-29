@@ -154,7 +154,7 @@ public class PrinterConfigTests
         Assert.Contains(c, f => f.Line == 1 && f.Severity == Severity.Ok);
         Assert.Contains(c, f => f.Line == 2 && f.Severity == Severity.Error && f.Message.Contains("2.0-6.0", StringComparison.Ordinal));
         Assert.Contains(c, f => f.Line == 3 && f.Severity == Severity.Info && f.Message.Contains("tear off", StringComparison.Ordinal));
-        Assert.Contains(c, f => f.Line == 4 && f.Severity == Severity.Warning);
+        Assert.Contains(c, f => f.Line == 4 && f.Severity == Severity.Error);
         Assert.True(PrinterConfig.Accepts("on,off", "on"));
         Assert.False(PrinterConfig.Accepts("0.0-30.0", "31"));
     }
@@ -251,5 +251,84 @@ public class PrinterConfigTests
         Assert.True(Of(ConfigTokenKind.Name).Contains("\"media.speed\"", StringComparison.Ordinal));
         Assert.True(Of(ConfigTokenKind.Verb).Contains("PEEL", StringComparison.Ordinal));
         Assert.True(Of(ConfigTokenKind.Command).Contains("<ESC>", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Imprimante_lue_fait_reference()
+    {
+        var printer = PrinterConfig.ParseAllcv("ip.https.enable : on , Choices: on,off\r\nzbi.secret_option : off , Choices: on,off\r\nprint.tone : 20.0 , Choices: 0.0-30.0\r\n"
+            + "device.languages : zpl , Choices: zpl,epl_zpl,epl\r\ndevice.product_name : ZT411 \r\nappl.name : V92.21.39Z \r\nmedia.printmode : tear off , Choices: tear off,peel off\r\n");
+        const string file = "! U1 setvar \"zbi.secret_option\" \"on\"\r\n! U1 setvar \"ip.https.enable\" \"off\"\r\n! U1 setvar \"wlan.inexistant\" \"1\"\r\n";
+        var alone = PrinterConfig.Analyze(file);
+        Assert.True(Has(alone, 1, Severity.Warning, "inconnu"));
+        Assert.DoesNotContain(alone.Findings, f => f.Line == 2);
+
+        var withPrinter = PrinterConfig.Analyze(file, printer);
+        Assert.DoesNotContain(withPrinter.Findings, f => f.Line is 1 or 3);
+        var c = PrinterConfig.Compare(withPrinter, printer);
+        Assert.Contains(c, f => f.Line == 3 && f.Severity == Severity.Error);
+        Assert.Contains(c, f => f.Line == 1 && f.Severity == Severity.Info);
+
+        Assert.Contains(PrinterConfig.Suggest("! U1 setvar \"zbi.s", printer: printer).Items, i => i.Label == "zbi.secret_option");
+        Assert.Equal(["tear off", "peel off"], PrinterConfig.Suggest("! U1 setvar \"media.printmode\" \"", printer: printer).Items.Select(i => i.Label));
+
+        var profile = PrinterConfig.ZebraProfile(printer, "réseau");
+        Assert.Equal("Zebra ZT411", profile.DisplayName);
+        Assert.Equal(["ZPL"], profile.Languages);
+        var epl = PrinterConfig.Analyze("q812\r\nQ1218,24\r\nS3\r\nD10\r\nZT\r\nOD\r\n");
+        Assert.Contains(PrinterConfig.Compatibility(epl, profile), f => f.Severity == Severity.Error && f.Message.Contains("EPL2", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Compatibilite_toutes_marques()
+    {
+        Assert.Equal(PrinterBrand.Zebra, PrinterConfig.DetectBrand("ZDesigner ZT411-203dpi ZPL"));
+        Assert.Equal(PrinterBrand.Tsc, PrinterConfig.DetectBrand("TSC TE210"));
+        Assert.Equal(PrinterBrand.Honeywell, PrinterConfig.DetectBrand("Honeywell PC42t"));
+        Assert.Equal(PrinterBrand.Datamax, PrinterConfig.DetectBrand("Datamax-O'Neil I-4212e"));
+        Assert.Equal(PrinterBrand.Sato, PrinterConfig.DetectBrand("SATO CL4NX 305dpi"));
+        Assert.Equal(PrinterBrand.Unknown, PrinterConfig.DetectBrand("Microsoft Print to PDF"));
+
+        var empty = new Dictionary<string, PrinterValue>();
+        var tsc = new PrinterProfile(PrinterBrand.Tsc, "TE210", null, [], empty, "pilote");
+        var sgd = PrinterConfig.Analyze("! U1 setvar \"print.tone\" \"20\"\r\n");
+        Assert.Contains(PrinterConfig.Compatibility(sgd, tsc), f => f.Severity == Severity.Error && f.Message.Contains("propres aux Zebra", StringComparison.Ordinal));
+        var tspl = PrinterConfig.Analyze("SIZE 100 mm, 50 mm\r\nSPEED 4\r\n");
+        Assert.Empty(PrinterConfig.Compatibility(tspl, tsc));
+        var zebra = new PrinterProfile(PrinterBrand.Zebra, "ZD421", null, [], empty, "pilote");
+        Assert.Contains(PrinterConfig.Compatibility(tspl, zebra), f => f.Severity == Severity.Error);
+        var zpl = PrinterConfig.Analyze("^XA^MD10^JUS^XZ\r\n");
+        Assert.Contains(PrinterConfig.Compatibility(zpl, tsc), f => f.Severity == Severity.Warning && f.Message.Contains("émulation", StringComparison.Ordinal));
+        var tscWithZpl = tsc with { Languages = PrinterConfig.LanguagesFrom(["TSPL2", "ZPL2 emulation"]) };
+        Assert.Contains(PrinterConfig.Compatibility(zpl, tscWithZpl), f => f.Severity == Severity.Info);
+        var sato = new PrinterProfile(PrinterBrand.Sato, "CL4NX", null, [], empty, "SNMP");
+        Assert.Contains(PrinterConfig.Compatibility(PrinterConfig.Analyze("<STX>e\r\n<STX>M0500\r\n"), sato), f => f.Severity == Severity.Warning);
+        Assert.Contains(PrinterConfig.Compatibility(PrinterConfig.Analyze("SETUP \"MEDIA\",\"MEDIA TYPE\",\"LABEL (W GAPS)\"\r\n"), sato), f => f.Severity == Severity.Error);
+    }
+
+    [Fact]
+    public void Snmp_requete_et_reponse()
+    {
+        var request = Snmp.BuildGet(Snmp.SysDescr, 7);
+        var oid = new byte[] { 0x06, 0x08, 0x2B, 0x06, 0x01, 0x02, 0x01, 0x01, 0x01, 0x00 };
+        Assert.True(request.AsSpan().IndexOf(oid) > 0);
+        Assert.Equal(0x30, request[0]);
+
+        static byte[] Tlv(byte tag, params byte[][] parts)
+        {
+            var content = parts.SelectMany(p => p).ToArray();
+            return [tag, (byte)content.Length, .. content];
+        }
+
+        var value = System.Text.Encoding.ASCII.GetBytes("Zebra Technologies ZTC ZT411-203dpi ZPL");
+        var response = Tlv(0x30, Tlv(0x02, [0]), Tlv(0x04, System.Text.Encoding.ASCII.GetBytes("public")),
+            Tlv(0xA2, Tlv(0x02, [7]), Tlv(0x02, [0]), Tlv(0x02, [0]), Tlv(0x30, Tlv(0x30, oid, Tlv(0x04, value)))));
+        var parsed = Snmp.ParseResponse(response);
+        Assert.NotNull(parsed);
+        Assert.Equal(7, parsed.Value.RequestId);
+        Assert.Equal(0, parsed.Value.Error);
+        Assert.Equal(Snmp.SysDescr, parsed.Value.Values[0].Oid);
+        Assert.Equal("Zebra Technologies ZTC ZT411-203dpi ZPL", parsed.Value.Values[0].Value);
+        Assert.Null(Snmp.ParseResponse([1, 2, 3]));
     }
 }

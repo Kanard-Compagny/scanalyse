@@ -2824,3 +2824,82 @@ Clé Wi-Fi WPA de longueur invalide : 8 à 63 caractères pour un mot de passe, 
 Clé WEP présente dans ce fichier : elle est écrite telle que la borne l'utilise (hexadécimal ou texte), pas chiffrée. Elle suffit pour rejoindre le réseau, et le WEP se casse en quelques minutes : ne diffuse pas ce fichier, supprime-le après usage, et passe le réseau en WPA2 ou WPA3 si possible.	WEP key in this file: it is written as the access point uses it (hex or text), not encrypted. It is enough to join the network, and WEP can be cracked in minutes: do not share this file, delete it after use, and move the network to WPA2 or WPA3 if possible.
 Clé Wi-Fi calculée (PSK de 64 caractères hexadécimaux) : ce n'est pas le mot de passe lisible, mais la clé obtenue à partir du mot de passe et du nom du réseau (SSID). Elle n'est pas chiffrée pour autant : telle quelle, elle suffit à n'importe quel appareil pour se connecter à ce Wi-Fi. Ce fichier vaut donc le mot de passe. Bonnes pratiques : ne l'envoie pas par e-mail, messagerie ou ticket ; garde-le dans un dossier protégé (accès limité aux techniciens) ; supprime-le des PC et clés USB après le déploiement ; change le mot de passe du Wi-Fi s'il a circulé. Pour un parc important, préfère WPA2 / WPA3 Entreprise (802.1X) : chaque appareil a son propre identifiant, révocable sans changer le Wi-Fi de tout le site.	Derived Wi-Fi key (64 hex character PSK): this is not the readable password, but the key computed from the password and the network name (SSID). It is not encrypted though: as is, it lets any device connect to this Wi-Fi. This file is therefore as sensitive as the password. Good practice: do not send it by e-mail, chat or ticket; keep it in a protected folder (access limited to technicians); delete it from PCs and USB sticks after deployment; change the Wi-Fi password if it has leaked. For a large fleet, prefer WPA2 / WPA3 Enterprise (802.1X): each device has its own credentials, revocable without changing the Wi-Fi for the whole site.
 Mot de passe Wi-Fi écrit en clair : toute personne qui ouvre ce fichier peut le lire et se connecter au réseau. Bonnes pratiques : ne l'envoie pas par e-mail, messagerie ou ticket ; garde-le dans un dossier protégé (accès limité aux techniciens) ; supprime-le des PC et clés USB après le déploiement ; change le mot de passe du Wi-Fi s'il a circulé. Pour un parc important, préfère WPA2 / WPA3 Entreprise (802.1X) : chaque appareil a son propre identifiant, révocable sans changer le Wi-Fi de tout le site. Zebra Setup Utilities peut enregistrer la clé calculée (64 caractères hexadécimaux) au lieu du mot de passe : elle ne révèle pas le mot de passe, utile s'il sert ailleurs.	Wi-Fi password written in plain text: anyone who opens this file can read it and join the network. Good practice: do not send it by e-mail, chat or ticket; keep it in a protected folder (access limited to technicians); delete it from PCs and USB sticks after deployment; change the Wi-Fi password if it has leaked. For a large fleet, prefer WPA2 / WPA3 Enterprise (802.1X): each device has its own credentials, revocable without changing the Wi-Fi for the whole site. Zebra Setup Utilities can save the derived key (64 hex characters) instead of the password: it does not reveal the password, useful if it is used elsewhere.
+Alertes configurées	Configured alerts
+Attribution de l'adresse active	Active address assignment
+Bluetooth : classique, basse consommation ou les deux	Bluetooth: classic, low energy or both
+Code PIN Bluetooth	Bluetooth PIN
+Communauté SNMP des alertes	SNMP trap community
+Communauté SNMP en lecture	SNMP read community
+Communauté SNMP en écriture	SNMP write community
+Connecteur Zebra (Link-OS, applications)	Zebra connector (Link-OS, apps)
+Connexion au cloud Zebra (Weblink)	Zebra cloud connection (Weblink)
+Destination du journal système (syslog)	System log destination (syslog)
+Durée depuis la mise sous tension	Time since power-up
+Décalage du haut d'étiquette	Top of form offset
+Délai avant l'économie d'énergie (secondes)	Energy saving timeout (seconds)
+Envoi d'alertes par e-mail (SMTP)	E-mail alerts (SMTP)
+Exécution des fichiers reçus par FTP	Run files received by FTP
+Identifiant administrateur de la page web	Web page administrator name
+Mot de passe administrateur de la page web	Web page administrator password
+Journal système (syslog)	System log (syslog)
+Mise à jour automatique depuis un serveur (mirror)	Automatic update from a server (mirror)
+Mode économie d'énergie (Energy Star)	Energy saving mode (Energy Star)
+Page web sécurisée (HTTPS)	Secure web page (HTTPS)
+Réception d'e-mails (POP3)	E-mail reception (POP3)
+Rétroéclairage de l'écran	Display backlight
+Serveurs DNS	DNS servers
+Domaine DNS	DNS domain
+Une seule connexion à la fois sur le port d'impression	One connection at a time on the print port
+Version du chargeur de démarrage	Boot loader version
+Impression LPD (port 515)	LPD printing (port 515)
+Protocole UDP	UDP protocol
+Protocole TCP	TCP protocol
+Mise à l'heure par le réseau (NTP)	Network time (NTP)
+Adresse du serveur Weblink 1	Weblink server 1 address
+Adresse du serveur Weblink 2	Weblink server 2 address
+Programmes ZBI (Zebra Basic)	ZBI programs (Zebra Basic)
+Ports USB hôte verrouillés (clés USB, claviers)	USB host ports locked (USB sticks, keyboards)
+Commandes XML	XML commands
+Modèle de l'imprimante	Printer model
+État de l'imprimante	Printer status
+Menus protégés par le mot de passe du panneau	Menus protected by the panel password
+Sécurité Bluetooth minimale (1 à 4)	Minimum Bluetooth security (1 to 4)
+Parité du port série	Serial port parity
+Contrôle de flux du port série	Serial port flow control
+Adresse MAC active	Active MAC address
+Compteur d'étiquettes imprimées	Printed label counter
+Noirceur au format ZPL (~SD)	Darkness in ZPL format (~SD)
+Fingerprint / Direct Protocol, IPL	Fingerprint / Direct Protocol, IPL
+Fingerprint / Direct Protocol, ou DPL selon le modèle	Fingerprint / Direct Protocol, or DPL depending on the model
+ZPL et SGD	ZPL and SGD
+inconnu	unknown
+pilote Windows	Windows driver
+langage d'origine	native language
+langages	languages
+firmware	firmware
+Relire l'imprimante	Read printer again
+Reconnaissance de l'imprimante…	Identifying the printer…
+Recherche de l'imprimante {0}…	Looking for printer {0}…
+Choisis une imprimante : Scanalyse la reconnaît (toutes marques) et vérifie que le fichier lui convient.	Choose a printer: Scanalyse identifies it (all brands) and checks the file suits it.
+{0} répond, mais sa marque n'a pas été reconnue : clique « Lire l'imprimante » pour lire ses réglages (Zebra). Analyse du fichier seule.	{0} answers, but its brand was not recognized: click “Read printer” to read its settings (Zebra). File analysis only.
+Marque de l'imprimante non reconnue (USB ou partage) : analyse du fichier seule.	Printer brand not recognized (USB or share): file analysis only.
+{0} ne répond pas (éteinte, autre réseau ou adresse erronée) : analyse du fichier seule.	{0} does not answer (off, other network or wrong address): file analysis only.
+{0} réglages lus : ils font référence pour les noms et les valeurs.	{0} settings read: they are the reference for names and values.
+compatibilité vérifiée selon la marque et les langages annoncés (les réglages de cette marque ne se lisent pas par le réseau).	compatibility checked from the brand and announced languages (this brand's settings cannot be read over the network).
+reconnue par son pilote Windows : compatibilité vérifiée selon la marque.	identified by its Windows driver: compatibility checked from the brand.
+ne répond pas sur {0} : compatibilité vérifiée selon la marque (pilote Windows).	does not answer at {0}: compatibility checked from the brand (Windows driver).
+« {0} » n'existe pas sur cette imprimante (modèle ou firmware) : elle l'ignore sans message d'erreur. Vérifie le nom, ou si ce réglage existe sur ce modèle.	“{0}” does not exist on this printer (model or firmware): it ignores it without any error message. Check the name, or whether this setting exists on this model.
+« {0} » : mot de passe écrit en clair dans ce fichier ; toute personne qui l'ouvre peut le lire. Ne diffuse pas ce fichier (e-mail, ticket), garde-le dans un dossier protégé et supprime-le après usage ; change ce mot de passe s'il a circulé.	“{0}”: password written in plain text in this file; anyone who opens it can read it. Do not share this file (e-mail, ticket), keep it in a protected folder and delete it after use; change this password if it has leaked.
+« {0} » à 0 : selon le firmware, le port est coupé ou la valeur est refusée. Port coupé, l'impression réseau par ce port (9100 en général) n'est plus possible : ni Scanalyse ni la plupart des logiciels ne pourront plus envoyer d'étiquettes par le réseau.	“{0}” set to 0: depending on the firmware, the port is closed or the value is refused. With the port closed, network printing on it (usually 9100) is no longer possible: neither Scanalyse nor most software can send labels over the network.
+{0} : le {1} n'apparaît pas parmi les langages actifs annoncés ({2}). S'il n'est pas actif, les commandes {3} sont ignorées ou imprimées en texte : vérifie le langage de l'imprimante avant d'envoyer.	{0}: {1} is not among the announced active languages ({2}). If it is not active, {3} commands are ignored or printed as text: check the printer language before sending.
+{0} : le {1} est compris par émulation (annoncé par cette imprimante). Certaines commandes de réglage peuvent être ignorées ou interprétées différemment : vérifie le résultat après l'envoi.	{0}: {1} is understood through emulation (announced by this printer). Some setting commands may be ignored or interpreted differently: check the result after sending.
+{0} : le {1} n'est pas son langage d'origine ({2}). Il n'est compris que si l'émulation {3} existe sur ce modèle et qu'elle est active : vérifie-le avant d'envoyer, sinon les commandes sont ignorées ou imprimées en texte.	{0}: {1} is not its native language ({2}). It is only understood if the {3} emulation exists on this model and is active: check before sending, otherwise the commands are ignored or printed as text.
+{0} : le {1} n'est pas son langage d'origine ({2}). Il n'est compris que si l'émulation {3} existe sur ce modèle et qu'elle est active ; langage(s) annoncé(s) : {4}.	{0}: {1} is not its native language ({2}). It is only understood if the {3} emulation exists on this model and is active; announced language(s): {4}.
+{0} : les commandes SGD (« ! U1 setvar », JSON « {}{…} ») sont propres aux Zebra. Cette imprimante les ignore ou les imprime en texte ; ses réglages passent par son langage ({1}), son panneau ou sa page web.	{0}: SGD commands (“! U1 setvar”, JSON “{}{…}”) are specific to Zebra. This printer ignores them or prints them as text; its settings go through its language ({1}), its panel or its web page.
+{0} ne comprend pas le {1} (langage d'origine : {2}). Ces commandes seront ignorées ou imprimées en texte.	{0} does not understand {1} (native language: {2}). These commands will be ignored or printed as text.
+{0} (valeur acceptée par l'imprimante)	{0} (value accepted by the printer)
+Réglage de l'imprimante	Printer setting
+Relecture de l'imprimante dans quelques secondes, pour vérifier que les réglages ont été pris en compte.	Reading the printer again in a few seconds, to check the settings were applied.
+Relis l'imprimante quand elle aura redémarré, pour vérifier que les réglages ont été pris en compte.	Read the printer again once it has restarted, to check the settings were applied.
+Imprimante reconnue : {0} ({1}).	Printer identified: {0} ({1}).
+Aucune information reçue de {0}.	No information received from {0}.

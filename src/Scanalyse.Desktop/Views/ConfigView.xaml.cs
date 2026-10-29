@@ -42,19 +42,37 @@ public partial class ConfigView : UserControl
             _debounce.Stop();
             Analyze();
         };
-        Loaded += (_, _) => LoadTarget();
+        Loaded += (_, _) =>
+        {
+            LoadTarget();
+            ProbeIfChanged();
+        };
         IsVisibleChanged += (_, _) =>
         {
             if (IsVisible && IsLoaded)
             {
                 LoadTarget(); // l'imprimante a pu changer dans « Code imprimante »
+                ProbeIfChanged();
             }
             else
             {
                 SuggestPopup.IsOpen = false;
             }
         };
-        AddressBox.TextChanged += (_, _) => AddressHint.Visibility = AddressBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        AddressBox.TextChanged += (_, _) =>
+        {
+            AddressHint.Visibility = AddressBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (!_loading)
+            {
+                _probeTimer.Stop();
+                _probeTimer.Start();
+            }
+        };
+        _probeTimer.Tick += (_, _) =>
+        {
+            _probeTimer.Stop();
+            ProbeIfChanged();
+        };
         HintAligner.Attach(AddressBox, AddressHint);
         HintAligner.Attach(QueueSearch, QueueSearchHint);
     }
@@ -98,6 +116,7 @@ public partial class ConfigView : UserControl
     {
         ShowTarget();
         SaveTarget();
+        ProbeIfChanged();
     }
 
     private void Address_LostFocus(object sender, RoutedEventArgs e) => SaveTarget();
@@ -154,6 +173,7 @@ public partial class ConfigView : UserControl
                 QueueSelected.Text = q;
                 QueuePopup.IsOpen = false;
                 SaveTarget();
+                ProbeIfChanged();
             };
             QueueChips.Children.Add(chip);
         }
@@ -204,47 +224,170 @@ public partial class ConfigView : UserControl
         return a.Length > 0 ? a : null;
     }
 
-    private async void Read_Click(object sender, RoutedEventArgs e)
+    private void Read_Click(object sender, RoutedEventArgs e)
     {
-        var target = NetworkTarget();
-        if (target is null)
+        if (NetworkTarget() is null)
         {
             Log?.Invoke(LogKind.Warning, TargetQueue.IsChecked == true
                 ? "Cette imprimante installée n'a pas d'adresse réseau (USB, partage) : la lecture des réglages passe par le réseau. Choisis « Réseau » et saisis son adresse IP."
                 : "Saisis l'adresse IP de l'imprimante pour lire ses réglages.");
+        }
+
+        _ = ProbeAsync(manual: true);
+    }
+
+    // ------------------------------------------------------------------ Reconnaissance de l'imprimante (toutes marques)
+
+    private readonly DispatcherTimer _probeTimer = new() { Interval = TimeSpan.FromMilliseconds(900) };
+    private CancellationTokenSource? _probeCts;
+    private PrinterProfile? _profile;
+    private string? _probedKey;
+
+    /// <summary>Clé de l'imprimante choisie : une nouvelle recherche seulement quand elle change.</summary>
+    private string TargetKey() => TargetQueue.IsChecked == true ? "q:" + SelectedQueue : "t:" + AddressBox.Text.Trim();
+
+    /// <summary>Adresse qui ressemble à une IP ou à un nom réseau : la recherche part toute seule.</summary>
+    private static bool LooksLikeAddress(string s) =>
+        System.Text.RegularExpressions.Regex.IsMatch(s.Trim(), @"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[A-Za-z0-9][A-Za-z0-9\-]*(\.[A-Za-z0-9\-]+)+)(:\d{1,5})?$");
+
+    /// <summary>Recherche automatique : à l'affichage de l'onglet, au choix d'une imprimante ou après la saisie d'une adresse.</summary>
+    private void ProbeIfChanged()
+    {
+        if (!IsLoaded || TargetKey() == _probedKey)
+        {
             return;
         }
 
+        if (TargetQueue.IsChecked != true && !LooksLikeAddress(AddressBox.Text))
+        {
+            _probeCts?.Cancel();
+            _probedKey = TargetKey();
+            SetProfile(null, null);
+            return;
+        }
+
+        _ = ProbeAsync(manual: false);
+    }
+
+    private async Task ProbeAsync(bool manual)
+    {
+        _probeCts?.Cancel();
+        var cts = new CancellationTokenSource();
+        _probeCts = cts;
+        _probedKey = TargetKey();
+        var target = NetworkTarget();
+        var queue = TargetQueue.IsChecked == true ? SelectedQueue : null;
+        if (target is null && queue is null)
+        {
+            SetProfile(null, null);
+            return;
+        }
+
+        ShowProfileStatus("Muted", target is null
+            ? Localization.T("Reconnaissance de l'imprimante…")
+            : string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Recherche de l'imprimante {0}…"), target));
         ReadButton.IsEnabled = false;
-        ReadButton.Content = Localization.T("Lecture…");
         try
         {
-            var reply = await PrinterTransport.QueryTcpAsync(target, PrinterConfig.AllcvRequest, maxBytes: 2 * 1024 * 1024, firstWaitMs: 6000, quietMs: 1500);
-            var values = PrinterConfig.ParseAllcv(Encoding.UTF8.GetString(reply));
-            if (values.Count == 0)
+            var result = await PrinterProbe.ProbeAsync(target, queue, manual, cts.Token);
+            if (cts.IsCancellationRequested)
             {
-                _printer = null;
-                PrinterBanner.Visibility = Visibility.Visible;
-                PrinterText.Text = Localization.T("L'imprimante n'a pas renvoyé ses réglages SGD : ce n'est pas une Zebra Link-OS, ou la commande getvar est désactivée. L'analyse du fichier reste valable ; la comparaison avec l'imprimante n'est possible que pour les Zebra.");
-                Log?.Invoke(LogKind.Warning, $"Aucun réglage SGD reçu de {target}.");
                 return;
             }
 
-            _printer = values;
-            _printerName = values.TryGetValue("device.product_name", out var product) ? product.Value
-                : values.TryGetValue("appl.name", out var fw) ? "firmware " + fw.Value : target;
-            Log?.Invoke(LogKind.Ok, $"{values.Count} réglages lus sur {_printerName} ({target}).");
-            Analyze();
+            SetProfile(result, manual ? target : null);
         }
-        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException)
+        catch (OperationCanceledException)
         {
-            Log?.Invoke(LogKind.Error, ex.Message);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException or System.Net.Sockets.SocketException)
+        {
+            if (!cts.IsCancellationRequested)
+            {
+                SetProfile(new ProbeResult(null, false, target), null);
+                if (manual)
+                {
+                    Log?.Invoke(LogKind.Error, ex.Message);
+                }
+            }
         }
         finally
         {
-            ReadButton.IsEnabled = true;
-            ReadButton.Content = Localization.T("Lire l'imprimante");
+            if (_probeCts == cts)
+            {
+                ReadButton.IsEnabled = true;
+            }
         }
+    }
+
+    /// <summary>Applique ce qui a été appris : référence de l'analyse, indicateur, journal (lecture demandée).</summary>
+    private void SetProfile(ProbeResult? result, string? manualTarget)
+    {
+        _profile = result?.Profile;
+        _printer = _profile is { Settings.Count: > 0 } ? _profile.Settings : null;
+        _printerName = _profile?.DisplayName;
+        ReadButton.Content = Localization.T(_printer is null ? "Lire l'imprimante" : "Relire l'imprimante");
+        if (result is null)
+        {
+            ShowProfileStatus("Muted", Localization.T("Choisis une imprimante : Scanalyse la reconnaît (toutes marques) et vérifie que le fichier lui convient."));
+        }
+        else if (_profile is null)
+        {
+            ShowProfileStatus(result.Reachable ? "WarnFg" : "Muted", result.Reachable
+                ? string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("{0} répond, mais sa marque n'a pas été reconnue : clique « Lire l'imprimante » pour lire ses réglages (Zebra). Analyse du fichier seule."), result.Target)
+                : result.Target is null
+                    ? Localization.T("Marque de l'imprimante non reconnue (USB ou partage) : analyse du fichier seule.")
+                    : string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("{0} ne répond pas (éteinte, autre réseau ou adresse erronée) : analyse du fichier seule."), result.Target));
+        }
+        else
+        {
+            var p = _profile;
+            var parts = new List<string> { p.DisplayName };
+            if (p.Firmware is { } fw)
+            {
+                parts.Add(Localization.T("firmware") + " " + fw);
+            }
+
+            parts.Add(p.Languages.Count > 0
+                ? Localization.T("langages") + " " + string.Join(", ", p.Languages)
+                : Localization.T("langage d'origine") + " " + Localization.T(PrinterConfig.NativeLanguage(p.Brand)));
+            string detail;
+            if (_printer is not null)
+            {
+                detail = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("{0} réglages lus : ils font référence pour les noms et les valeurs."), _printer.Count);
+            }
+            else if (result.Reachable)
+            {
+                detail = Localization.T("compatibilité vérifiée selon la marque et les langages annoncés (les réglages de cette marque ne se lisent pas par le réseau).");
+            }
+            else
+            {
+                detail = result.Target is null
+                    ? Localization.T("reconnue par son pilote Windows : compatibilité vérifiée selon la marque.")
+                    : string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("ne répond pas sur {0} : compatibilité vérifiée selon la marque (pilote Windows)."), result.Target);
+            }
+
+            ShowProfileStatus(result.Reachable || result.Target is null ? "OkFg" : "WarnFg", string.Join(" · ", parts) + " — " + detail);
+            if (manualTarget is not null)
+            {
+                Log?.Invoke(LogKind.Ok, _printer is not null
+                    ? $"{_printer.Count} réglages lus sur {p.DisplayName} ({manualTarget})."
+                    : $"Imprimante reconnue : {p.DisplayName} ({manualTarget}).");
+            }
+        }
+
+        if (result is not null && _profile is null && manualTarget is not null)
+        {
+            Log?.Invoke(LogKind.Warning, $"Aucune information reçue de {manualTarget}.");
+        }
+
+        Analyze();
+    }
+
+    private void ShowProfileStatus(string brushKey, string text)
+    {
+        ProfileDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, brushKey);
+        ProfileText.Text = text;
     }
 
     private async void Send_Click(object sender, RoutedEventArgs e)
@@ -305,9 +448,16 @@ public partial class ConfigView : UserControl
                 Log?.Invoke(LogKind.Info, "Retour à la ligne ajouté après la dernière commande SGD, pour qu'elle soit exécutée.");
             }
 
-            if (_printer is not null)
+            if (_printer is not null && !r.Risky)
             {
-                Log?.Invoke(LogKind.Info, "Relis l'imprimante pour vérifier que les réglages ont bien été pris en compte.");
+                // Zebra lue : relecture automatique, pour montrer les réglages réellement pris en compte.
+                Log?.Invoke(LogKind.Info, "Relecture de l'imprimante dans quelques secondes, pour vérifier que les réglages ont été pris en compte.");
+                await Task.Delay(2500);
+                await ProbeAsync(manual: false);
+            }
+            else if (_printer is not null)
+            {
+                Log?.Invoke(LogKind.Info, "Relis l'imprimante quand elle aura redémarré, pour vérifier que les réglages ont été pris en compte.");
             }
         }
         catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException or System.ComponentModel.Win32Exception)
@@ -539,9 +689,20 @@ public partial class ConfigView : UserControl
             return;
         }
 
-        var r = PrinterConfig.Analyze(text);
+        var r = PrinterConfig.Analyze(text, _printer);
         _report = r;
-        _comparison = _printer is null ? [] : PrinterConfig.Compare(r, _printer);
+        var comparison = new List<ConfigFinding>();
+        if (_printer is not null)
+        {
+            comparison.AddRange(PrinterConfig.Compare(r, _printer));
+        }
+
+        if (_profile is not null)
+        {
+            comparison.AddRange(PrinterConfig.Compatibility(r, _profile));
+        }
+
+        _comparison = comparison;
         var errors = r.Findings.Count(f => f.Severity == Severity.Error) + _comparison.Count(f => f.Severity == Severity.Error);
         var warnings = r.Findings.Count(f => f.Severity == Severity.Warning) + _comparison.Count(f => f.Severity == Severity.Warning);
         ResultTitle.Text = Localization.T(errors > 0 ? "Erreurs à corriger" : warnings > 0 ? "À vérifier" : "Aucune erreur trouvée");
@@ -560,6 +721,7 @@ public partial class ConfigView : UserControl
     {
         if (_printer is null)
         {
+            PrinterBanner.Visibility = Visibility.Collapsed;
             return;
         }
 
@@ -808,7 +970,7 @@ public partial class ConfigView : UserControl
         var text = CodeBox.Text;
         var lineStart = caret == 0 ? 0 : text.LastIndexOf('\n', caret - 1) + 1;
         var prefix = text[lineStart..caret];
-        _completion = PrinterConfig.Suggest(prefix, force);
+        _completion = PrinterConfig.Suggest(prefix, force, _printer);
         if (_completion.Items.Count == 0)
         {
             SuggestPopup.IsOpen = false;

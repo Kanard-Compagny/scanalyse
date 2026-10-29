@@ -115,6 +115,21 @@ internal static class PrinterTransport
         }
     }
 
+    /// <summary>Nom du pilote Windows d'une imprimante installée (« ZDesigner ZT411-203dpi ZPL », « TSC TE210 »…), ou <c>null</c>.</summary>
+    public static string? QueueDriver(string queue)
+    {
+        try
+        {
+            using var server = new LocalPrintServer();
+            using var q = queue.StartsWith(@"\\", StringComparison.Ordinal) ? new PrintQueue(new PrintServer(queue[..queue.IndexOf('\\', 2)]), queue[(queue.IndexOf('\\', 2) + 1)..]) : server.GetPrintQueue(queue);
+            return q.QueueDriver?.Name;
+        }
+        catch (Exception ex) when (ex is PrintQueueException or PrintServerException or InvalidOperationException or ArgumentException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>« 192.168.1.50 », « 192.168.1.50:6101 », « imprimante.local ».</summary>
     public static (string Host, int Port) ParseTarget(string target)
     {
