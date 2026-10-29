@@ -1,5 +1,7 @@
 # Signature du code avec SignPath
 
+> **État (octobre 2026)** : demande au programme gratuit SignPath Foundation refusée pour le moment, faute de visibilité publique suffisante (étoiles, contributeurs, articles…). Elle pourra être redéposée plus tard. L'étape de signature reste en sommeil dans la compilation : rien ne change tant que les variables SignPath n'existent pas.
+
 Objectif : que Windows reconnaisse `Scanalyse.exe` comme un programme signé, sans changer la façon de publier.
 Le code, le dépôt, le copyright et la licence restent ceux de Mr.Kanard. SignPath ne reçoit que l'exécutable compilé par GitHub, le signe et le renvoie.
 L'éditeur affiché par Windows sur le fichier est « SignPath Foundation » (c'est la contrepartie de la signature gratuite).
