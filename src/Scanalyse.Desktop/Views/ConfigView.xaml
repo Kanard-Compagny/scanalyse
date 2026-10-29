@@ -1,0 +1,94 @@
+<UserControl x:Class="Scanalyse.Desktop.Views.ConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             AllowDrop="True" DragOver="Root_DragOver" Drop="Root_Drop">
+  <!-- Conf imprimante : fichier de configuration expliqué et contrôlé, comparé à l'imprimante (Zebra), puis envoyé. -->
+  <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
+  <Grid MinHeight="700" Height="{Binding ViewportHeight, ElementName=PageScroll}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Margin="0,0,0,16">
+      <TextBlock Style="{StaticResource PageTitle}" Text="Conf imprimante" />
+      <TextBlock Style="{StaticResource PageSubtitle}"
+                 Text="Colle ou ouvre le fichier de configuration d'une imprimante (Zebra ZPL et SGD « ! U1 setvar », TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2) : chaque ligne est expliquée et contrôlée, comparée à l'imprimante, puis envoyée." />
+    </StackPanel>
+
+    <!-- Imprimante : la même que « Code imprimante » -->
+    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="ReadButton" Style="{StaticResource BtnSecondary}" Content="Lire l'imprimante" Click="Read_Click" Margin="8,0,0,0"
+                  ToolTip="Lit tous les réglages de l'imprimante (Zebra, par le réseau) pour les comparer au fichier et vérifier les valeurs acceptées par ce modèle" />
+          <Button x:Name="SendButton" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="8,0,0,0" />
+        </StackPanel>
+        <WrapPanel VerticalAlignment="Center">
+          <TextBlock Text="Imprimante" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
+          <RadioButton x:Name="TargetTcp" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Réseau (IP, port 9100)" Checked="Target_Changed" />
+          <RadioButton x:Name="TargetQueue" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Installée sur ce PC" Checked="Target_Changed" />
+          <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" Width="220" Margin="4,0,0,0" VerticalAlignment="Center" LostFocus="Address_LostFocus"
+                   ToolTip="Adresse IP de l'imprimante (ex. 192.168.1.50 ou 192.168.1.50:9100)" />
+          <ComboBox x:Name="QueueBox" Width="280" Margin="4,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" SelectionChanged="Queue_Changed" />
+        </WrapPanel>
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Row="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="5*" />
+        <ColumnDefinition Width="18" />
+        <ColumnDefinition Width="6*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Fichier -->
+      <Border Style="{StaticResource Card}">
+        <DockPanel>
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <WrapPanel DockPanel.Dock="Right">
+              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="Open_Click" Margin="0,0,4,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Coller" Click="Paste_Click" Margin="0,0,4,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Effacer" Click="Clear_Click" />
+            </WrapPanel>
+            <TextBlock Style="{StaticResource CardTitle}" Text="Fichier de configuration" VerticalAlignment="Center" />
+          </DockPanel>
+          <TextBlock x:Name="FileInfo" DockPanel.Dock="Bottom" Style="{StaticResource FieldLabel}" Margin="0,8,0,0" />
+          <Grid>
+            <TextBox x:Name="CodeBox" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
+                     FontFamily="{StaticResource MonoFont}" FontSize="13" VerticalContentAlignment="Top"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBox_TextChanged" />
+            <TextBlock x:Name="CodeHint" Margin="14,10,14,0" IsHitTestVisible="False" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Muted}"
+                       Text="Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Exemple : ! U1 setvar &quot;print.tone&quot; &quot;20&quot;" />
+          </Grid>
+        </DockPanel>
+      </Border>
+
+      <!-- Analyse -->
+      <Border Grid.Column="2" Style="{StaticResource Card}">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top">
+            <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Analyse" />
+            <TextBlock x:Name="ResultSummary" Style="{StaticResource PageSubtitle}" Margin="0,4,0,10" Text="Le fichier est analysé dès qu'il est collé ou ouvert." />
+            <Border x:Name="RiskBanner" Background="{DynamicResource WarnBg}" CornerRadius="8" Padding="12,9" Margin="0,0,0,10" Visibility="Collapsed">
+              <TextBlock x:Name="RiskText" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource WarnFg}" />
+            </Border>
+            <Border x:Name="PrinterBanner" Background="{DynamicResource InfoBg}" CornerRadius="8" Padding="12,9" Margin="0,0,0,10" Visibility="Collapsed">
+              <TextBlock x:Name="PrinterText" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource InfoFg}" />
+            </Border>
+            <WrapPanel x:Name="ViewChips" Margin="0,0,0,8">
+              <RadioButton x:Name="ViewProblems" Style="{StaticResource Chip}" GroupName="ConfView" Content="Points à vérifier" IsChecked="True" Checked="View_Changed" />
+              <RadioButton x:Name="ViewLines" Style="{StaticResource Chip}" GroupName="ConfView" Content="Ligne par ligne" Checked="View_Changed" />
+              <RadioButton x:Name="ViewSettings" Style="{StaticResource Chip}" GroupName="ConfView" Content="Réglages appliqués" Checked="View_Changed" />
+            </WrapPanel>
+          </StackPanel>
+          <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />
+          </ScrollViewer>
+        </DockPanel>
+      </Border>
+    </Grid>
+  </Grid>
+  </ScrollViewer>
+</UserControl>

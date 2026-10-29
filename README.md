@@ -36,6 +36,10 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 - **Modèles d'étiquettes prêts à l'emploi** (palette SSCC, colis, produit, emplacement, inventaire) dans les quatre langages.
 - **Envoyer à l'imprimante** (réseau ou imprimante installée) et **la maintenir** : lire son état (papier, ruban, tête ouverte), calibrer, imprimer sa page de configuration.
 
+### ⚙️ Conf imprimante
+- **Contrôler un fichier de configuration** avant de l'envoyer : ZPL et SGD Zebra (`! U1 setvar`, JSON), TSPL, DPL, Fingerprint, SBPL, EPL2. Chaque ligne est expliquée ; fautes de frappe, valeurs hors limites, guillemets copiés depuis Word, ^JUS oublié… sont signalés.
+- **Lire les réglages d'une Zebra** pour voir ce qui va changer et vérifier les valeurs acceptées par ce modèle, puis envoyer.
+
 ### ✏️ Créer un code
 - Plus de 25 types : QR personnalisé (couleurs, logo), Data Matrix, GS1, EAN, Code 128, PDF417, MaxiCode…
 - Export en image et réimpression directe.

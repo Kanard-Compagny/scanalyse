@@ -89,6 +89,7 @@
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="analyse" Content="Analyser une image" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="create" Content="Créer un code" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="print" Content="Code imprimante" Checked="Option_Changed" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="config" Content="Conf imprimante" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="bench" Content="Banc d'essai" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="devices" Content="Appareils de lecture" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="history" Content="Historique" Checked="Option_Changed" />

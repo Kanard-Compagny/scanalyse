@@ -42,7 +42,13 @@ internal static class PrinterTransport
     /// <summary>
     /// Envoie une commande et lit la réponse de l'imprimante (état…) : on lit jusqu'à un court silence après les premiers octets.
     /// </summary>
-    public static async Task<byte[]> QueryTcpAsync(string target, byte[] data, CancellationToken cancel = default)
+    /// <param name="target">Adresse IP (port 9100 par défaut).</param>
+    /// <param name="data">Commande.</param>
+    /// <param name="cancel">Annulation.</param>
+    /// <param name="maxBytes">Taille maximale de la réponse (la configuration complète d'une Zebra dépasse 64 Ko).</param>
+    /// <param name="firstWaitMs">Attente du premier octet.</param>
+    /// <param name="quietMs">Silence, après les premiers octets, qui marque la fin de la réponse.</param>
+    public static async Task<byte[]> QueryTcpAsync(string target, byte[] data, CancellationToken cancel = default, int maxBytes = 65536, int firstWaitMs = 3000, int quietMs = 600)
     {
         var (host, port) = ParseTarget(target);
         using var client = new TcpClient();
@@ -56,8 +62,8 @@ internal static class PrinterTransport
             await stream.FlushAsync(timeout.Token);
             var buffer = new byte[4096];
             using var reply = new MemoryStream();
-            var wait = TimeSpan.FromSeconds(3);
-            while (reply.Length < 65536)
+            var wait = TimeSpan.FromMilliseconds(firstWaitMs);
+            while (reply.Length < maxBytes)
             {
                 using var quiet = CancellationTokenSource.CreateLinkedTokenSource(cancel);
                 quiet.CancelAfter(wait);
@@ -77,7 +83,7 @@ internal static class PrinterTransport
                 }
 
                 reply.Write(buffer, 0, n);
-                wait = TimeSpan.FromMilliseconds(600);
+                wait = TimeSpan.FromMilliseconds(quietMs);
             }
 
             return reply.ToArray();

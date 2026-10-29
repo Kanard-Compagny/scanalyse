@@ -104,6 +104,7 @@ public partial class MainWindow : Window
         Bench.PrintRequested += (text, type) => OpenPrint(text, PrintView.SymbologyFor(type, text), "banc d'essai");
         PrintPage.Renderer = (text, type) => _atelier.RenderAsync(text, type);
         PrintPage.Log += (kind, text) => AddLog(kind, "IMPRESSION", text);
+        ConfigPage.Log += (kind, text) => AddLog(kind, "CONFIGURATION", text);
         PrintPage.LabelRenderer = json => _atelier.RenderLabelAsync(json);
         PrintPage.AnalyzeRequested += async (png, source) =>
         {
@@ -149,6 +150,7 @@ public partial class MainWindow : Window
         {
             "create" => NavCreate,
             "print" => NavPrint,
+            "config" => NavConfig,
             "bench" => NavBench,
             "devices" => NavDevices,
             "history" => NavHistory,
@@ -535,7 +537,7 @@ public partial class MainWindow : Window
         var scale = Math.Clamp(s.UiScale, 1, 1.5);
         // Tout ce qui est dessiné par WPF est agrandi ; l'Atelier (moteur web) suit par son propre zoom.
         var t = scale == 1 ? Transform.Identity : new ScaleTransform(scale, scale);
-        foreach (var el in new FrameworkElement[] { ToolbarHost, Sidebar, AtelierHeader, Bench, Devices, HistoryPage, Symbols, SettingsPage, PrintPage, LogHost, Confirm, Welcome })
+        foreach (var el in new FrameworkElement[] { ToolbarHost, Sidebar, AtelierHeader, Bench, Devices, HistoryPage, Symbols, SettingsPage, PrintPage, ConfigPage, LogHost, Confirm, Welcome })
         {
             el.LayoutTransform = t;
         }
@@ -907,6 +909,7 @@ public partial class MainWindow : Window
         SettingsPage.Visibility = Visibility.Collapsed;
         HistoryPage.Visibility = Visibility.Collapsed;
         PrintPage.Visibility = Visibility.Collapsed;
+        ConfigPage.Visibility = Visibility.Collapsed;
 
         if (sender == NavAnalyse || sender == NavCreate)
         {
@@ -927,6 +930,10 @@ public partial class MainWindow : Window
         else if (sender == NavPrint)
         {
             PrintPage.Visibility = Visibility.Visible;
+        }
+        else if (sender == NavConfig)
+        {
+            ConfigPage.Visibility = Visibility.Visible;
         }
         else if (sender == NavHistory)
         {
@@ -1222,6 +1229,11 @@ public partial class MainWindow : Window
                 SettingsPage.ShowSection("SecTeam");
                 await SettingsPage.ImportTeamProfileFileAsync(path);
             }
+            else if (LooksLikeConfiguration(path))
+            {
+                NavConfig.IsChecked = true;
+                ConfigPage.OpenFile(path);
+            }
             else
             {
                 NavPrint.IsChecked = true;
@@ -1243,6 +1255,31 @@ public partial class MainWindow : Window
 
         NavAnalyse.IsChecked = true;
         await OpenImagesAsync(images);
+    }
+
+    /// <summary>Fichier de configuration (SGD Zebra, JSON SGD, SETUP Fingerprint, réglages TSPL) plutôt qu'étiquette : onglet « Conf imprimante ».</summary>
+    private static bool LooksLikeConfiguration(string path)
+    {
+        try
+        {
+            using var reader = new StreamReader(path);
+            var buffer = new char[16384];
+            var head = new string(buffer, 0, reader.ReadBlock(buffer, 0, buffer.Length));
+            if (head.Contains("! U1 ", StringComparison.Ordinal) || head.Contains("! U ", StringComparison.Ordinal) || head.Contains("{}{\"", StringComparison.Ordinal)
+                || head.Contains("SETUP \"", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // Réglages sans étiquette : ^JU / ~SD sans champ ^FD, ou TSPL SET / INITIALPRINTER sans PRINT.
+            var label = head.Contains("^FD", StringComparison.OrdinalIgnoreCase) || head.Contains("PRINT ", StringComparison.OrdinalIgnoreCase);
+            return !label && (head.Contains("^JU", StringComparison.OrdinalIgnoreCase) || head.Contains("~SD", StringComparison.OrdinalIgnoreCase)
+                || head.Contains("INITIALPRINTER", StringComparison.OrdinalIgnoreCase) || head.Contains("SET ", StringComparison.Ordinal));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private async void Import_Click(object sender, RoutedEventArgs e)

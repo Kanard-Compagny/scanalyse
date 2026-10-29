@@ -2110,3 +2110,392 @@ Glisser un fichier sur Scanalyse.exe l'ouvre déjà au bon endroit : programme d
 Proposer Scanalyse dans « Ouvrir avec » de l'Explorateur (.zpl, .prn, .txt, images, PDF) et ouvrir les profils d'équipe d'un double-clic	Offer Scanalyse in Explorer's “Open with” (.zpl, .prn, .txt, images, PDF) and open team profiles with a double-click
 Pour ta session Windows uniquement, sans droits administrateur. Les programmes par défaut de ces fichiers ne changent pas. Retiré si tu décoches, ou par « Désinstaller ».	For your Windows session only, no administrator rights. The default programs for these files don't change. Removed if you untick it, or by “Uninstall”.
 Windows a refusé la modification : 	Windows refused the change: 
+Conf imprimante	Printer config
+Conf imprimante : fichiers de configuration (ZPL, SGD, TSPL, DPL, SBPL, Fingerprint) expliqués, contrôlés et envoyés	Printer config: configuration files (ZPL, SGD, TSPL, DPL, SBPL, Fingerprint) explained, checked and sent
+Code imprimante (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint)	Printer code (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint)
+Colle ou ouvre le fichier de configuration d'une imprimante (Zebra ZPL et SGD « ! U1 setvar », TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2) : chaque ligne est expliquée et contrôlée, comparée à l'imprimante, puis envoyée.	Paste or open a printer configuration file (Zebra ZPL and SGD “! U1 setvar”, TSC TSPL, Honeywell DPL and Fingerprint, SATO SBPL, EPL2): each line is explained and checked, compared with the printer, then sent.
+Lire l'imprimante	Read printer
+Lit tous les réglages de l'imprimante (Zebra, par le réseau) pour les comparer au fichier et vérifier les valeurs acceptées par ce modèle	Reads all the printer's settings (Zebra, over the network) to compare them with the file and check the values this model accepts
+Lecture…	Reading…
+Adresse IP de l'imprimante (ex. 192.168.1.50 ou 192.168.1.50:9100)	Printer IP address (e.g. 192.168.1.50 or 192.168.1.50:9100)
+Fichier de configuration	Configuration file
+Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Exemple : ! U1 setvar "print.tone" "20"	Paste the configuration file here (Ctrl + V), open it, or drop it on the page. Example: ! U1 setvar "print.tone" "20"
+Analyse	Analysis
+Le fichier est analysé dès qu'il est collé ou ouvert.	The file is analyzed as soon as it is pasted or opened.
+Ligne par ligne	Line by line
+Réglages appliqués	Applied settings
+Erreurs à corriger	Errors to fix
+Aucune erreur trouvée	No errors found
+Aucune erreur trouvée. Consulte « Ligne par ligne » pour voir ce que fait chaque commande.	No errors found. See “Line by line” for what each command does.
+{0} · {1} commande(s) · {2} erreur(s), {3} point(s) à vérifier	{0} · {1} command(s) · {2} error(s), {3} point(s) to check
+Ce fichier redémarre l'imprimante, la remet en usine ou change ses réglages réseau : une confirmation sera demandée avant l'envoi.	This file restarts the printer, resets it to factory settings or changes its network settings: you will be asked to confirm before sending.
+Comparé à {0} ({1} réglages lus) : {2} réglage(s) changeront, {3} déjà en place. Les valeurs sont contrôlées avec les choix annoncés par cette imprimante.	Compared with {0} ({1} settings read): {2} setting(s) will change, {3} already in place. Values are checked against the choices this printer reports.
+L'imprimante n'a pas renvoyé ses réglages SGD : ce n'est pas une Zebra Link-OS, ou la commande getvar est désactivée. L'analyse du fichier reste valable ; la comparaison avec l'imprimante n'est possible que pour les Zebra.	The printer did not return its SGD settings: it is not a Zebra Link-OS printer, or getvar is disabled. The file analysis still holds; comparing with the printer is only possible for Zebra printers.
+Ce fichier ne règle aucune valeur.	This file sets no value.
+Clique pour voir la ligne dans le fichier	Click to see the line in the file
+imprimante : 	printer: 
+Erreur	Error
+Info	Info
+ligne {0}	line {0}
+Ligne {0}	Line {0}
+Collé depuis le presse-papiers	Pasted from the clipboard
+{0} · {1} octets · {2}	{0} · {1} bytes · {2}
+Ouvrir un fichier de configuration d'imprimante	Open a printer configuration file
+Fichiers de configuration (*.txt, *.zpl, *.prn, *.nrd, *.cfg, *.json…)|*.txt;*.zpl;*.prn;*.nrd;*.cfg;*.json;*.tspl;*.dpl;*.epl;*.sbpl|Tous les fichiers|*.*	Configuration files (*.txt, *.zpl, *.prn, *.nrd, *.cfg, *.json…)|*.txt;*.zpl;*.prn;*.nrd;*.cfg;*.json;*.tspl;*.dpl;*.epl;*.sbpl|All files|*.*
+Configuration ouverte : {0}.	Configuration opened: {0}.
+Fichier trop gros pour une configuration (plus de 2 Mo).	File too large for a configuration (over 2 MB).
+Cette imprimante installée n'a pas d'adresse réseau (USB, partage) : la lecture des réglages passe par le réseau. Choisis « Réseau » et saisis son adresse IP.	This installed printer has no network address (USB, share): reading settings goes over the network. Choose “Network” and enter its IP address.
+Saisis l'adresse IP de l'imprimante pour lire ses réglages.	Enter the printer's IP address to read its settings.
+Saisis l'adresse IP de l'imprimante.	Enter the printer's IP address.
+Choisis l'imprimante installée sur ce PC.	Choose the printer installed on this PC.
+Aucun réglage SGD reçu de {0}.	No SGD settings received from {0}.
+{0} réglages lus sur {1} ({2}).	{0} settings read from {1} ({2}).
+Rien à envoyer : colle ou ouvre d'abord un fichier de configuration.	Nothing to send: paste or open a configuration file first.
+Le fichier contient {0} erreur(s) : l'imprimante ignorera ou refusera ces lignes.	The file contains {0} error(s): the printer will ignore or reject these lines.
+Il redémarre l'imprimante, la remet en usine ou change ses réglages réseau : elle peut devenir injoignable quelques secondes, ou à une autre adresse.	It restarts the printer, resets it to factory settings or changes its network settings: it may be unreachable for a few seconds, or at another address.
+Envoyer quand même ?	Send anyway?
+Envoyer	Send
+Configuration envoyée à {0} ({1} octets).	Configuration sent to {0} ({1} bytes).
+Retour à la ligne ajouté après la dernière commande SGD, pour qu'elle soit exécutée.	Line break added after the last SGD command so that it runs.
+Relis l'imprimante pour vérifier que les réglages ont bien été pris en compte.	Read the printer again to check the settings were applied.
+Impression	Printing
+Support	Media
+Réseau	Network
+Communication	Communication
+Étiquette	Label
+Lecture	Reading
+Noirceur (contraste) de l'impression	Print darkness
+Vitesse d'impression (pouces par seconde)	Print speed (inches per second)
+Mode de sortie des étiquettes (détachage, prédécollage, coupe…)	Label output mode (tear off, peel off, cut…)
+Type de support (continu, étiquettes séparées, marque noire)	Media type (continuous, gap labels, black mark)
+Méthode d'impression (transfert thermique avec ruban, ou thermique direct)	Print method (thermal transfer with ribbon, or direct thermal)
+Largeur d'impression (points)	Print width (dots)
+Longueur maximale d'étiquette (pouces)	Maximum label length (inches)
+Longueur d'étiquette (points)	Label length (dots)
+Décalage horizontal de l'étiquette (points)	Label left shift (dots)
+Décalage vertical de l'étiquette (points)	Label top shift (dots)
+Position de détachage (points)	Tear-off position (dots)
+Capteur de support (espace entre étiquettes ou marque noire)	Media sensor (gap between labels or black mark)
+Action à la mise sous tension	Power-up action
+Action à la fermeture de la tête	Head-close action
+Langage(s) de l'imprimante	Printer language(s)
+Nom de l'imprimante	Printer name
+Emplacement de l'imprimante	Printer location
+Contact de l'entreprise	Company contact
+Redémarrage de l'imprimante	Printer restart
+Retour aux réglages d'usine	Factory reset
+Identification Plug and Play	Plug and Play identification
+Langue de l'écran	Display language
+Mode ZPL	ZPL mode
+Caractère de commande ZPL (^ par défaut)	ZPL command character (^ by default)
+Caractère de contrôle ZPL (~ par défaut)	ZPL control character (~ by default)
+Séparateur de paramètres ZPL (, par défaut)	ZPL parameter delimiter (, by default)
+Mise en veille	Sleep mode
+Délai avant la mise en veille (secondes)	Sleep timeout (seconds)
+Adresse IP (filaire)	IP address (wired)
+Masque de sous-réseau (filaire)	Subnet mask (wired)
+Passerelle (filaire)	Gateway (wired)
+Adresse automatique (DHCP)	Automatic address (DHCP)
+Attribution de l'adresse IP	IP address assignment
+Port d'impression (9100 par défaut)	Print port (9100 by default)
+Second port d'impression	Alternate print port
+Accès Telnet	Telnet access
+Accès FTP	FTP access
+Page web de l'imprimante	Printer web page
+Wi-Fi	Wi-Fi
+Nom du réseau Wi-Fi (SSID)	Wi-Fi network name (SSID)
+Sécurité Wi-Fi	Wi-Fi security
+Mot de passe Wi-Fi (WPA)	Wi-Fi password (WPA)
+Adresse IP (Wi-Fi)	IP address (Wi-Fi)
+Masque de sous-réseau (Wi-Fi)	Subnet mask (Wi-Fi)
+Passerelle (Wi-Fi)	Gateway (Wi-Fi)
+Attribution de l'adresse IP (Wi-Fi)	IP address assignment (Wi-Fi)
+Bluetooth visible	Bluetooth discoverable
+Nom Bluetooth	Bluetooth name
+Vitesse du port série (bauds)	Serial port speed (baud)
+Module RFID	RFID module
+Version du firmware	Firmware version
+Adresse IP active	Active IP address
+Résolution de la tête (dpi)	Printhead resolution (dpi)
+Compteur de longueur imprimée	Printed length counter
+la vitesse maximale dépend du modèle	the maximum speed depends on the model
+ne doit pas dépasser la largeur de la tête	must not exceed the printhead width
+un langage qui ne correspond pas aux programmes envoyés empêche toute impression	a language that does not match the programs sent prevents any printing
+le changer rend illisibles les programmes qui utilisent ^	changing it makes programs that use ^ unreadable
+le changer rend illisibles les programmes qui utilisent ~	changing it makes programs that use ~ unreadable
+Aucune commande de configuration reconnue. Vérifie que c'est bien le fichier envoyé à l'imprimante (ZPL, SGD, TSPL, DPL, SBPL, Fingerprint, EPL2).	No configuration command recognized. Check that this is the file sent to the printer (ZPL, SGD, TSPL, DPL, SBPL, Fingerprint, EPL2).
+Redémarrage ou retour usine avant d'autres commandes : l'imprimante redémarre et ignore ce qui suit dans le fichier. Place cette commande en dernier.	Restart or factory reset before other commands: the printer restarts and ignores the rest of the file. Put this command last.
+Réglages ZPL (^MD, ^PR, ^MN, ^MT, ^MM, ^PW, ^LL…) sans ^JUS : ils sont perdus à l'extinction de l'imprimante. Ajoute ^JUS avant ^XZ pour les enregistrer.	ZPL settings (^MD, ^PR, ^MN, ^MT, ^MM, ^PW, ^LL…) without ^JUS: they are lost when the printer is switched off. Add ^JUS before ^XZ to save them.
+^JUS est placé avant certains réglages : ceux qui suivent ne sont pas enregistrés. Mets ^JUS juste avant ^XZ.	^JUS comes before some settings: those after it are not saved. Put ^JUS just before ^XZ.
+La dernière commande SGD n'est pas suivie d'un retour à la ligne : l'imprimante ne l'exécute pas. Ajoute une ligne vide à la fin du fichier.	The last SGD command is not followed by a line break: the printer does not run it. Add an empty line at the end of the file.
+Guillemets typographiques (“ ” « » ’) : l'imprimante n'accepte que les guillemets droits ". Recopie la ligne depuis un éditeur de texte brut (Bloc-notes).	Typographic quotes (“ ” « » ’): the printer only accepts straight quotes ". Copy the line again from a plain-text editor (Notepad).
+Ligne non reconnue : « {0} ».	Line not recognized: “{0}”.
+Commande SGD mal formée	Malformed SGD command
+Commande SGD illisible pour l'imprimante. Il manque l'espace après « ! » : écris « ! U1 setvar … ».	SGD command unreadable by the printer. The space after “!” is missing: write “! U1 setvar …”.
+Commande SGD illisible pour l'imprimante. Les noms et valeurs doivent être entre guillemets droits : ! U1 setvar "print.tone" "20".	SGD command unreadable by the printer. Names and values must be in straight quotes: ! U1 setvar "print.tone" "20".
+Commande SGD illisible pour l'imprimante. Forme attendue : ! U1 setvar "nom" "valeur", ! U1 getvar "nom" ou ! U1 do "nom" "valeur".	SGD command unreadable by the printer. Expected form: ! U1 setvar "name" "value", ! U1 getvar "name" or ! U1 do "name" "value".
+« ! {0} » : l'en-tête SGD s'écrit « ! U1 » (U majuscule).	“! {0}”: the SGD header is written “! U1” (capital U).
+« {0} » : les commandes SGD s'écrivent en minuscules (setvar, getvar, do).	“{0}”: SGD commands are written in lower case (setvar, getvar, do).
+« {0} » : les noms de réglages SGD s'écrivent en minuscules.	“{0}”: SGD setting names are written in lower case.
+JSON mal formé	Malformed JSON
+JSON SGD invalide (accolades, virgules ou guillemets) : l'imprimante ignore toute la ligne. Forme attendue : {}{"print.tone":"20","media.speed":"6"}.	Invalid JSON SGD (braces, commas or quotes): the printer ignores the whole line. Expected form: {}{"print.tone":"20","media.speed":"6"}.
+Commande JSON SGD sans le préfixe « {} » : l'imprimante attend {}{"nom":"valeur"}.	JSON SGD command without the “{}” prefix: the printer expects {}{"name":"value"}.
+Lecture de tous les réglages de l'imprimante	Reading all printer settings
+Lecture : {0}	Reading: {0}
+Action : {0}	Action: {0}
+Action : {0} ({1})	Action: {0} ({1})
+Redémarre l'imprimante : la connexion est coupée quelques secondes.	Restarts the printer: the connection drops for a few seconds.
+Retour aux réglages d'usine ({0}) : les réglages actuels sont perdus.	Factory reset ({0}): current settings are lost.
+Retour aux réglages d'usine ({0}) : les réglages actuels sont perdus, y compris l'adresse réseau : l'imprimante peut devenir injoignable.	Factory reset ({0}): current settings are lost, including the network address: the printer may become unreachable.
+partie non précisée	unspecified part
+« do "{0}" » sans valeur : écris ! U1 do "{1}" "" (valeur vide entre guillemets).	“do "{0}"” without a value: write ! U1 do "{1}" "" (empty value in quotes).
+Réglage incomplet : {0}	Incomplete setting: {0}
+setvar "{0}" sans valeur : écris ! U1 setvar "{1}" "valeur".	setvar "{0}" without a value: write ! U1 setvar "{1}" "value".
+{0} → {1}	{0} → {1}
+« {0} » : réglage non répertorié par Scanalyse ; vérifie son nom et sa valeur en lisant l'imprimante (bouton « Lire l'imprimante »).	“{0}”: setting not listed by Scanalyse; check its name and value by reading the printer (“Read printer” button).
+« {0} » n'existe pas : vouliez-vous écrire « {1} » ? Un nom inconnu est ignoré par l'imprimante, sans message d'erreur.	“{0}” does not exist: did you mean “{1}”? An unknown name is ignored by the printer, without any error message.
+« {0} » est en lecture seule : l'imprimante ignore ce setvar.	“{0}” is read-only: the printer ignores this setvar.
+« {0} » s'utilise avec « do », pas « setvar » : ! U1 do "{1}" "{2}".	“{0}” is used with “do”, not “setvar”: ! U1 do "{1}" "{2}".
+« {0} » attend « on » ou « off », pas « {1} ».	“{0}” expects “on” or “off”, not “{1}”.
+« {0} » : écris « {1} » (les valeurs SGD respectent les minuscules).	“{0}”: write “{1}” (SGD values are case-sensitive).
+« {0} » n'est pas une valeur connue pour « {1} » ({2}). Selon le modèle, d'autres valeurs existent : vérifie en lisant l'imprimante.	“{0}” is not a known value for “{1}” ({2}). Depending on the model, other values exist: check by reading the printer.
+« {0} » : le séparateur décimal est le point (ex. 20.5), pas la virgule.	“{0}”: the decimal separator is a point (e.g. 20.5), not a comma.
+« {0} » n'est pas un nombre ({1}).	“{0}” is not a number ({1}).
+« {0} » : nombre entier attendu ({1}).	“{0}”: whole number expected ({1}).
+« {0} » hors limites pour « {1} » ({2} à {3}).	“{0}” out of range for “{1}” ({2} to {3}).
+« {0} » hors limites pour « {1} » ({2} à {3}) ; {4}.	“{0}” out of range for “{1}” ({2} to {3}); {4}.
+Vitesse {0} ips : {1}. Une vitesse élevée diminue la qualité des codes-barres.	Speed {0} ips: {1}. A high speed lowers barcode quality.
+« {0} » n'est pas une adresse IPv4 valide (quatre nombres de 0 à 255 séparés par des points).	“{0}” is not a valid IPv4 address (four numbers from 0 to 255 separated by dots).
+« {0} » : {1} caractères, l'imprimante en garde {2} au plus.	“{0}”: {1} characters, the printer keeps {2} at most.
+Mot de passe Wi-Fi écrit en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.	Wi-Fi password written in plain text in this file: do not share it, and delete it after use.
+Mot de passe Wi-Fi écrit en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage. Longueur invalide : 8 à 63 caractères (ou 64 hexadécimaux).	Wi-Fi password written in plain text in this file: do not share it, and delete it after use. Invalid length: 8 to 63 characters (or 64 hex).
+Langage réglé sur « {0} » : {1}.	Language set to “{0}”: {1}.
+{0} : {1}.	{0}: {1}.
+Début de format	Format start
+Fin de format (les commandes sont appliquées)	Format end (commands are applied)
+Noirceur (contraste) : {0}	Darkness: {0}
+Ajustement de noirceur (relatif au réglage ~SD) : {0}	Darkness adjustment (relative to ~SD): {0}
+Vitesse d'impression (pouces par seconde) : {0}	Print speed (inches per second): {0}
+Vitesse d'impression (pouces par seconde), d'avance et de recul : {0}	Print, slew and backfeed speed (inches per second): {0}
+Suivi du support : {0}	Media tracking: {0}
+Support continu	Continuous media
+Étiquettes séparées par un espace (détection de l'espace)	Labels separated by a gap (gap detection)
+Marque noire au dos (détection de la marque)	Black mark on the back (mark detection)
+Détection automatique du support	Automatic media detection
+Support continu de longueur variable	Variable-length continuous media
+Suivi du support	Media tracking
+^MN{0} : valeur inconnue (N continu, Y ou W espace, M marque noire, A automatique, V continu variable).	^MN{0}: unknown value (N continuous, Y or W gap, M black mark, A automatic, V variable continuous).
+Type de support	Media type
+Transfert thermique (avec ruban)	Thermal transfer (with ribbon)
+Thermique direct (sans ruban)	Direct thermal (no ribbon)
+Méthode d'impression	Print method
+^MT{0} : T (transfert thermique, avec ruban) ou D (thermique direct) attendu.	^MT{0}: T (thermal transfer, with ribbon) or D (direct thermal) expected.
+Mode de sortie : {0}	Output mode: {0}
+Mode de sortie : {0} (prédécollage)	Output mode: {0} (pre-peel)
+Mode de sortie	Output mode
+Mode « {0} » : l'option correspondante (décolleur, massicot, enrouleur, applicateur) doit être installée, sinon l'imprimante reste en erreur.	“{0}” mode: the matching option (peeler, cutter, rewinder, applicator) must be installed, otherwise the printer stays in error.
+^MM{0} : mode inconnu (T détachage, P prédécollage, R enroulement, A applicateur, C coupe, D coupe différée, K kiosque).	^MM{0}: unknown mode (T tear off, P peel off, R rewind, A applicator, C cutter, D delayed cut, K kiosk).
+Largeur d'impression (points) : {0}	Print width (dots): {0}
+Longueur d'étiquette (points) : {0}	Label length (dots): {0}
+Décalage horizontal de l'étiquette (points) : {0}	Label left shift (dots): {0}
+Décalage vertical de l'étiquette (points) : {0}	Label top shift (dots): {0}
+Position de détachage (points) : {0}	Tear-off position (dots): {0}
+Origine de l'étiquette (x, y en points)	Label home (x, y in dots)
+Impression retournée (180°)	Inverted print (180°)
+Impression normale	Normal print
+Mise sous tension : {0} ; fermeture de la tête : {1}	Power-up: {0}; head close: {1}
+avance	feed
+calibrage	calibration
+mesure de longueur	length measurement
+aucun mouvement	no motion
+calibrage court	short calibration
+^MF : F (avance), C (calibrage), L (longueur), N (aucun mouvement) ou S (calibrage court) attendus.	^MF: F (feed), C (calibrate), L (length), N (no motion) or S (short calibration) expected.
+Enregistre les réglages (conservés à l'extinction)	Saves the settings (kept at power-off)
+Recharge les derniers réglages enregistrés	Reloads the last saved settings
+Retour aux réglages d'usine (hors réseau)	Factory reset (except network)
+Retour aux réglages réseau d'usine	Network factory reset
+Retour aux réglages d'usine (y compris réseau)	Factory reset (including network)
+Configuration (^JU)	Configuration (^JU)
+^JU{0} : {1} ; les réglages actuels sont perdus.	^JU{0}: {1}; current settings are lost.
+^JU{0} : {1} ; les réglages actuels sont perdus, y compris l'adresse IP : l'imprimante peut devenir injoignable.	^JU{0}: {1}; current settings are lost, including the IP address: the printer may become unreachable.
+^JU{0} : valeur inconnue (S enregistrer, R recharger, F usine, N réseau d'usine).	^JU{0}: unknown value (S save, R reload, F factory, N network factory).
+Calibrage du capteur d'étiquettes	Label sensor calibration
+Mesure de la longueur d'étiquette	Label length measurement
+Impression de l'étiquette de configuration	Configuration label print
+Demande d'état ou d'informations à l'imprimante	Status or information request to the printer
+Nom de l'imprimante : {0}	Printer name: {0}
+Nom de l'imprimante : {0} ({1})	Printer name: {0} ({1})
+^KN : nom limité à 16 caractères, la suite est coupée.	^KN: name limited to 16 characters, the rest is cut off.
+Mot de passe du panneau de commande	Control panel password
+^KP : mot de passe de 4 chiffres attendu.	^KP: 4-digit password expected.
+Change le mot de passe du panneau : note-le, sinon les réglages ne seront plus modifiables sur place.	Changes the control panel password: write it down, otherwise settings can no longer be changed at the printer.
+Réseau : attribution {0}	Network: assignment {0}
+Réseau : attribution {0}, IP {1}	Network: assignment {0}, IP {1}
+Réseau : attribution {0}, IP {1}, masque {2}	Network: assignment {0}, IP {1}, mask {2}
+Réseau : attribution {0}, IP {1}, masque {2}, passerelle {3}	Network: assignment {0}, IP {1}, mask {2}, gateway {3}
+automatique (toutes méthodes)	automatic (all methods)
+permanente (adresse fixe)	permanent (fixed address)
+inchangée	unchanged
+glanage	gleaning
+DHCP et BOOTP	DHCP and BOOTP
+{0} : adresse IP « {1} » invalide.	{0}: invalid IP address “{1}”.
+{0} : masque « {1} » invalide.	{0}: invalid mask “{1}”.
+{0} : passerelle « {1} » invalide.	{0}: invalid gateway “{1}”.
+{0} : adresse permanente (P) sans adresse IP.	{0}: permanent address (P) without an IP address.
+Port série : {0} bauds, {1} bits, parité {2}, {3} bit(s) d'arrêt	Serial port: {0} baud, {1} bits, parity {2}, {3} stop bit(s)
+Jeu de caractères {0}	Character set {0}
+Jeu de caractères {0} (UTF-8)	Character set {0} (UTF-8)
+Mode ZPL I	ZPL I mode
+Mode ZPL II	ZPL II mode
+^SZ1 passe l'imprimante en ZPL I : la plupart des programmes actuels (ZPL II) s'impriment mal.	^SZ1 switches the printer to ZPL I: most current programs (ZPL II) print badly.
+Pas de réimpression après une erreur	No reprint after an error
+Réimpression après une erreur	Reprint after an error
+Annulation de tous les travaux en attente	Cancel all pending jobs
+Commentaire	Comment
+Mise en page d'étiquette	Label layout
+Commande ZPL {0}{1}	ZPL command {0}{1}
+{0} : « {1} » n'est pas un nombre ({2}).	{0}: “{1}” is not a number ({2}).
+{0} : {1} hors limites ({2} à {3}).	{0}: {1} out of range ({2} to {3}).
+{0} : {1} hors limites ({2} à {3}, nombre entier).	{0}: {1} out of range ({2} to {3}, whole number).
+Taille d'étiquette : {0}	Label size: {0}
+Taille d'étiquette	Label size
+Espace entre étiquettes : {0}	Gap between labels: {0}
+Espace entre étiquettes : {0} (support continu)	Gap between labels: {0} (continuous media)
+Espace entre étiquettes	Gap between labels
+Marque noire : {0}	Black mark: {0}
+Vitesse d'impression : {0} pouces par seconde	Print speed: {0} inches per second
+Vitesse d'impression	Print speed
+SPEED {0} : nombre attendu (le séparateur décimal est le point).	SPEED {0}: number expected (the decimal separator is a point).
+SPEED {0} : vitesse inhabituelle ; chaque modèle n'accepte que certaines valeurs (ex. 2, 3, 4, 5, 6) et prend sinon la plus proche.	SPEED {0}: unusual speed; each model only accepts certain values (e.g. 2, 3, 4, 5, 6) and otherwise uses the nearest one.
+Noirceur (densité) : {0}	Darkness (density): {0}
+Sens d'impression	Print direction
+Sens d'impression (miroir)	Print direction (mirror)
+DIRECTION : 0 ou 1 attendu (et 0 ou 1 pour le miroir).	DIRECTION: 0 or 1 expected (and 0 or 1 for mirror).
+Origine de l'étiquette : {0}	Label origin: {0}
+Décalage d'arrêt après impression : {0}	Stop offset after printing: {0}
+Décalage d'impression : {0}	Print shift: {0}
+Jeu de caractères : {0}	Character set: {0}
+Pays (clavier, caractères) : {0}	Country (keyboard, characters): {0}
+Longueur maximale avant erreur de détection : {0}	Maximum length before a detection error: {0}
+INITIALPRINTER : retour aux réglages d'usine, les réglages actuels sont perdus.	INITIALPRINTER: factory reset, current settings are lost.
+Impression de l'étiquette d'autotest (configuration)	Self-test (configuration) label print
+Réseau : {0}	Network: {0}
+NET : adresse « {0} » invalide.	NET: invalid address “{0}”.
+Contenu d'étiquette	Label content
+Mouvement du support	Media movement
+Commande TSPL {0}	TSPL command {0}
+{0} : commande TSPL non répertoriée par Scanalyse, vérifie-la dans le manuel du modèle.	{0}: TSPL command not listed by Scanalyse, check it in the model's manual.
+Ligne TSPL non reconnue : « {0} ».	TSPL line not recognized: “{0}”.
+Massicot (OFF, BATCH ou toutes les n étiquettes) : {0}	Cutter (OFF, BATCH or every n labels): {0}
+Coupe partielle : {0}	Partial cut: {0}
+Recul après coupe : {0}	Backfeed after cut: {0}
+Position de détachage : {0}	Tear-off position: {0}
+Prédécollage : {0}	Peel off: {0}
+Détection de l'espace : {0}	Gap detection: {0}
+Contrôle d'ouverture de la tête : {0}	Head-open check: {0}
+Ruban (transfert thermique ON, thermique direct OFF) : {0}	Ribbon (thermal transfer ON, direct thermal OFF): {0}
+Enrouleur : {0}	Rewinder: {0}
+Compteur : {0}	Counter: {0}
+Touche du panneau : {0}	Panel key: {0}
+Voyant : {0}	LED: {0}
+Réimpression après une erreur : {0}	Reprint after an error: {0}
+Impression par la touche FEED : {0}	Print with the FEED key: {0}
+Port série (bauds, parité, bits, arrêt) : {0}	Serial port (baud, parity, bits, stop): {0}
+Détection du ruban (encodeur) : {0}	Ribbon detection (encoder): {0}
+Capteur : {0}	Sensor: {0}
+Réglage {0} : {1}	Setting {0}: {1}
+SET {0} {1} : {2} attendu.	SET {0} {1}: {2} expected.
+SET {0} : l'option (décolleur ou massicot) doit être installée, sinon l'imprimante reste en erreur.	SET {0}: the option (peeler or cutter) must be installed, otherwise the printer stays in error.
+Effacement de la mémoire d'image	Image buffer clear
+Impression depuis le haut	Print from top
+Impression depuis le bas (retournée)	Print from bottom (inverted)
+Largeur d'étiquette (points) : {0}	Label width (dots): {0}
+Longueur d'étiquette et espace : {0}	Label length and gap: {0}
+Vitesse d'impression (code) : {0}	Print speed (code): {0}
+Options matérielles	Hardware options
+Options matérielles (thermique direct)	Hardware options (direct thermal)
+Recul avant impression activé	Backfeed before printing on
+Recul avant impression désactivé	Backfeed before printing off
+Calibrage automatique du capteur	Automatic sensor calibration
+Demande de configuration	Configuration request
+Commande EPL2 {0}	EPL2 command {0}
+Demande d'état	Status request
+Arrêt immédiat (annulation)	Immediate stop (cancel)
+Annulation de tous les travaux	Cancel all jobs
+Commande immédiate <SOH>{0}	Immediate command <SOH>{0}
+Chaleur (noirceur) du format : {0}	Format heat (darkness): {0}
+Taille des points : {0} × {1}	Dot size: {0} × {1}
+Vitesse d'impression (code {0})	Print speed (code {0})
+Vitesse d'avance (code {0})	Slew speed (code {0})
+Quantité : {0}	Quantity: {0}
+Fin du format (impression)	Format end (print)
+Début d'un format d'étiquette	Start of a label format
+Unités métriques (0,1 mm)	Metric units (0.1 mm)
+Unités en pouces (0,01 pouce)	Inch units (0.01 inch)
+Capteur d'espace (étiquettes séparées)	Gap sensor (separate labels)
+Capteur réfléchissant (marque noire)	Reflective sensor (black mark)
+Support continu, longueur {0}	Continuous media, length {0}
+Longueur maximale d'étiquette : {0}	Maximum label length: {0}
+Décalage du début d'impression : {0}	Start-of-print offset: {0}
+Position d'arrêt (détachage) : {0}	Stop position (tear-off): {0}
+Demande de la configuration	Configuration request
+Modification de la configuration enregistrée (Kc)	Change of the saved configuration (Kc)
+<STX>Kc : réglages enregistrés dans l'imprimante ; Scanalyse ne détaille pas chaque paramètre, vérifie-les dans le manuel DPL du modèle.	<STX>Kc: settings saved in the printer; Scanalyse does not detail each parameter, check them in the model's DPL manual.
+Réglage de l'horloge	Clock setting
+Commande système DPL <STX>{0}	DPL system command <STX>{0}
+Copie de la configuration vers un fichier ou un port	Copy of the configuration to a file or port
+Instruction Fingerprint	Fingerprint instruction
+SETUP : section, réglage et valeur attendus, entre guillemets et séparés par des virgules (ex. SETUP "MEDIA","MEDIA TYPE","LABEL (W GAPS)").	SETUP: section, setting and value expected, in quotes and separated by commas (e.g. SETUP "MEDIA","MEDIA TYPE","LABEL (W GAPS)").
+SETUP : guillemet en trop ou non refermé ; chaque section, réglage et valeur s'écrit entre guillemets, séparés par des virgules.	SETUP: extra or unclosed quote; each section, setting and value goes in quotes, separated by commas.
+<ESC>CS hors d'un bloc <ESC>A … <ESC>Z : la commande est ignorée.	<ESC>CS outside an <ESC>A … <ESC>Z block: the command is ignored.
+<ESC>CS n'est pas enregistrée : la vitesse revient au réglage du panneau à l'extinction (enregistrement : <ESC>PG ou menu de l'imprimante). Code de vitesse propre au modèle.	<ESC>CS is not saved: the speed returns to the panel setting at power-off (to save: <ESC>PG or the printer menu). Speed code is model-specific.
+Noirceur (niveau {0})	Darkness (level {0})
+<ESC>#E{0} : niveau 1 à 5 (1 à 3 sur certains modèles) suivi éventuellement d'une lettre A à F.	<ESC>#E{0}: level 1 to 5 (1 to 3 on some models), optionally followed by a letter A to F.
+réflexion (marque noire)	reflection (black mark)
+transmission (espace entre étiquettes)	transmission (gap between labels)
+capteur ignoré	sensor ignored
+<ESC>IG{0} : 1 (réflexion), 2 (transmission) ou 3 (ignoré) attendu.	<ESC>IG{0}: 1 (reflection), 2 (transmission) or 3 (ignored) expected.
+Correction du point de départ (non enregistrée)	Start point correction (not saved)
+Enregistrement des réglages dans la mémoire de l'imprimante	Saving settings to the printer memory
+<ESC>PG enregistre les réglages (vitesse, noirceur, capteur, taille…) de façon permanente : champs à position fixe, vérifie-les dans le manuel SBPL du modèle.	<ESC>PG saves settings (speed, darkness, sensor, size…) permanently: fixed-position fields, check them in the model's SBPL manual.
+Début de bloc	Block start
+Fin de bloc (exécution)	Block end (run)
+Contenu d'étiquette ou commande SBPL	Label content or SBPL command
+{0} : « {1} » sur l'imprimante → « {2} » après envoi.	{0}: “{1}” on the printer → “{2}” after sending.
+{0} : déjà réglé sur « {1} ».	{0}: already set to “{1}”.
+{0} : « {1} » refusé par cette imprimante (valeurs acceptées : {2}).	{0}: “{1}” rejected by this printer (accepted values: {2}).
+« {0} » n'existe pas sur cette imprimante (modèle ou firmware) : le réglage sera ignoré.	“{0}” does not exist on this printer (model or firmware): the setting will be ignored.
+Scanalyse - configuration	Scanalyse - configuration
+Ajustement de noirceur (relatif au réglage ~SD)	Darkness adjustment (relative to ~SD)
+Capteur	Sensor
+Capteur de support	Media sensor
+Chaleur (noirceur) du format	Format heat (darkness)
+Compteur	Counter
+Contrôle d'ouverture de la tête	Head-open check
+Coupe partielle	Partial cut
+Décalage d'arrêt après impression	Stop offset after printing
+Décalage d'impression	Print shift
+Détection de l'espace	Gap detection
+Détection du ruban (encodeur)	Ribbon detection (encoder)
+Enrouleur	Rewinder
+Impression par la touche FEED	Print with the FEED key
+Jeu de caractères	Character set
+Largeur d'étiquette (points)	Label width (dots)
+Massicot (OFF, BATCH ou toutes les n étiquettes)	Cutter (OFF, BATCH or every n labels)
+Noirceur	Darkness
+Noirceur (contraste)	Darkness
+Noirceur (densité)	Darkness (density)
+Origine de l'étiquette	Label origin
+Port série (bauds, parité, bits, arrêt)	Serial port (baud, parity, bits, stop)
+Position de détachage	Tear-off position
+Prédécollage	Peel off
+Recul après coupe	Backfeed after cut
+Ruban (transfert thermique ON, thermique direct OFF)	Ribbon (thermal transfer ON, direct thermal OFF)
+Réglage {0}	Setting {0}
+Touche du panneau	Panel key
+Vitesse d'avance	Slew speed
+Vitesse d'impression (code)	Print speed (code)
+Voyant	LED
+adresse IP	IP address
+marque noire	black mark
+{0} : {1} « {2} » invalide.	{0}: invalid {1} “{2}”.

@@ -28,6 +28,7 @@
   <Geometry x:Key="IconHistory">M12 7.5V12l3 2M4.6 13A7.5 7.5 0 1 0 6.3 7M4 4v4h4</Geometry>
   <Geometry x:Key="IconPrint">M7 9V4h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 5 9h14a1.5 1.5 0 0 1 1.5 1.5v5A1.5 1.5 0 0 1 19 17h-2M7 14h10v6H7z</Geometry>
   <Geometry x:Key="IconFolder">M3.5 6.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2.2h8a1.5 1.5 0 0 1 1.5 1.5v9.3a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z</Geometry>
+  <Geometry x:Key="IconPrinterConfig">M7 9V4h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 5 9h14a1.5 1.5 0 0 1 1.5 1.5V12M7 14h5v6H7zM17.5 14.5v1.2M17.5 20.3v1.2M14.4 16.3l1 0.6M19.6 19.3l1 0.6M14.4 19.7l1-0.6M19.6 16.7l1-0.6M17.5 16.3a1.7 1.7 0 1 1 0 3.4 1.7 1.7 0 0 1 0-3.4z</Geometry>
   <Geometry x:Key="IconReport">M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6</Geometry>
   <Geometry x:Key="IconTeam">M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.5M17.5 14a5 5 0 0 1 3 5</Geometry>
   <Geometry x:Key="IconHelp">M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-0.6 0.3-1 0.9-1 1.6V14M12 17.2v0.3</Geometry>
