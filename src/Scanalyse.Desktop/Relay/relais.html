@@ -38,6 +38,7 @@ textarea:focus{outline:none}
 .aim{position:absolute;inset:18% 10%;border:3px solid rgba(255,255,255,.85);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.25);transition:border-color .15s}
 .aim.hit{border-color:#5FD3A1}
 .camstate{margin-top:8px;font-size:13px;color:var(--muted)}
+.card a{color:var(--brand);font-weight:600}
 .stopped #camCard{opacity:.5;pointer-events:none}
 </style>
 </head>
@@ -60,6 +61,8 @@ textarea:focus{outline:none}
     <p class="camstate" id="camState"></p>
   </section>
   <section class="card"><h1 style="font-size:15px">Dernières lectures</h1><div id="log" class="last"><p>Aucune lecture pour l'instant.</p></div></section>
+  <section class="card"><h1 style="font-size:15px">Avertissement de sécurité à chaque fois ?</h1>
+    <p class="camstate" style="margin-top:4px">Installe une fois le certificat de ce PC : <a href="/scanalyse.crt" download="Scanalyse-certificat.crt">télécharger Scanalyse-certificat.crt</a>, puis Paramètres → Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA.</p></section>
 </main>
 <script>
 (function(){

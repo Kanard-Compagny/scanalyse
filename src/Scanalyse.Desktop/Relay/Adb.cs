@@ -126,19 +126,19 @@ internal static class Adb
     /// <summary>Coupe la redirection des ports : la page du terminal ne joint plus le PC.</summary>
     public static async Task StopRelayAsync(string adb, string serial)
     {
-        foreach (var port in new[] { RelayServer.HttpPort, RelayServer.RawPort })
+        foreach (var port in new[] { RelayServer.HttpPort, RelayServer.RawPort, RelayServer.HttpsPort })
         {
             await RunAsync(adb, $"-s \"{serial}\" reverse --remove tcp:{port}");
         }
     }
 
     /// <summary>
-    /// Relie le terminal au relais par le câble USB : ses ports 8765/8766 renvoient vers ceux du PC,
-    /// puis la page de relais s'ouvre dans son navigateur.
+    /// Relie le terminal au relais par le câble USB : ses ports 8765 à 8767 renvoient vers ceux du PC, puis la page de
+    /// relais s'ouvre dans son navigateur, en HTTPS (beaucoup de terminaux bloquent les pages en http://).
     /// </summary>
     public static async Task<string?> OpenRelayAsync(string adb, string serial)
     {
-        foreach (var port in new[] { RelayServer.HttpPort, RelayServer.RawPort })
+        foreach (var port in new[] { RelayServer.HttpPort, RelayServer.RawPort, RelayServer.HttpsPort })
         {
             var (code, output) = await RunAsync(adb, $"-s \"{serial}\" reverse tcp:{port} tcp:{port}");
             if (code != 0)
@@ -147,7 +147,30 @@ internal static class Adb
             }
         }
 
-        var (c2, o2) = await RunAsync(adb, $"-s \"{serial}\" shell am start -a android.intent.action.VIEW -d http://127.0.0.1:{RelayServer.HttpPort}/relais");
+        var (c2, o2) = await RunAsync(adb, $"-s \"{serial}\" shell am start -a android.intent.action.VIEW -d https://127.0.0.1:{RelayServer.HttpsPort}/relais");
         return c2 == 0 && !o2.Contains("Error", StringComparison.OrdinalIgnoreCase) ? null : $"Ouverture du navigateur impossible : {o2}";
+    }
+
+    /// <summary>
+    /// Copie le certificat du relais dans le dossier Download du terminal, puis ouvre ses réglages de sécurité :
+    /// Android (11 et plus) n'installe un certificat d'autorité que depuis ses réglages, à la main.
+    /// </summary>
+    /// <returns>Message d'erreur, ou <c>null</c> si le fichier est sur le terminal.</returns>
+    public static async Task<string?> PushCertificateAsync(string adb, string serial, string localFile)
+    {
+        var (code, output) = await RunAsync(adb, $"-s \"{serial}\" push \"{localFile}\" /sdcard/Download/Scanalyse-certificat.crt");
+        if (code != 0)
+        {
+            return $"Copie du certificat impossible : {output}";
+        }
+
+        // Réglages de sécurité (chemin d'installation des certificats) ; à défaut, les réglages généraux.
+        var (c2, o2) = await RunAsync(adb, $"-s \"{serial}\" shell am start -a android.settings.SECURITY_SETTINGS");
+        if (c2 != 0 || o2.Contains("Error", StringComparison.OrdinalIgnoreCase))
+        {
+            await RunAsync(adb, $"-s \"{serial}\" shell am start -a android.settings.SETTINGS");
+        }
+
+        return null;
     }
 }

@@ -100,6 +100,8 @@ public partial class DevicesView : UserControl
             Log?.Invoke(LogKind.Error, error);
         }
 
+        ShowCertificateInfo();
+
         WifiPanel.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
         WifiNetworks.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
         WifiHelp.Visibility = wifi ? Visibility.Visible : Visibility.Collapsed;
@@ -147,11 +149,12 @@ public partial class DevicesView : UserControl
 
     private async Task ShowAddressAsync(string address)
     {
-        var url = $"http://{address}:{Relay.RelayServer.HttpPort}/relais";
+        // HTTPS par défaut : beaucoup de terminaux bloquent les pages en http:// (l'adresse http reste en secours).
+        var url = $"https://{address}:{Relay.RelayServer.HttpsPort}/relais";
         WifiUrl.Text = url;
         RawHint.Text = $"dans DataWedge, sortie IP en TCP vers 127.0.0.1 port {Relay.RelayServer.RawPort} pour un terminal relié en USB (après « Ouvrir le relais »), ou vers {address} port {Relay.RelayServer.RawPort} en Wi-Fi.";
-        CameraHint.Text = Localization.T("sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai. En USB, rien à régler ; en Wi-Fi, la page s'ouvre en HTTPS")
-            + $" (https://{address}:{Relay.RelayServer.HttpsPort}/relais) " + Localization.T("— accepter une fois l'avertissement de sécurité.");
+        CameraHint.Text = Localization.T("sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai.")
+            + " " + Localization.T("Terminal ancien qui refuse le HTTPS :") + $" http://{address}:{Relay.RelayServer.HttpPort}/relais";
         await ShowQrAsync(url);
     }
 
@@ -323,6 +326,21 @@ public partial class DevicesView : UserControl
             };
             Grid.SetColumn(open, 1);
             grid.Children.Add(open);
+
+            // Certificat du PC copié sur le terminal : plus d'avertissement de sécurité sur la page HTTPS.
+            var cert = new Button
+            {
+                Content = "Installer le certificat",
+                Style = (Style)FindResource("BtnGhost"),
+                IsEnabled = d.Ready,
+                Margin = new Thickness(6, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                ToolTip = Localization.T("Copie le certificat de ce PC sur le terminal et ouvre ses réglages de sécurité : la page du relais ne montrera plus d'avertissement"),
+            };
+            cert.Click += async (_, _) => await InstallCertificateAsync(d);
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(cert, 2);
+            grid.Children.Add(cert);
             row.Child = grid;
             TerminalList.Children.Add(row);
         }
@@ -351,6 +369,81 @@ public partial class DevicesView : UserControl
 
         Log?.Invoke(error is null ? LogKind.Ok : LogKind.Error, error ?? $"Relais ouvert sur {device.Model} : scanne un code avec le terminal, la lecture arrive au banc d'essai.");
         await RefreshTerminalsAsync();
+    }
+
+    /// <summary>Copie le certificat du PC sur le terminal (dossier Download) et ouvre ses réglages de sécurité.</summary>
+    private async Task InstallCertificateAsync(Relay.AdbDevice device)
+    {
+        if (_adb is null)
+        {
+            return;
+        }
+
+        var file = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Scanalyse-certificat.crt");
+        string? error;
+        try
+        {
+            await System.IO.File.WriteAllBytesAsync(file, Relay.RelayCertificate.AuthorityDer());
+            error = await Relay.Adb.PushCertificateAsync(_adb, device.Serial, file);
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException)
+        {
+            error = ex.Message;
+        }
+
+        Log?.Invoke(error is null ? LogKind.Ok : LogKind.Error, error ?? $"Certificat copié sur {device.Model} (Download/Scanalyse-certificat.crt). Sur le terminal : Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA.");
+        if (error is null)
+        {
+            // Phrases traduites une à une (interface en anglais).
+            await Dialogs.ConfirmAsync(
+                "Terminer l'installation sur le terminal",
+                string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Le certificat est dans le dossier Download de {0}, et ses réglages de sécurité sont ouverts."), device.Model)
+                + "\n\n" + Localization.T("Sur le terminal : Chiffrement et identifiants → Installer un certificat → Certificat CA → Scanalyse-certificat.crt.")
+                + "\n\n" + Localization.T("Android demande parfois un code de verrouillage de l'écran : c'est une exigence du système pour installer un certificat."),
+                "Compris",
+                null,
+                danger: false);
+        }
+    }
+
+    /// <summary>Enregistre le certificat d'autorité du PC (.crt) : installation à la main ou déploiement par MDM.</summary>
+    private void ExportCertificate_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = Localization.T("Exporter le certificat du relais"),
+            FileName = "Scanalyse-certificat.crt",
+            Filter = Localization.T("Certificat") + " (*.crt)|*.crt",
+            DefaultExt = ".crt",
+        };
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            System.IO.File.WriteAllBytes(dialog.FileName, Relay.RelayCertificate.AuthorityDer());
+            ShowCertificateInfo();
+            Log?.Invoke(LogKind.Ok, $"Certificat du relais enregistré : {dialog.FileName}");
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException)
+        {
+            Log?.Invoke(LogKind.Error, $"Certificat non enregistré : {ex.Message}");
+        }
+    }
+
+    /// <summary>Nom et empreinte du certificat, pour le reconnaître dans les réglages du terminal.</summary>
+    private void ShowCertificateInfo()
+    {
+        try
+        {
+            CertificateInfo.Text = $"{Relay.RelayCertificate.AuthorityName} · SHA-256 {Relay.RelayCertificate.AuthorityFingerprint()}";
+        }
+        catch (System.Security.Cryptography.CryptographicException ex)
+        {
+            CertificateInfo.Text = ex.Message;
+        }
     }
 
     /// <summary>Coupe la liaison avec un terminal USB : redirection ADB retirée, page bloquée.</summary>

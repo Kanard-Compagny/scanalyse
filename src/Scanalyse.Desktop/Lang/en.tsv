@@ -2072,3 +2072,25 @@ Clavier AZERTY / QWERTY, suffixe Entrée, préfixes, séparateur GS1… : les co
 Codes d'interface USB (Zebra)…	USB interface codes (Zebra)…
 Codes-barres à scanner pour régler la douchette : clavier AZERTY, suffixe Entrée, séparateur GS1, interface USB, réglages par défaut	Barcodes to scan to set up the scanner: AZERTY keyboard, Enter suffix, GS1 separator, USB interface, factory defaults
 Ouvre les codes de configuration : changer l'interface USB (clavier, port COM virtuel, HID POS…) sans chercher le guide du fabricant	Opens the configuration codes: change the USB interface (keyboard, virtual COM port, HID POS…) without looking for the manufacturer's guide
+Page sécurisée (HTTPS) et certificat du PC	Secure page (HTTPS) and this PC's certificate
+La page de relais s'ouvre en HTTPS, même en USB : les terminaux qui bloquent les pages en http:// l'acceptent. Au premier accès, le navigateur avertit que le certificat est inconnu : « Paramètres avancés » puis « Continuer ». Pour ne plus jamais voir cet avertissement (obligatoire si le navigateur est verrouillé par l'entreprise), installe une fois le certificat de ce PC sur le terminal.	The relay page opens in HTTPS, even over USB: terminals that block http:// pages accept it. On first access, the browser warns that the certificate is unknown: “Advanced” then “Proceed”. To never see this warning again (required when the browser is locked down by the company), install this PC's certificate on the terminal once.
+Sur le terminal : Paramètres → Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA, puis Scanalyse-certificat.crt (dossier Download). Par câble : « Installer le certificat » sur la ligne du terminal. Pour une flotte : déploie le fichier exporté avec le MDM (SOTI, Intune, StageNow…).	On the terminal: Settings → Security → Encryption & credentials → Install a certificate → CA certificate, then Scanalyse-certificat.crt (Download folder). By cable: “Install certificate” on the terminal's line. For a fleet: deploy the exported file with your MDM (SOTI, Intune, StageNow…).
+Exporter le certificat (.crt)…	Export certificate (.crt)…
+Enregistre le certificat d'autorité de ce PC, à installer sur les terminaux ou à déployer par MDM	Saves this PC's authority certificate, to install on terminals or deploy via MDM
+sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai.	on the relay page, “Use camera”: the terminal's camera reads the code and sends it to the test bench.
+Terminal ancien qui refuse le HTTPS :	Older terminal that refuses HTTPS:
+Installer le certificat	Install certificate
+Copie le certificat de ce PC sur le terminal et ouvre ses réglages de sécurité : la page du relais ne montrera plus d'avertissement	Copies this PC's certificate to the terminal and opens its security settings: the relay page will no longer show a warning
+Terminer l'installation sur le terminal	Finish the installation on the terminal
+Le certificat est dans le dossier Download de {0}, et ses réglages de sécurité sont ouverts.	The certificate is in the Download folder of {0}, and its security settings are open.
+Sur le terminal : Chiffrement et identifiants → Installer un certificat → Certificat CA → Scanalyse-certificat.crt.	On the terminal: Encryption & credentials → Install a certificate → CA certificate → Scanalyse-certificat.crt.
+Android demande parfois un code de verrouillage de l'écran : c'est une exigence du système pour installer un certificat.	Android sometimes asks for a screen lock code: the system requires it to install a certificate.
+Compris	Got it
+Exporter le certificat du relais	Export the relay certificate
+Certificat	Certificate
+Certificat du relais enregistré : {0}	Relay certificate saved: {0}
+Certificat non enregistré : {0}	Certificate not saved: {0}
+Certificat copié sur {0} (Download/Scanalyse-certificat.crt). Sur le terminal : Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA.	Certificate copied to {0} (Download/Scanalyse-certificat.crt). On the terminal: Security → Encryption & credentials → Install a certificate → CA certificate.
+Certificat du relais téléchargé par {0} ({1}).	Relay certificate downloaded by {0} ({1}).
+Copie du certificat impossible : {0}	Could not copy the certificate: {0}
+Port {0} indisponible ({1}) : la page sécurisée du relais ne sera pas joignable, seule l'adresse http:// reste possible.	Port {0} unavailable ({1}): the secure relay page will not be reachable, only the http:// address remains possible.

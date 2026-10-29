@@ -225,7 +225,7 @@
 
               <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,9" Margin="0,12,0,0">
                 <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Ink}">
-                  <Run FontWeight="SemiBold" Text="Terminal sans lecteur intégré : " /><Run x:Name="CameraHint" Text="sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai. En USB, rien à régler ; en Wi-Fi, la page passe en HTTPS (accepter une fois l'avertissement de sécurité)." />
+                  <Run FontWeight="SemiBold" Text="Terminal sans lecteur intégré : " /><Run x:Name="CameraHint" Text="sur la page de relais, « Utiliser la caméra » : la caméra du terminal lit le code et l'envoie au banc d'essai." />
                 </TextBlock>
               </Border>
 
@@ -233,6 +233,20 @@
                 <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Ink}">
                   <Run FontWeight="SemiBold" Text="Données brutes (Zebra DataWedge, sortie IP) : " /><Run x:Name="RawHint" />
                 </TextBlock>
+              </Border>
+
+              <!-- HTTPS : certificat propre à ce PC, à installer une fois sur les terminaux (ou à déployer par MDM). -->
+              <Border Background="{DynamicResource Surface2}" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                <StackPanel>
+                  <TextBlock FontWeight="SemiBold" FontSize="12.5" Foreground="{DynamicResource Ink}" Text="Page sécurisée (HTTPS) et certificat du PC" />
+                  <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Ink}" Margin="0,4,0,0"
+                             Text="La page de relais s'ouvre en HTTPS, même en USB : les terminaux qui bloquent les pages en http:// l'acceptent. Au premier accès, le navigateur avertit que le certificat est inconnu : « Paramètres avancés » puis « Continuer ». Pour ne plus jamais voir cet avertissement (obligatoire si le navigateur est verrouillé par l'entreprise), installe une fois le certificat de ce PC sur le terminal." />
+                  <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,6,0,0"
+                             Text="Sur le terminal : Paramètres → Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA, puis Scanalyse-certificat.crt (dossier Download). Par câble : « Installer le certificat » sur la ligne du terminal. Pour une flotte : déploie le fichier exporté avec le MDM (SOTI, Intune, StageNow…)." />
+                  <TextBlock x:Name="CertificateInfo" FontFamily="{StaticResource MonoFont}" FontSize="11.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                  <Button Style="{StaticResource BtnSecondary}" Content="Exporter le certificat (.crt)…" Click="ExportCertificate_Click" HorizontalAlignment="Left" Margin="0,10,0,0"
+                          ToolTip="Enregistre le certificat d'autorité de ce PC, à installer sur les terminaux ou à déployer par MDM" />
+                </StackPanel>
               </Border>
             </StackPanel>
           </Border>

@@ -30,8 +30,14 @@ internal sealed partial class RelayServer : IAsyncDisposable
     public const int HttpPort = 8765;
     public const int RawPort = 8766;
 
-    /// <summary>Page de relais en HTTPS (Wi-Fi) : nécessaire pour utiliser la caméra du terminal.</summary>
+    /// <summary>
+    /// Page de relais en HTTPS (USB et Wi-Fi) : adresse par défaut. Beaucoup de terminaux bloquent les pages en http://,
+    /// et la caméra n'est utilisable que sur une page sécurisée. Le port HTTP reste ouvert pour les terminaux anciens.
+    /// </summary>
     public const int HttpsPort = 8767;
+
+    /// <summary>Chemin du certificat d'autorité du PC, téléchargeable depuis la page de relais.</summary>
+    public const string CertificatePath = "/scanalyse.crt";
 
     /// <summary>Sans signe de vie de la page pendant ce délai, le terminal est considéré comme déconnecté.</summary>
     private static readonly TimeSpan SessionTimeout = TimeSpan.FromSeconds(7);
@@ -100,20 +106,18 @@ internal sealed partial class RelayServer : IAsyncDisposable
         _sweeper = new Timer(_ => Sweep(), null, 1000, 1000);
         _ = AcceptLoopAsync(_http, HandleHttpAsync, _cts.Token);
         _ = AcceptLoopAsync(_raw, HandleRawAsync, _cts.Token);
-        if (lan)
+
+        // HTTPS en USB comme en Wi-Fi : c'est l'adresse ouverte sur le terminal.
+        try
         {
-            // HTTPS en Wi-Fi : le navigateur du terminal n'autorise la caméra que sur une page sécurisée.
-            try
-            {
-                _https = new TcpListener(address, HttpsPort);
-                _https.Start();
-                _ = AcceptLoopAsync(_https, HandleHttpsAsync, _cts.Token);
-            }
-            catch (SocketException ex)
-            {
-                _https = null;
-                Log?.Invoke(LogKind.Warning, $"Port {HttpsPort} indisponible ({ex.SocketErrorCode}) : la caméra des terminaux en Wi-Fi ne sera pas utilisable.");
-            }
+            _https = new TcpListener(address, HttpsPort);
+            _https.Start();
+            _ = AcceptLoopAsync(_https, HandleHttpsAsync, _cts.Token);
+        }
+        catch (SocketException ex)
+        {
+            _https = null;
+            Log?.Invoke(LogKind.Warning, $"Port {HttpsPort} indisponible ({ex.SocketErrorCode}) : la page sécurisée du relais ne sera pas joignable, seule l'adresse http:// reste possible.");
         }
 
         return null;
@@ -231,7 +235,7 @@ internal sealed partial class RelayServer : IAsyncDisposable
         await using var ssl = new System.Net.Security.SslStream(client.GetStream(), leaveInnerStreamOpen: false);
         try
         {
-            await ssl.AuthenticateAsServerAsync(new System.Net.Security.SslServerAuthenticationOptions { ServerCertificate = RelayCertificate.Get() }, token);
+            await ssl.AuthenticateAsServerAsync(new System.Net.Security.SslServerAuthenticationOptions { ServerCertificateContext = RelayCertificate.Context() }, token);
         }
         catch (Exception ex) when (ex is System.Security.Authentication.AuthenticationException or System.Security.Cryptography.CryptographicException)
         {
@@ -271,6 +275,12 @@ internal sealed partial class RelayServer : IAsyncDisposable
             var js = path == "/zxing.js";
             var file = js ? ZxingJs.Value : ZxingWasm.Value;
             await RespondAsync(stream, file.Length > 0 ? 200 : 404, js ? "text/javascript; charset=utf-8" : "application/wasm", file);
+        }
+        else if (method == "GET" && path == CertificatePath)
+        {
+            // Certificat d'autorité du PC : une fois installé sur le terminal, plus d'avertissement de sécurité.
+            await RespondAsync(stream, 200, "application/x-x509-ca-cert", RelayCertificate.AuthorityDer(), "Scanalyse-certificat.crt");
+            Log?.Invoke(LogKind.Info, $"Certificat du relais téléchargé par {model} ({origin}).");
         }
         else if (method == "GET" && path == "/ping")
         {
@@ -491,12 +501,13 @@ internal sealed partial class RelayServer : IAsyncDisposable
 
     private static int IndexOf(byte[] data, int count, ReadOnlySpan<byte> pattern) => data.AsSpan(0, count).IndexOf(pattern);
 
-    private static async Task RespondAsync(Stream stream, int status, string type, byte[] body)
+    private static async Task RespondAsync(Stream stream, int status, string type, byte[] body, string? fileName = null)
     {
         var reason = status switch { 200 => "OK", 400 => "Bad Request", 410 => "Gone", _ => "Not Found" };
         // Le décodeur se met en cache sur le terminal ; le reste jamais.
         var cache = type.StartsWith("application/wasm", StringComparison.Ordinal) || type.StartsWith("text/javascript", StringComparison.Ordinal) ? "max-age=86400" : "no-store";
-        var head = Encoding.ASCII.GetBytes($"HTTP/1.1 {status} {reason}\r\nContent-Type: {type}\r\nContent-Length: {body.Length}\r\nCache-Control: {cache}\r\nConnection: close\r\n\r\n");
+        var head = Encoding.ASCII.GetBytes($"HTTP/1.1 {status} {reason}\r\nContent-Type: {type}\r\nContent-Length: {body.Length}\r\nCache-Control: {cache}\r\n"
+            + (fileName is null ? string.Empty : $"Content-Disposition: attachment; filename=\"{fileName}\"\r\n") + "Connection: close\r\n\r\n");
         await stream.WriteAsync(head);
         await stream.WriteAsync(body);
         await stream.FlushAsync();
