@@ -72,6 +72,9 @@ public sealed class AppSettings
     /// <summary>Chercher une nouvelle version au démarrage.</summary>
     public bool UpdateCheck { get; set; } = true;
 
+    /// <summary>Scanalyse proposé dans « Ouvrir avec » de l'Explorateur (inscription pour l'utilisateur, retirée à la désinstallation).</summary>
+    public bool OpenWith { get; set; }
+
     /// <summary>Dossier de diffusion de l'équipe (partage réseau contenant la dernière version de Scanalyse.exe).</summary>
     public string UpdateFolder { get; set; } = string.Empty;
 

@@ -103,6 +103,18 @@
                         Checked="Option_Changed" Unchecked="Option_Changed" />
             </StackPanel>
           </Border>
+
+          <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+              <TextBlock Style="{StaticResource CardTitle}" Text="Ouvrir avec Scanalyse" />
+              <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
+                         Text="Glisser un fichier sur Scanalyse.exe l'ouvre déjà au bon endroit : programme d'étiquette dans « Code imprimante », image ou PDF dans « Analyser une image », profil d'équipe à l'import." />
+              <CheckBox x:Name="OpenWithCheck" Style="{StaticResource CheckLine}" Click="OpenWith_Click"
+                        Content="Proposer Scanalyse dans « Ouvrir avec » de l'Explorateur (.zpl, .prn, .txt, images, PDF) et ouvrir les profils d'équipe d'un double-clic" />
+              <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0"
+                         Text="Pour ta session Windows uniquement, sans droits administrateur. Les programmes par défaut de ces fichiers ne changent pas. Retiré si tu décoches, ou par « Désinstaller »." />
+            </StackPanel>
+          </Border>
         </StackPanel>
 
         <StackPanel x:Name="SecReports" Visibility="Collapsed">

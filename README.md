@@ -74,7 +74,7 @@ La seule connexion est la **recherche de mise à jour** sur GitHub (adresse `api
 ## Sécurité du fichier
 
 `Scanalyse.exe` n'est pas encore signé numériquement : au premier lancement, Windows peut afficher « Windows a protégé votre ordinateur » (*Informations complémentaires* → *Exécuter quand même*).
-Chaque version est compilée automatiquement par GitHub Actions à partir du code de ce dépôt, visible de tous ; le programme ne contient ni publicité ni mesure d'audience (voir [Confidentialité](#confidentialité)).
+Chaque version est compilée automatiquement par GitHub Actions à partir du code de ce dépôt, visible de tous ; son **empreinte SHA-256** est publiée avec elle (fichier `Scanalyse.exe.sha256`) et vérifiée par la mise à jour automatique. Pour contrôler un téléchargement : `Get-FileHash Scanalyse.exe` dans PowerShell. Le programme ne contient ni publicité ni mesure d'audience (voir [Confidentialité](#confidentialité)).
 
 ## Licence
 

@@ -2062,7 +2062,6 @@ En-tête des rapports	Report header
 Dossier des rapports	Reports folder
 Dossier proposé à l'enregistrement d'un rapport	Folder suggested when saving a report
 Dossier de l'historique	History folder
-Dossier des programmes d'étiquettes	Label programs folder
 Langage d'imprimante par défaut	Default printer language
 Versions et emplacements utiles à joindre à une demande d'aide (ticket GitHub, e-mail).	Versions and locations to attach to a help request (GitHub issue, e-mail).
 Régler la douchette	Set up the scanner
@@ -2087,10 +2086,27 @@ Sur le terminal : Chiffrement et identifiants → Installer un certificat → Ce
 Android demande parfois un code de verrouillage de l'écran : c'est une exigence du système pour installer un certificat.	Android sometimes asks for a screen lock code: the system requires it to install a certificate.
 Compris	Got it
 Exporter le certificat du relais	Export the relay certificate
-Certificat	Certificate
 Certificat du relais enregistré : {0}	Relay certificate saved: {0}
 Certificat non enregistré : {0}	Certificate not saved: {0}
 Certificat copié sur {0} (Download/Scanalyse-certificat.crt). Sur le terminal : Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA.	Certificate copied to {0} (Download/Scanalyse-certificat.crt). On the terminal: Security → Encryption & credentials → Install a certificate → CA certificate.
 Certificat du relais téléchargé par {0} ({1}).	Relay certificate downloaded by {0} ({1}).
 Copie du certificat impossible : {0}	Could not copy the certificate: {0}
 Port {0} indisponible ({1}) : la page sécurisée du relais ne sera pas joignable, seule l'adresse http:// reste possible.	Port {0} unavailable ({1}): the secure relay page will not be reachable, only the http:// address remains possible.
+Mise à jour refusée : l'empreinte SHA-256 du fichier téléchargé ne correspond pas à celle publiée. Réessaie plus tard, ou télécharge Scanalyse.exe depuis GitHub.	Update refused: the SHA-256 fingerprint of the downloaded file does not match the published one. Try again later, or download Scanalyse.exe from GitHub.
+Scanalyse - erreur imprévue	Scanalyse - unexpected error
+Scanalyse a rencontré une erreur imprévue	Scanalyse ran into an unexpected error
+Tu peux continuer, mais enregistre ton travail : le programme peut être instable. Pour éviter que ça se reproduise, envoie le rapport : il aide à corriger le problème.	You can carry on, but save your work: the program may be unstable. To keep it from happening again, send the report: it helps fix the problem.
+Scanalyse doit se fermer. Pour éviter que ça se reproduise, envoie le rapport : il aide à corriger le problème.	Scanalyse has to close. To keep it from happening again, send the report: it helps fix the problem.
+Le rapport ne contient ni image ni donnée lue, seulement les versions, le système et l'erreur. Relis-le avant de l'envoyer.	The report contains no image and no scanned data, only versions, system and the error. Read it before sending it.
+Détails du rapport	Report details
+Copier le rapport	Copy report
+Rapport copié	Report copied
+Signaler sur GitHub	Report on GitHub
+Ouvre un ticket déjà rempli avec le rapport (compte GitHub nécessaire)	Opens an issue pre-filled with the report (GitHub account required)
+Ouvrir le dossier des rapports	Open the reports folder
+Fermer Scanalyse	Close Scanalyse
+Ouvrir avec Scanalyse	Open with Scanalyse
+Glisser un fichier sur Scanalyse.exe l'ouvre déjà au bon endroit : programme d'étiquette dans « Code imprimante », image ou PDF dans « Analyser une image », profil d'équipe à l'import.	Dropping a file onto Scanalyse.exe already opens it in the right place: label program in “Printer code”, image or PDF in “Analyze an image”, team profile to import.
+Proposer Scanalyse dans « Ouvrir avec » de l'Explorateur (.zpl, .prn, .txt, images, PDF) et ouvrir les profils d'équipe d'un double-clic	Offer Scanalyse in Explorer's “Open with” (.zpl, .prn, .txt, images, PDF) and open team profiles with a double-click
+Pour ta session Windows uniquement, sans droits administrateur. Les programmes par défaut de ces fichiers ne changent pas. Retiré si tu décoches, ou par « Désinstaller ».	For your Windows session only, no administrator rights. The default programs for these files don't change. Removed if you untick it, or by “Uninstall”.
+Windows a refusé la modification : 	Windows refused the change: 

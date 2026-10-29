@@ -33,7 +33,9 @@ internal static class Updater
                 if (File.Exists(exe) && AppVersion.Parse(FileVersionInfo.GetVersionInfo(exe).ProductVersion) is { } v)
                 {
                     var changelog = Path.Combine(settings.UpdateFolder, "CHANGELOG.md");
-                    found.Add(new AvailableUpdate(v, exe, File.Exists(changelog) ? await File.ReadAllTextAsync(changelog) : string.Empty, settings.UpdateFolder));
+                    var checksum = Path.Combine(settings.UpdateFolder, ReleaseFeed.ChecksumFileName);
+                    found.Add(new AvailableUpdate(v, exe, File.Exists(changelog) ? await File.ReadAllTextAsync(changelog) : string.Empty, settings.UpdateFolder,
+                        File.Exists(checksum) ? checksum : null));
                 }
                 else
                 {
@@ -111,6 +113,34 @@ internal static class Updater
                 {
                     File.Delete(fresh);
                     return Localization.T("Le fichier reçu n'est pas un Scanalyse.exe valide.");
+                }
+            }
+
+            // Empreinte SHA-256 publiée avec la version : un fichier abîmé ou modifié en route n'est jamais installé.
+            if (update.ChecksumUrl is { } checksumUrl)
+            {
+                string publishedText;
+                if (checksumUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                {
+                    using var http = Client(TimeSpan.FromSeconds(30));
+                    publishedText = await http.GetStringAsync(checksumUrl);
+                }
+                else
+                {
+                    publishedText = await File.ReadAllTextAsync(checksumUrl);
+                }
+
+                var published = ReleaseFeed.ParseSha256(publishedText);
+                string actual;
+                await using (var read = File.OpenRead(fresh))
+                {
+                    actual = Convert.ToHexStringLower(await System.Security.Cryptography.SHA256.HashDataAsync(read));
+                }
+
+                if (published is null || published != actual)
+                {
+                    File.Delete(fresh);
+                    return Localization.T("Mise à jour refusée : l'empreinte SHA-256 du fichier téléchargé ne correspond pas à celle publiée. Réessaie plus tard, ou télécharge Scanalyse.exe depuis GitHub.");
                 }
             }
 

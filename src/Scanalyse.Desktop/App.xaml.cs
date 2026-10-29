@@ -1,11 +1,15 @@
+using System.IO;
+using System.IO.Pipes;
 using System.Threading;
 using System.Windows;
 
 namespace Scanalyse.Desktop;
 
 /// <summary>
-/// Point d'entrée : une seule instance de Scanalyse à la fois (le relais terminal et les douchettes ne se
-/// partagent pas), puis le thème mémorisé avant d'ouvrir la fenêtre.
+/// Point d'entrée : filet de sécurité contre les erreurs imprévues, une seule instance de Scanalyse à la fois (le relais
+/// terminal et les douchettes ne se partagent pas), puis le thème mémorisé avant d'ouvrir la fenêtre. Les fichiers
+/// passés au programme (« Ouvrir avec », glisser sur Scanalyse.exe) s'ouvrent au bon endroit, y compris dans la
+/// fenêtre déjà ouverte.
 /// </summary>
 public partial class App : Application
 {
@@ -14,9 +18,15 @@ public partial class App : Application
 
     private Mutex? _instance;
     private EventWaitHandle? _activate;
+    private CancellationTokenSource? _pipeStop;
+
+    /// <summary>Canal par lequel une seconde instance transmet ses fichiers (propre à la session Windows et à l'utilisateur).</summary>
+    private static string PipeName => $"Scanalyse-ouvrir-{System.Diagnostics.Process.GetCurrentProcess().SessionId}-{Environment.UserName}";
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        CrashReporter.Install(this);
+        var files = e.Args.Where(a => !a.StartsWith("--", StringComparison.Ordinal) && File.Exists(a)).Select(Path.GetFullPath).ToArray();
         _instance = new Mutex(initiallyOwned: true, InstanceName, out var first);
         if (!first && e.Args.Contains("--restart"))
         {
@@ -33,7 +43,8 @@ public partial class App : Application
 
         if (!first)
         {
-            // Déjà ouvert : on remet la fenêtre existante au premier plan et on s'arrête là.
+            // Déjà ouvert : les fichiers partent à la fenêtre existante, remise au premier plan ; on s'arrête là.
+            SendFiles(files);
             try
             {
                 using var signal = EventWaitHandle.OpenExisting(ActivateName);
@@ -64,6 +75,7 @@ public partial class App : Application
         })
         { IsBackground = true, Name = "Scanalyse - activation" };
         listener.Start();
+        StartFileListener();
 
         ThemeManager.Initialize(AppSettings.Load().Theme);
         Updater.CleanupOld();
@@ -82,9 +94,96 @@ public partial class App : Application
         // La fermeture de la fenêtre principale arrête le programme, même si une autre fenêtre est restée ouverte.
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         Localization.Initialize(settings.Language);
+        if (settings.OpenWith)
+        {
+            // Programme portable : le chemin inscrit dans « Ouvrir avec » suit l'emplacement actuel de Scanalyse.exe.
+            try
+            {
+                FileAssociation.Register();
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+            {
+            }
+        }
+
         base.OnStartup(e);
-        MainWindow = new MainWindow();
-        MainWindow.Show();
+        var main = new MainWindow();
+        MainWindow = main;
+        main.Show();
+        if (files.Length > 0)
+        {
+            _ = main.OpenFilesAsync(files);
+        }
+    }
+
+    /// <summary>Seconde instance : transmet ses fichiers à la première par un canal nommé (une ligne par fichier).</summary>
+    private static void SendFiles(string[] files)
+    {
+        if (files.Length == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            using var pipe = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+            pipe.Connect(3000);
+            using var writer = new StreamWriter(pipe) { AutoFlush = true };
+            foreach (var f in files)
+            {
+                writer.WriteLine(f);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or TimeoutException or UnauthorizedAccessException)
+        {
+        }
+    }
+
+    /// <summary>Première instance : reçoit les fichiers des instances suivantes et les ouvre dans la fenêtre.</summary>
+    private void StartFileListener()
+    {
+        _pipeStop = new CancellationTokenSource();
+        var token = _pipeStop.Token;
+        _ = Task.Run(async () =>
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    await using var server = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
+                    await server.WaitForConnectionAsync(token);
+                    using var reader = new StreamReader(server);
+                    var received = new List<string>();
+                    while (await reader.ReadLineAsync(token) is { } line)
+                    {
+                        if (File.Exists(line))
+                        {
+                            received.Add(line);
+                        }
+                    }
+
+                    if (received.Count > 0)
+                    {
+                        await Dispatcher.InvokeAsync(async () =>
+                        {
+                            BringToFront();
+                            if (MainWindow is MainWindow w)
+                            {
+                                await w.OpenFilesAsync(received);
+                            }
+                        });
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (IOException)
+                {
+                    await Task.Delay(500, CancellationToken.None);
+                }
+            }
+        }, token);
     }
 
     /// <summary>Relance Scanalyse (changement de langue) : la nouvelle instance attend la fermeture de celle-ci.</summary>
@@ -128,6 +227,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _pipeStop?.Cancel();
         _activate?.Dispose();
         if (_instance is not null)
         {

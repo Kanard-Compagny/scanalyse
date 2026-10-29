@@ -108,6 +108,10 @@ jobs:
           } else {
             Copy-Item src/Scanalyse.Desktop/bin/Portable/Scanalyse.exe publication/Scanalyse.exe
           }
+          # Empreinte SHA-256 : publiée dans les notes et en fichier (format sha256sum), vérifiée par la mise à jour automatique.
+          $hash = (Get-FileHash publication/Scanalyse.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Encoding ascii -NoNewline publication/Scanalyse.exe.sha256 "$hash  Scanalyse.exe`n"
+          $notes = "**SHA-256 de Scanalyse.exe** : ``$hash```n`n" + $notes
           Set-Content -Encoding utf8 publication/notes.md ($notes + (Get-Content -Raw -Encoding utf8 CHANGELOG.md))
 
       - name: Release
@@ -119,4 +123,6 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: Scanalyse ${{ steps.version.outputs.value }}
           body_path: publication/notes.md
-          files: publication/Scanalyse.exe
+          files: |
+            publication/Scanalyse.exe
+            publication/Scanalyse.exe.sha256

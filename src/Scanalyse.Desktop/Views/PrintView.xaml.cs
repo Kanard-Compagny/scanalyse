@@ -2038,7 +2038,7 @@ public partial class PrintView : UserControl
     /// Lit le fichier du client avec ses octets d'origine : UTF-8 s'il l'est, sinon octet par octet (Latin-1),
     /// pour que l'aperçu montre ce que l'imprimante imprime vraiment.
     /// </summary>
-    private void OpenFile(string path)
+    internal void OpenFile(string path)
     {
         try
         {

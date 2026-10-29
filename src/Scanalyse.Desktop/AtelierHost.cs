@@ -66,6 +66,9 @@ internal sealed class AtelierHost
     /// <summary>La page est chargée et prête à recevoir des commandes.</summary>
     public event Action? Ready;
 
+    /// <summary>La page de l'Atelier est chargée : images et commandes peuvent lui être envoyées.</summary>
+    public bool IsReady => _ready;
+
     /// <summary>L'utilisateur demande une comparaison depuis l'Atelier.</summary>
     public event Action<CompareRequest>? CompareRequested;
 

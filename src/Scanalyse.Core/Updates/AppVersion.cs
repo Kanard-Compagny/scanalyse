@@ -78,11 +78,25 @@ public sealed record AppVersion(int Major, int Minor, int Patch, int? Dev) : ICo
 /// <param name="DownloadUrl">Adresse de Scanalyse.exe (Internet) ou chemin du fichier (dossier d'équipe).</param>
 /// <param name="Notes">Nouveautés (texte Markdown), si connues.</param>
 /// <param name="Source">« GitHub » ou chemin du dossier d'équipe.</param>
-public sealed record AvailableUpdate(AppVersion Version, string DownloadUrl, string Notes, string Source);
+/// <param name="ChecksumUrl">Adresse (ou chemin) du fichier « Scanalyse.exe.sha256 » publié avec la version, si présent.</param>
+public sealed record AvailableUpdate(AppVersion Version, string DownloadUrl, string Notes, string Source, string? ChecksumUrl = null);
 
 /// <summary>Lecture des réponses de GitHub (dernière version publiée).</summary>
 public static class ReleaseFeed
 {
+    /// <summary>Fichier d'empreinte publié à côté de Scanalyse.exe (format « sha256sum » : empreinte, espaces, nom).</summary>
+    public const string ChecksumFileName = "Scanalyse.exe.sha256";
+
+    /// <summary>Empreinte SHA-256 (64 caractères hexadécimaux, en minuscules) lue dans un fichier .sha256, ou <c>null</c>.</summary>
+    public static string? ParseSha256(string? text)
+    {
+        var token = (text ?? string.Empty).Trim().Split([' ', '\t', '\r', '\n', '*'], 2, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+        return token.Length == 64 && token.All(Uri.IsHexDigit) ? token.ToLowerInvariant() : null;
+    }
+
+    /// <summary>Empreinte SHA-256 d'un contenu, en hexadécimal minuscule.</summary>
+    public static string Sha256(ReadOnlySpan<byte> data) => Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(data));
+
     /// <summary>Lit la réponse de « releases/latest » : numéro, adresse de Scanalyse.exe et texte de la version.</summary>
     /// <param name="json">Réponse JSON de l'API GitHub.</param>
     /// <returns>La version, ou <c>null</c> si la réponse ne contient pas d'exécutable.</returns>
@@ -103,14 +117,23 @@ public static class ReleaseFeed
             }
 
             string? url = null;
+            string? checksum = null;
             if (root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
             {
                 foreach (var a in assets.EnumerateArray())
                 {
-                    if (a.TryGetProperty("name", out var name) && string.Equals(name.GetString(), "Scanalyse.exe", StringComparison.OrdinalIgnoreCase)
-                        && a.TryGetProperty("browser_download_url", out var u))
+                    if (!a.TryGetProperty("name", out var name) || !a.TryGetProperty("browser_download_url", out var u))
+                    {
+                        continue;
+                    }
+
+                    if (string.Equals(name.GetString(), "Scanalyse.exe", StringComparison.OrdinalIgnoreCase))
                     {
                         url = u.GetString();
+                    }
+                    else if (string.Equals(name.GetString(), ChecksumFileName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        checksum = u.GetString();
                     }
                 }
             }
@@ -121,7 +144,7 @@ public static class ReleaseFeed
             }
 
             var notes = root.TryGetProperty("body", out var body) ? body.GetString() ?? string.Empty : string.Empty;
-            return new AvailableUpdate(version, url, notes, "GitHub");
+            return new AvailableUpdate(version, url, notes, "GitHub", checksum);
         }
         catch (JsonException)
         {

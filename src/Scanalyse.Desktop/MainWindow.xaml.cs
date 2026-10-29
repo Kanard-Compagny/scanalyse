@@ -236,6 +236,12 @@ public partial class MainWindow : Window
         await _atelier.SetThemeAsync(ThemeManager.IsDark);
         await _atelier.SetLanguageAsync();
         await _atelier.SetModeAsync(_atelierMode);
+        if (_pendingImages.Count > 0)
+        {
+            var images = _pendingImages.ToList();
+            _pendingImages.Clear();
+            await OpenFilesAsync(images);
+        }
     }
 
     /// <summary>L'Atelier a changé de mode tout seul (ex. « Recréer ce code ») : le menu suit.</summary>
@@ -1056,6 +1062,7 @@ public partial class MainWindow : Window
         }
 
         Views.SettingsView.RemoveFirewallRule();
+        FileAssociation.Unregister();
         var failed = new List<string>();
         foreach (var folder in folders.Distinct(StringComparer.OrdinalIgnoreCase))
         {
@@ -1192,6 +1199,52 @@ public partial class MainWindow : Window
         [".tiff"] = "image/tiff",
     };
 
+    private readonly List<string> _pendingImages = [];
+
+    /// <summary>
+    /// Fichiers passés à Scanalyse (« Ouvrir avec », glisser sur Scanalyse.exe, double-clic sur un profil d'équipe) :
+    /// images et PDF dans « Analyser une image », profil d'équipe à l'import, le reste dans « Code imprimante »,
+    /// qui reconnaît le langage (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint).
+    /// </summary>
+    public async Task OpenFilesAsync(IReadOnlyList<string> paths)
+    {
+        var images = new List<string>();
+        foreach (var path in paths)
+        {
+            var ext = Path.GetExtension(path);
+            if (ext.Equals(".pdf", StringComparison.OrdinalIgnoreCase) || ImageTypes.ContainsKey(ext))
+            {
+                images.Add(path);
+            }
+            else if (ext.Equals(TeamProfile.Extension, StringComparison.OrdinalIgnoreCase))
+            {
+                NavSettings.IsChecked = true;
+                SettingsPage.ShowSection("SecTeam");
+                await SettingsPage.ImportTeamProfileFileAsync(path);
+            }
+            else
+            {
+                NavPrint.IsChecked = true;
+                PrintPage.OpenFile(path);
+            }
+        }
+
+        if (images.Count == 0)
+        {
+            return;
+        }
+
+        // L'Atelier démarre encore : les images sont ouvertes dès qu'il est prêt.
+        if (!_atelier.IsReady)
+        {
+            _pendingImages.AddRange(images);
+            return;
+        }
+
+        NavAnalyse.IsChecked = true;
+        await OpenImagesAsync(images);
+    }
+
     private async void Import_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
@@ -1205,11 +1258,16 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Plusieurs fichiers ou un PDF : analyse en lot (une entrée d'historique par image ou page).
-        if (dialog.FileNames.Length > 1 || dialog.FileNames.Any(f => Path.GetExtension(f).Equals(".pdf", StringComparison.OrdinalIgnoreCase)))
+        await OpenImagesAsync(dialog.FileNames);
+    }
+
+    /// <summary>Une image : analyse directe. Plusieurs images ou un PDF : analyse en lot (une entrée d'historique par image ou page).</summary>
+    private async Task OpenImagesAsync(IReadOnlyList<string> paths)
+    {
+        if (paths.Count > 1 || paths.Any(f => Path.GetExtension(f).Equals(".pdf", StringComparison.OrdinalIgnoreCase)))
         {
             var files = new List<(string Name, byte[] Data)>();
-            foreach (var f in dialog.FileNames)
+            foreach (var f in paths)
             {
                 try
                 {
@@ -1225,7 +1283,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var path = dialog.FileName;
+        var path = paths[0];
         try
         {
             byte[] data;

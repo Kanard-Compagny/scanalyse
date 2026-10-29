@@ -119,8 +119,35 @@ public partial class SettingsView : UserControl
         ContactBox.Text = s.ReportContact;
         ShowLogo(s.ReportLogoPath);
         UpdateCheckBox.IsChecked = s.UpdateCheck;
+        OpenWithCheck.IsChecked = s.OpenWith;
         ShowUpdateFolder(s.UpdateFolder);
         _loadingOptions = false;
+    }
+
+    /// <summary>Inscrit ou retire Scanalyse du menu « Ouvrir avec » (session de l'utilisateur).</summary>
+    private void OpenWith_Click(object sender, RoutedEventArgs e)
+    {
+        var on = OpenWithCheck.IsChecked == true;
+        try
+        {
+            if (on)
+            {
+                FileAssociation.Register();
+            }
+            else
+            {
+                FileAssociation.Unregister();
+            }
+
+            var s = AppSettings.Load();
+            s.OpenWith = on;
+            s.Save();
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or System.IO.IOException)
+        {
+            OpenWithCheck.IsChecked = !on;
+            _ = Dialogs.ConfirmAsync(Localization.T("Ouvrir avec Scanalyse"), Localization.T("Windows a refusé la modification : ") + ex.Message, "OK", null, danger: false);
+        }
     }
 
     private void Option_Changed(object sender, RoutedEventArgs e)
@@ -306,7 +333,8 @@ public partial class SettingsView : UserControl
     }
 
     /// <summary>Informations utiles au support : versions, emplacements, composants.</summary>
-    private static string Diagnostic()
+    /// <summary>Versions et emplacements (Paramètres → À propos, rapports d'erreur).</summary>
+    internal static string Diagnostic()
     {
         var asm = Assembly.GetExecutingAssembly();
         var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "?";
@@ -462,7 +490,13 @@ public partial class SettingsView : UserControl
             return false;
         }
 
-        if (TeamProfile.Load(dialog.FileName) is not { } profile)
+        return await ImportTeamProfileFileAsync(dialog.FileName);
+    }
+
+    /// <summary>Importe un profil d'équipe donné (double-clic sur le fichier, « Ouvrir avec »), après confirmation.</summary>
+    public async Task<bool> ImportTeamProfileFileAsync(string path)
+    {
+        if (TeamProfile.Load(path) is not { } profile)
         {
             ProfileStatus.Text = Localization.T("Ce fichier n'est pas un profil d'équipe Scanalyse.");
             return false;
