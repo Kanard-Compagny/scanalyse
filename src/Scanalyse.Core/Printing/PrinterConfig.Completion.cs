@@ -179,7 +179,7 @@ public static partial class PrinterConfig
         Kind.Ip => "adresse IP",
         Kind.Do => "action",
         Kind.ReadOnly => "lecture seule",
-        _ => string.Empty,
+        _ => d.Choices is { } usual ? "ex. " + string.Join(" | ", usual) : string.Empty,
     };
 
     /// <summary>
@@ -197,7 +197,8 @@ public static partial class PrinterConfig
         {
             var key = value.Groups[1].Value.ToLowerInvariant();
             var typed = value.Groups[2].Value;
-            if (SgdTable.TryGetValue(key, out var def) && (def.Kind == Kind.Choice || def.Kind == Kind.OnOff))
+            // Valeurs proposées : choix fermés, on / off, ou valeurs usuelles d'un réglage libre (pays Wi-Fi, bandes…).
+            if (SgdTable.TryGetValue(key, out var def) && (def.Kind is Kind.Choice or Kind.OnOff || def.Choices is not null))
             {
                 var choices = def.Kind == Kind.OnOff ? ["on", "off"] : def.Choices ?? [];
                 var items = choices

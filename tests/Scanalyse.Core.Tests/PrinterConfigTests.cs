@@ -218,6 +218,10 @@ public class PrinterConfigTests
         Assert.True(r.Risky);
 
         Assert.Contains(PrinterConfig.Suggest("^XA^W").Items, i => i.Label == "^WS");
+        var country = PrinterConfig.Suggest("! U1 setvar \"wlan.country_code\" \"eu");
+        Assert.Equal("europe", country.Items[0].Label);
+        Assert.Equal(2, country.ReplaceLength);
+        Assert.DoesNotContain(PrinterConfig.Analyze("! U1 setvar \"wlan.country_code\" \"france\"\r\n").Findings, f => f.Severity == Severity.Error);
         Assert.True(Has(PrinterConfig.Analyze("! U1 setvar \"wlan.inconnu.truc\" \"1\"\r\n"), 1, Severity.Warning, "inconnu"));
     }
 }

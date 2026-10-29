@@ -79,16 +79,21 @@
       <!-- Fichier -->
       <Border Style="{StaticResource Card}">
         <DockPanel>
-          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
-            <WrapPanel DockPanel.Dock="Right">
+          <!-- Titre toujours sur une ligne ; les boutons passent à la ligne quand la fenêtre est étroite -->
+          <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Style="{StaticResource CardTitle}" Text="Fichier de configuration" VerticalAlignment="Center" TextWrapping="NoWrap" Margin="0,0,12,0" />
+            <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
               <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="Open_Click" Margin="0,0,4,0" />
               <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveAs_Click" Margin="0,0,4,0"
                       ToolTip="Enregistre le fichier, avec tes modifications, sous le nom de ton choix (Ctrl + S)" />
               <Button Style="{StaticResource BtnGhost}" Content="Coller" Click="Paste_Click" Margin="0,0,4,0" />
               <Button Style="{StaticResource BtnGhost}" Content="Effacer" Click="Clear_Click" />
             </WrapPanel>
-            <TextBlock Style="{StaticResource CardTitle}" Text="Fichier de configuration" VerticalAlignment="Center" />
-          </DockPanel>
+          </Grid>
           <TextBlock x:Name="FileInfo" DockPanel.Dock="Bottom" Style="{StaticResource FieldLabel}" Margin="0,8,0,0" />
           <Grid>
             <TextBox x:Name="CodeBox" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
