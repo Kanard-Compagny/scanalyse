@@ -3,7 +3,7 @@
 **La boîte à outils gratuite du technicien codes-barres.**
 Comprendre ce que contient un code, pourquoi une douchette le lit mal, et ce qu'une imprimante d'étiquettes va vraiment imprimer — sur un simple PC Windows, sans installation.
 
-*Free Windows toolbox for barcode support technicians: decode and explain barcodes (GS1, QR, Data Matrix…), test scanners, read and send ZPL / TSPL / EPL2 / DPL label programs. French and English interface.*
+*Free Windows toolbox for barcode support technicians: decode and explain barcodes (GS1, QR, Data Matrix…), test scanners, read and send ZPL / TSPL / EPL2 / DPL / SBPL / Fingerprint label programs. French and English interface.*
 
 [**⬇ Télécharger la dernière version**](https://github.com/Kanard-Compagny/scanalyse/releases/latest) · Windows 10 / 11 · un seul fichier `Scanalyse.exe`, rien à installer
 
@@ -32,7 +32,7 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 - **Terminaux sans lecteur** : leur **caméra sert de douchette**.
 
 ### 🖨️ Code imprimante
-- **Lire le programme d'un client** en ZPL (Zebra), TSPL (TSC), EPL2 ou DPL (Honeywell / Datamax) : aperçu de l'étiquette, contenu de chaque code, erreurs.
+- **Lire le programme d'un client** en ZPL (Zebra), TSPL (TSC), EPL2, DPL (Honeywell / Datamax), SBPL (SATO) ou Fingerprint (Honeywell / Intermec) : aperçu de l'étiquette, contenu de chaque code, erreurs.
 - **Modèles d'étiquettes prêts à l'emploi** (palette SSCC, colis, produit, emplacement, inventaire) dans les quatre langages.
 - **Envoyer à l'imprimante** (réseau ou imprimante installée) et **la maintenir** : lire son état (papier, ruban, tête ouverte), calibrer, imprimer sa page de configuration.
 

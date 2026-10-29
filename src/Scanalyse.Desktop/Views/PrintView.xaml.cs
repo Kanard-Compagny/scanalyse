@@ -1128,7 +1128,7 @@ public partial class PrintView : UserControl
 
         PageSubtitle.Text = mode switch
         {
-            PageMode.Read => "Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2, DPL…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi.",
+            PageMode.Read => "Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi.",
             PageMode.Template => "Étiquettes complètes prêtes à l'emploi : remplis les champs, les clés de contrôle et les codes GS1 sont calculés, le programme ZPL est prêt à envoyer.",
             _ => "Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement.",
         };
@@ -1321,8 +1321,8 @@ public partial class PrintView : UserControl
     {
         if (_loaded && _readMode)
         {
-            // TSPL / DPL : tailles en millimètres ou pouces, converties selon la résolution : on relit.
-            if (ProgramFile.Detect(CodeBox.Text) is ProgramKind.Tspl or ProgramKind.Dpl)
+            // TSPL / DPL : tailles en millimètres ou pouces ; SBPL / Fingerprint : polices selon la résolution : on relit.
+            if (ProgramFile.Detect(CodeBox.Text) is ProgramKind.Tspl or ProgramKind.Dpl or ProgramKind.Sbpl or ProgramKind.Fingerprint)
             {
                 _ = ReadProgramAsync();
             }
@@ -1365,7 +1365,7 @@ public partial class PrintView : UserControl
             _selected = -1;
             ShowOtherProgram(text, kind);
 
-            // TSPL, EPL2, DPL : l'aperçu est dessiné à partir des mêmes éléments qu'une étiquette ZPL.
+            // TSPL, EPL2, DPL, SBPL, Fingerprint : l'aperçu est dessiné à partir des mêmes éléments qu'une étiquette ZPL.
             if (ForeignLabelReader.Read(text, kind, ReadDpi) is { Label.Elements.Count: > 0 } foreign && LabelRenderer is not null)
             {
                 ZplEmptyBox.Visibility = Visibility.Collapsed;
@@ -1440,27 +1440,21 @@ public partial class PrintView : UserControl
     }
 
     /// <summary>
-    /// Programme TSPL, EPL2, DPL, SBPL… : pas d'aperçu (dessiné pour le ZPL seulement), mais le langage, les codes-barres
-    /// trouvés (TSPL, EPL2) et ce qu'ils contiennent ; le fichier peut être envoyé tel quel.
+    /// Programme TSPL, EPL2, DPL, SBPL ou Fingerprint : le langage, les codes-barres trouvés et ce qu'ils contiennent (l'aperçu
+    /// est dessiné à côté) ; le fichier peut être envoyé tel quel.
     /// </summary>
     private void ShowOtherProgram(string text, ProgramKind kind)
     {
         var name = ProgramFile.Name(kind);
         ZplEmpty.Text = kind == ProgramKind.Unknown
             ? "Langage non reconnu : ce texte n'est pas un programme ZPL, TSPL, EPL2, DPL, SBPL ou Fingerprint connu."
-            : $"Programme {name} : l'aperçu de l'étiquette est dessiné pour le ZPL uniquement. Les codes-barres du programme sont listés à gauche."
-              + (kind == ProgramKind.Dpl ? " En DPL, la position « y » se compte depuis le bas de l'étiquette (0,1 mm ou 0,01 pouce)." : string.Empty);
+            : $"Programme {name} : aucun texte, cadre ou code à dessiner n'a été reconnu. Les codes-barres du programme sont listés à gauche."
+              + (kind == ProgramKind.Dpl ? " En DPL, la position « y » se compte depuis le bas de l'étiquette (0,1 mm ou 0,01 pouce)." : string.Empty)
+              + (kind == ProgramKind.Fingerprint ? " En Fingerprint, la position « y » se compte depuis le bas de l'étiquette (vue de face)." : string.Empty);
         var lines = text.Split('\n').Length;
         ReadSummary.Text = kind == ProgramKind.Unknown
             ? $"{lines} ligne{(lines > 1 ? "s" : string.Empty)} · langage non reconnu. Vérifie que c'est bien le fichier d'impression (et non un export PDF ou image)."
             : $"Programme {name} · {lines} lignes. Il peut être envoyé tel quel à une imprimante qui parle {name}.";
-
-        if (kind is ProgramKind.Sbpl or ProgramKind.Fingerprint)
-        {
-            ReadPanel.Children.Add(AlertBox(new Scanalyse.Core.Content.Alert(Scanalyse.Core.Content.Severity.Info,
-                $"{name} : lecture détaillée non disponible. Pour retrouver le contenu des codes, imprime l'étiquette et passe-la dans « Analyser une image » (photo ou capture), ou scanne-la au banc d'essai.")));
-            return;
-        }
 
         var codes = ProgramFile.Barcodes(text, kind);
         ReadPanel.Children.Add(Section(codes.Count == 0 ? "Aucun code-barres trouvé" : codes.Count == 1 ? "Code-barres" : $"Codes-barres ({codes.Count})"));

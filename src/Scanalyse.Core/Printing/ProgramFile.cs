@@ -23,7 +23,7 @@ public enum ProgramKind
     Fingerprint,
 }
 
-/// <summary>Code-barres trouvé dans un programme TSPL ou EPL2.</summary>
+/// <summary>Code-barres trouvé dans un programme TSPL, EPL2, DPL, SBPL ou Fingerprint.</summary>
 /// <param name="Line">Ligne du programme (à partir de 1).</param>
 /// <param name="Command">Commande (« BARCODE », « QRCODE », « B »…).</param>
 /// <param name="Symbology">Nom de la symbologie.</param>
@@ -33,7 +33,7 @@ public enum ProgramKind
 /// <param name="Gs1">Données GS1 (forme « (01)… » ou code EAN128).</param>
 public sealed record ProgramBarcode(int Line, string Command, string Symbology, int X, int Y, string Data, bool Gs1);
 
-/// <summary>Reconnaît le langage d'un fichier d'impression et, pour le TSPL et l'EPL2, liste ses codes-barres.</summary>
+/// <summary>Reconnaît le langage d'un fichier d'impression et liste ses codes-barres (TSPL, EPL2, DPL, SBPL, Fingerprint).</summary>
 public static partial class ProgramFile
 {
     public static ProgramKind Detect(string text)
@@ -44,15 +44,17 @@ public static partial class ProgramFile
             return ProgramKind.Zpl;
         }
 
+        // SBPL avant DPL : un programme SATO est souvent encadré par STX … ETX. Vrai caractère ESC ou notation « <ESC> ».
         var t = text.TrimStart('\uFEFF', '\r', '\n', ' ');
+        if ((t.Contains("\u001BA", StringComparison.Ordinal) && t.Contains("\u001BZ", StringComparison.Ordinal))
+            || (t.Contains("<ESC>A", StringComparison.OrdinalIgnoreCase) && t.Contains("<ESC>Z", StringComparison.OrdinalIgnoreCase)))
+        {
+            return ProgramKind.Sbpl;
+        }
+
         if (t.StartsWith('\u0002'))
         {
             return ProgramKind.Dpl;
-        }
-
-        if (t.Contains("\u001BA", StringComparison.Ordinal) && t.Contains("\u001BZ", StringComparison.Ordinal))
-        {
-            return ProgramKind.Sbpl;
         }
 
         var lines = Lines(text).Select(l => l.Text.Trim()).Where(l => l.Length > 0).ToList();
@@ -66,7 +68,9 @@ public static partial class ProgramFile
             return ProgramKind.Epl2;
         }
 
-        if (lines.Any(l => FingerprintLine().IsMatch(l)))
+        // Fingerprint : un mot-clé complet suffit ; les abréviations (PP, PT, PB…) doivent revenir au moins deux fois.
+        var statements = lines.SelectMany(l => l.Split(':')).Select(l => l.Trim()).ToList();
+        if (statements.Any(l => FingerprintLine().IsMatch(l)) || statements.Count(l => FingerprintShort().IsMatch(l)) >= 2)
         {
             return ProgramKind.Fingerprint;
         }
@@ -141,10 +145,17 @@ public static partial class ProgramFile
         _ => "langage non reconnu",
     };
 
-    /// <summary>Codes-barres d'un programme TSPL ou EPL2 (les autres langages renvoient une liste vide).</summary>
+    /// <summary>Codes-barres d'un programme TSPL, EPL2, DPL, SBPL ou Fingerprint (ZPL et langage inconnu : liste vide).</summary>
     public static IReadOnlyList<ProgramBarcode> Barcodes(string text, ProgramKind kind)
     {
+        ArgumentNullException.ThrowIfNull(text);
         var list = new List<ProgramBarcode>();
+        if (kind is ProgramKind.Sbpl or ProgramKind.Fingerprint)
+        {
+            ForeignLabelReader.ReadAll(text, kind, 203, list);
+            return list;
+        }
+
         foreach (var (n, raw) in Lines(text))
         {
             var line = raw.Trim();
@@ -337,8 +348,11 @@ public static partial class ProgramFile
     [GeneratedRegex(@"^([ABbXLGq]\d+,|Q\d+,\d+|R\d+,\d+|S\d$|D\d+$|ZB$|ZT$|I8,)")]
     private static partial Regex EplLine();
 
-    [GeneratedRegex(@"^(PRPOS|PRTXT|PRBAR|PRINTFEED|BARSET|BARFONT|DIR\s|ALIGN\s)", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^(\d+\s+)?(PRPOS|PRTXT|PRBAR|PRINTFEED|PRBOX|PRLINE|BARSET|BARFONT|BARTYPE|BARHEIGHT|BARMAG|DIR\s|ALIGN\s)", RegexOptions.IgnoreCase)]
     private static partial Regex FingerprintLine();
+
+    [GeneratedRegex(@"^(\d+\s+)?(PP\s*-?\d|PT\s*""|PB\s*""|FT\s*""|BT\s*""|BH\s*\d|BM\s*\d|AN\s*\d|PX\s*\d|PL\s*\d|PF(\s*\d*)?$)", RegexOptions.IgnoreCase)]
+    private static partial Regex FingerprintShort();
 
     [GeneratedRegex(@"^(BARCODE|QRCODE|DMATRIX|PDF417|AZTEC|MAXICODE)\s+(.*)$", RegexOptions.IgnoreCase)]
     private static partial Regex TsplCode();

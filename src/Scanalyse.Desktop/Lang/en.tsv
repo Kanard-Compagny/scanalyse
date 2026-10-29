@@ -419,7 +419,7 @@ Colle le programme ZPL du client dans la zone « Programme » : l'étiquette s'a
 Colle le programme d'un client : aperçu de l'étiquette, codes-barres et ce qu'ils contiennent, points à corriger	Paste a customer's program: label preview, barcodes and what they contain, issues to fix
 Colle le programme du client dans la zone « Programme », ou ouvre son fichier (.zpl, .prn, .txt…) : l'étiquette s'affiche ici.	Paste the customer's program in the “Program” area, or open their file (.zpl, .prn, .txt…): the label shows here.
 Colle le programme du presse-papiers (ZPL, TSPL, EPL2…) et l'affiche en lecture	Pastes the program from the clipboard (ZPL, TSPL, EPL2…) and shows it in read mode
-Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2, DPL…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi.	Paste or open a customer's program (ZPL, TSPL, EPL2, DPL…): label preview, barcodes and their content, issues to fix, then reprint or send.
+Colle ou ouvre le programme d'un client (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint…) : aperçu de l'étiquette, codes-barres et leur contenu, points à corriger, puis réimpression ou envoi.	Paste or open a customer's program (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint…): label preview, barcodes and their content, issues to fix, then reprint or send.
 Coller	Paste
 Coller un autre programme	Paste another program
 Coller un programme client	Paste a customer program
@@ -662,6 +662,7 @@ Emplacement de stock	Stock location
 Emplacement du programme inconnu.	Program location unknown.
 Emplacement physique (GLN)	Physical location (GLN)
 En DPL, la position « y » se compte depuis le bas de l'étiquette (0,1 mm ou 0,01 pouce).	In DPL, the “y” position is counted from the bottom of the label (0.1 mm or 0.01 inch).
+En Fingerprint, la position « y » se compte depuis le bas de l'étiquette (vue de face).	In Fingerprint, the “y” position is counted from the bottom of the label (front view).
 En cours	Current
 En mode clavier, le GS ne passe pas tel quel : configure le scanner pour le remplacer par un caractère que l'application sait traiter, ou utilise le mode HID POS / intent qui transmet les octets bruts.	In keyboard mode, GS doesn't pass as is: configure the scanner to replace it with a character the application can handle, or use HID POS / intent mode, which transmits raw bytes.
 En-tête des rapports remis aux clients : ta société, ton nom et tes coordonnées, avec ton logo.	Header of the reports given to customers: your company, your name and contact details, with your logo.
@@ -1352,7 +1353,7 @@ Programme enregistré :	Program saved:
 Programme ouvert : {0} ({1} octets, {2}, {3}).	Program opened: {0} ({1} bytes, {2}, {3}).
 Programme retouché à la main : il n'est plus régénéré tant que tu ne changes pas un réglage.	Program edited by hand: it is no longer regenerated until you change a setting.
 Programme {0} (*{1})|*{2}|Fichier d'impression (*.prn)|*.prn|Tous les fichiers (*.*)|*.*	{0} program (*{1})|*{2}|Print file (*.prn)|*.prn|All files (*.*)|*.*
-Programme {0} : l'aperçu de l'étiquette est dessiné pour le ZPL uniquement. Les codes-barres du programme sont listés à gauche.	{0} program: the label preview is drawn for ZPL only. The program's barcodes are listed on the left.
+Programme {0} : aucun texte, cadre ou code à dessiner n'a été reconnu. Les codes-barres du programme sont listés à gauche.	{0} program: no text, box or code to draw was recognized. The program's barcodes are listed on the left.
 Programme {0} collé : affiché en lecture (« Lire un programme »).	{0} program pasted: shown in read mode (“Read a program”).
 Programme {0} du client	Customer {0} program
 Programme {0} · {1} lignes. Il peut être envoyé tel quel à une imprimante qui parle {2}.	{0} program · {1} lines. It can be sent as is to a printer that speaks {2}.
@@ -1886,7 +1887,6 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 {0} : date « {1} » non comprise (attendu jj/mm/aaaa).	{0}: date “{1}” not understood (expected dd/mm/yyyy).
 {0} : format non reconnu, ignoré.	{0}: unrecognized format, skipped.
 {0} : la quantité contenue (37) s'emploie avec le GTIN contenu (02), pas avec le GTIN de l'article (01).	{0}: the contained quantity (37) is used with the contained GTIN (02), not with the item GTIN (01).
-{0} : lecture détaillée non disponible. Pour retrouver le contenu des codes, imprime l'étiquette et passe-la dans « Analyser une image » (photo ou capture), ou scanne-la au banc d'essai.	{0}: detailed reading not available. To find the content of the codes, print the label and put it through “Analyze an image” (photo or capture), or scan it at the test bench.
 {0} : les AI 01 et 02 ne peuvent pas figurer dans le même code.	{0}: AIs 01 and 02 cannot appear in the same code.
 {0} : même article à des niveaux d'emballage différents ({1}). Normal sur un carton qui porte aussi le code de l'unité consommateur.	{0}: same item at different packaging levels ({1}). Normal on a carton that also carries the consumer unit's code.
 {0} : pas de résultat après 45 s, image suivante.	{0}: no result after 45 s, next image.
@@ -2038,3 +2038,6 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 … et {0} autres	… and {0} more
 … {0} octets supplémentaires	… {0} more bytes
 ● {0} · relais {1}	● {0} · relay {1}
+Aperçu SBPL : polices approchées ; taille des modules des codes 2D estimée (le contenu des codes est exact).	SBPL preview: approximate fonts; 2D code module size estimated (the content of the codes is exact).
+Fingerprint : la position « y » se compte depuis le bas de l'étiquette (vue de face) ; polices et ancrages approchés.	Fingerprint: the “y” position is counted from the bottom of the label (front view); approximate fonts and anchors.
+SSCC SBPL (BI) : 17 chiffres attendus (sans la clé), {0} caractère(s) reçu(s). L'imprimante refusera ou imprimera un code faux.	SBPL SSCC (BI): 17 digits expected (without the check digit), {0} character(s) received. The printer will reject it or print a wrong code.

@@ -1,5 +1,12 @@
 # Scanalyse — Quoi de neuf
 
+## 0.12.0 — en préparation
+
+- **Programmes SATO (SBPL) et Honeywell / Intermec (Fingerprint, Direct Protocol)** : lecture complète dans « Code imprimante », comme pour le ZPL, le TSPL, l'EPL2 et le DPL. Aperçu de l'étiquette (textes, cadres, traits, codes), liste de tous les codes-barres avec ce qu'une douchette lira, données GS1 détaillées, « Voir la ligne » et « Reprendre dans Créer une étiquette ».
+  - SBPL : commandes ESC réelles ou notation `<ESC>`, programmes encadrés par STX / ETX, rotation, agrandissement, polices, codes 1D (Code 128 avec FNC1, SSCC « BI » complété de sa clé), QR Code et Data Matrix, cadres et zones inversées ; programme coloré dans l'éditeur. Un SSCC au mauvais nombre de chiffres est signalé.
+  - Fingerprint : mots-clés complets ou abrégés (PP, PT, PB…), numéros de ligne, plusieurs étiquettes par fichier, ancrages (ALIGN), CHR$(128) = FNC1 ; position « y » comptée depuis le bas de l'étiquette.
+- Un programme SATO commençant par STX n'est plus pris pour du DPL.
+
 ## 0.11.2 — octobre 2026
 
 - Le projet a déménagé : **github.com/Kanard-Compagny/scanalyse**. Les mises à jour sont cherchées à cette adresse.

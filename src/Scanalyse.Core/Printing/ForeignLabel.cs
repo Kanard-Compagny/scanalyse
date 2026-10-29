@@ -7,10 +7,10 @@ using Scanalyse.Core.Text;
 
 namespace Scanalyse.Core.Printing;
 
-/// <summary>Étiquette lue dans un programme TSPL, EPL2 ou DPL, prête à être dessinée comme une étiquette ZPL.</summary>
+/// <summary>Étiquette lue dans un programme TSPL, EPL2, DPL, SBPL ou Fingerprint, prête à être dessinée comme une étiquette ZPL.</summary>
 /// <param name="Label">Champs de l'étiquette (coordonnées en points, origine en haut à gauche).</param>
 /// <param name="Pivot">
-/// Repère des champs tournés : « tl » (TSPL, EPL2) le champ tourne autour de son point d'origine ; « bl » (DPL) le point
+/// Repère des champs tournés : « tl » (TSPL, EPL2, SBPL) le champ tourne autour de son point d'origine ; « bl » (DPL, Fingerprint) le point
 /// donné est le coin bas gauche du champ.
 /// </param>
 public sealed record ForeignLabel(ZplLabel Label, string Pivot)
@@ -20,16 +20,16 @@ public sealed record ForeignLabel(ZplLabel Label, string Pivot)
 }
 
 /// <summary>
-/// Lit les programmes TSPL (TSC…), EPL2 (anciennes Zebra) et DPL (Honeywell / Datamax) pour en dessiner un aperçu : textes,
+/// Lit les programmes TSPL (TSC…), EPL2 (anciennes Zebra), DPL (Honeywell / Datamax), SBPL (SATO) et Fingerprint (Intermec / Honeywell) pour en dessiner un aperçu : textes,
 /// cadres, traits et codes-barres. Les polices sont approchées ; les commandes non reconnues sont ignorées.
 /// </summary>
 public static partial class ForeignLabelReader
 {
     /// <summary>Lit un programme dans le langage indiqué.</summary>
     /// <param name="program">Texte du programme.</param>
-    /// <param name="kind">Langage (TSPL, EPL2 ou DPL).</param>
+    /// <param name="kind">Langage (TSPL, EPL2, DPL, SBPL ou Fingerprint).</param>
     /// <param name="dpi">Résolution de la tête, pour convertir les millimètres et pouces en points.</param>
-    /// <returns>L'étiquette, ou <c>null</c> si ce langage n'est pas lu.</returns>
+    /// <returns>L'étiquette (la première si le programme en contient plusieurs), ou <c>null</c> si ce langage n'est pas lu.</returns>
     public static ForeignLabel? Read(string program, ProgramKind kind, int dpi)
     {
         ArgumentNullException.ThrowIfNull(program);
@@ -39,6 +39,8 @@ public static partial class ForeignLabelReader
             ProgramKind.Tspl => new ForeignLabel(ReadTspl(program, dpi), "tl"),
             ProgramKind.Epl2 => new ForeignLabel(ReadEpl(program, dpi), "tl"),
             ProgramKind.Dpl => new ForeignLabel(ReadDpl(program, dpi), "bl"),
+            ProgramKind.Sbpl => ReadAll(program, kind, dpi) is [var sato, ..] ? new ForeignLabel(sato, "tl") : null,
+            ProgramKind.Fingerprint => ReadAll(program, kind, dpi) is [var fp, ..] ? new ForeignLabel(fp, "bl") : null,
             _ => null,
         };
     }

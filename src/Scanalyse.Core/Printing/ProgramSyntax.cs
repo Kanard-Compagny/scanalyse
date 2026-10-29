@@ -39,13 +39,77 @@ public enum SyntaxKind
 /// <param name="Kind">Catégorie.</param>
 public readonly record struct SyntaxToken(int Start, int Length, SyntaxKind Kind);
 
-/// <summary>Découpe un programme ZPL (ou TSPL / EPL2, ligne par ligne) pour le colorer.</summary>
+/// <summary>Découpe un programme ZPL, SBPL (commandes ESC) ou TSPL / EPL2 / Fingerprint (ligne par ligne) pour le colorer.</summary>
 public static class ProgramSyntax
 {
     public static IReadOnlyList<SyntaxToken> Tokenize(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        return text.Contains('^', StringComparison.Ordinal) ? Zpl(text) : Lines(text);
+        if (text.Contains('^', StringComparison.Ordinal))
+        {
+            return Zpl(text);
+        }
+
+        return text.Contains('\u001B', StringComparison.Ordinal) || text.Contains("<ESC>", StringComparison.OrdinalIgnoreCase) ? Sbpl(text) : Lines(text);
+    }
+
+    // Commandes SBPL, les plus longues d'abord, et leur catégorie.
+    private static readonly (string Code, SyntaxKind Kind, bool Data)[] SbplCodes =
+    [
+        ("2D10", SyntaxKind.Barcode, false), ("2D11", SyntaxKind.Barcode, false), ("2D20", SyntaxKind.Barcode, false), ("2D30", SyntaxKind.Barcode, false),
+        ("2D31", SyntaxKind.Barcode, false), ("2D50", SyntaxKind.Barcode, false), ("2D51", SyntaxKind.Barcode, false),
+        ("A1", SyntaxKind.Setting, false), ("A3", SyntaxKind.Position, false), ("BD", SyntaxKind.Barcode, true), ("BG", SyntaxKind.Barcode, true),
+        ("BI", SyntaxKind.Barcode, true), ("BC", SyntaxKind.Barcode, true), ("DN", SyntaxKind.Data, true), ("DS", SyntaxKind.Data, true),
+        ("FW", SyntaxKind.Graphic, false), ("XU", SyntaxKind.Text, true), ("XS", SyntaxKind.Text, true), ("XM", SyntaxKind.Text, true),
+        ("XL", SyntaxKind.Text, true), ("XB", SyntaxKind.Text, true), ("WB", SyntaxKind.Text, true), ("WL", SyntaxKind.Text, true),
+        ("OA", SyntaxKind.Text, true), ("OB", SyntaxKind.Text, true), ("$=", SyntaxKind.Text, true), ("$", SyntaxKind.Text, false),
+        ("A", SyntaxKind.Structure, false), ("Z", SyntaxKind.Structure, false), ("H", SyntaxKind.Position, false), ("V", SyntaxKind.Position, false),
+        ("%", SyntaxKind.Position, false), ("L", SyntaxKind.Text, false), ("P", SyntaxKind.Text, false), ("U", SyntaxKind.Text, true),
+        ("S", SyntaxKind.Text, true), ("M", SyntaxKind.Text, true), ("B", SyntaxKind.Barcode, true), ("D", SyntaxKind.Barcode, true),
+        ("(", SyntaxKind.Graphic, false), ("Q", SyntaxKind.Setting, false),
+    ];
+
+    /// <summary>SBPL : ESC (ou « &lt;ESC&gt; ») et sa commande, puis paramètres ou données jusqu'au ESC suivant.</summary>
+    private static List<SyntaxToken> Sbpl(string s)
+    {
+        var list = new List<SyntaxToken>();
+        var i = 0;
+        while (i < s.Length)
+        {
+            var esc = s[i] == '\u001B' ? 1 : string.Compare(s, i, "<ESC>", 0, 5, StringComparison.OrdinalIgnoreCase) == 0 ? 5 : 0;
+            if (esc == 0)
+            {
+                var j = i;
+                while (j < s.Length && s[j] != '\u001B' && string.Compare(s, j, "<ESC>", 0, 5, StringComparison.OrdinalIgnoreCase) != 0)
+                {
+                    j++;
+                }
+
+                list.Add(new SyntaxToken(i, j - i, SyntaxKind.Plain));
+                i = j;
+                continue;
+            }
+
+            var (code, kind, data) = SbplCodes.FirstOrDefault(c => string.CompareOrdinal(s, i + esc, c.Code, 0, c.Code.Length) == 0);
+            code ??= string.Empty;
+            var cmd = esc + code.Length;
+            list.Add(new SyntaxToken(i, cmd, code.Length == 0 ? SyntaxKind.Setting : kind));
+            var start = i + cmd;
+            var end = start;
+            while (end < s.Length && s[end] != '\u001B' && s[end] != '\r' && s[end] != '\n' && string.Compare(s, end, "<ESC>", 0, 5, StringComparison.OrdinalIgnoreCase) != 0)
+            {
+                end++;
+            }
+
+            if (end > start)
+            {
+                list.Add(new SyntaxToken(start, end - start, data ? SyntaxKind.Data : SyntaxKind.Parameter));
+            }
+
+            i = end;
+        }
+
+        return list;
     }
 
     private static List<SyntaxToken> Zpl(string s)
