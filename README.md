@@ -63,7 +63,7 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 
 ## Un problème, une idée ?
 
-Ouvrez un **[ticket (Issues)](https://github.com/Kanard-Compagny/scanalyse/issues)** en décrivant le matériel concerné.
+Ouvrez un **[ticket](https://github.com/Kanard-Compagny/scanalyse/issues/new/choose)** : un problème, un matériel à prendre en charge (toutes marques) ou une idée.
 Astuce : *Paramètres → À propos → Copier le diagnostic* donne les informations utiles à joindre.
 
 ## Licence

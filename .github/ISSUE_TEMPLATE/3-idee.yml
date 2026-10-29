@@ -1,0 +1,17 @@
+name: "💡 Une idée / An idea"
+description: "Une amélioration qui vous ferait gagner du temps sur le terrain. / An improvement that would save you time in the field."
+labels: ["idée"]
+body:
+  - type: textarea
+    id: situation
+    attributes:
+      label: "La situation / The situation"
+      description: "Racontez le cas réel où ça vous a manqué. / Describe the real case where you missed it."
+    validations:
+      required: true
+  - type: textarea
+    id: idee
+    attributes:
+      label: "Votre idée / Your idea"
+    validations:
+      required: true

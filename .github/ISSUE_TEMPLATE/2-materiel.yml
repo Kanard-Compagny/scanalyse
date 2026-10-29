@@ -1,0 +1,43 @@
+name: "🖨️ Matériel à prendre en charge / Hardware to support"
+description: "Une imprimante, une douchette ou un terminal que Scanalyse ne connaît pas encore. / A printer, scanner or terminal Scanalyse does not support yet."
+labels: ["matériel"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Scanalyse se veut **toutes marques**. Dites-nous ce qui manque.
+        *Scanalyse aims to support every brand. Tell us what is missing.*
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Type"
+      options:
+        - Imprimante d'étiquettes / Label printer
+        - Douchette / Barcode scanner
+        - Terminal mobile / Mobile computer
+        - Autre / Other
+    validations:
+      required: true
+  - type: input
+    id: modele
+    attributes:
+      label: "Marque et modèle / Brand and model"
+    validations:
+      required: true
+  - type: input
+    id: langage
+    attributes:
+      label: "Langage ou interface / Language or interface"
+      placeholder: "ex. SBPL, Fingerprint, EZPL, USB clavier, port COM, HID POS…"
+  - type: textarea
+    id: besoin
+    attributes:
+      label: "Ce dont vous avez besoin / What you need"
+      description: "Lire ses programmes, codes de configuration, maintenance… / Read its programs, configuration codes, maintenance…"
+    validations:
+      required: true
+  - type: textarea
+    id: doc
+    attributes:
+      label: "Documentation du fabricant / Manufacturer documentation"
+      description: "Lien vers le manuel de programmation ou le guide de configuration, si vous l'avez. / Link to the programming or configuration guide, if you have it."

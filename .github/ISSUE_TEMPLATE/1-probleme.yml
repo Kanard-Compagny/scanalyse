@@ -1,0 +1,50 @@
+name: "🐞 Un problème / A problem"
+description: "Scanalyse se trompe, plante ou ne lit pas quelque chose. / Scanalyse is wrong, crashes or fails to read something."
+labels: ["problème"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci ! Plus c'est précis, plus vite c'est corrigé. **N'envoyez aucune donnée confidentielle d'un client** (masquez noms, adresses, numéros).
+        *Thanks! English is welcome. Please remove any confidential customer data.*
+  - type: dropdown
+    id: page
+    attributes:
+      label: "Où ? / Where?"
+      options:
+        - Analyser une image / Analyze an image
+        - Banc d'essai douchette / Scanner test bench
+        - Appareils de lecture / Reading devices
+        - Code imprimante / Printer code
+        - Créer un code / Create a code
+        - Historique et rapports / History and reports
+        - Mises à jour, installation / Updates, setup
+        - Autre / Other
+    validations:
+      required: true
+  - type: input
+    id: materiel
+    attributes:
+      label: "Matériel concerné (marque et modèle) / Hardware (brand and model)"
+      placeholder: "ex. douchette Honeywell 1950g, imprimante TSC TE210, terminal Zebra TC52…"
+  - type: textarea
+    id: attendu
+    attributes:
+      label: "Ce que vous attendiez / What you expected"
+    validations:
+      required: true
+  - type: textarea
+    id: obtenu
+    attributes:
+      label: "Ce que Scanalyse a fait / What Scanalyse did"
+      description: "Joignez l'image, le programme (.zpl, .prn…) ou une capture si possible. / Attach the image, label program or a screenshot if possible."
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: "Diagnostic"
+      description: "Paramètres → À propos → « Copier le diagnostic », puis collez ici. / Settings → About → “Copy diagnostics”, then paste here."
+      render: text
+    validations:
+      required: true
