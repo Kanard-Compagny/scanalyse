@@ -224,4 +224,32 @@ public class PrinterConfigTests
         Assert.DoesNotContain(PrinterConfig.Analyze("! U1 setvar \"wlan.country_code\" \"france\"\r\n").Findings, f => f.Severity == Severity.Error);
         Assert.True(Has(PrinterConfig.Analyze("! U1 setvar \"wlan.inconnu.truc\" \"1\"\r\n"), 1, Severity.Warning, "inconnu"));
     }
+
+    [Fact]
+    public void Cle_wifi_calculee_et_coloration()
+    {
+        var r = PrinterConfig.Analyze("^XA^WX09,80E22B4187B7B02E7D090CC2AE4D0F484876922400DAD6D0F0D8B2F528DFFB93^XZ\r\n");
+        Assert.True(Has(r, 1, Severity.Warning, "Clé Wi-Fi calculée"));
+        Assert.True(Has(r, 1, Severity.Warning, "Bonnes pratiques"));
+
+        const string text = "^XA^MD10^TD^FDBonjour^FS\r\n! U1 setvar \"print.tone\" \"20\"\r\n!U1 getvar \"x\"\nSET PEEL ON\r\n{}{\"media.speed\":\"4\"}\r\n<ESC>A<ESC>CS3\n";
+        var tokens = PrinterConfig.Tokenize(text);
+        var pos = 0;
+        foreach (var t in tokens)
+        {
+            Assert.Equal(pos, t.Start);
+            pos += t.Length;
+        }
+
+        Assert.Equal(text.Length, pos);
+        string Of(ConfigTokenKind k) => string.Join("|", tokens.Where(t => t.Kind == k).Select(t => text.Substring(t.Start, t.Length)));
+        Assert.True(Of(ConfigTokenKind.Unknown).Contains("^TD", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Unknown).Contains("!U1", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Command).Contains("^MD", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Value).Contains("Bonjour", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Name).Contains("\"print.tone\"", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Name).Contains("\"media.speed\"", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Verb).Contains("PEEL", StringComparison.Ordinal));
+        Assert.True(Of(ConfigTokenKind.Command).Contains("<ESC>", StringComparison.Ordinal));
+    }
 }

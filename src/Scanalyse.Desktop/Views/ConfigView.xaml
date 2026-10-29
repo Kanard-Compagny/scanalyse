@@ -94,16 +94,36 @@
               <Button Style="{StaticResource BtnGhost}" Content="Effacer" Click="Clear_Click" />
             </WrapPanel>
           </Grid>
-          <TextBlock x:Name="FileInfo" DockPanel.Dock="Bottom" Style="{StaticResource FieldLabel}" Margin="0,8,0,0" />
+          <TextBlock x:Name="FileInfo" DockPanel.Dock="Bottom" Style="{StaticResource FieldLabel}" Margin="0,6,0,0" />
+          <WrapPanel x:Name="Legend" DockPanel.Dock="Bottom" Margin="0,8,0,0" />
           <Grid>
-            <TextBox x:Name="CodeBox" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <!-- Numéros de ligne : en rouge ou en jaune quand la ligne a une erreur ou un point à vérifier -->
+            <Border Background="{DynamicResource Surface2}" CornerRadius="8,0,0,8" BorderBrush="{DynamicResource Line}" BorderThickness="1,1,0,1" ClipToBounds="True">
+              <Canvas Width="44" ClipToBounds="True">
+                <TextBlock x:Name="LineNumbers" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Muted}" TextAlignment="Right"
+                           Width="44" Padding="0,0,8,0" Text="1" />
+              </Canvas>
+            </Border>
+            <!-- Coloration : texte coloré et bandeaux d'erreur dessinés sous la zone de saisie, dont les caractères sont transparents. -->
+            <Border Grid.Column="1" Background="{DynamicResource Surface2}" CornerRadius="0,8,8,0" />
+            <Canvas x:Name="CodeOverlay" Grid.Column="1" IsHitTestVisible="False">
+              <Canvas x:Name="MarkLayer" />
+              <TextBlock x:Name="CodeColors" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" />
+            </Canvas>
+            <TextBox x:Name="CodeBox" Grid.Column="1" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
                      FontFamily="{StaticResource MonoFont}" FontSize="13" VerticalContentAlignment="Top"
+                     Background="Transparent" Foreground="Transparent" SelectionOpacity="0.35"
                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBox_TextChanged"
-                     PreviewKeyDown="CodeBox_PreviewKeyDown" PreviewTextInput="CodeBox_PreviewTextInput" LostKeyboardFocus="CodeBox_LostKeyboardFocus" />
-            <TextBlock x:Name="CodeHint" Margin="14,10,14,0" IsHitTestVisible="False" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Muted}"
+                     PreviewKeyDown="CodeBox_PreviewKeyDown" PreviewTextInput="CodeBox_PreviewTextInput" LostKeyboardFocus="CodeBox_LostKeyboardFocus"
+                     MouseMove="CodeBox_MouseMove" ToolTipService.InitialShowDelay="250" ToolTipService.ShowDuration="30000" />
+            <TextBlock x:Name="CodeHint" Grid.Column="1" Margin="14,10,14,0" IsHitTestVisible="False" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Muted}"
                        Text="Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Tape une commande pour voir les propositions (Ctrl + Espace : toute la bibliothèque). Exemple : ! U1 setvar &quot;print.tone&quot; &quot;20&quot;" />
             <!-- Propositions à la saisie (bibliothèque intégrée) -->
-            <Popup x:Name="SuggestPopup" PlacementTarget="{Binding ElementName=CodeBox}" Placement="RelativePoint" StaysOpen="True" AllowsTransparency="True" Focusable="False">
+            <Popup x:Name="SuggestPopup" Grid.Column="1" PlacementTarget="{Binding ElementName=CodeBox}" Placement="RelativePoint" StaysOpen="True" AllowsTransparency="True" Focusable="False">
               <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="10" Padding="4" Width="520">
                 <Border.Effect>
                   <DropShadowEffect BlurRadius="16" ShadowDepth="3" Opacity="0.35" />

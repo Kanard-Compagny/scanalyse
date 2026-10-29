@@ -523,7 +523,12 @@ public static partial class PrinterConfig
                 ctx.Find(n, Severity.Warning, $"« {value} » : {v.Length} caractères, l'imprimante en garde {def.Max.ToString(CultureInfo.InvariantCulture)} au plus.");
                 break;
             case Kind.Secret:
-                ctx.Find(n, Severity.Warning, "Mot de passe Wi-Fi écrit en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage." + (v.Length is < 8 or > 64 ? " Longueur invalide : 8 à 63 caractères (ou 64 hexadécimaux)." : string.Empty));
+                WifiSecret(ctx, n, v);
+                if (v.Length is < 8 or > 64 || (v.Length == 64 && !IsHex(v)))
+                {
+                    ctx.Find(n, Severity.Error, "Clé Wi-Fi WPA de longueur invalide : 8 à 63 caractères pour un mot de passe, ou exactement 64 caractères hexadécimaux pour une clé calculée.");
+                }
+
                 break;
         }
 
@@ -911,9 +916,9 @@ public static partial class PrinterConfig
                         ctx.Find(n, Severity.Info, "Sécurité WEP : ancienne et refusée par la plupart des bornes Wi-Fi actuelles ; préfère WPA.");
                     }
 
-                    if (a.Skip(1).Any(v => v.Trim().Length >= 8))
+                    if (a.Skip(1).Select(v => v.Trim()).FirstOrDefault(v => v.Length >= 8) is { } secret)
                     {
-                        ctx.Find(n, Severity.Warning, "Clé ou mot de passe Wi-Fi écrit en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.");
+                        WifiSecret(ctx, n, secret);
                     }
 
                     ctx.Risky = true;
@@ -924,7 +929,8 @@ public static partial class PrinterConfig
                     ctx.Item(n, "ZPL", raw, "Chiffrement WEP (Wi-Fi) : " + (A(0).Equals("OFF", StringComparison.OrdinalIgnoreCase) ? "désactivé" : A(0) + " bits"), "Réseau");
                     if (a.Skip(4).Any(v => v.Trim().Length > 0))
                     {
-                        ctx.Find(n, Severity.Warning, "Clé WEP écrite en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.");
+                        ctx.Find(n, Severity.Warning, "Clé WEP présente dans ce fichier : elle est écrite telle que la borne l'utilise (hexadécimal ou texte), pas chiffrée. "
+                            + "Elle suffit pour rejoindre le réseau, et le WEP se casse en quelques minutes : ne diffuse pas ce fichier, supprime-le après usage, et passe le réseau en WPA2 ou WPA3 si possible.");
                     }
 
                     ctx.Risky = true;
@@ -981,6 +987,30 @@ public static partial class PrinterConfig
             }
         }
     }
+
+    /// <summary>
+    /// Clé Wi-Fi dans le fichier : explique ce qu'elle est (mot de passe lisible, ou clé PSK calculée de 64 caractères
+    /// hexadécimaux, comme l'enregistre Zebra Setup Utilities) et pourquoi elle reste sensible, avec les bonnes pratiques.
+    /// </summary>
+    private static void WifiSecret(Ctx ctx, int n, string secret)
+    {
+        const string practices = " Bonnes pratiques : ne l'envoie pas par e-mail, messagerie ou ticket ; garde-le dans un dossier protégé (accès limité aux techniciens) ; "
+            + "supprime-le des PC et clés USB après le déploiement ; change le mot de passe du Wi-Fi s'il a circulé. Pour un parc important, préfère WPA2 / WPA3 Entreprise (802.1X) : "
+            + "chaque appareil a son propre identifiant, révocable sans changer le Wi-Fi de tout le site.";
+        if (secret.Length == 64 && IsHex(secret))
+        {
+            ctx.Find(n, Severity.Warning, "Clé Wi-Fi calculée (PSK de 64 caractères hexadécimaux) : ce n'est pas le mot de passe lisible, mais la clé obtenue à partir du mot de passe "
+                + "et du nom du réseau (SSID). Elle n'est pas chiffrée pour autant : telle quelle, elle suffit à n'importe quel appareil pour se connecter à ce Wi-Fi. Ce fichier vaut donc le mot de passe."
+                + practices);
+        }
+        else
+        {
+            ctx.Find(n, Severity.Warning, "Mot de passe Wi-Fi écrit en clair : toute personne qui ouvre ce fichier peut le lire et se connecter au réseau."
+                + practices + " Zebra Setup Utilities peut enregistrer la clé calculée (64 caractères hexadécimaux) au lieu du mot de passe : elle ne révèle pas le mot de passe, utile s'il sert ailleurs.");
+        }
+    }
+
+    private static bool IsHex(string s) => s.All(char.IsAsciiHexDigit);
 
     private static string Resolution(string mode) => mode.ToUpperInvariant() switch
     {

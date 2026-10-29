@@ -32,6 +32,11 @@ public partial class ConfigView : UserControl
     {
         InitializeComponent();
         ScrollChaining.Enable(PageScroll);
+        CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, _) => AlignOverlay()));
+        CodeBox.SizeChanged += (_, _) => AlignOverlay();
+        CodeBox.Loaded += (_, _) => Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
+        _colorTimer.Tick += (_, _) => Recolor();
+        BuildLegend();
         _debounce.Tick += (_, _) =>
         {
             _debounce.Stop();
@@ -482,6 +487,8 @@ public partial class ConfigView : UserControl
     private void CodeBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         CodeHint.Visibility = CodeBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _colorTimer.Stop();
+        _colorTimer.Start();
         // Saisie au clavier (un ou deux caractères ajoutés, ou effacés) : propositions ; collage ou ouverture : aucune.
         var typing = _typed || (e.Changes.Count == 1 && e.Changes.First() is { } c
             && ((c.AddedLength is > 0 and <= 2 && c.RemovedLength <= 2) || (c.AddedLength == 0 && c.RemovedLength is > 0 and <= 2 && SuggestPopup.IsOpen)));
@@ -528,6 +535,7 @@ public partial class ConfigView : UserControl
             RiskBanner.Visibility = Visibility.Collapsed;
             ShowPrinterBanner();
             ResultPanel.Children.Clear();
+            UpdateMarks();
             return;
         }
 
@@ -545,6 +553,7 @@ public partial class ConfigView : UserControl
         RiskText.Text = Localization.T("Ce fichier redémarre l'imprimante, la remet en usine ou change ses réglages réseau : une confirmation sera demandée avant l'envoi.");
         ShowPrinterBanner();
         Render();
+        UpdateMarks();
     }
 
     private void ShowPrinterBanner()
@@ -911,5 +920,236 @@ public partial class ConfigView : UserControl
         CodeBox.SelectedText = item.Text;
         CodeBox.Select(start + item.CaretOffset, 0);
         Dispatcher.BeginInvoke(new Action(() => UpdateSuggestions()), DispatcherPriority.Input);
+    }
+
+    // ------------------------------------------------------------------ Coloration et repères d'erreur dans l'éditeur
+
+    private readonly DispatcherTimer _colorTimer = new() { Interval = TimeSpan.FromMilliseconds(90) };
+    private Dictionary<int, Severity> _marks = new();
+    private double _lineHeight;
+    private int _tipLine;
+
+    private static string ColorKey(ConfigTokenKind k) => k switch
+    {
+        ConfigTokenKind.Command => "SynStruct",
+        ConfigTokenKind.Verb => "SynText",
+        ConfigTokenKind.Name => "SynPos",
+        ConfigTokenKind.Value => "SynCode",
+        ConfigTokenKind.Parameter => "SynParam",
+        ConfigTokenKind.Comment => "SynComment",
+        ConfigTokenKind.Unknown => "BadFg",
+        _ => "SynData",
+    };
+
+    /// <summary>Redessine le texte coloré sous la zone de saisie (couleurs du thème) ; mot inconnu en rouge souligné.</summary>
+    private void Recolor()
+    {
+        _colorTimer.Stop();
+        var text = CodeBox.Text;
+        CodeColors.Inlines.Clear();
+        if (text.Length > 300_000)
+        {
+            CodeBox.SetResourceReference(ForegroundProperty, "Ink");
+            return;
+        }
+
+        CodeBox.Foreground = Brushes.Transparent;
+        foreach (var t in PrinterConfig.Tokenize(text))
+        {
+            var run = new Run(text.Substring(t.Start, t.Length));
+            run.SetResourceReference(TextElement.ForegroundProperty, ColorKey(t.Kind));
+            if (t.Kind == ConfigTokenKind.Unknown)
+            {
+                var underline = new TextDecoration { Location = TextDecorationLocation.Underline, PenOffset = 1 };
+                underline.Pen = new Pen((Brush)FindResource("BadFg"), 1.2);
+                run.TextDecorations = new TextDecorationCollection { underline };
+            }
+
+            CodeColors.Inlines.Add(run);
+        }
+
+        UpdateLineNumbers();
+        Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
+    }
+
+    /// <summary>Lignes en erreur ou à vérifier (analyse et comparaison avec l'imprimante) : bandeau sous la ligne et numéro coloré.</summary>
+    private void UpdateMarks()
+    {
+        _marks = new();
+        if (_report is { } r)
+        {
+            foreach (var f in r.Findings.Concat(_comparison).Where(f => f.Line > 0 && f.Severity is Severity.Error or Severity.Warning))
+            {
+                if (!_marks.TryGetValue(f.Line, out var current) || (current == Severity.Warning && f.Severity == Severity.Error))
+                {
+                    _marks[f.Line] = f.Severity;
+                }
+            }
+        }
+
+        _tipLine = 0;
+        UpdateLineNumbers();
+        Dispatcher.BeginInvoke(new Action(AlignOverlay), DispatcherPriority.Loaded);
+    }
+
+    private void UpdateLineNumbers()
+    {
+        var count = Math.Max(1, CodeBox.LineCount > 0 ? CodeBox.LineCount : CodeBox.Text.Count(c => c == '\n') + 1);
+        LineNumbers.Inlines.Clear();
+        for (var i = 1; i <= count; i++)
+        {
+            var run = new Run(i.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            if (_marks.TryGetValue(i, out var severity))
+            {
+                run.SetResourceReference(TextElement.ForegroundProperty, severity == Severity.Error ? "BadFg" : "WarnFg");
+                run.FontWeight = FontWeights.Bold;
+            }
+
+            LineNumbers.Inlines.Add(run);
+            if (i < count)
+            {
+                LineNumbers.Inlines.Add(new LineBreak());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Cale le texte coloré, les bandeaux et les numéros de ligne sur la position réelle du texte dans la zone de saisie
+    /// (marges internes, défilement et hauteur de ligne compris).
+    /// </summary>
+    private void AlignOverlay()
+    {
+        if (!CodeBox.IsLoaded || CodeBox.Template?.FindName("PART_ContentHost", CodeBox) is not ScrollViewer host)
+        {
+            return;
+        }
+
+        try
+        {
+            var origin = host.TranslatePoint(new Point(0, 0), CodeBox);
+            var bottom = host.ComputedHorizontalScrollBarVisibility == Visibility.Visible ? origin.Y + host.ViewportHeight : CodeBox.ActualHeight - 1;
+            CodeOverlay.Clip = new RectangleGeometry(new Rect(origin.X, 1, Math.Max(0, host.ViewportWidth), Math.Max(0, bottom - 1)));
+            var first = CodeBox.GetRectFromCharacterIndex(0);
+            if (first.IsEmpty || double.IsInfinity(first.Top))
+            {
+                return;
+            }
+
+            _lineHeight = first.Height;
+            if (CodeBox.LineCount > 1)
+            {
+                var second = CodeBox.GetRectFromCharacterIndex(CodeBox.GetCharacterIndexFromLineIndex(1));
+                var lineHeight = second.Top - first.Top;
+                if (lineHeight > 4 && lineHeight < 80)
+                {
+                    _lineHeight = lineHeight;
+                    CodeColors.LineStackingStrategy = LineNumbers.LineStackingStrategy = LineStackingStrategy.BlockLineHeight;
+                    CodeColors.LineHeight = LineNumbers.LineHeight = lineHeight;
+                }
+            }
+
+            Canvas.SetLeft(CodeColors, first.Left);
+            Canvas.SetTop(CodeColors, first.Top);
+            Canvas.SetTop(LineNumbers, first.Top - 1);
+
+            MarkLayer.Children.Clear();
+            foreach (var (line, severity) in _marks)
+            {
+                var top = first.Top + ((line - 1) * _lineHeight);
+                if (top + _lineHeight < 0 || top > CodeBox.ActualHeight)
+                {
+                    continue;
+                }
+
+                var band = new System.Windows.Shapes.Rectangle { Width = Math.Max(0, host.ViewportWidth), Height = _lineHeight };
+                band.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, severity == Severity.Error ? "BadBg" : "WarnBg");
+                Canvas.SetLeft(band, origin.X);
+                Canvas.SetTop(band, top);
+                MarkLayer.Children.Add(band);
+                var edge = new System.Windows.Shapes.Rectangle { Width = 3, Height = _lineHeight };
+                edge.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, severity == Severity.Error ? "BadFg" : "WarnFg");
+                Canvas.SetLeft(edge, origin.X);
+                Canvas.SetTop(edge, top);
+                MarkLayer.Children.Add(edge);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // Mise en page pas encore prête : on recalera au prochain passage.
+        }
+    }
+
+    /// <summary>Survol d'une ligne : ses erreurs et points à vérifier en infobulle.</summary>
+    private void CodeBox_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (_report is not { } r || CodeBox.Text.Length == 0)
+        {
+            return;
+        }
+
+        var index = CodeBox.GetCharacterIndexFromPoint(e.GetPosition(CodeBox), snapToText: true);
+        var line = index < 0 ? 0 : CodeBox.GetLineIndexFromCharacterIndex(index) + 1;
+        if (line == _tipLine)
+        {
+            return;
+        }
+
+        _tipLine = line;
+        var messages = r.Findings.Concat(_comparison)
+            .Where(f => f.Line == line && f.Severity is not Severity.Ok)
+            .OrderBy(f => f.Severity switch { Severity.Error => 0, Severity.Warning => 1, _ => 2 })
+            .Select(f => (f.Severity switch { Severity.Error => "⛔ ", Severity.Warning => "⚠ ", _ => "ℹ " }) + Localization.T(f.Message))
+            .ToList();
+        if (messages.Count == 0)
+        {
+            CodeBox.ToolTip = null;
+            return;
+        }
+
+        CodeBox.ToolTip = new System.Windows.Controls.ToolTip
+        {
+            Content = new TextBlock { Text = string.Join(Environment.NewLine + Environment.NewLine, messages), TextWrapping = TextWrapping.Wrap, MaxWidth = 480 },
+        };
+    }
+
+    private void BuildLegend()
+    {
+        (string Key, string Label, bool Band)[] items =
+        [
+            ("SynStruct", "Commande", false),
+            ("SynText", "Action (setvar, do, SET…)", false),
+            ("SynPos", "Nom du réglage", false),
+            ("SynCode", "Valeur, données", false),
+            ("SynParam", "Paramètres", false),
+            ("SynComment", "Commentaire", false),
+            ("BadFg", "Inconnu de l'imprimante", false),
+            ("BadBg", "Ligne en erreur", true),
+            ("WarnBg", "Ligne à vérifier", true),
+        ];
+        foreach (var (key, label, band) in items)
+        {
+            FrameworkElement swatch = band
+                ? new Border { Width = 16, Height = 10, CornerRadius = new CornerRadius(2), Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center }
+                : new System.Windows.Shapes.Ellipse { Width = 8, Height = 8, Margin = new Thickness(0, 0, 5, 0), VerticalAlignment = VerticalAlignment.Center };
+            if (swatch is Border b)
+            {
+                b.SetResourceReference(Border.BackgroundProperty, key);
+                b.SetResourceReference(Border.BorderBrushProperty, key == "BadBg" ? "BadFg" : "WarnFg");
+                b.BorderThickness = new Thickness(3, 0, 0, 0);
+            }
+            else
+            {
+                swatch.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, key);
+            }
+
+            var sp = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 14, 2) };
+            sp.Children.Add(swatch);
+            var text = new TextBlock { Text = Localization.T(label), FontSize = 11.5, VerticalAlignment = VerticalAlignment.Center };
+            text.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            sp.Children.Add(text);
+            Legend.Children.Add(sp);
+        }
+
+        Legend.ToolTip = Localization.T("Survole une ligne pour lire ses erreurs et points à vérifier.");
     }
 }
