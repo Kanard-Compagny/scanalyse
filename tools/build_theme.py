@@ -26,6 +26,12 @@ def xaml(theme):
     for key, value in tokens[theme].items():
         lines.append(f'  <Color x:Key="{key}Color">{value}</Color>')
         lines.append(f'  <SolidColorBrush x:Key="{key}" Color="{value}" />')
+    syntax = tokens.get("syntax", {}).get(theme)
+    if syntax:
+        lines.append("")
+        lines.append("  <!-- Coloration des programmes d'imprimante -->")
+        for key, value in syntax.items():
+            lines.append(f'  <SolidColorBrush x:Key="{key}" Color="{value}" />')
     lines.append("</ResourceDictionary>")
     return "\n".join(lines) + "\n"
 
