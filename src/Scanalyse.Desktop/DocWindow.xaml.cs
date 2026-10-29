@@ -16,6 +16,7 @@ public partial class DocWindow : Window
     public DocWindow(string title, string markdown)
     {
         InitializeComponent();
+        WindowFrame.Attach(this);
         TitleText.Text = Localization.T(title);
         Title = TitleText.Text + " — Scanalyse";
         Viewer.Document = Build(markdown);

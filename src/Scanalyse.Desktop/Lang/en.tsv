@@ -2065,3 +2065,7 @@ Dossier de l'historique	History folder
 Dossier des programmes d'étiquettes	Label programs folder
 Langage d'imprimante par défaut	Default printer language
 Versions et emplacements utiles à joindre à une demande d'aide (ticket GitHub, e-mail).	Versions and locations to attach to a help request (GitHub issue, e-mail).
+Régler la douchette	Set up the scanner
+Régler la douchette : codes de configuration	Set up the scanner: configuration codes
+La douchette peut se corriger en scannant un code	The scanner can be fixed by scanning a code
+Clavier AZERTY / QWERTY, suffixe Entrée, préfixes, séparateur GS1… : les codes de configuration se scannent directement à l'écran.	AZERTY / QWERTY keyboard, Enter suffix, prefixes, GS1 separator…: configuration codes can be scanned straight from the screen.

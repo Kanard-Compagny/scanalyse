@@ -25,6 +25,7 @@ public partial class ConfigCodesWindow : Window
     {
         _renderer = renderer;
         InitializeComponent();
+        WindowFrame.Attach(this);
         Loaded += (_, _) => Show("Honeywell");
     }
 

@@ -13,6 +13,7 @@ public partial class LanguageWindow : Window
     public LanguageWindow()
     {
         InitializeComponent();
+        WindowFrame.Attach(this);
         var windowsLanguage = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         (windowsLanguage == "fr" ? French : English).IsChecked = true;
         Loaded += (_, _) => (French.IsChecked == true ? French : English).Focus();

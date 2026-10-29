@@ -10,7 +10,7 @@
 
   <!-- Même habillage que la fenêtre principale : barre de titre aux couleurs de Scanalyse -->
   <WindowChrome.WindowChrome>
-    <WindowChrome CaptionHeight="38" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
+    <WindowChrome CaptionHeight="38" ResizeBorderThickness="6" GlassFrameThickness="0,0,0,1" CornerRadius="0" UseAeroCaptionButtons="False" />
   </WindowChrome.WindowChrome>
 
   <Border x:Name="RootBorder" BorderBrush="{DynamicResource Line}" BorderThickness="1">

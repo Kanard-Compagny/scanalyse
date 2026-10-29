@@ -132,6 +132,7 @@ public partial class BenchView : UserControl
             .Select(f => new FieldView(f.Label, f.Sensitive ? "•••••• (masqué)" : f.Value, f.Hint ?? string.Empty))
             .ToList();
         ResultActions.Visibility = Visibility.Collapsed;
+        ConfigHint.Visibility = Visibility.Collapsed;
         ShowStructure(text);
         ResultScroll.ScrollToTop();
     }
@@ -326,6 +327,7 @@ public partial class BenchView : UserControl
         FindingsList.ItemsSource = null;
         FieldsList.ItemsSource = null;
         ResultActions.Visibility = Visibility.Collapsed;
+        ConfigHint.Visibility = Visibility.Collapsed;
     }
 
     /// <summary>Donne le focus au champ de réception, prêt pour un scan.</summary>
@@ -595,6 +597,8 @@ public partial class BenchView : UserControl
 
         var result = ScanComparer.Compare(ExpectedBox.Text, ReceivedBox.Text);
         ResultActions.Visibility = result.OtherCode ? Visibility.Visible : Visibility.Collapsed;
+        // Écart dû au réglage de la douchette (clavier, préfixe, suffixe, GS) : on propose les codes de configuration.
+        ConfigHint.Visibility = !result.OtherCode && !result.Identical && result.Findings.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         ShowStructure(ReceivedBox.Text.Length > 0 ? ReceivedBox.Text : ControlCharacters.FromVisualized(ExpectedBox.Text), touchSubtitle: false);
         ResultScroll.ScrollToTop();
         ResultTitle.Text = result.OtherCode ? "Lecture d'un autre code" : result.WorstSeverity switch

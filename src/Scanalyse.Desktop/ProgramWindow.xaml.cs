@@ -6,7 +6,11 @@ namespace Scanalyse.Desktop;
 /// <summary>Fenêtre qui accueille le programme détaché de l'onglet Code imprimante (deuxième écran).</summary>
 public partial class ProgramWindow : Window
 {
-    public ProgramWindow() => InitializeComponent();
+    public ProgramWindow()
+    {
+        InitializeComponent();
+        WindowFrame.Attach(this);
+    }
 
     /// <summary>Titre affiché dans la barre de la fenêtre.</summary>
     public string Heading

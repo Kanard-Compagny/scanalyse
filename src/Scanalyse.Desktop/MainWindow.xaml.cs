@@ -46,6 +46,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        WindowFrame.Attach(this);
         var v = Assembly.GetExecutingAssembly().GetName().Version;
         VersionText.Text = v is null ? string.Empty : $"version {v.Major}.{v.Minor}.{v.Build}";
         LogList.ItemsSource = _log;

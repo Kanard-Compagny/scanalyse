@@ -7,6 +7,8 @@
   - Fingerprint : mots-clés complets ou abrégés (PP, PT, PB…), numéros de ligne, plusieurs étiquettes par fichier, ancrages (ALIGN), CHR$(128) = FNC1 ; position « y » comptée depuis le bas de l'étiquette.
 - Un programme SATO commençant par STX n'est plus pris pour du DPL.
 - **Code imprimante** : en lecture d'un programme et avec les modèles, la zone du programme n'est plus écrasée par l'aperçu (en plein écran comme en fenêtre réduite) ; aperçu et programme se partagent la hauteur, l'éditeur garde toujours une place lisible.
+- **Fenêtres** : ombre portée et liseré gris comme les fenêtres de Windows, coins arrondis sous Windows 11 ; Scanalyse ne se confond plus avec les programmes ouverts derrière.
+- **Banc d'essai** : bouton « Régler la douchette » plus visible (icône, teinte verte) ; après une comparaison qui révèle un réglage à corriger (clavier, préfixe, suffixe, séparateur GS1), un encadré propose directement les codes de configuration.
 - **Historique** : la liste des analyses n'est plus écrasée par la fiche du dossier quand la fenêtre est petite (la page défile).
 - **Banc d'essai** : les champs « Référence » et « Données reçues » gardent leur hauteur (octets reçus dépliés, petite fenêtre) ; dans une colonne étroite, les choix de « Code testé » passent sous la vignette.
 - **Analyser une image** : les outils de l'image (Agrandir, Sélectionner une zone) n'apparaissent qu'une fois l'image chargée. **Créer un code** : espace rétabli sous « Type de code ».
