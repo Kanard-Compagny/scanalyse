@@ -96,6 +96,22 @@
             <TextBlock Style="{StaticResource CardTitle}" Text="Fichier de configuration" VerticalAlignment="Center" TextWrapping="NoWrap" Margin="0,0,12,0" />
             <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
               <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="Open_Click" Margin="0,0,4,0" />
+              <Button x:Name="ConvertButton" Style="{StaticResource BtnGhost}" Content="Convertir vers…" Click="ConvertButton_Click" Margin="0,0,4,0"
+                      ToolTip="Réécrit le fichier dans le langage d'une autre marque (ZPL, SGD, TSPL, EPL2, DPL, Fingerprint, SBPL), avec le compte-rendu de ce qui a été repris" />
+              <Popup x:Name="ConvertPopup" PlacementTarget="{Binding ElementName=ConvertButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="14" Margin="0,6,0,0" Width="420">
+                  <StackPanel>
+                    <TextBlock Style="{StaticResource CardTitle}" Text="Convertir le fichier" />
+                    <TextBlock FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,10"
+                               Text="Les réglages communs (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau) sont réécrits ; ce qui est propre à une marque est listé dans le compte-rendu." />
+                    <TextBlock Style="{StaticResource FieldLabel}" Text="Langage d'arrivée" />
+                    <WrapPanel x:Name="ConvertTargets" Margin="0,4,0,10" />
+                    <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution de la tête (pour passer des points aux millimètres)" />
+                    <WrapPanel x:Name="ConvertDpi" Margin="0,4,0,12" />
+                    <Button Style="{StaticResource BtnAction}" Content="Convertir" Click="Convert_Click" HorizontalAlignment="Left" />
+                  </StackPanel>
+                </Border>
+              </Popup>
               <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveAs_Click" Margin="0,0,4,0"
                       ToolTip="Enregistre le fichier, avec tes modifications, sous le nom de ton choix (Ctrl + S)" />
               <Button Style="{StaticResource BtnGhost}" Content="Coller" Click="Paste_Click" Margin="0,0,4,0" />
@@ -165,11 +181,21 @@
               <RadioButton x:Name="ViewProblems" Style="{StaticResource Chip}" GroupName="ConfView" Content="Points à vérifier" IsChecked="True" Checked="View_Changed" />
               <RadioButton x:Name="ViewLines" Style="{StaticResource Chip}" GroupName="ConfView" Content="Ligne par ligne" Checked="View_Changed" />
               <RadioButton x:Name="ViewSettings" Style="{StaticResource Chip}" GroupName="ConfView" Content="Réglages appliqués" Checked="View_Changed" />
+              <RadioButton x:Name="ViewAssistant" Style="{StaticResource Chip}" GroupName="ConfView" Content="Configurer" Checked="View_Changed"
+                           ToolTip="Assistant : règle noirceur, vitesse, support, sortie, taille, réseau… et Scanalyse écrit le fichier dans le langage de ton choix" />
+              <RadioButton x:Name="ViewConversion" Style="{StaticResource Chip}" GroupName="ConfView" Content="Conversion" Checked="View_Changed" Visibility="Collapsed"
+                           ToolTip="Compte-rendu de la dernière conversion : repris, approché, non converti" />
             </WrapPanel>
           </StackPanel>
-          <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />
-          </ScrollViewer>
+          <Grid>
+            <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />
+            </ScrollViewer>
+            <!-- Assistant « Configurer » : formulaire construit une fois, conservé entre deux analyses -->
+            <ScrollViewer x:Name="AssistantScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+              <StackPanel x:Name="AssistantPanel" Margin="0,0,6,0" />
+            </ScrollViewer>
+          </Grid>
         </DockPanel>
       </Border>
     </Grid>

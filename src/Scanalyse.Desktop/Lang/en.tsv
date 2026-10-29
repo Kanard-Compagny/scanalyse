@@ -2903,3 +2903,112 @@ Relecture de l'imprimante dans quelques secondes, pour vérifier que les réglag
 Relis l'imprimante quand elle aura redémarré, pour vérifier que les réglages ont été pris en compte.	Read the printer again once it has restarted, to check the settings were applied.
 Imprimante reconnue : {0} ({1}).	Printer identified: {0} ({1}).
 Aucune information reçue de {0}.	No information received from {0}.
+(3 mm par défaut : mesure l'espace réel)	(3 mm by default: measure the real gap)
+(selon le modèle et la carte réseau : à vérifier)	(depends on the model and network card: to check)
+Aucun réglage commun trouvé (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau) : rien à écrire.	No common setting found (darkness, speed, media, method, output, size, offsets, network): nothing to write.
+DPL (Honeywell / Datamax)	DPL (Honeywell / Datamax)
+Décalage du début d'impression	Start-of-print offset
+Décalages	Offsets
+EPL2 (Zebra, anciens modèles)	EPL2 (Zebra, older models)
+Fingerprint (Honeywell / Intermec)	Fingerprint (Honeywell / Intermec)
+Largeur d'impression	Print width
+Longueur d'étiquette	Label length
+Longueur et support	Length and media
+Méthode et sortie	Method and output
+Noirceur (0 à 30)	Darkness (0 to 30)
+Noirceur (contraste -10 % à +10 %)	Darkness (contrast -10% to +10%)
+OD (thermique direct)	OD (direct thermal)
+Position d'arrêt (détachage)	Stop position (tear-off)
+Position d'arrêt (points)	Stop position (dots)
+Réseau (à vérifier selon le modèle)	Network (to check depending on the model)
+SBPL : ces réglages valent pour la session ; pour les garder à l'extinction, enregistre-les dans le menu de l'imprimante (ou <ESC>PG, propre au modèle).	SBPL: these settings last for the session; to keep them at power-off, save them in the printer menu (or <ESC>PG, model-specific).
+SGD (Zebra, ! U1 setvar)	SGD (Zebra, ! U1 setvar)
+SIZE demande la largeur et la longueur ; renseigne les deux dans l'assistant.	SIZE needs both width and length; fill in both in the assistant.
+Sortie : applicateur	Output: applicator
+Vitesse (mm par seconde)	Speed (mm per second)
+ZPL (Zebra)	ZPL (Zebra)
+en DPL, la chaleur s'écrit dans chaque format d'étiquette (ligne H{0} après <STX>L) ou se règle dans le menu de l'imprimante.	in DPL, heat is written in each label format (line H{0} after <STX>L) or set in the printer menu.
+en DPL, la vitesse s'écrit dans chaque format d'étiquette (ligne P{0} ≈ {1} pouces par seconde) ou se règle dans le menu de l'imprimante.	in DPL, speed is written in each label format (line P{0} ≈ {1} inches per second) or set in the printer menu.
+en EPL2, le type de support s'écrit avec la longueur d'étiquette (Q) : renseigne la longueur.	in EPL2, the media type is written with the label length (Q): fill in the length.
+en SBPL, elle s'écrit dans chaque étiquette (<ESC>A1) ou se règle dans le menu de l'imprimante.	in SBPL, it is written in each label (<ESC>A1) or set in the printer menu.
+le décolleur ou le massicot se règlent par le menu de l'imprimante (selon les options installées).	the peeler or cutter are set in the printer menu (depending on installed options).
+le mode de sortie (décolleur, massicot) se règle sur l'imprimante en EPL2 (option O, selon le modèle).	the output mode (peeler, cutter) is set on the printer in EPL2 (O option, depending on the model).
+pas d'équivalent direct en {0} : règle-le par le panneau de l'imprimante.	no direct equivalent in {0}: set it from the printer panel.
+pas d'équivalent direct en {0} : règle-les par le panneau de l'imprimante.	no direct equivalent in {0}: set them from the printer panel.
+pas de commande réseau en {0} : règle l'adresse par la page web, le panneau ou l'outil du fabricant.	no network command in {0}: set the address from the web page, the panel or the manufacturer's tool.
+pas de largeur d'impression en commande système DPL : elle se règle dans le menu ou par <STX>Kc (manuel du modèle).	no print width as a DPL system command: it is set in the menu or with <STX>Kc (model manual).
+pas de mode applicateur en TSPL ; à régler sur l'imprimante (interface applicateur).	no applicator mode in TSPL; set it on the printer (applicator interface).
+pas de réglage SGD équivalent ; utilise ^LT en ZPL (convertis vers ZPL).	no equivalent SGD setting; use ^LT in ZPL (convert to ZPL).
+réglage propre à la marque ou au modèle, sans équivalent commun ; à régler par le panneau ou l'outil du fabricant de l'imprimante d'arrivée.	brand- or model-specific setting with no common equivalent; set it from the target printer's panel or manufacturer tool.
+réglage réseau propre à la marque (Wi-Fi, sécurité, services) ; à régler sur l'imprimante d'arrivée par sa page web, son panneau ou l'outil du fabricant (Zebra Setup Utilities, TSC Console, NetTool, SATO All-In-One Tool…).	brand-specific network setting (Wi-Fi, security, services); set it on the target printer from its web page, panel or the manufacturer tool (Zebra Setup Utilities, TSC Console, NetTool, SATO All-In-One Tool…).
+sans équivalent commun entre les langages ; à vérifier sur l'imprimante d'arrivée.	no common equivalent between languages; check on the target printer.
+se règlent dans le menu de l'imprimante SATO (ou son outil All-In-One).	are set in the SATO printer menu (or its All-In-One tool).
+se règlent par le menu de l'imprimante ou <STX>Kc (paramètres propres au modèle, voir son manuel DPL).	are set from the printer menu or <STX>Kc (model-specific parameters, see its DPL manual).
+transfert thermique (réglage par défaut, rien à écrire)	thermal transfer (default setting, nothing to write)
+{0} : {1} (valeur approchée, l'échelle diffère entre les deux langages : à ajuster après un essai).	{0}: {1} (approximate value, the scale differs between the two languages: adjust after a test).
+Adresse IP	IP address
+Adresse fixe	Fixed address
+Adresse fixe : saisis une adresse IP valide (ex. 192.168.1.50).	Fixed address: enter a valid IP address (e.g. 192.168.1.50).
+Applicateur	Applicator
+Aucun réglage commun dans ce fichier : formulaire laissé vide.	No common setting in this file: form left empty.
+Aucun réglage commun trouvé dans ce fichier : il n'a pas été modifié.	No common setting found in this file: it was not changed.
+Aucune valeur saisie dans l'assistant : rien à écrire.	No value entered in the assistant: nothing to write.
+Continu	Continuous
+Converti en {0}	Converted to {0}
+Coupe	Cutter
+Coupe différée	Delayed cut
+Décalage horizontal	Left shift
+Décalage horizontal (mm)	Left shift (mm)
+Décalage vertical	Top shift
+Décalage vertical (mm)	Top shift (mm)
+Détachage	Tear off
+Enregistrer les réglages dans l'imprimante (conservés à l'extinction)	Save the settings in the printer (kept at power-off)
+Enroulement	Rewind
+Espace	Gap
+Espace entre étiquettes ou hauteur de la marque (mm)	Gap between labels or mark height (mm)
+Fichier d'avant la conversion	File before the conversion
+Langage du fichier	File language
+Largeur d'impression (mm)	Print width (mm)
+Le fichier est vide : rien à reprendre.	The file is empty: nothing to take.
+Longueur d'étiquette (mm)	Label length (mm)
+Marque noire	Black mark
+Masque	Mask
+Noirceur (0 à 100 %)	Darkness (0 to 100%)
+Non converti	Not converted
+Passerelle	Gateway
+Position de détachage (mm)	Tear-off position (mm)
+Reprendre les réglages du fichier	Take the file's settings
+Repris	Kept
+Revenir au fichier d'avant	Back to the previous file
+Rien à convertir	Nothing to convert
+Rien à convertir : colle ou ouvre d'abord un fichier de configuration.	Nothing to convert: paste or open a configuration file first.
+Règle les valeurs voulues (laisse vide ce qui ne doit pas changer) : Scanalyse écrit le fichier dans le langage choisi, prêt à vérifier et à envoyer.	Set the values you want (leave empty what must not change): Scanalyse writes the file in the chosen language, ready to check and send.
+Réglages du fichier repris dans l'assistant.	File settings loaded into the assistant.
+Réseau filaire	Wired network
+Résolution de la tête	Printhead resolution
+Sera écrit : {0}	Will be written: {0}
+Sortie des étiquettes	Label output
+Thermique direct	Direct thermal
+Transfert thermique (ruban)	Thermal transfer (ribbon)
+Vide : la noirceur n'est pas changée.	Empty: darkness is not changed.
+Vitesse	Speed
+Vitesse (pouces par seconde)	Speed (inches per second)
+ex. 4  (1 pouce/s ≈ 25 mm/s)	e.g. 4  (1 inch/s ≈ 25 mm/s)
+ligne {0} du fichier d'origine	line {0} of the original file
+non enregistré (Enregistrer sous…)	not saved (Save as…)
+{0} : {1} réglage(s) repris, {2} approché(s), {3} non converti(s).	{0}: {1} setting(s) kept, {2} approximated, {3} not converted.
+{0} repris · {1} approché(s), à vérifier après un essai · {2} non converti(s), à régler autrement sur l'imprimante.	{0} kept · {1} approximated, to check after a test · {2} not converted, to set another way on the printer.
+Écrire le fichier	Write the file
+Écrit par l'assistant en {0}	Written by the assistant in {0}
+Étiquettes séparées (espace)	Separate labels (gap)
+Assistant : règle noirceur, vitesse, support, sortie, taille, réseau… et Scanalyse écrit le fichier dans le langage de ton choix	Assistant: set darkness, speed, media, output, size, network… and Scanalyse writes the file in the language of your choice
+Compte-rendu de la dernière conversion : repris, approché, non converti	Report of the last conversion: kept, approximated, not converted
+Configurer	Configure
+Conversion	Conversion
+Convertir	Convert
+Convertir le fichier	Convert the file
+Convertir vers…	Convert to…
+Langage d'arrivée	Target language
+Les réglages communs (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau) sont réécrits ; ce qui est propre à une marque est listé dans le compte-rendu.	Common settings (darkness, speed, media, method, output, size, offsets, network) are rewritten; brand-specific ones are listed in the report.
+Résolution de la tête (pour passer des points aux millimètres)	Printhead resolution (to convert dots to millimeters)
+Réécrit le fichier dans le langage d'une autre marque (ZPL, SGD, TSPL, EPL2, DPL, Fingerprint, SBPL), avec le compte-rendu de ce qui a été repris	Rewrites the file in another brand's language (ZPL, SGD, TSPL, EPL2, DPL, Fingerprint, SBPL), with a report of what was kept

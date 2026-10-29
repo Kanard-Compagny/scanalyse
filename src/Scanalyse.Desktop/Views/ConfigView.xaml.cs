@@ -477,6 +477,14 @@ public partial class ConfigView : UserControl
             return _fileBytes;
         }
 
+        // Notations <ESC>, <STX>, <SOH>, <ETX> (SBPL, DPL écrits à la main ou par la conversion) : vrais caractères de contrôle à l'envoi.
+        text = System.Text.RegularExpressions.Regex.Replace(text, "<(ESC|STX|SOH|ETX)>", m => m.Groups[1].Value.ToUpperInvariant() switch
+        {
+            "ESC" => "\u001B",
+            "STX" => "\u0002",
+            "SOH" => "\u0001",
+            _ => "\u0003",
+        }, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         return new UTF8Encoding(false).GetBytes(fixedNewline ? text + "\r\n" : text);
     }
 
@@ -500,6 +508,7 @@ public partial class ConfigView : UserControl
             _fileText = text;
             _filePath = path;
             _fileEncoding = encoding;
+            ResetConversion();
             CodeBox.Text = text;
             FileInfo.Text = $"{Path.GetFileName(path)} · {bytes.Length} octets · {encoding}";
             Analyze();
@@ -596,6 +605,7 @@ public partial class ConfigView : UserControl
                 _fileBytes = null;
                 _filePath = null;
                 _fileEncoding = "UTF-8";
+                ResetConversion();
                 CodeBox.Text = Clipboard.GetText();
                 FileInfo.Text = Localization.T("Collé depuis le presse-papiers");
                 Analyze();
@@ -611,6 +621,7 @@ public partial class ConfigView : UserControl
         _fileBytes = null;
         _filePath = null;
         _fileEncoding = "UTF-8";
+        ResetConversion();
         CodeBox.Clear();
         FileInfo.Text = string.Empty;
         Analyze();
@@ -735,16 +746,33 @@ public partial class ConfigView : UserControl
 
     private void View_Changed(object sender, RoutedEventArgs e)
     {
-        if (IsLoaded)
+        if (!IsLoaded)
         {
-            Render();
+            return;
         }
+
+        var assistant = ViewAssistant.IsChecked == true;
+        AssistantScroll.Visibility = assistant ? Visibility.Visible : Visibility.Collapsed;
+        ResultScroll.Visibility = assistant ? Visibility.Collapsed : Visibility.Visible;
+        if (assistant)
+        {
+            ShowAssistant();
+            return;
+        }
+
+        Render();
     }
 
     private void Render()
     {
         ResultPanel.Children.Clear();
-        if (_report is not { } r)
+        if (ViewConversion.IsChecked == true)
+        {
+            RenderConversion();
+            return;
+        }
+
+        if (ViewAssistant.IsChecked == true || _report is not { } r)
         {
             return;
         }
