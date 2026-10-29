@@ -2069,3 +2069,6 @@ Régler la douchette	Set up the scanner
 Régler la douchette : codes de configuration	Set up the scanner: configuration codes
 La douchette peut se corriger en scannant un code	The scanner can be fixed by scanning a code
 Clavier AZERTY / QWERTY, suffixe Entrée, préfixes, séparateur GS1… : les codes de configuration se scannent directement à l'écran.	AZERTY / QWERTY keyboard, Enter suffix, prefixes, GS1 separator…: configuration codes can be scanned straight from the screen.
+Codes d'interface USB (Zebra)…	USB interface codes (Zebra)…
+Codes-barres à scanner pour régler la douchette : clavier AZERTY, suffixe Entrée, séparateur GS1, interface USB, réglages par défaut	Barcodes to scan to set up the scanner: AZERTY keyboard, Enter suffix, GS1 separator, USB interface, factory defaults
+Ouvre les codes de configuration : changer l'interface USB (clavier, port COM virtuel, HID POS…) sans chercher le guide du fabricant	Opens the configuration codes: change the USB interface (keyboard, virtual COM port, HID POS…) without looking for the manufacturer's guide
