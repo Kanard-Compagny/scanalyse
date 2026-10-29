@@ -59,7 +59,7 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 
 **Prérequis :** Windows 10 (version 2004 ou plus récente) ou Windows 11, 64 bits, avec Microsoft Edge WebView2 (déjà présent sur les Windows à jour).
 
-**Désinstaller :** *Paramètres → Désinstaller Scanalyse* efface les réglages (et vos données si vous le cochez), puis il ne reste qu'à supprimer le fichier.
+**Désinstaller :** *Paramètres → Désinstaller* efface les réglages (et vos données si vous le cochez), puis il ne reste qu'à supprimer le fichier.
 
 ## Un problème, une idée ?
 

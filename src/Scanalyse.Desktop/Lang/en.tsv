@@ -2041,3 +2041,27 @@ zone de {0} × {1} px · {2} ms	area of {0} × {1} px · {2} ms
 Aperçu SBPL : polices approchées ; taille des modules des codes 2D estimée (le contenu des codes est exact).	SBPL preview: approximate fonts; 2D code module size estimated (the content of the codes is exact).
 Fingerprint : la position « y » se compte depuis le bas de l'étiquette (vue de face) ; polices et ancrages approchés.	Fingerprint: the “y” position is counted from the bottom of the label (front view); approximate fonts and anchors.
 SSCC SBPL (BI) : 17 chiffres attendus (sans la clé), {0} caractère(s) reçu(s). L'imprimante refusera ou imprimera un code faux.	SBPL SSCC (BI): 17 digits expected (without the check digit), {0} character(s) received. The printer will reject it or print a wrong code.
+Général	General
+À propos	About
+Diagnostic	Diagnostics
+APPLICATION	APPLICATION
+TRAVAIL	WORK
+SCANALYSE	SCANALYSE
+Réglages de ce poste, de l'équipe et informations sur Scanalyse.	Settings for this PC and the team, and information about Scanalyse.
+Langue, apparence et ce qui s'affiche au démarrage.	Language, appearance and what shows at startup.
+En-tête et dossier des rapports remis aux clients.	Header and folder of the reports given to customers.
+Enregistrement des analyses dans les dossiers SAV, durée de conservation et emplacement.	Saving analyses to support cases, retention period and location.
+Impression et banc d'essai	Printing and test bench
+Réglages par défaut du banc d'essai et de « Code imprimante ».	Default settings for the test bench and “Printer code”.
+Recherche des nouvelles versions de Scanalyse.	Checking for new versions of Scanalyse.
+Configurer un nouveau poste en un clic.	Set up a new PC in one click.
+Revoir l'accueil ou la visite guidée.	See the welcome screen or the guided tour again.
+Version, licence, crédits et diagnostic.	Version, license, credits and diagnostics.
+Retirer Scanalyse de ce poste.	Remove Scanalyse from this PC.
+En-tête des rapports	Report header
+Dossier des rapports	Reports folder
+Dossier proposé à l'enregistrement d'un rapport	Folder suggested when saving a report
+Dossier de l'historique	History folder
+Dossier des programmes d'étiquettes	Label programs folder
+Langage d'imprimante par défaut	Default printer language
+Versions et emplacements utiles à joindre à une demande d'aide (ticket GitHub, e-mail).	Versions and locations to attach to a help request (GitHub issue, e-mail).

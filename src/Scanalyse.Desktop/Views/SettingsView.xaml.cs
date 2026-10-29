@@ -6,7 +6,7 @@ using System.Windows.Controls;
 
 namespace Scanalyse.Desktop.Views;
 
-/// <summary>Paramètres : thème et informations.</summary>
+/// <summary>Paramètres, par catégories : menu à gauche, une catégorie à la fois à droite.</summary>
 public partial class SettingsView : UserControl
 {
     private bool _syncing;
@@ -28,6 +28,34 @@ public partial class SettingsView : UserControl
             ThemeManager.Changed += SyncTheme;
             SyncTheme();
         };
+    }
+
+    /// <summary>Affiche la catégorie choisie dans le menu de gauche (nom de son panneau dans CommandParameter).</summary>
+    private void SettingsNav_Checked(object sender, RoutedEventArgs e)
+    {
+        if (Sections is null || sender is not RadioButton { CommandParameter: string target })
+        {
+            return;
+        }
+
+        foreach (var section in Sections.Children.OfType<FrameworkElement>())
+        {
+            section.Visibility = section.Name == target ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        SectionScroll.ScrollToTop();
+    }
+
+    /// <summary>Ouvre une catégorie des Paramètres (« SecUpdates », « SecAbout »…).</summary>
+    public void ShowSection(string name)
+    {
+        foreach (var nav in new[] { NavGeneral, NavUpdates, NavHelp, NavReports, NavHistory, NavPrint, NavTeam, NavAbout, NavUninstall })
+        {
+            if (nav.CommandParameter as string == name)
+            {
+                nav.IsChecked = true;
+            }
+        }
     }
 
     private void SyncTheme()
