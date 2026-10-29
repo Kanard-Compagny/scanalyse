@@ -2577,3 +2577,238 @@ action	action
 Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Tape une commande pour voir les propositions (Ctrl + Espace : toute la bibliothèque). Exemple : ! U1 setvar "print.tone" "20"	Paste the configuration file here (Ctrl + V), open it, or drop it on the page. Type a command to see suggestions (Ctrl + Space: whole library). Example: ! U1 setvar "print.tone" "20"
 ↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer	↑ ↓ choose · Enter or Tab insert · Esc close
 {0} proposition(s) · ↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer	{0} suggestion(s) · ↑ ↓ choose · Enter or Tab insert · Esc close
+Action à la mise sous tension et à la fermeture de la tête	Power-up and head-close action
+Ajustement de noirceur	Darkness adjustment
+Alertes ZebraNet	ZebraNet alerts
+Alertes de maintenance	Maintenance alerts
+Alertes de maintenance (tête, ruban)	Maintenance alerts (head, ribbon)
+Annulation d'un téléchargement	Download abort
+Annulation du format en cours de réception	Cancel the format being received
+Antennes Wi-Fi (D diversité, L gauche, R droite)	Wi-Fi antennas (D diversity, L left, R right)
+Appareil principal (P imprimante, M serveur d'impression)	Primary device (P printer, M print server)
+Arrêt de la batterie	Battery shutdown
+Arrêt des alertes ZebraNet	Stop ZebraNet alerts
+Arrêt du programme ZBI	Stop the ZBI program
+Avance d'un nombre de lignes de points	Feed a number of dot rows
+Avance jusqu'au début de l'étiquette suivante	Feed to the start of the next label
+Avertissement de tête froide	Cold head warning
+Bloc de texte	Text block
+Bloc de texte (largeur, lignes, alignement)	Text block (width, lines, alignment)
+Cadre ou trait	Box or line
+Calibrage RFID	RFID calibration
+Cercle	Circle
+Champ en inversion (blanc sur noir)	Reversed field (white on black)
+Change le caractère de commande (^)	Changes the command character (^)
+Change le caractère de contrôle (~)	Changes the control character (~)
+Change le séparateur de paramètres (,)	Changes the parameter delimiter (,)
+Chargement d'une image en fond d'étiquette	Image load as label background
+Chiffrement WEP (Wi-Fi)	WEP encryption (Wi-Fi)
+Choix du capteur	Sensor selection
+Commande ZPL inconnue	Unknown ZPL command
+Configuration (enregistrer, recharger, usine)	Configuration (save, reload, factory)
+Connexion réseau (imprimantes en réseau RS-485)	Network connect (RS-485 networked printers)
+Conservation de l'image entre deux étiquettes	Image kept between labels
+Copie d'un fichier	File copy
+Courbe du capteur (impression)	Sensor profile (print)
+Demande d'identification de l'imprimante	Printer identification request
+Demande d'informations (numéro de série, alertes…)	Information request (serial number, alerts…)
+Demande d'état de l'imprimante	Printer status request
+Demande d'état de la batterie	Battery status request
+Demande de diagnostic de la tête	Head diagnostic request
+Demande de la mémoire disponible	Free memory request
+Diagnostic de communication activé	Communication diagnostics on
+Diagnostic de communication désactivé	Communication diagnostics off
+Données de champ variable	Variable field data
+Données du champ	Field data
+Données en hexadécimal (_xx)	Hexadecimal data (_xx)
+Débit et puissance d'émission Wi-Fi	Wi-Fi transmit rate and power
+Début d'impression avant la fin du format	Start printing before the end of the format
+Décalage de l'horloge	Clock offset
+Délai d'authentification de la page web	Web page authentication timeout
+Démarrage d'un programme ZBI	Start a ZBI program
+Détection d'étiquettes RFID multiples	Multiple RFID tag detection
+Effacement des images téléchargées	Erase downloaded graphics
+Ellipse	Ellipse
+Encodage AFI (RFID)	AFI encoding (RFID)
+Enregistrement d'un format	Format storage
+Enregistrement de l'étiquette comme image	Save label as image
+Fin de champ	Field end
+Format de la date et de l'heure à l'écran	Display date and time format
+Formatage d'une mémoire Flash	Flash memory format
+Fréquence du test de la tête	Head test interval
+Gestion de la batterie faible	Low battery handling
+Gestion des erreurs RFID	RFID error handling
+Identifiant client DHCP (option 61)	DHCP client identifier (option 61)
+Identifiant de police	Font identifier
+Image incluse dans le format	Graphic field in the format
+Impression de l'étiquette de configuration réseau	Network configuration label print
+Impression de la liste des fichiers	File directory label print
+Impression en miroir	Mirror image print
+Imprimante connectée en mode transparent	Connected printer in transparent mode
+Incrément de champ (numérotation)	Field increment (serialization)
+Indicateur d'horloge (date et heure dans le texte)	Clock indicator (date and time in text)
+Largeur des barres par défaut des codes-barres	Default barcode bar width
+Lecture d'une étiquette RFID	RFID tag read
+Lecture de l'identifiant RFID	RFID ID read
+Lecture du numéro AFI (RFID)	AFI read (RFID)
+Lecture ou écriture d'une étiquette RFID	RFID tag read or write
+Lecture rapide RFID	RFID quick read
+Lettres des mémoires (R:, E:, B:, A:)	Memory letters (R:, E:, B:, A:)
+Liaison de polices	Font linking
+Liste des liaisons de polices	Font link list
+Longueur de présentation (kiosque)	Present length (kiosk)
+Longueur maximale d'étiquette	Maximum label length
+Massicot et applicateur (coupe ou non)	Cutter and applicator (cut or not)
+Message de maintenance	Maintenance message
+Mise en veille de l'imprimante	Printer sleep
+Mode ZPL (1 ou 2)	ZPL mode (1 or 2)
+Mode et langue de l'horloge	Clock mode and language
+Mot de passe RFID	RFID password
+Mot de passe des réglages Wi-Fi	Wi-Fi settings password
+Mémoire cache des polices	Font cache
+Nombre de tentatives RFID	RFID retries
+Numéro d'identification réseau	Network ID number
+Numéro de champ variable	Variable field number
+Numérotation automatique	Automatic serialization
+Orientation de l'impression	Print orientation
+Orientation par défaut des champs	Default field orientation
+Origine de champs multiples	Multiple field origin
+Pas de recul après cette étiquette	No backfeed after this label
+Pause et annulation du format	Pause and cancel format
+Pause programmée	Programmable pause
+Placement d'une image enregistrée	Stored image placement
+Police du champ	Field font
+Police par défaut	Default font
+Police téléchargée (nom de fichier)	Downloaded font (file name)
+Port auxiliaire (applicateur)	Auxiliary port (applicator)
+Port série	Serial port
+Position du champ (ligne de base)	Field position (baseline)
+Position du champ (x, y)	Field position (x, y)
+Présentation immédiate (kiosque)	Present now (kiosk)
+Puissance de lecture et d'écriture RFID	RFID read and write power
+Quantité à imprimer	Print quantity
+Rappel d'un format enregistré	Recall a stored format
+Rappel d'une image enregistrée	Recall a stored image
+Rapport d'encodage RFID	RFID encoding report
+Recherche du serveur d'impression filaire au démarrage	Search for the wired print server at boot
+Recul de l'étiquette (avant ou après impression)	Label backfeed (before or after printing)
+Remise à zéro des compteurs	Counter reset
+Renvoi d'informations (XML)	Information return (XML)
+Renvoi d'un format enregistré	Stored format return
+Renvoi d'une image	Image return
+Renvoi de données de champ	Field data return
+Renvoi de l'étiquette de configuration	Configuration label return
+Renvoi des alertes configurées	Configured alerts return
+Renvoi des liaisons de polices	Font links return
+Renvoi du contenu d'une mémoire	Memory directory return
+Reprise de l'impression après une pause	Resume printing after a pause
+Retrait de l'étiquette (mode kiosque)	Label retract (kiosk mode)
+Réglage de la date et de l'heure	Date and time setting
+Réglage manuel des capteurs	Manual sensor setting
+Réglages IP du Wi-Fi	Wi-Fi IP settings
+Réglages Kerberos (Wi-Fi)	Kerberos settings (Wi-Fi)
+Réglages LEAP (Wi-Fi)	LEAP settings (Wi-Fi)
+Réglages RFID	RFID settings
+Réglages SMTP (serveur de messagerie)	SMTP settings (mail server)
+Réglages SNMP (nom, contact, emplacement, communautés)	SNMP settings (name, contact, location, communities)
+Réglages avancés du texte	Advanced text settings
+Réglages du mode kiosque	Kiosk mode settings
+Réglages du réseau filaire	Wired network settings
+Réglages réseau d'une interface (Wi-Fi ou externe)	Network settings of an interface (Wi-Fi or external)
+Réimpression (applicateur)	Reprint (applicator)
+Réinitialisation de la batterie optionnelle	Optional battery reset
+Réseau Wi-Fi (SSID, mode, préambule)	Wi-Fi network (SSID, mode, preamble)
+Réseau principal (1 filaire, 2 Wi-Fi, 3 serveur externe)	Primary network (1 wired, 2 Wi-Fi, 3 external server)
+Résistance de la tête	Head resistance
+Résolution (points par millimètre)	Resolution (dots per millimeter)
+Sens d'écriture du champ	Field direction
+Sensibilité du capteur	Sensor intensity
+Structure des données RFID	RFID data layout
+Suppression d'un fichier	File delete
+Surveillance électronique d'article (RFID)	Electronic article surveillance (RFID)
+Symbole (®, ©, ™…)	Symbol (®, ©, ™…)
+Sécurité Wi-Fi (WPA, EAP, WEP…)	Wi-Fi security (WPA, EAP, WEP…)
+Table d'encodage	Encoding table
+Tension du ruban	Ribbon tension
+Test de la tête : erreur bloquante	Head test: fatal error
+Test de la tête : erreur non bloquante	Head test: non-fatal error
+Toutes les imprimantes du réseau en mode transparent	All network printers in transparent mode
+Trait en diagonale	Diagonal line
+Téléchargement d'un fichier (police, image, firmware…)	File download (font, image, firmware…)
+Téléchargement d'une image	Image download
+Téléchargement d'une police TrueType	TrueType font download
+Téléchargement d'une police TrueType (grande taille)	TrueType font download (large)
+Téléchargement d'une police bitmap	Bitmap font download
+Téléchargement d'une police vectorielle	Scalable font download
+Téléchargement d'une table d'encodage	Encoding table download
+Unité de mesure (points, pouces, millimètres)	Unit of measure (dots, inches, millimeters)
+Validation des codes-barres (refuse les données invalides)	Barcode validation (rejects invalid data)
+Verrouillage d'une étiquette RFID	RFID tag lock
+Verrouillage des réglages du panneau	Panel settings lock
+Vérification de l'encodage RFID	RFID encoding verification
+Écriture d'une étiquette RFID	RFID tag write
+Étiquette entière en inversion	Whole label reversed
+{0}{1} : commande ZPL inconnue, l'imprimante l'ignore sans message d'erreur.	{0}{1}: unknown ZPL command, the printer ignores it without any error message.
+{0}{1} : commande ZPL inconnue, l'imprimante l'ignore sans message d'erreur. Vouliez-vous écrire {2} ?	{0}{1}: unknown ZPL command, the printer ignores it without any error message. Did you mean {2}?
+{0}{1} n'existe pas : cette commande s'écrit {2}{3}. L'imprimante l'ignore sans message d'erreur.	{0}{1} does not exist: this command is written {2}{3}. The printer ignores it without any error message.
+Adresse IP (filaire interne)	IP address (internal wired)
+Adresse MAC Wi-Fi	Wi-Fi MAC address
+Adresse automatique Wi-Fi (DHCP)	Wi-Fi automatic address (DHCP)
+Appareil principal : {0}	Primary device: {0}
+Appui sur une touche du panneau	Panel key press
+Attribution de l'adresse IP (filaire interne)	IP address assignment (internal wired)
+Bande Wi-Fi préférée	Preferred Wi-Fi band
+Bandes Wi-Fi autorisées (2,4 GHz, 5 GHz ou toutes)	Allowed Wi-Fi bands (2.4 GHz, 5 GHz or all)
+Canal Wi-Fi utilisé	Wi-Fi channel in use
+Canaux Wi-Fi autorisés (masque)	Allowed Wi-Fi channels (mask)
+Capture de flux (port)	Stream capture (port)
+Chiffrement WEP (Wi-Fi) : {0}	WEP encryption (Wi-Fi): {0}
+Chiffrement Wi-Fi	Wi-Fi encryption
+Clé WEP écrite en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.	WEP key written in plain text in this file: do not share it, and delete it after use.
+Clé ou mot de passe Wi-Fi écrit en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.	Wi-Fi key or password written in plain text in this file: do not share it, and delete it after use.
+Coupe immédiate	Cut now
+Force du signal Wi-Fi	Wi-Fi signal strength
+Identifiant client DHCP (type)	DHCP client identifier (type)
+Identifiant client DHCP (valeur)	DHCP client identifier (value)
+Lecteur de piste magnétique	Magnetic stripe reader
+Liste des fichiers	File list
+Longueur d'avance	Feed length
+Masque de sous-réseau (filaire interne)	Subnet mask (internal wired)
+Mise à jour par clé USB (miroir)	USB stick update (mirror)
+Mode de réglage de la noirceur	Darkness setting mode
+Mode international du Wi-Fi (pays donné par la borne)	Wi-Fi international mode (country from the access point)
+Passerelle (filaire interne)	Gateway (internal wired)
+Pays du Wi-Fi (canaux autorisés)	Wi-Fi country (allowed channels)
+Redémarrage de la carte Wi-Fi et du serveur d'impression	Wi-Fi card and print server restart
+Réseau principal : {0}	Primary network: {0}
+Sécurité WEP : ancienne et refusée par la plupart des bornes Wi-Fi actuelles ; préfère WPA.	WEP security: outdated and refused by most current access points; prefer WPA.
+Sécurité Wi-Fi : {0}	Wi-Fi security: {0}
+Wi-Fi : réseau « {0} »	Wi-Fi: network “{0}”
+Wi-Fi : réseau « {0} », mode {1}	Wi-Fi: network “{0}”, mode {1}
+Wi-Fi connecté à la borne	Wi-Fi associated with the access point
+Wi-Fi : attribution {0}	Wi-Fi: assignment {0}
+Wi-Fi : attribution {0}, IP {1}	Wi-Fi: assignment {0}, IP {1}
+Wi-Fi : attribution {0}, IP {1}, masque {2}	Wi-Fi: assignment {0}, IP {1}, mask {2}
+Wi-Fi : attribution {0}, IP {1}, masque {2}, passerelle {3}	Wi-Fi: assignment {0}, IP {1}, mask {2}, gateway {3}
+ad hoc	ad hoc
+infrastructure	infrastructure
+serveur d'impression	print server
+serveur d'impression externe	external print server
+filaire	wired
+imprimante	printer
+aucune	none
+désactivé	off
+{0} : attribution « {1} » inconnue (A automatique, B BOOTP, C DHCP et BOOTP, D DHCP, G glanage, R RARP, P adresse fixe).	{0}: unknown assignment “{1}” (A automatic, B BOOTP, C DHCP and BOOTP, D DHCP, G gleaning, R RARP, P fixed address).
+^NC{0} : 1 (filaire), 2 (Wi-Fi) ou 3 (serveur externe) attendu.	^NC{0}: 1 (wired), 2 (Wi-Fi) or 3 (external server) expected.
+^NP{0} : P (imprimante) ou M (serveur d'impression) attendu.	^NP{0}: P (printer) or M (print server) expected.
+^WS : nom de réseau (SSID) de {0} caractères, 32 au plus.	^WS: network name (SSID) of {0} characters, 32 at most.
+^WS : mode « {0} » inconnu (I infrastructure, A ad hoc).	^WS: unknown mode “{0}” (I infrastructure, A ad hoc).
+^WX{0} : type de sécurité inconnu (01 aucune, 02-03 WEP, 04-08 EAP / PEAP / LEAP, 09 WPA PSK, 10-14 WPA entreprise, 15 Kerberos).	^WX{0}: unknown security type (01 none, 02-03 WEP, 04-08 EAP / PEAP / LEAP, 09 WPA PSK, 10-14 WPA enterprise, 15 Kerberos).
+« {0} » : réglage inconnu de Scanalyse. S'il n'existe pas sur l'imprimante, elle l'ignore sans message d'erreur : vérifie son nom en lisant l'imprimante (bouton « Lire l'imprimante »).	“{0}”: setting unknown to Scanalyse. If it does not exist on the printer, it is ignored without any error message: check its name by reading the printer (“Read printer” button).
+Enregistre le fichier, avec tes modifications, sous le nom de ton choix (Ctrl + S)	Saves the file, with your changes, under the name of your choice (Ctrl + S)
+Enregistrer sous…	Save as…
+Configuration enregistrée : {0}.	Configuration saved: {0}.
+Enregistrer le fichier de configuration	Save the configuration file
+Fichier texte (*.txt)|*.txt|ZPL (*.zpl)|*.zpl|Fichier d'impression (*.prn)|*.prn|Tous les fichiers|*.*	Text file (*.txt)|*.txt|ZPL (*.zpl)|*.zpl|Print file (*.prn)|*.prn|All files|*.*
+Rien à enregistrer : le fichier est vide.	Nothing to save: the file is empty.
+Enregistrement impossible : {0}	Cannot save: {0}

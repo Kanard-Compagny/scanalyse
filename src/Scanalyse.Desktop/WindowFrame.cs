@@ -63,6 +63,10 @@ internal static class WindowFrame
             }
 
             ApplyBorderColor(window);
+            if (window.ShowInTaskbar)
+            {
+                SetTaskbarIcon(hwnd);
+            }
         };
         window.StateChanged += (_, _) => ApplyWpfBorder(window);
         window.Loaded += (_, _) => ApplyWpfBorder(window);
@@ -104,6 +108,42 @@ internal static class WindowFrame
         root.SetResourceReference(Border.BorderBrushProperty, "ScrollThumb");
         root.BorderThickness = new Thickness(1);
     }
+
+    /// <summary>
+    /// Icône de la barre des tâches tirée de Scanalyse.exe lui-même (grande et petite tailles) : la barre des tâches ne reste
+    /// jamais sans logo, même quand l'icône de la fenêtre (ressource WPF) n'est pas reprise par Windows.
+    /// </summary>
+    private static void SetTaskbarIcon(IntPtr hwnd)
+    {
+        var exe = Environment.ProcessPath;
+        if (exe is null)
+        {
+            return;
+        }
+
+        if (ExtractIconEx(exe, 0, out var large, out var small, 1) > 0)
+        {
+            if (large != IntPtr.Zero)
+            {
+                SendMessage(hwnd, WmSetIcon, IconBig, large);
+            }
+
+            if (small != IntPtr.Zero)
+            {
+                SendMessage(hwnd, WmSetIcon, IconSmall, small);
+            }
+        }
+    }
+
+    private const int WmSetIcon = 0x0080;
+    private static readonly IntPtr IconSmall = IntPtr.Zero;
+    private static readonly IntPtr IconBig = new(1);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    private static extern uint ExtractIconEx(string file, int index, out IntPtr large, out IntPtr small, uint count);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr hwnd, int message, IntPtr wParam, IntPtr lParam);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct Margins

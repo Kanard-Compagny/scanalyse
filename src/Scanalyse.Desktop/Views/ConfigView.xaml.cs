@@ -343,6 +343,8 @@ public partial class ConfigView : UserControl
             text = text.TrimStart('﻿').Replace("\0", string.Empty, StringComparison.Ordinal);
             _fileBytes = bytes;
             _fileText = text;
+            _filePath = path;
+            _fileEncoding = encoding;
             CodeBox.Text = text;
             FileInfo.Text = $"{Path.GetFileName(path)} · {bytes.Length} octets · {encoding}";
             Analyze();
@@ -351,6 +353,69 @@ public partial class ConfigView : UserControl
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             Log?.Invoke(LogKind.Error, "Lecture du fichier impossible : " + ex.Message);
+        }
+    }
+
+    private string? _filePath;
+    private string _fileEncoding = "UTF-8";
+
+    /// <summary>Enregistre le fichier (modifié ou non) sous un nouveau nom ; même encodage que l'original quand c'est possible.</summary>
+    private void SaveAs_Click(object sender, RoutedEventArgs e) => SaveAs();
+
+    private void SaveAs()
+    {
+        if (CodeBox.Text.Trim().Length == 0)
+        {
+            Log?.Invoke(LogKind.Warning, "Rien à enregistrer : le fichier est vide.");
+            return;
+        }
+
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = Localization.T("Enregistrer le fichier de configuration"),
+            Filter = Localization.T("Fichier texte (*.txt)|*.txt|ZPL (*.zpl)|*.zpl|Fichier d'impression (*.prn)|*.prn|Tous les fichiers|*.*"),
+            FileName = _filePath is null ? "configuration.txt" : Path.GetFileName(_filePath),
+            InitialDirectory = _filePath is null ? string.Empty : Path.GetDirectoryName(_filePath) ?? string.Empty,
+            AddExtension = true,
+            OverwritePrompt = true,
+        };
+        var ext = _filePath is null ? ".txt" : Path.GetExtension(_filePath).ToLowerInvariant();
+        dialog.FilterIndex = ext switch { ".zpl" => 2, ".prn" => 3, ".txt" => 1, _ => 4 };
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            var text = CodeBox.Text;
+            byte[] bytes;
+            if (_fileBytes is not null && text == _fileText)
+            {
+                bytes = _fileBytes;
+            }
+            else
+            {
+                Encoding encoding = _fileEncoding switch
+                {
+                    "UTF-16 (Unicode)" => new UnicodeEncoding(false, true),
+                    "UTF-16 big-endian" => new UnicodeEncoding(true, true),
+                    "Windows-1252 / Latin-1" when text.All(c => c <= 0xFF) => Encoding.Latin1,
+                    _ => new UTF8Encoding(false),
+                };
+                bytes = [.. encoding.GetPreamble(), .. encoding.GetBytes(text)];
+            }
+
+            File.WriteAllBytes(dialog.FileName, bytes);
+            _filePath = dialog.FileName;
+            _fileBytes = bytes;
+            _fileText = text;
+            FileInfo.Text = $"{Path.GetFileName(dialog.FileName)} · {bytes.Length} octets · {_fileEncoding}";
+            Log?.Invoke(LogKind.Ok, $"Configuration enregistrée : {dialog.FileName}.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log?.Invoke(LogKind.Error, "Enregistrement impossible : " + ex.Message);
         }
     }
 
@@ -374,6 +439,8 @@ public partial class ConfigView : UserControl
             if (Clipboard.ContainsText())
             {
                 _fileBytes = null;
+                _filePath = null;
+                _fileEncoding = "UTF-8";
                 CodeBox.Text = Clipboard.GetText();
                 FileInfo.Text = Localization.T("Collé depuis le presse-papiers");
                 Analyze();
@@ -387,6 +454,8 @@ public partial class ConfigView : UserControl
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
         _fileBytes = null;
+        _filePath = null;
+        _fileEncoding = "UTF-8";
         CodeBox.Clear();
         FileInfo.Text = string.Empty;
         Analyze();
@@ -413,7 +482,10 @@ public partial class ConfigView : UserControl
     private void CodeBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         CodeHint.Visibility = CodeBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-        if (_typed)
+        // Saisie au clavier (un ou deux caractères ajoutés, ou effacés) : propositions ; collage ou ouverture : aucune.
+        var typing = _typed || (e.Changes.Count == 1 && e.Changes.First() is { } c
+            && ((c.AddedLength is > 0 and <= 2 && c.RemovedLength <= 2) || (c.AddedLength == 0 && c.RemovedLength is > 0 and <= 2 && SuggestPopup.IsOpen)));
+        if (typing && CodeBox.IsKeyboardFocusWithin)
         {
             _typed = false;
             UpdateSuggestions();
@@ -661,6 +733,14 @@ public partial class ConfigView : UserControl
 
     private void CodeBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            SuggestPopup.IsOpen = false;
+            SaveAs();
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.Control)
         {
             UpdateSuggestions(force: true);

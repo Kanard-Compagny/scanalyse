@@ -126,6 +126,35 @@ public static partial class PrinterConfig
         ["wlan.ip.netmask"] = new("Masque de sous-réseau (Wi-Fi)", "Réseau", Kind.Ip),
         ["wlan.ip.gateway"] = new("Passerelle (Wi-Fi)", "Réseau", Kind.Ip),
         ["wlan.ip.protocol"] = new("Attribution de l'adresse IP (Wi-Fi)", "Réseau", Kind.Choice, Choices: ["all", "bootp", "dhcp", "dhcp and bootp", "gleaning only", "rarp", "permanent"]),
+        ["wlan.country_code"] = new("Pays du Wi-Fi (canaux autorisés)", "Réseau", Kind.Text),
+        ["wlan.international_mode"] = new("Mode international du Wi-Fi (pays donné par la borne)", "Réseau", Kind.OnOff),
+        ["wlan.allowed_band"] = new("Bandes Wi-Fi autorisées (2,4 GHz, 5 GHz ou toutes)", "Réseau", Kind.Text),
+        ["wlan.band_preference"] = new("Bande Wi-Fi préférée", "Réseau", Kind.Text),
+        ["wlan.channel_mask"] = new("Canaux Wi-Fi autorisés (masque)", "Réseau", Kind.Text),
+        ["wlan.encryption_mode"] = new("Chiffrement Wi-Fi", "Réseau", Kind.Text),
+        ["wlan.wpa.enable"] = new("WPA (Wi-Fi)", "Réseau", Kind.OnOff),
+        ["wlan.ip.dhcp.enable"] = new("Adresse automatique Wi-Fi (DHCP)", "Réseau", Kind.OnOff),
+        ["wlan.active_channel"] = new("Canal Wi-Fi utilisé", "Réseau", Kind.ReadOnly),
+        ["wlan.signal_strength"] = new("Force du signal Wi-Fi", "Réseau", Kind.ReadOnly),
+        ["wlan.associated"] = new("Wi-Fi connecté à la borne", "Réseau", Kind.ReadOnly),
+        ["wlan.mac_addr"] = new("Adresse MAC Wi-Fi", "Réseau", Kind.ReadOnly),
+        ["ip.dhcp.cid_type"] = new("Identifiant client DHCP (type)", "Réseau", Kind.Text),
+        ["ip.dhcp.cid_value"] = new("Identifiant client DHCP (valeur)", "Réseau", Kind.Text),
+        ["internal_wired.ip.addr"] = new("Adresse IP (filaire interne)", "Réseau", Kind.Ip),
+        ["internal_wired.ip.netmask"] = new("Masque de sous-réseau (filaire interne)", "Réseau", Kind.Ip),
+        ["internal_wired.ip.gateway"] = new("Passerelle (filaire interne)", "Réseau", Kind.Ip),
+        ["internal_wired.ip.protocol"] = new("Attribution de l'adresse IP (filaire interne)", "Réseau", Kind.Choice, Choices: ["all", "bootp", "dhcp", "dhcp and bootp", "gleaning only", "rarp", "permanent"]),
+        ["media.darkness_mode"] = new("Mode de réglage de la noirceur", "Impression", Kind.Text),
+        ["print.width"] = new("Largeur d'impression (points)", "Support", Kind.Integer, 2, 5000),
+        ["media.cut_now"] = new("Coupe immédiate", "Impression", Kind.Do),
+        ["media.feed_length"] = new("Longueur d'avance", "Support", Kind.Text),
+        ["sensor.select"] = new("Capteur de support", "Support", Kind.Text),
+        ["device.frontpanel.key_press"] = new("Appui sur une touche du panneau", "Système", Kind.Do),
+        ["device.feature.mcr"] = new("Lecteur de piste magnétique", "Système", Kind.ReadOnly),
+        ["usb.mirror.enable"] = new("Mise à jour par clé USB (miroir)", "Système", Kind.OnOff),
+        ["capture.channel1.port"] = new("Capture de flux (port)", "Communication", Kind.Text),
+        ["ezpl.reprint_mode"] = new("Réimpression après une erreur", "Impression", Kind.OnOff),
+        ["file.dir"] = new("Liste des fichiers", "Lecture", Kind.Do),
         ["bluetooth.enable"] = new("Bluetooth", "Communication", Kind.OnOff),
         ["bluetooth.discoverable"] = new("Bluetooth visible", "Communication", Kind.OnOff),
         ["bluetooth.friendly_name"] = new("Nom Bluetooth", "Communication", Kind.Text),
@@ -405,6 +434,11 @@ public static partial class PrinterConfig
                         + (value is "ip" or "wlan" or "all" ? ", y compris l'adresse réseau : l'imprimante peut devenir injoignable." : "."));
                 }
 
+                if (def is null)
+                {
+                    CheckSgdValue(name, value ?? string.Empty, null, n, ctx);
+                }
+
                 if (value is null)
                 {
                     ctx.Find(n, Severity.Error, $"« do \"{name}\" » sans valeur : écris ! U1 do \"{name}\" \"\" (valeur vide entre guillemets).");
@@ -436,8 +470,8 @@ public static partial class PrinterConfig
         if (def is null)
         {
             var near = SgdTable.Keys.Select(k => (k, d: Distance(k, name))).Where(x => x.d is > 0 and <= 2).OrderBy(x => x.d).Select(x => x.k).FirstOrDefault();
-            ctx.Find(n, near is null ? Severity.Info : Severity.Warning, near is null
-                ? $"« {name} » : réglage non répertorié par Scanalyse ; vérifie son nom et sa valeur en lisant l'imprimante (bouton « Lire l'imprimante »)."
+            ctx.Find(n, Severity.Warning, near is null
+                ? $"« {name} » : réglage inconnu de Scanalyse. S'il n'existe pas sur l'imprimante, elle l'ignore sans message d'erreur : vérifie son nom en lisant l'imprimante (bouton « Lire l'imprimante »)."
                 : $"« {name} » n'existe pas : vouliez-vous écrire « {near} » ? Un nom inconnu est ignoré par l'imprimante, sans message d'erreur.");
             return;
         }
@@ -771,11 +805,11 @@ public static partial class PrinterConfig
 
                     ctx.Find(n, Severity.Info, "Change le mot de passe du panneau : note-le, sinon les réglages ne seront plus modifiables sur place.");
                     break;
-                case ('^', "NS") or ('^', "ND"):
+                case ('^', "NS") or ('^', "ND") or ('^', "WI"):
                 {
                     ctx.Risky = true;
-                    var (mode, ip, mask, gw) = code == "NS" ? (A(0), A(1), A(2), A(3)) : (A(1), A(2), A(3), A(4));
-                    ctx.Item(n, "ZPL", raw, $"Réseau : attribution {Resolution(mode)}" + (ip.Length > 0 ? $", IP {ip}" : string.Empty) + (mask.Length > 0 ? $", masque {mask}" : string.Empty)
+                    var (mode, ip, mask, gw) = code == "ND" ? (A(1), A(2), A(3), A(4)) : (A(0), A(1), A(2), A(3));
+                    ctx.Item(n, "ZPL", raw, (code == "NS" ? "Réseau" : "Wi-Fi") + $" : attribution {Resolution(mode)}" + (ip.Length > 0 ? $", IP {ip}" : string.Empty) + (mask.Length > 0 ? $", masque {mask}" : string.Empty)
                         + (gw.Length > 0 ? $", passerelle {gw}" : string.Empty), "Réseau");
                     foreach (var (label, value) in new[] { ("adresse IP", ip), ("masque", mask), ("passerelle", gw) })
                     {
@@ -792,11 +826,114 @@ public static partial class PrinterConfig
 
                     if (ip.Length > 0)
                     {
-                        ctx.Set("ip.addr", "Adresse IP (filaire)", ip, n, comparable: true);
+                        if (code == "NS")
+                        {
+                            ctx.Set("ip.addr", "Adresse IP (filaire)", ip, n, comparable: true);
+                        }
+                        else
+                        {
+                            ctx.Set("wlan.ip.addr", "Adresse IP (Wi-Fi)", ip, n, comparable: true);
+                        }
+                    }
+
+                    if (mode.Length > 0 && Resolution(mode) == mode)
+                    {
+                        ctx.Find(n, Severity.Error, $"{raw[..3]} : attribution « {mode} » inconnue (A automatique, B BOOTP, C DHCP et BOOTP, D DHCP, G glanage, R RARP, P adresse fixe).");
                     }
 
                     break;
                 }
+
+                case ('^', "NC"):
+                    ctx.Item(n, "ZPL", raw, "Réseau principal : " + A(0) switch { "1" => "filaire", "2" => "Wi-Fi", "3" => "serveur d'impression externe", _ => A(0) }, "Réseau");
+                    if (A(0) is not ("1" or "2" or "3"))
+                    {
+                        ctx.Find(n, Severity.Error, $"^NC{A(0)} : 1 (filaire), 2 (Wi-Fi) ou 3 (serveur externe) attendu.");
+                    }
+
+                    ctx.Risky = true;
+                    break;
+                case ('^', "NP"):
+                    ctx.Item(n, "ZPL", raw, "Appareil principal : " + A(0).ToUpperInvariant() switch { "P" => "imprimante", "M" => "serveur d'impression", _ => A(0) }, "Réseau");
+                    if (!A(0).Equals("P", StringComparison.OrdinalIgnoreCase) && !A(0).Equals("M", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ctx.Find(n, Severity.Error, $"^NP{A(0)} : P (imprimante) ou M (serveur d'impression) attendu.");
+                    }
+
+                    break;
+                case ('^', "WS"):
+                    ctx.Item(n, "ZPL", raw, $"Wi-Fi : réseau « {A(0)} »" + (A(1).Length > 0 ? ", mode " + (A(1).Equals("I", StringComparison.OrdinalIgnoreCase) ? "infrastructure" : A(1).Equals("A", StringComparison.OrdinalIgnoreCase) ? "ad hoc" : A(1)) : string.Empty), "Réseau");
+                    if (A(0).Length > 0)
+                    {
+                        ctx.Set("wlan.essid", "Nom du réseau Wi-Fi (SSID)", A(0), n, comparable: true);
+                    }
+
+                    if (A(0).Length > 32)
+                    {
+                        ctx.Find(n, Severity.Error, $"^WS : nom de réseau (SSID) de {A(0).Length} caractères, 32 au plus.");
+                    }
+
+                    if (A(1).Length > 0 && !A(1).Equals("I", StringComparison.OrdinalIgnoreCase) && !A(1).Equals("A", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ctx.Find(n, Severity.Error, $"^WS : mode « {A(1)} » inconnu (I infrastructure, A ad hoc).");
+                    }
+
+                    ctx.Risky = true;
+                    break;
+                case ('^', "WX"):
+                {
+                    var type = A(0) switch
+                    {
+                        "01" => "aucune",
+                        "02" => "WEP 40 bits",
+                        "03" => "WEP 128 bits",
+                        "04" => "EAP-TLS",
+                        "05" => "EAP-TTLS",
+                        "06" => "EAP-FAST",
+                        "07" => "PEAP",
+                        "08" => "LEAP",
+                        "09" => "WPA PSK",
+                        "10" => "WPA EAP-TLS",
+                        "11" => "WPA EAP-TTLS",
+                        "12" => "WPA EAP-FAST",
+                        "13" => "WPA PEAP",
+                        "14" => "WPA LEAP",
+                        "15" => "Kerberos",
+                        _ => string.Empty,
+                    };
+                    ctx.Item(n, "ZPL", raw, "Sécurité Wi-Fi : " + (type.Length > 0 ? type : A(0)), "Réseau");
+                    if (type.Length == 0)
+                    {
+                        ctx.Find(n, Severity.Error, $"^WX{A(0)} : type de sécurité inconnu (01 aucune, 02-03 WEP, 04-08 EAP / PEAP / LEAP, 09 WPA PSK, 10-14 WPA entreprise, 15 Kerberos).");
+                    }
+                    else if (A(0) is "02" or "03")
+                    {
+                        ctx.Find(n, Severity.Info, "Sécurité WEP : ancienne et refusée par la plupart des bornes Wi-Fi actuelles ; préfère WPA.");
+                    }
+
+                    if (a.Skip(1).Any(v => v.Trim().Length >= 8))
+                    {
+                        ctx.Find(n, Severity.Warning, "Clé ou mot de passe Wi-Fi écrit en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.");
+                    }
+
+                    ctx.Risky = true;
+                    break;
+                }
+
+                case ('^', "WE"):
+                    ctx.Item(n, "ZPL", raw, "Chiffrement WEP (Wi-Fi) : " + (A(0).Equals("OFF", StringComparison.OrdinalIgnoreCase) ? "désactivé" : A(0) + " bits"), "Réseau");
+                    if (a.Skip(4).Any(v => v.Trim().Length > 0))
+                    {
+                        ctx.Find(n, Severity.Warning, "Clé WEP écrite en clair dans ce fichier : ne le diffuse pas, et supprime-le après usage.");
+                    }
+
+                    ctx.Risky = true;
+                    break;
+                case ('~', "WR"):
+                    ctx.Item(n, "ZPL", raw, "Redémarrage de la carte Wi-Fi et du serveur d'impression", "Réseau");
+                    ctx.Risky = true;
+                    ctx.ResetLine = ctx.ResetLine == 0 ? n : ctx.ResetLine;
+                    break;
 
                 case ('^', "SC"):
                     ctx.Item(n, "ZPL", raw, $"Port série : {A(0)} bauds, {A(1)} bits, parité {A(2)}, {A(3)} bit(s) d'arrêt", "Communication");
@@ -826,9 +963,19 @@ public static partial class PrinterConfig
                     break;
                 default:
                 {
-                    // Champs d'étiquette (^FO, ^FD, ^A, ^B…, ^G…) : contenu, pas réglage.
-                    var layout = prefix == '^' && (code[0] is 'A' or 'B' or 'G' || code is "FO" or "FT" or "FD" or "FS" or "FB" or "FV" or "FN" or "FH" or "FR" or "FW" or "CF" or "BY" or "DF" or "XF" or "PQ" or "CW");
-                    ctx.Item(n, "ZPL", raw, layout ? "Mise en page d'étiquette" : $"Commande ZPL {prefix}{code}", layout ? "Étiquette" : "Système");
+                    if (ZplKnown(prefix, code, out var meaning, out var category))
+                    {
+                        ctx.Item(n, "ZPL", raw, meaning, category);
+                        if (category == "Réseau")
+                        {
+                            ctx.Risky = true;
+                        }
+                    }
+                    else
+                    {
+                        ZplUnknown(ctx, n, prefix, code, raw);
+                    }
+
                     break;
                 }
             }

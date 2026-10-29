@@ -198,4 +198,26 @@ public class PrinterConfigTests
         Assert.Empty(PrinterConfig.Suggest("").Items);
         Assert.NotEmpty(PrinterConfig.Suggest("", force: true).Items);
     }
+
+    [Fact]
+    public void Zpl_wifi_commandes_reseau_et_commandes_inconnues()
+    {
+        const string file = "^XA\r\n^WIP,10.178.188.2,255.255.255.0,10.178.188.254\r\n^NC2\r\n^NPP\r\n^KC0,0,,\r\n^NNEXTSTPTS21\r\n^WAD,D\r\n"
+            + "^WSRE_LOG01,I,L,,,\r\n^NBS\r\n^WLOFF,,\r\n^WKOFF,,,,\r\n^WX09,motdepassewifi\r\n^XZ\r\n^XA\r\n^JUS\r\n^XZ\r\n"
+            + "^XA^TD^XZ\r\n^XA^NC5^WIQ,10.0.0.1^MX^XZ\r\n~XA\r\n";
+        var r = PrinterConfig.Analyze(file);
+        Assert.DoesNotContain(r.Findings, f => f.Line <= 16 && f.Severity == Severity.Error);
+        Assert.Equal("RE_LOG01", r.Settings.Single(s => s.Key == "wlan.essid").Value);
+        Assert.Contains(r.Items, i => i.Line == 2 && i.Meaning.Contains("IP 10.178.188.2", StringComparison.Ordinal));
+        Assert.True(Has(r, 12, Severity.Warning, "en clair"));
+        Assert.True(Has(r, 17, Severity.Error, "^TD"));
+        Assert.True(Has(r, 18, Severity.Error, "^NC5"));
+        Assert.True(Has(r, 18, Severity.Error, "attribution « Q »"));
+        Assert.True(Has(r, 18, Severity.Error, "^MX"));
+        Assert.True(Has(r, 19, Severity.Error, "^XA"));
+        Assert.True(r.Risky);
+
+        Assert.Contains(PrinterConfig.Suggest("^XA^W").Items, i => i.Label == "^WS");
+        Assert.True(Has(PrinterConfig.Analyze("! U1 setvar \"wlan.inconnu.truc\" \"1\"\r\n"), 1, Severity.Warning, "inconnu"));
+    }
 }

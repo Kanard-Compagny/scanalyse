@@ -38,7 +38,7 @@ internal static class FileAssociation
             app.SetValue("FriendlyAppName", "Scanalyse");
             using (var icon = app.CreateSubKey("DefaultIcon"))
             {
-                icon.SetValue(string.Empty, $"\"{exe}\",0");
+                icon.SetValue(string.Empty, $"{exe},0");
             }
 
             using (var open = app.CreateSubKey(@"shell\open\command"))
@@ -65,7 +65,7 @@ internal static class FileAssociation
             progId.SetValue(string.Empty, "Profil d'équipe Scanalyse");
             using (var icon = progId.CreateSubKey("DefaultIcon"))
             {
-                icon.SetValue(string.Empty, $"\"{exe}\",0");
+                icon.SetValue(string.Empty, $"{exe},0");
             }
 
             using var open = progId.CreateSubKey(@"shell\open\command");

@@ -157,6 +157,16 @@ public static partial class PrinterConfig
         Snip("SBPL", "<ESC>PG", "<ESC>PG{|}", "Enregistrement des réglages dans la mémoire de l'imprimante (voir le manuel SBPL du modèle)"),
     ];
 
+    /// <summary>Bibliothèque complète : commandes détaillées ci-dessus, puis toutes les autres commandes ZPL du catalogue.</summary>
+    private static readonly Lazy<IReadOnlyList<ConfigSnippet>> AllSnippets = new(BuildSnippets);
+
+    private static List<ConfigSnippet> BuildSnippets() =>
+        Library.Concat(ZplCatalog
+                .Where(kv => !Library.Any(s => s.Language == "ZPL" && s.Label == kv.Key))
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+                .Select(kv => Snip("ZPL", kv.Key, kv.Key + Caret, kv.Value.Meaning)))
+            .ToList();
+
     /// <summary>Noms SGD proposés à la saisie : réglages connus, avec les valeurs acceptées.</summary>
     private static IEnumerable<(string Key, SgdDef Def)> SgdKeys => SgdTable.Select(kv => (kv.Key, kv.Value));
 
@@ -229,7 +239,7 @@ public static partial class PrinterConfig
         if (zpl.Success)
         {
             var typed = zpl.Value;
-            var items = Library
+            var items = AllSnippets.Value
                 .Where(s => s.Language == "ZPL" && s.Label.StartsWith(typed, StringComparison.OrdinalIgnoreCase))
                 .Where(s => !string.Equals(s.Text, typed, StringComparison.Ordinal))
                 .ToList();
@@ -246,7 +256,7 @@ public static partial class PrinterConfig
             return new ConfigCompletion(0, []);
         }
 
-        var matches = Library
+        var matches = AllSnippets.Value
             .Select(s => (s, rank: s.Label.StartsWith(start, StringComparison.OrdinalIgnoreCase) ? 0
                 : start.Length >= 3 && s.Description.Contains(start, StringComparison.OrdinalIgnoreCase) ? 1 : -1))
             .Where(x => x.rank >= 0)

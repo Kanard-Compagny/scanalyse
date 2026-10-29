@@ -82,6 +82,8 @@
           <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
             <WrapPanel DockPanel.Dock="Right">
               <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="Open_Click" Margin="0,0,4,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveAs_Click" Margin="0,0,4,0"
+                      ToolTip="Enregistre le fichier, avec tes modifications, sous le nom de ton choix (Ctrl + S)" />
               <Button Style="{StaticResource BtnGhost}" Content="Coller" Click="Paste_Click" Margin="0,0,4,0" />
               <Button Style="{StaticResource BtnGhost}" Content="Effacer" Click="Clear_Click" />
             </WrapPanel>
