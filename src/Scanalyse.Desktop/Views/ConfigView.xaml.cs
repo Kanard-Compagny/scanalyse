@@ -38,6 +38,20 @@ public partial class ConfigView : UserControl
             Analyze();
         };
         Loaded += (_, _) => LoadTarget();
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible && IsLoaded)
+            {
+                LoadTarget(); // l'imprimante a pu changer dans « Code imprimante »
+            }
+            else
+            {
+                SuggestPopup.IsOpen = false;
+            }
+        };
+        AddressBox.TextChanged += (_, _) => AddressHint.Visibility = AddressBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        HintAligner.Attach(AddressBox, AddressHint);
+        HintAligner.Attach(QueueSearch, QueueSearchHint);
     }
 
     /// <summary>Message pour le journal.</summary>
@@ -45,13 +59,15 @@ public partial class ConfigView : UserControl
 
     // ------------------------------------------------------------------ Imprimante
 
+    private string _savedQueue = string.Empty;
+
     private void LoadTarget()
     {
         _loading = true;
         var p = AppSettings.Load().Print;
         AddressBox.Text = p.Address;
-        QueueBox.ItemsSource = PrinterTransport.Queues();
-        QueueBox.SelectedItem = QueueBox.Items.Cast<string>().FirstOrDefault(q => q == p.Queue);
+        AddressHint.Visibility = AddressBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        _savedQueue = p.Queue;
         (p.Mode == "queue" ? TargetQueue : TargetTcp).IsChecked = true;
         ShowTarget();
         _loading = false;
@@ -59,9 +75,18 @@ public partial class ConfigView : UserControl
 
     private void ShowTarget()
     {
+        if (QueuePanel is null || AddressPanel is null)
+        {
+            return;
+        }
+
         var queue = TargetQueue.IsChecked == true;
-        AddressBox.Visibility = queue ? Visibility.Collapsed : Visibility.Visible;
-        QueueBox.Visibility = queue ? Visibility.Visible : Visibility.Collapsed;
+        QueuePanel.Visibility = queue ? Visibility.Visible : Visibility.Collapsed;
+        AddressPanel.Visibility = queue ? Visibility.Collapsed : Visibility.Visible;
+        if (queue)
+        {
+            LoadQueues();
+        }
     }
 
     private void Target_Changed(object sender, RoutedEventArgs e)
@@ -72,7 +97,76 @@ public partial class ConfigView : UserControl
 
     private void Address_LostFocus(object sender, RoutedEventArgs e) => SaveTarget();
 
-    private void Queue_Changed(object sender, SelectionChangedEventArgs e) => SaveTarget();
+    /// <summary>Imprimante installée choisie (ou celle mémorisée, tant que la liste n'est pas chargée).</summary>
+    private string? SelectedQueue =>
+        QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? (_savedQueue.Length == 0 ? null : _savedQueue);
+
+    private void RefreshQueues_Click(object sender, RoutedEventArgs e) => LoadQueues();
+
+    private void QueueButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (QueueChips.Children.Count == 0)
+        {
+            LoadQueues();
+        }
+
+        QueueSearch.Text = string.Empty;
+        QueuePopup.IsOpen = true;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            QueueSearch.Focus();
+            QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.BringIntoView();
+        }), DispatcherPriority.Loaded);
+    }
+
+    private void QueueSearch_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        var q = QueueSearch.Text.Trim();
+        QueueSearchHint.Visibility = q.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var chip in QueueChips.Children.OfType<RadioButton>())
+        {
+            chip.Visibility = q.Length == 0 || ((string)chip.Tag).Contains(q, StringComparison.CurrentCultureIgnoreCase) ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
+
+    private void LoadQueues()
+    {
+        var current = SelectedQueue;
+        QueueChips.Children.Clear();
+        foreach (var q in PrinterTransport.Queues())
+        {
+            var chip = new RadioButton
+            {
+                Style = (Style)FindResource("Chip"),
+                GroupName = "ConfQueue",
+                Content = q,
+                Tag = q,
+                IsChecked = string.Equals(q, current, StringComparison.OrdinalIgnoreCase),
+            };
+            chip.Checked += (_, _) =>
+            {
+                _savedQueue = q;
+                QueueSelected.Text = q;
+                QueuePopup.IsOpen = false;
+                SaveTarget();
+            };
+            QueueChips.Children.Add(chip);
+        }
+
+        var n = QueueChips.Children.Count;
+        QueueCount.Text = Localization.T(n switch
+        {
+            0 => "aucune imprimante installée",
+            1 => "1 imprimante",
+            _ => $"{n} imprimantes",
+        });
+        QueueSelected.Text = QueueChips.Children.OfType<RadioButton>().FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? Localization.T("Choisir une imprimante…");
+        QueueScroll.ScrollToTop();
+        if (n == 0)
+        {
+            QueueHint.Text = Localization.T("Aucune imprimante installée sur ce PC. Utilise l'envoi réseau, ou installe le pilote de l'imprimante d'étiquettes.");
+        }
+    }
 
     /// <summary>Même imprimante que « Code imprimante » : le choix est partagé.</summary>
     private void SaveTarget()
@@ -85,7 +179,7 @@ public partial class ConfigView : UserControl
         var s = AppSettings.Load();
         s.Print.Mode = TargetQueue.IsChecked == true ? "queue" : "tcp";
         s.Print.Address = AddressBox.Text.Trim();
-        if (QueueBox.SelectedItem is string q)
+        if (SelectedQueue is { } q)
         {
             s.Print.Queue = q;
         }
@@ -98,7 +192,7 @@ public partial class ConfigView : UserControl
     {
         if (TargetQueue.IsChecked == true)
         {
-            return QueueBox.SelectedItem is string q ? PrinterTransport.QueueAddress(q) : null;
+            return SelectedQueue is { } q ? PrinterTransport.QueueAddress(q) : null;
         }
 
         var a = AddressBox.Text.Trim();
@@ -179,7 +273,7 @@ public partial class ConfigView : UserControl
         {
             if (TargetQueue.IsChecked == true)
             {
-                if (QueueBox.SelectedItem is not string queue)
+                if (SelectedQueue is not { } queue)
                 {
                     Log?.Invoke(LogKind.Warning, "Choisis l'imprimante installée sur ce PC.");
                     return;
@@ -319,6 +413,16 @@ public partial class ConfigView : UserControl
     private void CodeBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         CodeHint.Visibility = CodeBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (_typed)
+        {
+            _typed = false;
+            UpdateSuggestions();
+        }
+        else
+        {
+            SuggestPopup.IsOpen = false;
+        }
+
         _debounce.Stop();
         _debounce.Start();
     }
@@ -537,5 +641,195 @@ public partial class ConfigView : UserControl
         var t = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontSize = 13 };
         t.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
         return t;
+    }
+
+    // ------------------------------------------------------------------ Propositions à la saisie
+
+    private bool _typed;
+    private ConfigCompletion? _completion;
+    private int _suggestIndex;
+
+    private void CodeBox_PreviewTextInput(object sender, TextCompositionEventArgs e) => _typed = true;
+
+    private void CodeBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        if (!SuggestPopup.IsMouseOver)
+        {
+            SuggestPopup.IsOpen = false;
+        }
+    }
+
+    private void CodeBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            UpdateSuggestions(force: true);
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key is Key.Back or Key.Delete)
+        {
+            _typed = SuggestPopup.IsOpen;
+            return;
+        }
+
+        if (!SuggestPopup.IsOpen || _completion is null)
+        {
+            return;
+        }
+
+        var count = _completion.Items.Count;
+        switch (e.Key)
+        {
+            case Key.Down:
+                SelectSuggestion((_suggestIndex + 1) % count);
+                e.Handled = true;
+                break;
+            case Key.Up:
+                SelectSuggestion((_suggestIndex - 1 + count) % count);
+                e.Handled = true;
+                break;
+            case Key.PageDown:
+                SelectSuggestion(Math.Min(count - 1, _suggestIndex + 8));
+                e.Handled = true;
+                break;
+            case Key.PageUp:
+                SelectSuggestion(Math.Max(0, _suggestIndex - 8));
+                e.Handled = true;
+                break;
+            case Key.Enter or Key.Tab:
+                AcceptSuggestion(_suggestIndex);
+                e.Handled = true;
+                break;
+            case Key.Escape:
+                SuggestPopup.IsOpen = false;
+                e.Handled = true;
+                break;
+            case Key.Left or Key.Right or Key.Home or Key.End:
+                SuggestPopup.IsOpen = false;
+                break;
+        }
+    }
+
+    /// <summary>Calcule les propositions pour la ligne en cours (texte jusqu'au curseur) et affiche la liste sous le curseur.</summary>
+    private void UpdateSuggestions(bool force = false)
+    {
+        var caret = CodeBox.CaretIndex;
+        var text = CodeBox.Text;
+        var lineStart = caret == 0 ? 0 : text.LastIndexOf('\n', caret - 1) + 1;
+        var prefix = text[lineStart..caret];
+        _completion = PrinterConfig.Suggest(prefix, force);
+        if (_completion.Items.Count == 0)
+        {
+            SuggestPopup.IsOpen = false;
+            return;
+        }
+
+        SuggestList.Children.Clear();
+        for (var i = 0; i < _completion.Items.Count; i++)
+        {
+            SuggestList.Children.Add(SuggestionRow(_completion.Items[i], i));
+        }
+
+        var rect = CodeBox.GetRectFromCharacterIndex(caret);
+        if (!rect.IsEmpty)
+        {
+            var start = CodeBox.GetRectFromCharacterIndex(Math.Max(lineStart, caret - _completion.ReplaceLength));
+            SuggestPopup.HorizontalOffset = Math.Max(0, (start.IsEmpty ? rect : start).Left - 8);
+            SuggestPopup.VerticalOffset = rect.Bottom + 4;
+        }
+
+        SuggestFooter.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+            Localization.T("{0} proposition(s) · ↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer"), _completion.Items.Count);
+        SuggestPopup.IsOpen = true;
+        SelectSuggestion(0);
+    }
+
+    private Border SuggestionRow(ConfigSnippet item, int index)
+    {
+        var badge = new Border
+        {
+            Background = (Brush)FindResource("Surface2"),
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(6, 1, 6, 1),
+            Margin = new Thickness(10, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Top,
+            Child = new TextBlock { Text = item.Language, FontSize = 11, Foreground = (Brush)FindResource("Muted") },
+        };
+        DockPanel.SetDock(badge, Dock.Right);
+        var label = new TextBlock
+        {
+            Text = item.Label,
+            FontFamily = (FontFamily)FindResource("MonoFont"),
+            FontSize = 13,
+            FontWeight = FontWeights.SemiBold,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+        };
+        var description = new TextBlock
+        {
+            Text = Localization.T(item.Description),
+            FontSize = 12,
+            Foreground = (Brush)FindResource("Muted"),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 1, 0, 0),
+        };
+        var dock = new DockPanel();
+        dock.Children.Add(badge);
+        dock.Children.Add(new StackPanel { Children = { label, description } });
+        var row = new Border
+        {
+            Child = dock,
+            Padding = new Thickness(10, 6, 10, 6),
+            CornerRadius = new CornerRadius(7),
+            Background = Brushes.Transparent,
+            Cursor = Cursors.Hand,
+        };
+        row.MouseEnter += (_, _) => SelectSuggestion(index, scroll: false);
+        row.PreviewMouseLeftButtonDown += (_, e) =>
+        {
+            AcceptSuggestion(index);
+            e.Handled = true;
+        };
+        return row;
+    }
+
+    private void SelectSuggestion(int index, bool scroll = true)
+    {
+        if (index < 0 || index >= SuggestList.Children.Count)
+        {
+            return;
+        }
+
+        _suggestIndex = index;
+        for (var i = 0; i < SuggestList.Children.Count; i++)
+        {
+            var row = (Border)SuggestList.Children[i];
+            row.Background = i == index ? (Brush)FindResource("BrandSoft") : Brushes.Transparent;
+        }
+
+        if (scroll)
+        {
+            ((FrameworkElement)SuggestList.Children[index]).BringIntoView();
+        }
+    }
+
+    /// <summary>Remplace ce qui est tapé par la proposition, place le curseur au bon endroit (entre les guillemets…) et relance les propositions (nom puis valeur SGD).</summary>
+    private void AcceptSuggestion(int index)
+    {
+        if (_completion is null || index < 0 || index >= _completion.Items.Count)
+        {
+            return;
+        }
+
+        var item = _completion.Items[index];
+        var caret = CodeBox.CaretIndex;
+        var start = Math.Max(0, caret - _completion.ReplaceLength);
+        SuggestPopup.IsOpen = false;
+        CodeBox.Focus();
+        CodeBox.Select(start, caret - start);
+        CodeBox.SelectedText = item.Text;
+        CodeBox.Select(start + item.CaretOffset, 0);
+        Dispatcher.BeginInvoke(new Action(() => UpdateSuggestions()), DispatcherPriority.Input);
     }
 }

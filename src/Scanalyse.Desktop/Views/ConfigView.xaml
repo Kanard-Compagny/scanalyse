@@ -17,22 +17,55 @@
                  Text="Colle ou ouvre le fichier de configuration d'une imprimante (Zebra ZPL et SGD « ! U1 setvar », TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2) : chaque ligne est expliquée et contrôlée, comparée à l'imprimante, puis envoyée." />
     </StackPanel>
 
-    <!-- Imprimante : la même que « Code imprimante » -->
+    <!-- Imprimante : la même que « Code imprimante », présentée de la même façon -->
     <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-          <Button x:Name="ReadButton" Style="{StaticResource BtnSecondary}" Content="Lire l'imprimante" Click="Read_Click" Margin="8,0,0,0"
-                  ToolTip="Lit tous les réglages de l'imprimante (Zebra, par le réseau) pour les comparer au fichier et vérifier les valeurs acceptées par ce modèle" />
-          <Button x:Name="SendButton" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="8,0,0,0" />
-        </StackPanel>
-        <WrapPanel VerticalAlignment="Center">
-          <TextBlock Text="Imprimante" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
-          <RadioButton x:Name="TargetTcp" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Réseau (IP, port 9100)" Checked="Target_Changed" />
+        <Button DockPanel.Dock="Right" x:Name="SendButton" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="8,0,0,0" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" x:Name="ReadButton" Style="{StaticResource BtnSecondary}" Content="Lire l'imprimante" Click="Read_Click" Margin="12,0,0,0" VerticalAlignment="Center"
+                ToolTip="Lit tous les réglages de l'imprimante (Zebra, par le réseau) pour les comparer au fichier et vérifier les valeurs acceptées par ce modèle" />
+        <TextBlock DockPanel.Dock="Left" Text="Imprimante" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+          <RadioButton x:Name="TargetTcp" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Réseau (IP, port 9100)" IsChecked="True" Checked="Target_Changed" Margin="0,0,6,0" />
           <RadioButton x:Name="TargetQueue" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Installée sur ce PC" Checked="Target_Changed" />
-          <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" Width="220" Margin="4,0,0,0" VerticalAlignment="Center" LostFocus="Address_LostFocus"
-                   ToolTip="Adresse IP de l'imprimante (ex. 192.168.1.50 ou 192.168.1.50:9100)" />
-          <ComboBox x:Name="QueueBox" Width="280" Margin="4,0,0,0" VerticalAlignment="Center" Visibility="Collapsed" SelectionChanged="Queue_Changed" />
-        </WrapPanel>
+        </StackPanel>
+        <Grid VerticalAlignment="Center">
+          <Grid x:Name="AddressPanel">
+            <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" LostFocus="Address_LostFocus"
+                     ToolTip="Adresse IP de l'imprimante (ex. 192.168.1.50 ou 192.168.1.50:9100)" />
+            <TextBlock x:Name="AddressHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
+                       Text="ex. 192.168.1.50 ou 192.168.1.50:6101" />
+          </Grid>
+          <StackPanel x:Name="QueuePanel" Visibility="Collapsed">
+            <Button x:Name="QueueButton" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="QueueButton_Click"
+                    ToolTip="Choisir l'imprimante (les données partent en mode RAW : le pilote ne les modifie pas)">
+              <DockPanel LastChildFill="True">
+                <TextBlock DockPanel.Dock="Right" Text="▾" FontSize="14" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                <TextBlock x:Name="QueueCount" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" />
+                <TextBlock x:Name="QueueSelected" Text="Choisir une imprimante…" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              </DockPanel>
+            </Button>
+            <Popup x:Name="QueuePopup" PlacementTarget="{Binding ElementName=QueueButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True"
+                   Width="{Binding ActualWidth, ElementName=QueueButton}" PopupAnimation="Fade">
+              <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,6,0,0">
+                <StackPanel>
+                  <DockPanel Margin="0,0,0,8">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource BtnGhost}" Content="Actualiser" Click="RefreshQueues_Click" Padding="8,2" Margin="8,0,0,0" />
+                    <Grid>
+                      <TextBox x:Name="QueueSearch" Style="{StaticResource FieldInput}" TextChanged="QueueSearch_TextChanged" />
+                      <TextBlock x:Name="QueueSearchHint" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{DynamicResource Muted}" FontSize="13"
+                                 Text="Rechercher (nom, serveur…)" />
+                    </Grid>
+                  </DockPanel>
+                  <ScrollViewer x:Name="QueueScroll" MaxHeight="320" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <WrapPanel x:Name="QueueChips" />
+                  </ScrollViewer>
+                  <TextBlock x:Name="QueueHint" FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,8,0,0"
+                             Text="Les données partent en mode RAW : le pilote ne les modifie pas (pilote Zebra, Honeywell, TSC… ou « Generic / Text Only »)." />
+                </StackPanel>
+              </Border>
+            </Popup>
+          </StackPanel>
+        </Grid>
       </DockPanel>
     </Border>
 
@@ -58,9 +91,25 @@
           <Grid>
             <TextBox x:Name="CodeBox" Style="{StaticResource Input}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
                      FontFamily="{StaticResource MonoFont}" FontSize="13" VerticalContentAlignment="Top"
-                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBox_TextChanged" />
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBox_TextChanged"
+                     PreviewKeyDown="CodeBox_PreviewKeyDown" PreviewTextInput="CodeBox_PreviewTextInput" LostKeyboardFocus="CodeBox_LostKeyboardFocus" />
             <TextBlock x:Name="CodeHint" Margin="14,10,14,0" IsHitTestVisible="False" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Muted}"
-                       Text="Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Exemple : ! U1 setvar &quot;print.tone&quot; &quot;20&quot;" />
+                       Text="Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Tape une commande pour voir les propositions (Ctrl + Espace : toute la bibliothèque). Exemple : ! U1 setvar &quot;print.tone&quot; &quot;20&quot;" />
+            <!-- Propositions à la saisie (bibliothèque intégrée) -->
+            <Popup x:Name="SuggestPopup" PlacementTarget="{Binding ElementName=CodeBox}" Placement="RelativePoint" StaysOpen="True" AllowsTransparency="True" Focusable="False">
+              <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="10" Padding="4" Width="520">
+                <Border.Effect>
+                  <DropShadowEffect BlurRadius="16" ShadowDepth="3" Opacity="0.35" />
+                </Border.Effect>
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Bottom" x:Name="SuggestFooter" FontSize="11.5" Foreground="{DynamicResource Muted}" Margin="8,4,8,2" TextTrimming="CharacterEllipsis"
+                             Text="↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer" />
+                  <ScrollViewer x:Name="SuggestScroll" MaxHeight="300" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <StackPanel x:Name="SuggestList" />
+                  </ScrollViewer>
+                </DockPanel>
+              </Border>
+            </Popup>
           </Grid>
         </DockPanel>
       </Border>

@@ -2499,3 +2499,81 @@ Voyant	LED
 adresse IP	IP address
 marque noire	black mark
 {0} : {1} « {2} » invalide.	{0}: invalid {1} “{2}”.
+Action à la mise sous tension, puis à la fermeture de la tête : F avance, C calibrage, L longueur, N aucun mouvement, S calibrage court	Power-up action, then head-close action: F feed, C calibrate, L length, N no motion, S short calibration
+Ajustement de noirceur, relatif au réglage ~SD : -30 à 30	Darkness adjustment, relative to ~SD: -30 to 30
+Attribution de l'adresse IP : DHCP, BOOTP, MANUAL	IP address assignment: DHCP, BOOTP, MANUAL
+Calibrage du capteur d'espace	Gap sensor calibration
+Calibrage du capteur de marque noire	Black mark sensor calibration
+Capteur : 1 réflexion (marque noire), 2 transmission (espace), 3 ignoré	Sensor: 1 reflection (black mark), 2 transmission (gap), 3 ignored
+Chaleur (noirceur) du format : 00 à 30	Format heat (darkness): 00 to 30
+Change un réglage Zebra : ! U1 setvar "nom" "valeur"	Changes a Zebra setting: ! U1 setvar "name" "value"
+Contrôle d'ouverture de la tête : ON ou OFF	Head-open check: ON or OFF
+Coupe partielle : OFF, BATCH ou toutes les n étiquettes	Partial cut: OFF, BATCH or every n labels
+Demande d'état à l'imprimante	Status request to the printer
+Décalage d'arrêt après impression (prédécollage, coupe)	Stop offset after printing (peel, cut)
+Décalage du début d'impression (4 chiffres)	Start-of-print offset (4 digits)
+Décalage du début d'impression (points)	Start-of-print offset (dots)
+Décalage horizontal de l'étiquette (points) : -9999 à 9999	Label left shift (dots): -9999 to 9999
+Décalage vertical d'impression (points)	Vertical print shift (dots)
+Décalage vertical de l'étiquette (points) : -120 à 120	Label top shift (dots): -120 to 120
+Détection de l'espace : AUTO, OFF, 0, REVERSE…	Gap detection: AUTO, OFF, 0, REVERSE…
+Enregistre les réglages (conservés à l'extinction) : à placer juste avant ^XZ	Saves the settings (kept at power-off): put it just before ^XZ
+Enregistrement des réglages dans la mémoire de l'imprimante (voir le manuel SBPL du modèle)	Saving settings to the printer memory (see the model's SBPL manual)
+Enrouleur : ON, OFF ou RS232	Rewinder: ON, OFF or RS232
+Espace entre étiquettes et décalage (0, 0 = support continu)	Gap between labels and offset (0, 0 = continuous media)
+Impression par la touche FEED : ON, OFF, AUTO ou n	Print with the FEED key: ON, OFF, AUTO or n
+Jeu de caractères (28 = UTF-8)	Character set (28 = UTF-8)
+Jeu de caractères (ex. 1252, UTF-8)	Character set (e.g. 1252, UTF-8)
+Lance une action Zebra (redémarrage, retour usine…) : ! U1 do "nom" ""	Runs a Zebra action (restart, factory reset…): ! U1 do "name" ""
+Lit tous les réglages de l'imprimante avec leurs valeurs acceptées	Reads all printer settings with their accepted values
+Lit un réglage Zebra : ! U1 getvar "nom"	Reads a Zebra setting: ! U1 getvar "name"
+Longueur d'étiquette et espace (points)	Label length and gap (dots)
+Longueur maximale avant erreur de détection	Maximum length before a detection error
+Longueur maximale d'étiquette (0,01 pouce, 4 chiffres)	Maximum label length (0.01 inch, 4 digits)
+Marque noire : hauteur et décalage	Black mark: height and offset
+Massicot : OFF, BATCH ou toutes les n étiquettes	Cutter: OFF, BATCH or every n labels
+Mode ZPL II (^SZ1 = ZPL I)	ZPL II mode (^SZ1 = ZPL I)
+Mode de sortie : T détachage, P prédécollage, R enroulement, A applicateur, C coupe, D coupe différée, K kiosque	Output mode: T tear off, P peel off, R rewind, A applicator, C cutter, D delayed cut, K kiosk
+Modification de la configuration enregistrée (voir le manuel DPL du modèle)	Change of the saved configuration (see the model's DPL manual)
+Mot de passe du panneau de commande (4 chiffres)	Control panel password (4 digits)
+Méthode d'impression : DIRECT THERMAL ou TRANSFER	Print method: DIRECT THERMAL or TRANSFER
+Méthode d'impression : T transfert thermique (ruban), D thermique direct	Print method: T thermal transfer (ribbon), D direct thermal
+Noirceur (contraste) : 00 à 30	Darkness: 00 to 30
+Noirceur : -10% à +10%	Darkness: -10% to +10%
+Noirceur : 0 à 15	Darkness: 0 to 15
+Noirceur : niveau 1 à 5, éventuellement suivi d'une lettre A à F	Darkness: level 1 to 5, optionally followed by a letter A to F
+Nom de l'imprimante (16 caractères) puis description	Printer name (16 characters) then description
+Options matérielles : thermique direct	Hardware options: direct thermal
+Orientation : N normale, I retournée (180°)	Orientation: N normal, I inverted (180°)
+Pays (clavier, caractères) : ex. 033 France	Country (keyboard, characters): e.g. 033 France
+Port série : bauds, bits, parité, bits d'arrêt	Serial port: baud, bits, parity, stop bits
+Port série : bauds, parité, bits, arrêt	Serial port: baud, parity, bits, stop
+Position d'arrêt (détachage) (3 chiffres)	Stop position (tear-off) (3 digits)
+Position d'arrêt (détachage) (points)	Stop position (tear-off) (dots)
+Position de détachage (points) : -120 à 120	Tear-off position (dots): -120 to 120
+Position de détachage : ON ou OFF	Tear-off position: ON or OFF
+Prédécollage : ON ou OFF	Peel off: ON or OFF
+Recul après coupe : ON ou OFF	Backfeed after cut: ON or OFF
+Ruban : ON transfert thermique, OFF thermique direct	Ribbon: ON thermal transfer, OFF direct thermal
+Réglages Zebra au format JSON : {}{"nom":"valeur",…}	Zebra settings in JSON format: {}{"name":"value",…}
+Réimpression après une erreur : ON ou OFF	Reprint after an error: ON or OFF
+Réimpression après une erreur : Y oui, N non	Reprint after an error: Y yes, N no
+Réseau Wi-Fi : attribution, IP, masque, passerelle	Wi-Fi network: assignment, IP, mask, gateway
+Réseau filaire : attribution (A auto, P fixe…), IP, masque, passerelle	Wired network: assignment (A auto, P fixed…), IP, mask, gateway
+Sens d'impression (0 ou 1), puis miroir (0 ou 1)	Print direction (0 or 1), then mirror (0 or 1)
+Suivi du support : N continu, Y ou W espace, M marque noire, A automatique, V continu variable	Media tracking: N continuous, Y or W gap, M black mark, A automatic, V variable continuous
+Support continu, longueur (0,01 pouce)	Continuous media, length (0.01 inch)
+Taille d'étiquette : largeur, hauteur (mm ou pouces)	Label size: width, height (mm or inches)
+Taille des points : 1 × 1	Dot size: 1 × 1
+Type de support : LABEL (W GAPS), TICKET (W MARK), TICKET (W GAPS), FIX LENGTH STRIP, VAR LENGTH STRIP	Media type: LABEL (W GAPS), TICKET (W MARK), TICKET (W GAPS), FIX LENGTH STRIP, VAR LENGTH STRIP
+Vitesse d'impression (code 1 à 6)	Print speed (code 1 to 6)
+Vitesse d'impression (code propre au modèle)	Print speed (model-specific code)
+Vitesse d'impression (mm/s, ex. 100, 150, 200)	Print speed (mm/s, e.g. 100, 150, 200)
+Vitesse d'impression (pouces par seconde) : 1 à 14, puis vitesses d'avance et de recul	Print speed (inches per second): 1 to 14, then slew and backfeed speeds
+Vitesse d'impression (pouces par seconde), selon le modèle : 2, 3, 4, 5, 6…	Print speed (inches per second), depending on the model: 2, 3, 4, 5, 6…
+lecture seule	read-only
+action	action
+{0} à {1}	{0} to {1}
+Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Tape une commande pour voir les propositions (Ctrl + Espace : toute la bibliothèque). Exemple : ! U1 setvar "print.tone" "20"	Paste the configuration file here (Ctrl + V), open it, or drop it on the page. Type a command to see suggestions (Ctrl + Space: whole library). Example: ! U1 setvar "print.tone" "20"
+↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer	↑ ↓ choose · Enter or Tab insert · Esc close
+{0} proposition(s) · ↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer	{0} suggestion(s) · ↑ ↓ choose · Enter or Tab insert · Esc close

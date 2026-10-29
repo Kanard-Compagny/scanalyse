@@ -164,4 +164,38 @@ public class PrinterConfigTests
     {
         Assert.Contains(PrinterConfig.Analyze("Bonjour, voici le fichier.").Findings, f => f.Severity == Severity.Warning);
     }
+
+    [Fact]
+    public void Propositions_a_la_saisie()
+    {
+        var name = PrinterConfig.Suggest("! U1 setvar \"print.to");
+        Assert.Equal(8, name.ReplaceLength);
+        Assert.Equal("print.tone", name.Items[0].Label);
+        Assert.Equal("print.tone\" \"\"", name.Items[0].Text);
+        Assert.Equal(name.Items[0].Text.Length - 1, name.Items[0].CaretOffset);
+        Assert.True(name.Items[0].Description.Contains("0 à 30", StringComparison.Ordinal));
+        Assert.DoesNotContain(name.Items, i => i.Label == "appl.name");
+
+        var value = PrinterConfig.Suggest("! U1 setvar \"media.printmode\" \"pe");
+        Assert.Equal("peel off", value.Items[0].Label);
+        Assert.Equal(2, value.ReplaceLength);
+
+        Assert.Contains(PrinterConfig.Suggest("! U1 do \"").Items, i => i.Label == "device.reset");
+        Assert.DoesNotContain(PrinterConfig.Suggest("! U1 do \"").Items, i => i.Label == "print.tone");
+
+        var zpl = PrinterConfig.Suggest("^XA^M");
+        Assert.Equal(2, zpl.ReplaceLength);
+        Assert.Contains(zpl.Items, i => i.Label == "^MD");
+        Assert.DoesNotContain(zpl.Items, i => i.Language != "ZPL");
+        Assert.Empty(PrinterConfig.Suggest("^XA").Items);
+
+        var tspl = PrinterConfig.Suggest("SET PE");
+        Assert.Equal("SET PEEL", tspl.Items[0].Label);
+        Assert.Equal("SET PEEL ".Length, tspl.Items[0].CaretOffset);
+
+        Assert.Contains(PrinterConfig.Suggest("<ESC>I").Items, i => i.Label == "<ESC>IG");
+        Assert.Contains(PrinterConfig.Suggest("noirceur").Items, i => i.Label == "~SD");
+        Assert.Empty(PrinterConfig.Suggest("").Items);
+        Assert.NotEmpty(PrinterConfig.Suggest("", force: true).Items);
+    }
 }
