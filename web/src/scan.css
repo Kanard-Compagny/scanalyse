@@ -106,3 +106,5 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
   .desktop .grid{grid-template-columns:minmax(0,1fr) 460px}
 }
 @media (min-width:2100px){.desktop .scan-grid{grid-template-columns:minmax(480px,.6fr) minmax(0,1.8fr)}}
+/* Outils de l'image (zoom, zone) masqués tant qu'aucune image n'est affichée. */
+.card:has(#scanCanvas[hidden]) .scan-tools{display:none}

@@ -7,6 +7,10 @@
   - Fingerprint : mots-clés complets ou abrégés (PP, PT, PB…), numéros de ligne, plusieurs étiquettes par fichier, ancrages (ALIGN), CHR$(128) = FNC1 ; position « y » comptée depuis le bas de l'étiquette.
 - Un programme SATO commençant par STX n'est plus pris pour du DPL.
 - **Code imprimante** : en lecture d'un programme et avec les modèles, la zone du programme n'est plus écrasée par l'aperçu (en plein écran comme en fenêtre réduite) ; aperçu et programme se partagent la hauteur, l'éditeur garde toujours une place lisible.
+- **Historique** : la liste des analyses n'est plus écrasée par la fiche du dossier quand la fenêtre est petite (la page défile).
+- **Banc d'essai** : les champs « Référence » et « Données reçues » gardent leur hauteur (octets reçus dépliés, petite fenêtre) ; dans une colonne étroite, les choix de « Code testé » passent sous la vignette.
+- **Analyser une image** : les outils de l'image (Agrandir, Sélectionner une zone) n'apparaissent qu'une fois l'image chargée. **Créer un code** : espace rétabli sous « Type de code ».
+- **Clavier** : focus visible sur les dépliants (octets reçus, vue structurée) et les boutons de la barre de titre ; boutons ↺ ↻ − + nommés pour les lecteurs d'écran.
 - **Paramètres par catégories**, comme les réglages de GitHub ou Discord : menu à gauche (Général, Mises à jour, Prise en main, Rapports PDF, Historique, Impression et banc d'essai, Profil d'équipe, À propos, Désinstaller) et une catégorie à la fois. Chaque dossier est rangé avec ce qu'il concerne (rapports, historique, programmes d'étiquettes) ; le diagnostic a sa propre carte dans À propos.
 
 ## 0.11.2 — octobre 2026

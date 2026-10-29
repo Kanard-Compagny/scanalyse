@@ -36,7 +36,9 @@
     </Style>
   </UserControl.Resources>
 
-  <Grid Margin="28,22,28,16">
+  <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : la liste des analyses n'est jamais écrasée par la fiche du dossier. -->
+  <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
+  <Grid MinHeight="760" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -72,7 +74,7 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
           <RowDefinition Height="Auto" />
-          <RowDefinition Height="*" />
+          <RowDefinition Height="*" MinHeight="220" />
         </Grid.RowDefinitions>
 
         <!-- Dossier sélectionné -->
@@ -218,4 +220,5 @@
       </Grid>
     </Grid>
   </Grid>
+  </ScrollViewer>
 </UserControl>

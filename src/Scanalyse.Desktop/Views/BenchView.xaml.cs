@@ -16,6 +16,16 @@ namespace Scanalyse.Desktop.Views;
 /// <summary>Banc d'essai : contenu du code ↔ données reçues de la douchette.</summary>
 public partial class BenchView : UserControl
 {
+    /// <summary>« Code testé » : sous 600 points de large, le texte et les choix passent sous la vignette.</summary>
+    private void TestedGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var narrow = e.NewSize.Width < 600;
+        Grid.SetRow(TestedInfo, narrow ? 1 : 0);
+        Grid.SetColumn(TestedInfo, narrow ? 0 : 2);
+        Grid.SetColumnSpan(TestedInfo, narrow ? 3 : 1);
+        TestedInfo.Margin = narrow ? new Thickness(0, 14, 0, 0) : new Thickness(0);
+    }
+
     private void ConfigCodes_Click(object sender, RoutedEventArgs e) =>
         new ConfigCodesWindow(Renderer) { Owner = Window.GetWindow(this) }.Show();
 
@@ -665,16 +675,3 @@ public sealed record FindingView(Severity Severity, string Title, string Explana
     public static FindingView From(Finding f) =>
         new(f.Severity, f.Title, f.Explanation, string.IsNullOrWhiteSpace(f.Fix) ? string.Empty : "À faire : " + f.Fix);
 }
-
-/// <summary>Comparaison terminée, telle qu'elle est enregistrée dans l'historique.</summary>
-/// <param name="Expected">Contenu du code (notation lisible).</param>
-/// <param name="Received">Données reçues (notation lisible).</param>
-/// <param name="Via">Liaison de la douchette (« COM5 · 9600 8N1 », mode clavier…).</param>
-/// <param name="Symbology">Symbologie annoncée (HID POS).</param>
-/// <param name="Verdict">Titre du résultat.</param>
-/// <param name="Image">Vignette du code testé (PNG).</param>
-/// <param name="Result">Résultat détaillé.</param>
-public sealed record BenchSnapshot(string Expected, string Received, string Via, string? Symbology, string Verdict, byte[]? Image, ComparisonResult Result);
-
-/// <summary>Information extraite prête à afficher.</summary>
-public sealed record FieldView(string Label, string Value, string Hint);

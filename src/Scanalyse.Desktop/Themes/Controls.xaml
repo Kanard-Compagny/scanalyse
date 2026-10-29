@@ -174,6 +174,9 @@
             <Trigger Property="IsMouseOver" Value="True">
               <Setter TargetName="Bd" Property="Background" Value="{DynamicResource TitleHover}" />
             </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bd" Property="Background" Value="{DynamicResource TitleHover}" />
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
@@ -426,6 +429,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="ToggleButton">
+          <!-- Cadre visible seulement au clavier (Tab) : on voit où est le focus. -->
+          <Border x:Name="Fb" BorderBrush="Transparent" BorderThickness="1" CornerRadius="5" Padding="2,1" Background="Transparent">
           <StackPanel Orientation="Horizontal" Background="Transparent">
             <Path x:Name="Chev" Data="M2 1l4 4-4 4" Width="9" Height="10" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6"
                   StrokeStartLineCap="Round" StrokeEndLineCap="Round" VerticalAlignment="Center" RenderTransformOrigin="0.4,0.5">
@@ -433,7 +438,11 @@
             </Path>
             <ContentPresenter Margin="6,0,0,0" VerticalAlignment="Center" />
           </StackPanel>
+          </Border>
           <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Fb" Property="BorderBrush" Value="{DynamicResource Focus}" />
+            </Trigger>
             <Trigger Property="IsChecked" Value="True">
               <Setter TargetName="Chev" Property="RenderTransform">
                 <Setter.Value><RotateTransform Angle="90" /></Setter.Value>

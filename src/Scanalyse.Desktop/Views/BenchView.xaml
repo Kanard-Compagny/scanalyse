@@ -43,7 +43,7 @@
   <Grid>
   <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="28,22,28,16">
   <!-- Hauteur de la fenêtre si elle suffit, sinon hauteur minimale et défilement : rien n'est jamais coupé. -->
-  <Grid x:Name="PageGrid" MinHeight="700" Height="{Binding ViewportHeight, ElementName=PageScroll}">
+  <Grid x:Name="PageGrid" MinHeight="760" Height="{Binding ViewportHeight, ElementName=PageScroll}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -69,11 +69,12 @@
       <!-- Saisie -->
       <Border Style="{StaticResource Card}">
         <Grid>
+          <!-- Les deux champs gardent toujours leur hauteur minimale (fenêtre réduite, octets reçus dépliés). -->
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="*" MinHeight="90" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="*" MinHeight="90" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
@@ -132,12 +133,17 @@
         </Grid.RowDefinitions>
 
         <Border Style="{StaticResource Card}" Margin="0,0,0,14">
-          <Grid>
+          <!-- Colonne étroite : le texte et les choix passent sous la vignette au lieu d'être serrés à côté. -->
+          <Grid x:Name="TestedGrid" SizeChanged="TestedGrid_SizeChanged">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto" />
               <ColumnDefinition Width="16" />
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <!-- Le code est toujours montré sur fond blanc, comme imprimé -->
             <Border x:Name="PreviewBox" Width="250" Height="170" CornerRadius="8" Background="White" BorderBrush="{DynamicResource Line}" BorderThickness="1"
                     MouseLeftButtonUp="PreviewBox_Click" ToolTip="Agrandir pour scanner à l'écran">
@@ -150,7 +156,7 @@
                 </Border>
               </Grid>
             </Border>
-            <StackPanel Grid.Column="2">
+            <StackPanel x:Name="TestedInfo" Grid.Column="2">
               <TextBlock Style="{StaticResource CardTitle}" Text="Code testé" />
               <TextBlock x:Name="PreviewSource" Style="{StaticResource PageSubtitle}"
                          Text="La vignette s'affiche quand la référence vient d'une image analysée. Sinon, choisis le type et génère l'aperçu." />

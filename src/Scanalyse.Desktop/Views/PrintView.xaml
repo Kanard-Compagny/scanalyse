@@ -323,12 +323,12 @@
               </DockPanel>
               <WrapPanel Margin="0,6,0,0">
               <StackPanel x:Name="ZplTools" Orientation="Horizontal" Visibility="Collapsed" Margin="0,0,10,0">
-                <Button Style="{StaticResource BtnGhost}" Content="↺" Click="RotateLeft_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à gauche" />
-                <Button Style="{StaticResource BtnGhost}" Content="↻" Click="RotateRight_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à droite" />
+                <Button Style="{StaticResource BtnGhost}" Content="↺" AutomationProperties.Name="Pivoter l'aperçu à gauche" Click="RotateLeft_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à gauche" />
+                <Button Style="{StaticResource BtnGhost}" Content="↻" AutomationProperties.Name="Pivoter l'aperçu à droite" Click="RotateRight_Click" Padding="9,2" FontSize="15" ToolTip="Pivoter l'aperçu d'un quart de tour à droite" />
                 <Rectangle Width="1" Height="18" Fill="{DynamicResource Line}" Margin="6,0" />
-                <Button Style="{StaticResource BtnGhost}" Content="−" Click="ZoomOut_Click" Padding="9,2" FontSize="15" ToolTip="Dézoomer (Ctrl + molette)" />
+                <Button Style="{StaticResource BtnGhost}" Content="−" AutomationProperties.Name="Dézoomer" Click="ZoomOut_Click" Padding="9,2" FontSize="15" ToolTip="Dézoomer (Ctrl + molette)" />
                 <Button x:Name="ZoomFitButton" Style="{StaticResource BtnGhost}" Content="Ajuster" Click="ZoomFit_Click" Padding="8,2" ToolTip="Toute l'étiquette dans le cadre" />
-                <Button Style="{StaticResource BtnGhost}" Content="+" Click="ZoomIn_Click" Padding="9,2" FontSize="15" ToolTip="Zoomer (Ctrl + molette)" />
+                <Button Style="{StaticResource BtnGhost}" Content="+" AutomationProperties.Name="Zoomer" Click="ZoomIn_Click" Padding="9,2" FontSize="15" ToolTip="Zoomer (Ctrl + molette)" />
               </StackPanel>
               <Button x:Name="ExpandPreviewButton" Style="{StaticResource BtnGhost}" Content="Agrandir" Click="ExpandPreview_Click" Margin="0" Padding="8,2"
                       ToolTip="Affiche l'aperçu sur toute la page (Échap pour revenir)" />

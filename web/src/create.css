@@ -1,5 +1,5 @@
 /* --- Créer : choix du type de code --- */
-.typepick{gap:12px}
+.typepick{gap:12px;margin-bottom:16px}
 .tp-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
 .tp-cats{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:11px;background:var(--surface2)}
 .tp-cats button{font:inherit;font-size:13px;font-weight:600;border:0;border-radius:8px;padding:7px 12px;background:transparent;color:var(--muted);cursor:pointer}
