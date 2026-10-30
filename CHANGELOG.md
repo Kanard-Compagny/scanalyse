@@ -1,6 +1,6 @@
 # Scanalyse — Quoi de neuf
 
-## 0.12.0 — en préparation
+## 0.12.0 — octobre 2026
 
 - **Nouveau logo** : un code-barres dans un viseur, aux couleurs du programme ; version simplifiée pour les petites tailles (barre des tâches, barres de titre, page de relais). **Écran de démarrage** avec le logo, qui reste affiché jusqu’à ce que la fenêtre et l’Atelier soient prêts (au moins 1,5 s, 12 s au plus).
 - **Visite guidée complète** (français et anglais) : un mot d'accueil, puis chaque page ouverte et présentée tour à tour — menu, barre du haut, Analyser une image, Créer un code, Étiquette imprimante, Conf imprimante et son imprimante de référence, Banc d'essai, Appareils de lecture et relais, Historique, dossier SAV, Symbologies, journal et Paramètres. Retour à « Analyser une image » à la fin.
