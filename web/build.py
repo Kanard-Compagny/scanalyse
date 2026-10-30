@@ -129,6 +129,8 @@ def mobile_markup():
     logo = re.sub(r"<\?xml[^>]*\?>|<!DOCTYPE[^>]*>", "", logo).strip()
     logo = logo.replace("<svg ", '<svg class="m-logo" aria-hidden="true" ', 1)
     html = read(ROOT, "mobile", "mobile.html")
+    import datetime
+    html = html.replace("__BUILD__", datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
     return rep(html, '<svg class="m-logo" aria-hidden="true" viewBox="0 0 1024 1024"><use href="#m-logo-art"/></svg>', logo)
 
 

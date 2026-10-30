@@ -138,3 +138,8 @@ body.m-app .wrap{display:none}
 .m-install div{display:flex;gap:8px;flex-wrap:wrap}
 .m-install .m-btn{min-height:40px;font-size:15px}
 .m-finder.square~.m-hint~.m-privacy{top:calc(44% + min(36vw,160px) + 64px)}
+/* Version et diagnostic d'affichage (toucher la version, dans Historique) */
+.m-build{display:block;margin:24px auto 0;border:0;background:none;color:var(--muted);font-size:12px}
+.m-diag{margin:12px 0 0;padding:12px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all}
+#mProbe{position:fixed;top:0;left:0;width:1px;height:1px;visibility:hidden;pointer-events:none;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}

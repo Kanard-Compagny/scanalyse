@@ -248,6 +248,25 @@ $("mInstallBtn").addEventListener("click",async()=>{if(!installEvt)return;instal
 $("mInstallClose").addEventListener("click",()=>{$("mInstall").hidden=true;try{localStorage.setItem(IKEY,"1");}catch(e){}});
 showInstall();
 
+/* ---------- Diagnostic d'affichage : ce que le téléphone donne réellement à la page ---------- */
+$("mBuild").addEventListener("click",()=>{
+  const d=$("mDiag");if(!d.hidden){d.hidden=true;return;}
+  let probe=$("mProbe");if(!probe){probe=document.createElement("div");probe.id="mProbe";document.body.appendChild(probe);}
+  const cs=getComputedStyle(probe),r=$("mRoot").getBoundingClientRect(),tb=document.querySelector(".m-tabs").getBoundingClientRect(),bar=document.querySelector(".m-bar").getBoundingClientRect();
+  const vv=window.visualViewport;
+  d.textContent=[
+    "installée (display-mode standalone) : "+matchMedia("(display-mode: standalone)").matches,
+    "navigator.standalone : "+navigator.standalone,
+    "fenêtre : "+innerWidth+" × "+innerHeight+(vv?" · visible "+Math.round(vv.width)+" × "+Math.round(vv.height)+" décalée de "+Math.round(vv.offsetTop):""),
+    "écran : "+screen.width+" × "+screen.height+" · densité "+devicePixelRatio,
+    "zones sûres (haut droite bas gauche) : "+[cs.paddingTop,cs.paddingRight,cs.paddingBottom,cs.paddingLeft].join(" "),
+    "application : haut "+Math.round(r.top)+" bas "+Math.round(r.bottom)+" · barre "+Math.round(bar.top)+"→"+Math.round(bar.bottom)+" · onglets "+Math.round(tb.top)+"→"+Math.round(tb.bottom),
+    "barre d'état demandée : "+((document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')||{}).content||"—"),
+    "version : "+$("mBuild").textContent.replace(/^.*· /,""),
+    navigator.userAgent].join("\n");
+  d.hidden=false;
+});
+
 /* ---------- Départ ---------- */
 render();
 })();
