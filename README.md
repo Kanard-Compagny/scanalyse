@@ -1,3 +1,5 @@
+<img src="docs/logo.svg" alt="" width="96" align="left">
+
 # Scanalyse
 
 **La boîte à outils gratuite du technicien codes-barres.**
