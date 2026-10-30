@@ -100,6 +100,39 @@ update();fillRanges();
     return s, tail
 
 
+def english_entries(page):
+    """Traductions du programme utiles à la page : textes présents tels quels, ou modèles {0} dont un morceau fixe y figure."""
+    import json
+    entries = []
+    for line in read(ROOT, "..", "src", "Scanalyse.Desktop", "Lang", "en.tsv").split("\n"):
+        if "\t" not in line or line.startswith("#"):
+            continue
+        fr, en = line.split("\t", 1)
+        if re.search(r"\{\d+\}", fr):
+            parts = [p for p in re.split(r"\{\d+\}", fr) if len(p.strip()) >= 4]
+            keep = bool(parts) and all(p in page for p in parts)
+        else:
+            keep = fr in page or (len(fr) <= 40 and fr.lower() in page.lower())
+        if keep:
+            entries.append([fr, en])
+    return json.dumps(entries, ensure_ascii=False).replace("</", "<\\/")
+
+
+def app_tail(page):
+    """Version web : langue (celle du téléphone, ou choisie), lien vers le site."""
+    return inline_script("""
+(function(){
+const EN_TABLE=""" + english_entries(page) + """;
+let lang=null;try{lang=localStorage.getItem("scanalyse-lang");}catch(e){}
+if(!lang)lang=/^fr\\b/i.test(navigator.language||"fr")?"fr":"en";
+const btn=document.getElementById("appLang"),site=document.getElementById("appSite");
+if(lang==="en"&&window.atelierSetLanguage){window.atelierSetLanguage(EN_TABLE);site.href="../en/";btn.textContent="Français";btn.lang="fr";}
+if(matchMedia("(pointer:coarse)").matches){const cam=document.getElementById("scanCam"),file=document.querySelector('label[for="scanFile"]');
+  if(cam&&file){cam.classList.add("primary");file.classList.remove("primary");}}
+btn.addEventListener("click",()=>{try{localStorage.setItem("scanalyse-lang",lang==="en"?"fr":"en");}catch(e){}location.reload();});
+})();""")
+
+
 def main():
     s, tail = assemble()
     qr_cdn = f'<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@{QR_VERSION}/lib/qr-code-styling.js"></script>'
@@ -120,8 +153,8 @@ def main():
     # 2. Version web autonome (PWA)
     head = read(ROOT, "standalone", "head.html")
     out = os.path.join(DIST, "standalone")
-    write(os.path.join(out, "index.html"), head + offline + "\n</body></html>\n")
-    for f in ("manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png"):
+    write(os.path.join(out, "index.html"), head + offline + "\n" + app_tail(offline) + "\n</body></html>\n")
+    for f in ("manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"):
         shutil.copyfile(os.path.join(ROOT, "standalone", f), os.path.join(out, f))
 
     # 3. Version embarquée dans Scanalyse.Desktop

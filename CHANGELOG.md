@@ -1,5 +1,9 @@
 # Scanalyse — Quoi de neuf
 
+## Version web (téléphone)
+
+- **Scanalyse sur téléphone, sans rien installer** : https://kanard-compagny.github.io/scanalyse/app/ — analyser un code à la caméra ou sur une photo, créer un code et le montrer à l'écran. S'ajoute à l'écran d'accueil (Android et iPhone) et fonctionne hors connexion ; tout reste sur le téléphone. Français ou anglais selon la langue du téléphone (bouton pour changer).
+
 ## 0.12.1 — octobre 2026
 
 - **Fenêtre de mise à jour** : les boutons restent visibles quelle que soit la taille de la fenêtre, les nouveautés défilent entre le titre et les boutons. Seules les nouveautés de la version proposée sont affichées, en liste à puces, sans l'empreinte ni la mise en forme brute.

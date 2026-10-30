@@ -67,6 +67,10 @@ T = {
             ("Historique et rapports", "Analyses rangées par dossier client, rapport PDF à votre en-tête, dossier partageable avec l'équipe."),
         ],
         "shots_h": "En images",
+        "mobile_h": "Sur téléphone, sans rien installer",
+        "mobile_p": "Analyser un code à la caméra ou sur une photo, créer un code et le montrer à l'écran : la version web de Scanalyse s'ouvre dans le navigateur d'un téléphone Android ou d'un iPhone. Ajoutez-la à l'écran d'accueil pour l'avoir comme une application, même hors connexion. Tout reste sur le téléphone.",
+        "mobile_btn": "Ouvrir la version web",
+        "mobile_note": "Le banc d'essai, les imprimantes et les terminaux restent dans le programme Windows.",
         "brands_h": "Toutes marques",
         "brands_p": "Scanalyse ne privilégie aucun fabricant. Il reconnaît notamment :",
         "start_h": "Démarrer en deux minutes",
@@ -121,6 +125,10 @@ T = {
             ("History and reports", "Analyses filed by customer case, PDF report with your letterhead, folder shared with the team."),
         ],
         "shots_h": "Screenshots",
+        "mobile_h": "On your phone, nothing to install",
+        "mobile_p": "Read a code with the camera or from a photo, create a code and show it on screen: the web version of Scanalyse opens in the browser of an Android phone or an iPhone. Add it to your home screen to use it like an app, even offline. Everything stays on the phone.",
+        "mobile_btn": "Open the web version",
+        "mobile_note": "The scanner test bench, printers and terminals stay in the Windows program.",
         "brands_h": "All brands",
         "brands_p": "Scanalyse favors no manufacturer. Among others, it recognizes:",
         "start_h": "Up and running in two minutes",
@@ -204,6 +212,10 @@ h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%%;line-
 .shots figure{margin:0}
 .shots img{width:100%%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;background:#fff}
 .shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
+.mobile{background:var(--mint)}
+.mobile p{max-width:44em;margin:0 0 20px}
+.btn-green{background:var(--forest);color:#fff}
+.note-dark{font-size:15px;color:var(--muted);margin:14px 0 0!important}
 .brands p{color:var(--muted);margin:0 0 16px}
 .brands ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 .brands li{background:var(--mint);color:var(--forest);font-weight:600;padding:8px 14px;border-radius:999px;font-size:15px}
@@ -284,6 +296,13 @@ PAGE = """<!doctype html>
   <dl>{tools}</dl>
 </div></section>
 {shots}
+<section class="mobile"><div class="wrap">
+  <h2 class="sec">{mobile_h}</h2>
+  <p>{mobile_p}</p>
+  <a class="btn btn-green" href="{root}app/">{mobile_btn}</a>
+  <p class="note-dark">{mobile_note}</p>
+</div></section>
+
 <section class="brands"><div class="wrap">
   <h2 class="sec">{brands_h}</h2>
   <p>{brands_p}</p>
@@ -335,7 +354,7 @@ def build(code: str) -> str:
         dl=e(t["dl"].format(v=VERSION)), source=e(t["source"]), dl_note=e(t["dl_note"]),
         readout_title=e(t["readout_title"]), a1=t["readout"][0][1], a2=t["readout"][1][1], a3=t["readout"][2][1],
         readout_rows=rows, readout_warn=e(t["readout_warn"]), calls_h=e(t["calls_h"]), calls=calls,
-        tools_h=e(t["tools_h"]), tools=tools, shots=shots, brands_h=e(t["brands_h"]), brands_p=e(t["brands_p"]),
+        tools_h=e(t["tools_h"]), tools=tools, shots=shots, brands_h=e(t["brands_h"]), mobile_h=e(t["mobile_h"]), mobile_p=e(t["mobile_p"]), mobile_btn=e(t["mobile_btn"]), mobile_note=e(t["mobile_note"]), brands_p=e(t["brands_p"]),
         brands="".join(f"<li>{e(b)}</li>" for b in BRANDS), start_h=e(t["start_h"]),
         start="".join(f"<li>{e(s)}</li>" for s in t["start"]), trust_h=e(t["trust_h"]),
         trust="".join(f"<div><h3>{e(h)}</h3><p>{e(p)}</p></div>" for h, p in t["trust"]),
@@ -344,6 +363,12 @@ def build(code: str) -> str:
 
 
 def main() -> None:
+    # Version web (téléphone) : produite par web/build.py, publiée dans site/app/.
+    import shutil
+    app = ROOT / "web" / "dist" / "standalone"
+    if app.exists():
+        shutil.rmtree(SITE / "app", ignore_errors=True)
+        shutil.copytree(app, SITE / "app")
     (SITE / "en").mkdir(parents=True, exist_ok=True)
     (SITE / "index.html").write_text(build("fr"), "utf-8")
     (SITE / "en" / "index.html").write_text(build("en"), "utf-8")

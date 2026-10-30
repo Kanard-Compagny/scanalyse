@@ -1,11 +1,14 @@
 {
- "name": "Atelier QR",
- "short_name": "Atelier QR",
- "start_url": "./",
+ "name": "Scanalyse",
+ "short_name": "Scanalyse",
+ "description": "Analyser et créer des codes-barres, sans rien installer. Tout reste sur l'appareil.",
+ "start_url": "./#analyser",
  "scope": "./",
+ "id": "./",
  "display": "standalone",
- "background_color": "#f3f4f7",
- "theme_color": "#2b3fd6",
+ "orientation": "portrait",
+ "background_color": "#0F3D2E",
+ "theme_color": "#0F3D2E",
  "lang": "fr",
  "icons": [
   {
@@ -16,8 +19,13 @@
   {
    "src": "icon-512.png",
    "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-maskable-512.png",
+   "sizes": "512x512",
    "type": "image/png",
-   "purpose": "any maskable"
+   "purpose": "maskable"
   }
  ]
 }

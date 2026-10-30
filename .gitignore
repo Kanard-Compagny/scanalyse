@@ -26,5 +26,6 @@ Thumbs.db
 .DS_Store
 # Sorties de web/build.py (la version embarquée dans Desktop/Web est, elle, suivie)
 web/dist/
+site/app/
 # Données locales : historique et dossiers SAV (jamais sur GitHub : ce sont des données clients)
 Historique/

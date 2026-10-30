@@ -7,7 +7,7 @@ Understand what a code contains, why a scanner reads it badly, and what a label 
 
 [**⬇ Download the latest release**](https://github.com/Kanard-Compagny/scanalyse/releases/latest) · Windows 10 / 11 · a single `Scanalyse.exe` file, nothing to install
 
-🌐 [Scanalyse website](https://kanard-compagny.github.io/scanalyse/en/) · 🇫🇷 [Lire en français](README.md)
+🌐 [Scanalyse website](https://kanard-compagny.github.io/scanalyse/en/) · 📱 [Web version for phones](https://kanard-compagny.github.io/scanalyse/app/) · 🇫🇷 [Lire en français](README.md)
 
 ---
 

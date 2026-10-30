@@ -9,7 +9,7 @@ Comprendre ce que contient un code, pourquoi une douchette le lit mal, et ce qu'
 
 [**⬇ Télécharger la dernière version**](https://github.com/Kanard-Compagny/scanalyse/releases/latest) · Windows 10 / 11 · un seul fichier `Scanalyse.exe`, rien à installer
 
-🌐 [Site de Scanalyse](https://kanard-compagny.github.io/scanalyse/) · 🇬🇧 [Read in English](README.en.md)
+🌐 [Site de Scanalyse](https://kanard-compagny.github.io/scanalyse/) · 📱 [Version web pour téléphone](https://kanard-compagny.github.io/scanalyse/app/) · 🇬🇧 [Read in English](README.en.md)
 
 ---
 

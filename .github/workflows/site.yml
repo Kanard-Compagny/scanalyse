@@ -5,7 +5,7 @@ name: Site
 on:
   push:
     branches: [main]
-    paths: [site/**, tools/build_site.py, Directory.Build.props, .github/workflows/site.yml]
+    paths: [site/**, web/**, src/Scanalyse.Desktop/Lang/en.tsv, tools/build_site.py, Directory.Build.props, .github/workflows/site.yml]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +25,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Version web pour téléphone (Atelier)
+        run: python3 web/build.py
       - name: Pages générées (français et anglais)
         run: python3 tools/build_site.py
       - uses: actions/configure-pages@v5
