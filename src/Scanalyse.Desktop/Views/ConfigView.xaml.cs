@@ -31,6 +31,7 @@ public partial class ConfigView : UserControl
     public ConfigView()
     {
         InitializeComponent();
+        ResponsiveTarget.Attach(PrinterCard, WideTargetHost, NarrowTargetHost, TargetArea, 1000);
         ScrollChaining.Enable(PageScroll);
         CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, _) => AlignOverlay()));
         CodeBox.SizeChanged += (_, _) => AlignOverlay();

@@ -356,6 +356,10 @@ public static partial class PrinterConfig
         {
             Sgd(line, n, ctx);
         }
+        else if (line.Length > 1 && line[0] == '{' && char.IsAsciiLetterUpper(line[1]))
+        {
+            Tpcl(line, n, ctx);
+        }
         else if (line.StartsWith("{}", StringComparison.Ordinal) || (line.StartsWith('{') && line.Contains("\":", StringComparison.Ordinal)))
         {
             JsonSgd(line, n, ctx);

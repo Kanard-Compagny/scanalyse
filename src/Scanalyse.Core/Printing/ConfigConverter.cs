@@ -41,6 +41,7 @@ public enum ConfigLanguage
     Dpl,
     Fingerprint,
     Sbpl,
+    Tpcl,
 }
 
 /// <summary>
@@ -138,6 +139,7 @@ public static partial class ConfigConverter
         ConfigLanguage.Epl2 => "EPL2 (Zebra, anciens modèles)",
         ConfigLanguage.Dpl => "DPL (Honeywell / Datamax)",
         ConfigLanguage.Fingerprint => "Fingerprint (Honeywell / Intermec)",
+        ConfigLanguage.Tpcl => "TPCL (Toshiba)",
         _ => "SBPL (SATO)",
     };
 
@@ -148,6 +150,7 @@ public static partial class ConfigConverter
         PrinterBrand.Honeywell or PrinterBrand.Intermec => ConfigLanguage.Fingerprint,
         PrinterBrand.Datamax => ConfigLanguage.Dpl,
         PrinterBrand.Sato => ConfigLanguage.Sbpl,
+        PrinterBrand.Toshiba => ConfigLanguage.Tpcl,
         _ => ConfigLanguage.Zpl,
     };
 
@@ -161,6 +164,7 @@ public static partial class ConfigConverter
         "DPL" => ConfigLanguage.Dpl,
         "Fingerprint" => ConfigLanguage.Fingerprint,
         "SBPL" => ConfigLanguage.Sbpl,
+        "TPCL" => ConfigLanguage.Tpcl,
         _ => null,
     };
 
@@ -193,6 +197,7 @@ public static partial class ConfigConverter
                     "DPL" => Dpl(item.Command, s),
                     "Fingerprint" => Fingerprint(item.Command, s),
                     "SBPL" => Sbpl(item.Command, s),
+                    "TPCL" => Tpcl(item.Command, s),
                     _ => Known.Other,
                 };
                 if (known == Known.Setting)
@@ -732,6 +737,9 @@ public static partial class ConfigConverter
                 break;
             case ConfigLanguage.Fingerprint:
                 WriteFingerprint(s, w);
+                break;
+            case ConfigLanguage.Tpcl:
+                WriteTpcl(s, w);
                 break;
             default:
                 WriteSbpl(s, w);
@@ -1282,6 +1290,156 @@ public static partial class ConfigConverter
 
         NoNetwork(s, w, "SBPL");
         NoShift(s, w, "SBPL");
+    }
+
+    // ------------------------------------------------------------------ TPCL (Toshiba TEC)
+
+    private static Known Tpcl(string raw, PrinterSettings s)
+    {
+        var body = raw.Trim().TrimStart('{');
+        var bar = body.IndexOf('|', StringComparison.Ordinal);
+        body = bar >= 0 ? body[..bar] : body;
+        if (body.Length == 0)
+        {
+            return Known.Structure;
+        }
+
+        if (body[0] == 'D')
+        {
+            var p = body[1..].Split(',');
+            if (p.Length >= 3 && Num(p[0], out var pitch) && Num(p[1], out var width) && Num(p[2], out var length))
+            {
+                s.WidthMm = width / 10;
+                s.LengthMm = length / 10;
+                if (pitch > length)
+                {
+                    s.GapMm = (pitch - length) / 10;
+                }
+
+                return Known.Setting;
+            }
+
+            return Known.Other;
+        }
+
+        if (body.StartsWith("AY;", StringComparison.Ordinal))
+        {
+            var p = body[3..].Split(',');
+            if (p.Length == 2 && int.TryParse(p[0], NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var adjust))
+            {
+                s.Darkness = Clamp((adjust + 10) / 20.0);
+                s.Method = p[1] == "1" ? PrintMethod.DirectThermal : PrintMethod.ThermalTransfer;
+                return Known.Setting;
+            }
+
+            return Known.Other;
+        }
+
+        if (body.StartsWith("AX;", StringComparison.Ordinal))
+        {
+            var p = body[3..].Split(',');
+            if (p.Length >= 2 && int.TryParse(p[0], NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var feed)
+                && int.TryParse(p[1], NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var cut))
+            {
+                s.TopShiftMm = feed / 10.0;
+                s.TearOffMm = cut / 10.0;
+                return Known.Setting;
+            }
+
+            return Known.Other;
+        }
+
+        string? feedParams = null;
+        var cutFlag = '0';
+        if (body[0] == 'T' && body.Length >= 6)
+        {
+            feedParams = $"{body[1]}{body[3]}{body[4]}{body[5]}";
+            cutFlag = body[2];
+        }
+        else if (body.StartsWith("XS;I,", StringComparison.Ordinal))
+        {
+            var p = body.Split(',');
+            if (p.Length >= 3 && p[2].Length >= 7)
+            {
+                feedParams = p[2][3..7];
+                cutFlag = p[2][..3] == "000" ? '0' : '1';
+            }
+        }
+
+        if (feedParams is null)
+        {
+            return body is "C" || body.StartsWith("PC", StringComparison.Ordinal) || body.StartsWith("RC", StringComparison.Ordinal)
+                || body.StartsWith("XB", StringComparison.Ordinal) || body.StartsWith("RB", StringComparison.Ordinal) || body.StartsWith("LC", StringComparison.Ordinal)
+                || body.StartsWith("WS", StringComparison.Ordinal) ? Known.Structure : Known.Other;
+        }
+
+        s.Media = feedParams[0] switch { '0' => MediaKind.Continuous, '1' or '4' => MediaKind.Mark, _ => MediaKind.Gap };
+        s.Mode = char.ToUpperInvariant(feedParams[1]) switch
+        {
+            'D' or 'E' or 'F' => OutputMode.PeelOff,
+            _ => cutFlag == '1' ? OutputMode.Cutter : OutputMode.TearOff,
+        };
+        s.SpeedIps = PrinterConfig.TpclSpeed(feedParams[2]) ?? s.SpeedIps;
+        s.Method = feedParams[3] == '0' ? PrintMethod.DirectThermal : PrintMethod.ThermalTransfer;
+        return Known.Setting;
+    }
+
+    private static string Tenths(double mm) => ((int)Math.Round(mm * 10)).ToString("0000", CultureInfo.InvariantCulture);
+
+    private static string SignedTenths(double mm, int digits) =>
+        (mm >= 0 ? "+" : "-") + ((int)Math.Round(Math.Abs(mm) * 10)).ToString(new string('0', digits), CultureInfo.InvariantCulture);
+
+    private static void WriteTpcl(PrinterSettings s, Writer w)
+    {
+        if (s.WidthMm is { } wi && s.LengthMm is { } l)
+        {
+            var pitch = l + (s.Media == MediaKind.Continuous ? 0 : s.GapMm ?? 3);
+            var line = $"{{D{Tenths(pitch)},{Tenths(wi)},{Tenths(l)}|}}";
+            w.Line(line);
+            w.Written("Taille d'étiquette", line + $" (pas {F(pitch)} mm = étiquette + espace{(s.GapMm is null && s.Media != MediaKind.Continuous ? ", espace de 3 mm par défaut" : string.Empty)})", false);
+        }
+        else if (s.WidthMm is not null || s.LengthMm is not null)
+        {
+            Missing(w, "Taille d'étiquette", "{D…|} demande la largeur et la longueur ; renseigne les deux.");
+        }
+
+        if (s.TopShiftMm is not null || s.TearOffMm is not null)
+        {
+            var line = $"{{AX;{SignedTenths(s.TopShiftMm ?? 0, 3)},{SignedTenths(s.TearOffMm ?? 0, 3)},+00|}}";
+            w.Line(line);
+            w.Written("Réglages fins (avance, détachage)", line, false);
+        }
+
+        if (s.Darkness is not null || s.Method is not null)
+        {
+            var adjust = s.Darkness is { } d ? (int)Math.Round((d * 20) - 10) : 0;
+            var method = s.Method == PrintMethod.DirectThermal ? 1 : 0;
+            var line = $"{{AY;{(adjust >= 0 ? "+" : "-")}{Math.Abs(adjust):00},{method}|}}";
+            w.Line(line);
+            w.Written("Noirceur et méthode", line + " (ajustement -10 à +10)", s.Darkness is not null);
+        }
+
+        var feed = s.Media is not null || s.SpeedIps is not null || s.Mode is not null || s.Method is not null;
+        if (feed)
+        {
+            var sensor = s.Media switch { MediaKind.Continuous => '0', MediaKind.Mark => '1', _ => '2' };
+            var cut = s.Mode is OutputMode.Cutter or OutputMode.DelayedCut ? '1' : '0';
+            var mode = s.Mode == OutputMode.PeelOff ? 'E' : 'C';
+            var ips = (int)Math.Clamp(Math.Round(s.SpeedIps ?? 3), 2, 9);
+            var ribbon = s.Method == PrintMethod.DirectThermal ? '0' : '2';
+            var line = $"{{T{sensor}{cut}{mode}{ips}{ribbon}|}}";
+            w.Line("{C|}");
+            w.Line(line);
+            w.Written("Support, sortie, vitesse et ruban", line + " (fait avancer une étiquette pour appliquer ces réglages)", s.SpeedIps is { } sp && Math.Abs(sp - ips) > 0.01);
+            if (s.Mode == OutputMode.Applicator || s.Mode == OutputMode.Rewind)
+            {
+                Missing(w, "Sortie : " + (s.Mode == OutputMode.Applicator ? "applicateur" : "enroulement"), "se règle par le menu de l'imprimante Toshiba.");
+            }
+        }
+
+        NoNetwork(s, w, "TPCL");
+        NoShiftLeft(s, w, "TPCL");
+        w.Note(ConversionStatus.Approximated, "TPCL : commandes écrites d'après la documentation TPCL générale (B-EX, B-SX, BA400…) ; vérifie le résultat sur le modèle, les vitesses et options varient.");
     }
 
     [GeneratedRegex("""(setvar|getvar|do)\s+"([^"]+)"(?:\s+"([^"]*)")?""", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]

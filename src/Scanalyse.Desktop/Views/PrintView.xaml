@@ -67,7 +67,7 @@
     </Grid>
 
     <!-- Imprimante : toujours au même endroit, en haut de la page -->
-    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
+    <Border x:Name="PrinterCard" Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
       <StackPanel>
         <DockPanel>
           <Button DockPanel.Dock="Right" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="12,0,0,0" VerticalAlignment="Center" />
@@ -76,7 +76,7 @@
             <RadioButton x:Name="ModeTcp" Style="{StaticResource Chip}" GroupName="Target" Content="Réseau (IP, port 9100)" IsChecked="True" Checked="Mode_Changed" Margin="0,0,6,0" />
             <RadioButton x:Name="ModeQueue" Style="{StaticResource Chip}" GroupName="Target" Content="Installée sur ce PC" Checked="Mode_Changed" Margin="0,0,0,0" />
           </StackPanel>
-          <Grid VerticalAlignment="Center">
+          <Border x:Name="WideTargetHost" VerticalAlignment="Center"><Grid x:Name="TargetArea" VerticalAlignment="Center">
               <DockPanel x:Name="AddressPanel" Margin="0">
                 <Grid>
                   <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" />
@@ -84,6 +84,8 @@
                              Text="ex. 192.168.1.50 ou 192.168.1.50:6101" />
                 </Grid>
               </DockPanel>
+        <!-- Fenêtre étroite : l'adresse passe ici, en pleine largeur -->
+        <Border x:Name="NarrowTargetHost" Margin="0,8,0,0" Visibility="Collapsed" />
               <StackPanel x:Name="QueuePanel" Visibility="Collapsed" Margin="0">
                 <Button x:Name="QueueButton" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="QueueButton_Click"
                         ToolTip="Choisir l'imprimante (les données partent en mode RAW : le pilote ne les modifie pas)">
@@ -114,7 +116,7 @@
                   </Border>
                 </Popup>
               </StackPanel>
-          </Grid>
+          </Grid></Border>
         </DockPanel>
         <TextBlock x:Name="SendStatus" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,6,0,0" />
         <!-- Maintenance : état, calibrage, page de configuration, redémarrage -->

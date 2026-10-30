@@ -13,6 +13,7 @@ public enum PrinterBrand
     Intermec,
     Datamax,
     Sato,
+    Toshiba,
 }
 
 /// <summary>
@@ -60,6 +61,7 @@ public static partial class PrinterConfig
         PrinterBrand.Intermec => "Intermec",
         PrinterBrand.Datamax => "Datamax",
         PrinterBrand.Sato => "SATO",
+        PrinterBrand.Toshiba => "Toshiba",
         _ => "Imprimante",
     };
 
@@ -79,6 +81,7 @@ public static partial class PrinterConfig
             _ when t.Contains("INTERMEC", StringComparison.Ordinal) => PrinterBrand.Intermec,
             _ when t.Contains("HONEYWELL", StringComparison.Ordinal) => PrinterBrand.Honeywell,
             _ when t.Contains("SATO", StringComparison.Ordinal) => PrinterBrand.Sato,
+            _ when t.Contains("TOSHIBA", StringComparison.Ordinal) || ToshibaModel().IsMatch(t) => PrinterBrand.Toshiba,
             _ when TscName().IsMatch(t) => PrinterBrand.Tsc,
             _ => PrinterBrand.Unknown,
         };
@@ -124,6 +127,11 @@ public static partial class PrinterConfig
             {
                 found.Add("SBPL");
             }
+
+            if (t.Contains("TPCL", StringComparison.Ordinal))
+            {
+                found.Add("TPCL");
+            }
         }
 
         return [.. found];
@@ -151,6 +159,8 @@ public static partial class PrinterConfig
         (PrinterBrand.Datamax, "ZPL" or "EPL2") => Support.Emulation,
         (PrinterBrand.Sato, "SBPL") => Support.Native,
         (PrinterBrand.Sato, "ZPL" or "DPL") => Support.Emulation,
+        (PrinterBrand.Toshiba, "TPCL") => Support.Native,
+        (PrinterBrand.Toshiba, "ZPL") => Support.Emulation,
         _ => Support.None,
     };
 
@@ -216,6 +226,7 @@ public static partial class PrinterConfig
         PrinterBrand.Intermec => "Fingerprint / Direct Protocol, IPL",
         PrinterBrand.Datamax => "DPL",
         PrinterBrand.Sato => "SBPL",
+        PrinterBrand.Toshiba => "TPCL",
         _ => "inconnu",
     };
 
@@ -251,6 +262,9 @@ public static partial class PrinterConfig
 
     [GeneratedRegex(@"\b(Z[TDQ]\d{3}|ZD\d{3,4}|ZT\d{3}|GK420|GX4[23]0|GC420|ZM[46]00|ZE5\d\d|ZQ\d{3}|QLN\d{3}|105SL|110XI|XI4|ZC\d{3}|ZXP)", RegexOptions.CultureInvariant)]
     private static partial Regex ZebraModel();
+
+    [GeneratedRegex(@"\b(B-EX\d|B-SX\d|B-FV4|B-FX3|B-SA4|B-EP\d|B-452|B-852|BA4[0-9]{2}|B-472|B-572)", RegexOptions.CultureInvariant)]
+    private static partial Regex ToshibaModel();
 
     [GeneratedRegex(@"(\bTSC\b|^TSC|\bTTP-|\bTE[23]\d0\b|\bTX[23]\d0|\bMH\d{3}|\bML\d{3}|\bDA[23]\d0\b|\bTDP-|\bTA[23]\d0\b|\bME[234]\d0|\bMX\d{3}|\bTH[23]\d0)", RegexOptions.CultureInvariant)]
     private static partial Regex TscName();

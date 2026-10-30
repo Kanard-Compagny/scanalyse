@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Media;
 using Scanalyse.Core.Printing;
 
 namespace Scanalyse.Desktop.Views;
@@ -113,6 +114,7 @@ public partial class ConfigView
         ConfigLanguage.Epl2 => "Zebra anciennes (LP / TLP 2844…)",
         ConfigLanguage.Dpl => "Honeywell / Datamax (classe I, M, E…)",
         ConfigLanguage.Fingerprint => "Honeywell / Intermec (PC, PD, PM, PX…)",
+        ConfigLanguage.Tpcl => "Toshiba TEC (B-EX, B-SX, BA400…)",
         _ => "SATO (CL4NX, CT4-LX…)",
     };
 
@@ -124,6 +126,7 @@ public partial class ConfigView
         ConfigLanguage.Epl2 => "EPL2",
         ConfigLanguage.Dpl => "DPL",
         ConfigLanguage.Fingerprint => "Fingerprint",
+        ConfigLanguage.Tpcl => "TPCL",
         _ => "SBPL",
     };
 
@@ -206,10 +209,29 @@ public partial class ConfigView
         var result = ConfigConverter.Convert(CodeBox.Text, target, CurrentDpi());
         _convertResult = result;
         ConvertResult.Visibility = Visibility.Visible;
-        ConvertOutput.Text = result.Settings.IsEmpty ? string.Empty : result.Text;
-        Placeholder.SetText(ConvertOutput, Localization.T("Aucun réglage commun dans le fichier de départ : rien à convertir."));
+        ShowCode(ConvertCode, result.Settings.IsEmpty ? string.Empty : result.Text, "Aucun réglage commun dans le fichier de départ : rien à convertir.");
         ConvertSummary.Text = Summary(result);
         Notes(ConvertNotes, result, showLines: true);
+    }
+
+    /// <summary>Fichier en lecture seule, coloré comme l'éditeur (commande inconnue en rouge) ; message si vide.</summary>
+    private void ShowCode(TextBlock target, string text, string emptyMessage)
+    {
+        target.Inlines.Clear();
+        if (text.Length == 0)
+        {
+            var empty = new Run(Localization.T(emptyMessage)) { FontFamily = (FontFamily)FindResource("UiFont") };
+            empty.SetResourceReference(TextElement.ForegroundProperty, "Muted");
+            target.Inlines.Add(empty);
+            return;
+        }
+
+        foreach (var t in PrinterConfig.Tokenize(text))
+        {
+            var run = new Run(text.Substring(t.Start, t.Length));
+            run.SetResourceReference(TextElement.ForegroundProperty, ColorKey(t.Kind));
+            target.Inlines.Add(run);
+        }
     }
 
     private static string Summary(ConversionResult result) => string.Format(CultureInfo.InvariantCulture,
@@ -625,8 +647,7 @@ public partial class ConfigView
         if (settings.IsEmpty)
         {
             _createResult = null;
-            CreateOutput.Text = string.Empty;
-            Placeholder.SetText(CreateOutput, Localization.T("Renseigne au moins un réglage à gauche : le fichier s'écrit ici."));
+            ShowCode(CreateCode, string.Empty, "Renseigne au moins un réglage à gauche : le fichier s'écrit ici.");
             CreateSummary.Text = string.Empty;
             CreateNotes.Children.Clear();
             return;
@@ -634,7 +655,7 @@ public partial class ConfigView
 
         var result = ConfigConverter.Write(settings, target);
         _createResult = invalid.Count > 0 ? null : result;
-        CreateOutput.Text = result.Text;
+        ShowCode(CreateCode, result.Text, string.Empty);
         CreateSummary.Text = invalid.Count > 0
             ? string.Format(CultureInfo.InvariantCulture, Localization.T("À corriger avant d'enregistrer ou d'envoyer : {0}."), string.Join(", ", invalid))
             : string.Format(CultureInfo.InvariantCulture, Localization.T("{0} écrit pour {1}. Les lignes « à vérifier » ou « non repris » sont détaillées ci-dessous."),
@@ -660,6 +681,7 @@ public partial class ConfigView
             ConfigLanguage.Epl2 => $"D{Math.Round(d * 15)} (0 à 15)",
             ConfigLanguage.Dpl => $"H{Math.Round(d * 30):00} (0 à 30, dans chaque format)",
             ConfigLanguage.Fingerprint => $"CONTRAST {Math.Round((d * 20) - 10):+0;-0;0}% (-10 à +10)",
+            ConfigLanguage.Tpcl => $"{{AY;{Math.Round((d * 20) - 10):+00;-00;+00},…|}} (-10 à +10)",
             _ => $"<ESC>#E{Math.Round((d * 4) + 1)} (1 à 5)",
         };
         _darknessHint.Text = string.Format(CultureInfo.InvariantCulture, Localization.T("Sera écrit : {0}"), written);

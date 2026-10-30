@@ -147,6 +147,15 @@ public static partial class PrinterConfig
         Snip("Fingerprint", "SETUP \"NETWORK\",\"IP SELECTION\"", "SETUP \"NETWORK\",\"IP SELECTION\",\"{|}\"", "Attribution de l'adresse IP : DHCP, BOOTP, MANUAL"),
         Snip("Fingerprint", "SETUP \"NETWORK\",\"IP ADDRESS\"", "SETUP \"NETWORK\",\"IP ADDRESS\",\"{|}\"", "Adresse IP (filaire)"),
 
+        // Toshiba TPCL
+        Snip("TPCL", "{D…|}", "{D{|},,|}", "Taille d'étiquette : pas (étiquette + espace), largeur, longueur, en dixièmes de mm (4 chiffres chacun)"),
+        Snip("TPCL", "{AX;…|}", "{AX;+{|}000,+000,+00|}", "Réglages fins : avance, position de coupe ou de détachage, recul (dixièmes de mm, avec le signe)"),
+        Snip("TPCL", "{AY;…|}", "{AY;+{|}00,0|}", "Noirceur : ajustement -10 à +10, puis 0 transfert thermique ou 1 thermique direct"),
+        Snip("TPCL", "{T…|}", "{T{|}20C30|}", "Avance d'une étiquette : capteur (0 à 4), coupe (0 / 1), mode (C, D, E), vitesse, ruban (0 à 2)"),
+        Snip("TPCL", "{C|}", "{C|}", "Effacement de la mémoire d'image"),
+        Snip("TPCL", "{XS;I,…|}", "{XS;I,0001,0002C3000|}", "Impression : quantité, intervalle de coupe, capteur, mode, vitesse, ruban"),
+        Snip("TPCL", "{WS|}", "{WS|}", "Demande d'état"),
+
         // SATO SBPL
         Snip("SBPL", "<ESC>A", "<ESC>A", "Début de bloc"),
         Snip("SBPL", "<ESC>Z", "<ESC>Z", "Fin de bloc (exécution)"),

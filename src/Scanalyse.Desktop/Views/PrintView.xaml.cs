@@ -35,6 +35,7 @@ public partial class PrintView : UserControl
     public PrintView()
     {
         InitializeComponent();
+        ResponsiveTarget.Attach(PrinterCard, WideTargetHost, NarrowTargetHost, TargetArea, 820);
         _debounce.Tick += async (_, _) =>
         {
             _debounce.Stop();

@@ -51,7 +51,7 @@
     </Grid>
 
     <!-- Imprimante : la même que « Étiquette imprimante », présentée de la même façon -->
-    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
+    <Border x:Name="PrinterCard" Grid.Row="2" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
       <StackPanel>
       <DockPanel>
         <Button DockPanel.Dock="Right" x:Name="SendButton" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="8,0,0,0" VerticalAlignment="Center" />
@@ -62,7 +62,7 @@
           <RadioButton x:Name="TargetTcp" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Réseau (IP, port 9100)" IsChecked="True" Checked="Target_Changed" Margin="0,0,6,0" />
           <RadioButton x:Name="TargetQueue" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Installée sur ce PC" Checked="Target_Changed" Margin="0" />
         </StackPanel>
-        <Grid VerticalAlignment="Center">
+        <Border x:Name="WideTargetHost" VerticalAlignment="Center"><Grid x:Name="TargetArea" VerticalAlignment="Center">
           <Grid x:Name="AddressPanel">
             <TextBox x:Name="AddressBox" Style="{StaticResource FieldInput}" LostFocus="Address_LostFocus"
                      ToolTip="Adresse IP de l'imprimante (ex. 192.168.1.50 ou 192.168.1.50:9100)" />
@@ -77,6 +77,8 @@
                 <TextBlock x:Name="QueueCount" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" />
                 <TextBlock x:Name="QueueSelected" Text="Choisir une imprimante…" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
               </DockPanel>
+        <!-- Fenêtre étroite : l'adresse passe ici, en pleine largeur -->
+        <Border x:Name="NarrowTargetHost" Margin="0,8,0,0" Visibility="Collapsed" />
             </Button>
             <Popup x:Name="QueuePopup" PlacementTarget="{Binding ElementName=QueueButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True"
                    Width="{Binding ActualWidth, ElementName=QueueButton}" PopupAnimation="Fade">
@@ -99,7 +101,7 @@
               </Border>
             </Popup>
           </StackPanel>
-        </Grid>
+        </Grid></Border>
       </DockPanel>
       <!-- Imprimante reconnue : marque, modèle, langages, réglages lus ; sert de référence à l'analyse -->
       <DockPanel Margin="0,8,0,0">
@@ -211,8 +213,12 @@
             <StackPanel x:Name="ConvertResult" Visibility="Collapsed" Margin="0,16,0,0">
               <TextBlock Style="{StaticResource CardTitle}" Text="3. Le fichier converti" />
               <TextBlock x:Name="ConvertSummary" FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,8" />
-              <TextBox x:Name="ConvertOutput" Style="{StaticResource Input}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" Height="190"
-                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" />
+              <!-- Fichier converti, coloré comme l'éditeur -->
+              <Border Background="{DynamicResource Surface2}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="8" Height="220">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="12,8">
+                  <TextBlock x:Name="ConvertCode" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" />
+                </ScrollViewer>
+              </Border>
               <WrapPanel Margin="-8,6,0,8">
                 <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveResult_Click" Margin="0,0,2,0" />
                 <Button Style="{StaticResource BtnGhost}" Content="Copier" Click="CopyResult_Click" Margin="0,0,2,0" />
@@ -248,8 +254,12 @@
               <StackPanel x:Name="CreateNotes" Margin="0,0,8,0" />
             </ScrollViewer>
           </StackPanel>
-          <TextBox x:Name="CreateOutput" Style="{StaticResource Input}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="120"
-                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" />
+          <!-- Fichier créé, coloré comme l'éditeur -->
+          <Border Background="{DynamicResource Surface2}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="8" MinHeight="120">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="12,8">
+              <TextBlock x:Name="CreateCode" FontFamily="{StaticResource MonoFont}" FontSize="13" Foreground="{DynamicResource Ink}" />
+            </ScrollViewer>
+          </Border>
         </DockPanel>
       </Border>
 

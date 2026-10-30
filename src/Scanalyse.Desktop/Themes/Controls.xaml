@@ -387,6 +387,14 @@
             <Trigger Property="Text" Value="">
               <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
             </Trigger>
+            <!-- Champ d'une ligne : l'aide reste sur une ligne (coupée par « … » si le champ est étroit) -->
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="TextWrapping" Value="NoWrap" />
+                <Condition Property="AcceptsReturn" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="PlaceholderText" Property="TextWrapping" Value="NoWrap" />
+            </MultiTrigger>
             <!-- Champ d'une ligne : texte et aide centrés verticalement, quelle que soit la hauteur du champ -->
             <Trigger Property="VerticalContentAlignment" Value="Center">
               <Setter TargetName="PART_ContentHost" Property="VerticalAlignment" Value="Center" />

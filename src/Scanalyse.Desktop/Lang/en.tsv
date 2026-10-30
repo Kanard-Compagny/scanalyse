@@ -3077,4 +3077,46 @@ Couleurs, logo, liens, Wi-Fi, cartes de visite, paiements.	Colors, logo, links, 
 Data Matrix, PDF417, Aztec… beaucoup de données sur peu de place.	Data Matrix, PDF417, Aztec… lots of data in little space.
 EAN, UPC, ITF-14, DataBar : articles en magasin, cartons.	EAN, UPC, ITF-14, DataBar: store items, cartons.
 Code 128, GS1-128, Code 39… logistique, stock, pharmacie.	Code 128, GS1-128, Code 39… logistics, stock, pharmacy.
-Catégorie	Category
+(fait avancer une étiquette pour appliquer ces réglages)	(feeds one label to apply these settings)
+Noirceur et méthode	Darkness and method
+Réglages fins (avance, détachage)	Fine adjustments (feed, tear-off)
+Support, sortie, vitesse et ruban	Media, output, speed and ribbon
+TPCL (Toshiba)	TPCL (Toshiba)
+TPCL : commandes écrites d'après la documentation TPCL générale (B-EX, B-SX, BA400…) ; vérifie le résultat sur le modèle, les vitesses et options varient.	TPCL: commands written from the general TPCL documentation (B-EX, B-SX, BA400…); check the result on the model, speeds and options vary.
+se règle par le menu de l'imprimante Toshiba.	is set from the Toshiba printer menu.
+{D…|} demande la largeur et la longueur ; renseigne les deux.	{D…|} needs both width and length; fill in both.
+Avance d'une étiquette : capteur (0 à 4), coupe (0 / 1), mode (C, D, E), vitesse, ruban (0 à 2)	Feed one label: sensor (0 to 4), cut (0 / 1), mode (C, D, E), speed, ribbon (0 to 2)
+Impression : quantité, intervalle de coupe, capteur, mode, vitesse, ruban	Print: quantity, cut interval, sensor, mode, speed, ribbon
+Noirceur : ajustement -10 à +10, puis 0 transfert thermique ou 1 thermique direct	Darkness: adjustment -10 to +10, then 0 thermal transfer or 1 direct thermal
+Réglages fins : avance, position de coupe ou de détachage, recul (dixièmes de mm, avec le signe)	Fine adjustments: feed, cut or tear-off position, backfeed (tenths of mm, with sign)
+Taille d'étiquette : pas (étiquette + espace), largeur, longueur, en dixièmes de mm (4 chiffres chacun)	Label size: pitch (label + gap), width, length, in tenths of mm (4 digits each)
+Avance d'une étiquette	Feed one label
+Commande TPCL mal fermée	Unclosed TPCL command
+Commande TPCL {0}	TPCL command {0}
+Réglage de noirceur	Darkness setting
+Réglages fins (avance, coupe, recul)	Fine adjustments (feed, cut, backfeed)
+Réglages fins : avance {0} mm, position de coupe ou de détachage {1} mm, recul {2} mm	Fine adjustments: feed {0} mm, cut or tear-off position {1} mm, backfeed {2} mm
+Taille d'étiquette : pas {0} mm, largeur {1} mm, longueur {2} mm	Label size: pitch {0} mm, width {1} mm, length {2} mm
+aucun capteur (support continu)	no sensor (continuous media)
+avec coupe	with cut
+avec ruban (transfert thermique)	with ribbon (thermal transfer)
+avec ruban (économiseur de ruban)	with ribbon (ribbon saving)
+capteur réfléchissant (marque noire)	reflective sensor (black mark)
+capteur réfléchissant (marque pré-imprimée)	reflective sensor (pre-printed mark)
+capteur transmissif (espace entre étiquettes)	transmissive sensor (gap between labels)
+capteur transmissif (étiquettes pré-imprimées)	transmissive sensor (pre-printed labels)
+continu (détachage ou coupe)	continuous (tear-off or cut)
+prédécollage (sans attente)	peel off (no wait)
+prédécollage avec recul	peel off with backfeed
+sans coupe	no cut
+sans ruban (thermique direct)	no ribbon (direct thermal)
+{0} pouces par seconde	{0} inches per second
+{AX;…|} : forme attendue {AX;+000,+000,+00|} (avance, position de coupe ou de détachage, recul, en dixièmes de mm, avec le signe).	{AX;…|}: expected form {AX;+000,+000,+00|} (feed, cut or tear-off position, backfeed, in tenths of mm, with sign).
+{AY;…|} : forme attendue {AY;+05,0|} (ajustement de -10 à +10, puis 0 transfert thermique ou 1 thermique direct).	{AY;…|}: expected form {AY;+05,0|} (adjustment -10 to +10, then 0 thermal transfer or 1 direct thermal).
+{D…|} : le pas (étiquette + espace) est plus petit que la longueur d'étiquette.	{D…|}: the pitch (label + gap) is smaller than the label length.
+{D…|} : trois nombres de 4 chiffres attendus, en dixièmes de mm : pas de l'étiquette (étiquette + espace), largeur, longueur. Ex. {D0508,0760,0468|}.	{D…|}: three 4-digit numbers expected, in tenths of mm: label pitch (label + gap), width, length. E.g. {D0508,0760,0468|}.
+{T…|} : capteur, coupe, mode, vitesse et ruban attendus (ex. {T20C30|}).	{T…|}: sensor, cut, mode, speed and ribbon expected (e.g. {T20C30|}).
+{T…|} fait avancer une étiquette : capteur, mode, vitesse et ruban sont appliqués à cette occasion.	{T…|} feeds one label: sensor, mode, speed and ribbon are applied at that moment.
+{XS;I,…|} : après la quantité, attendu intervalle de coupe (3 chiffres), capteur, mode, vitesse, ruban (ex. 0002C3000).	{XS;I,…|}: after the quantity, expected cut interval (3 digits), sensor, mode, speed, ribbon (e.g. 0002C3000).
+{XS;…|} : forme attendue {XS;I,0001,0002C3000|} (quantité, intervalle de coupe, capteur, mode, vitesse, ruban…).	{XS;…|}: expected form {XS;I,0001,0002C3000|} (quantity, cut interval, sensor, mode, speed, ribbon…).
+Toshiba TEC (B-EX, B-SX, BA400…)	Toshiba TEC (B-EX, B-SX, BA400…)

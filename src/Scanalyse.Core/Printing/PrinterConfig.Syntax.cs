@@ -98,6 +98,10 @@ public static partial class PrinterConfig
         {
             SgdLine(trimmed, at, tokens);
         }
+        else if (trimmed[0] == '{' && trimmed.Length > 1 && char.IsAsciiLetterUpper(trimmed[1]))
+        {
+            TpclTokens(trimmed, at, tokens);
+        }
         else if (trimmed[0] == '{')
         {
             Quoted(trimmed, 0, at, tokens, json: true);
@@ -187,6 +191,25 @@ public static partial class PrinterConfig
             Add(tokens, at + startPlain, i - startPlain, json && chunk.Any(char.IsAsciiLetter) && !chunk.Contains("null", StringComparison.Ordinal)
                 ? ConfigTokenKind.Value : ConfigTokenKind.Plain);
         }
+    }
+
+    /// <summary>TPCL : « { » + code de commande, paramètres, « |} » ; ce qui n'est pas une commande fermée est en rouge.</summary>
+    private static void TpclTokens(string s, int at, List<ConfigToken> tokens)
+    {
+        var last = 0;
+        foreach (Match m in TpclCommand().Matches(s))
+        {
+            Add(tokens, at + last, m.Index - last, ConfigTokenKind.Unknown);
+            var body = m.Groups[1].Value;
+            var code = body.Length >= 2 && char.IsAsciiLetterUpper(body[1]) ? 2 : 1;
+            Add(tokens, at + m.Index, 1, ConfigTokenKind.Plain);
+            Add(tokens, at + m.Index + 1, code, ConfigTokenKind.Command);
+            Add(tokens, at + m.Index + 1 + code, body.Length - code, ConfigTokenKind.Parameter);
+            Add(tokens, at + m.Index + 1 + body.Length, 2, ConfigTokenKind.Plain);
+            last = m.Index + m.Length;
+        }
+
+        Add(tokens, at + last, s.Length - last, ConfigTokenKind.Unknown);
     }
 
     private static void ZplLine(string s, int at, List<ConfigToken> tokens)

@@ -99,4 +99,37 @@ public class ConfigConverterTests
         Assert.DoesNotContain(r.Notes, n => n.Status == ConversionStatus.Approximated);
         Assert.Contains(ConfigConverter.Write(new PrinterSettings(), ConfigLanguage.Zpl).Notes, n => n.Status == ConversionStatus.NotConverted);
     }
+
+    [Fact]
+    public void Toshiba_tpcl()
+    {
+        const string tpcl = "{D0530,1000,0500|}\r\n{AX;+010,-005,+00|}\r\n{AY;+05,1|}\r\n{C|}{T20E40|}\r\n{XS;I,0001,0002C3000|}\r\n{AY;+15,0|}\r\n{D05,1000|}\r\n{T20C3|\r\n";
+        var r = PrinterConfig.Analyze(tpcl);
+        Assert.Contains("TPCL", r.Languages);
+        Assert.DoesNotContain(r.Findings, f => f.Line <= 5 && f.Severity == Scanalyse.Core.Content.Severity.Error);
+        Assert.Contains(r.Findings, f => f.Line == 6 && f.Severity == Scanalyse.Core.Content.Severity.Error);
+        Assert.Contains(r.Findings, f => f.Line == 7 && f.Severity == Scanalyse.Core.Content.Severity.Error);
+        Assert.Contains(r.Findings, f => f.Line == 8 && f.Severity == Scanalyse.Core.Content.Severity.Error);
+
+        var (s, _, sources) = ConfigConverter.Extract(tpcl);
+        Assert.Contains(ConfigLanguage.Tpcl, sources);
+        Assert.Equal(100, s.WidthMm);
+        Assert.Equal(50, s.LengthMm);
+        Assert.Equal(3, s.GapMm!.Value, 2);
+        Assert.Equal(MediaKind.Gap, s.Media);
+
+        var zpl = ConfigConverter.Convert("~SD20\r\n^XA^PR4^MNY^MTD^MMP^PW800^LL400^JUS^XZ\r\n", ConfigLanguage.Tpcl);
+        Assert.Contains("{D0530,1001,0500|}", zpl.Text, StringComparison.Ordinal);
+        Assert.Contains("{T20E40|}", zpl.Text, StringComparison.Ordinal);
+        Assert.Contains("{AY;+03,1|}", zpl.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain(PrinterConfig.Analyze(zpl.Text).Findings, f => f.Severity == Scanalyse.Core.Content.Severity.Error);
+
+        Assert.Equal(PrinterBrand.Toshiba, PrinterConfig.DetectBrand("TOSHIBA B-EX4T1"));
+        Assert.Equal(ConfigLanguage.Tpcl, ConfigConverter.ForBrand(PrinterBrand.Toshiba));
+        var toshiba = new PrinterProfile(PrinterBrand.Toshiba, "B-EX4T1", null, [], new Dictionary<string, PrinterValue>(), "pilote");
+        Assert.Empty(PrinterConfig.Compatibility(r, toshiba));
+        Assert.Contains(PrinterConfig.Compatibility(PrinterConfig.Analyze("! U1 setvar \"print.tone\" \"20\"\r\n"), toshiba), f => f.Severity == Scanalyse.Core.Content.Severity.Error);
+        Assert.Contains(PrinterConfig.Tokenize("{D0530,1000|}{X"), t => t.Kind == ConfigTokenKind.Unknown);
+        Assert.Contains(PrinterConfig.Suggest("{A").Items, i => i.Language == "TPCL");
+    }
 }
