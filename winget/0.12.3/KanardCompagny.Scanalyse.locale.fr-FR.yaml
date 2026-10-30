@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
 PackageIdentifier: KanardCompagny.Scanalyse
-PackageVersion: 0.12.2
+PackageVersion: 0.12.3
 PackageLocale: fr-FR
 Publisher: Kanard Compagny
 PublisherUrl: https://github.com/Kanard-Compagny
@@ -27,6 +27,6 @@ Tags:
 - zebra
 - imprimante-etiquettes
 - tspl
-ReleaseNotesUrl: https://github.com/Kanard-Compagny/scanalyse/releases/tag/v0.12.2
+ReleaseNotesUrl: https://github.com/Kanard-Compagny/scanalyse/releases/tag/v0.12.3
 ManifestType: defaultLocale
 ManifestVersion: 1.10.0
