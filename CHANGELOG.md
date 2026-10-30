@@ -1,6 +1,6 @@
 # Scanalyse — Quoi de neuf
 
-## 0.12.1 — en préparation
+## 0.12.1 — octobre 2026
 
 - **Fenêtre de mise à jour** : les boutons restent visibles quelle que soit la taille de la fenêtre, les nouveautés défilent entre le titre et les boutons. Seules les nouveautés de la version proposée sont affichées, en liste à puces, sans l'empreinte ni la mise en forme brute.
 
