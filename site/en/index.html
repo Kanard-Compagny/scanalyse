@@ -78,14 +78,18 @@ h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%;line-h
 .shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
 .mobile{background:var(--mint)}
 .mobile-grid{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
-.mobile-qr{margin:0;text-align:center}
-.mobile-qr img{display:block;width:200px;height:200px;background:#fff;border-radius:16px;padding:12px}
-.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:224px}
+.mobile-qr{margin:0;width:224px;text-align:center}
+.mobile-qr img{display:block;box-sizing:border-box;width:224px;height:224px;background:#fff;border-radius:16px;padding:12px}
+.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px}
 @media (max-width:860px){.mobile-grid{grid-template-columns:1fr}.mobile-qr{display:none}}
 .mobile p{max-width:44em;margin:0 0 20px}
 .btn-green{background:var(--forest);color:#fff}
 .note-dark{font-size:15px;color:var(--muted);margin:14px 0 0!important}
 .brands p{color:var(--muted);margin:0 0 16px}
+.brand-row{margin:0 0 18px}
+.brand-row h3{font-size:17px;margin:0 0 10px}
+.brand-row h3 small{font-weight:400;color:var(--muted);font-size:15px}
+.brands-any{margin:6px 0 0!important;color:var(--ink)!important;max-width:44em}
 .brands ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 .brands li{background:var(--mint);color:var(--forest);font-weight:600;padding:8px 14px;border-radius:999px;font-size:15px}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
@@ -120,7 +124,7 @@ footer small{flex-basis:100%;color:#A9C6B8}
     <h1>Find where it goes wrong, between the code, the scanner and the printer.</h1>
     <p class="lead">Scanalyse reads your customers&#x27; barcodes, compares what their scanner really sends and explains the programs of their label printers. Free, nothing to install, all brands.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.2</a>
+      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.3</a>
       <a class="src" href="https://github.com/Kanard-Compagny/scanalyse">Source code on GitHub</a>
     </div>
     <p class="note">Windows 10 and 11, a single Scanalyse.exe file, nothing to install.</p>
@@ -157,18 +161,19 @@ footer small{flex-basis:100%;color:#A9C6B8}
     <a class="btn btn-green" href="../app/">Open the web version</a>
     <p class="note-dark">The scanner test bench, printers and terminals stay in the Windows program.</p>
   </div>
-  <figure class="mobile-qr"><img src="../app-qr.png" alt="" width="200" height="200"><figcaption>Scan with your phone&#x27;s camera</figcaption></figure>
+  <figure class="mobile-qr"><img src="../app-qr.png" alt="" width="224" height="224"><figcaption>Scan with your phone&#x27;s camera</figcaption></figure>
 </div></section>
 
 <section class="brands"><div class="wrap">
-  <h2 class="sec">All brands</h2>
-  <p>Scanalyse favors no manufacturer. Among others, it recognizes:</p>
-  <ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li><li>TSC</li><li>SATO</li><li>Toshiba TEC</li><li>Intermec</li><li>Datamax-O&#x27;Neil</li><li>Newland</li><li>Urovo</li><li>CipherLab</li><li>Point Mobile</li></ul>
+  <h2 class="sec">Supported brands</h2>
+  <p>Scanalyse favors no manufacturer. Here is exactly what it knows today; missing some hardware? Open an issue.</p>
+  <div class="brand-row"><h3>Label printers <small>programs, configuration and network recognition</small></h3><ul><li>Zebra</li><li>TSC</li><li>Honeywell</li><li>Datamax-O&#x27;Neil</li><li>Intermec</li><li>SATO</li><li>Toshiba TEC</li></ul></div><div class="brand-row"><h3>Scanners <small>ready-to-scan configuration codes</small></h3><ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li></ul></div><div class="brand-row"><h3>USB scanners <small>recognized when plugged in</small></h3><ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li><li>Newland</li><li>Opticon</li></ul></div>
+  <p class="brands-any">Terminals: any Android terminal or phone, whatever the brand, through the relay page (built-in scanner or camera). Any scanner in keyboard mode works with the test bench.</p>
 </div></section>
 
 <section style="padding-top:0"><div class="wrap split">
   <div><h2 class="sec">Up and running in two minutes</h2><ol class="steps"><li>Download Scanalyse.exe and put it wherever you like, even on a USB stick.</li><li>Run it. If Windows shows “Windows protected your PC”, choose “More info” then “Run anyway”.</li><li>Pick the language and your folders, then follow the guided tour.</li></ol>
-    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.2</a></div>
+    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.3</a></div>
   <div class="trust"><h2 class="sec">What doesn&#x27;t change</h2><div><h3>Nothing leaves the PC</h3><p>No image, no code read and no report is sent over the Internet. No account, no ads, no analytics.</p></div><div><h3>Free and open</h3><p>GPL v3 license. The code is public, every release publishes its SHA-256 hash, checked by the automatic update.</p></div><div><h3>Made by a technician</h3><p>Born in the field to fill a gap in the tools. A problem, or hardware to support? Open an issue.</p></div></div>
 </div></section>
 </main>

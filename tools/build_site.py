@@ -72,8 +72,17 @@ T = {
         "mobile_btn": "Ouvrir la version web",
         "mobile_qr": "Scannez avec l'appareil photo du téléphone",
         "mobile_note": "Le banc d'essai, les imprimantes et les terminaux restent dans le programme Windows.",
-        "brands_h": "Toutes marques",
-        "brands_p": "Scanalyse ne privilégie aucun fabricant. Il reconnaît notamment :",
+        "brands_h": "Marques prises en charge",
+        "brands_p": "Scanalyse ne privilégie aucun fabricant. Voici précisément ce qu'il connaît aujourd'hui ; un matériel manque ? Ouvrez un ticket.",
+        "brand_rows": [
+            ("Imprimantes d'étiquettes", "programmes, configuration et reconnaissance sur le réseau",
+             ["Zebra", "TSC", "Honeywell", "Datamax-O'Neil", "Intermec", "SATO", "Toshiba TEC"]),
+            ("Douchettes", "codes de configuration prêts à scanner",
+             ["Zebra", "Honeywell", "Datalogic"]),
+            ("Douchettes USB", "reconnues au branchement",
+             ["Zebra", "Honeywell", "Datalogic", "Newland", "Opticon"]),
+        ],
+        "brands_any": "Terminaux : tout terminal ou téléphone Android, quelle que soit la marque, par la page de relais (lecteur intégré ou caméra). Toute douchette en mode clavier fonctionne avec le banc d'essai.",
         "start_h": "Démarrer en deux minutes",
         "start": [
             "Téléchargez Scanalyse.exe et placez-le où vous voulez, même sur une clé USB.",
@@ -131,8 +140,17 @@ T = {
         "mobile_btn": "Open the web version",
         "mobile_qr": "Scan with your phone's camera",
         "mobile_note": "The scanner test bench, printers and terminals stay in the Windows program.",
-        "brands_h": "All brands",
-        "brands_p": "Scanalyse favors no manufacturer. Among others, it recognizes:",
+        "brands_h": "Supported brands",
+        "brands_p": "Scanalyse favors no manufacturer. Here is exactly what it knows today; missing some hardware? Open an issue.",
+        "brand_rows": [
+            ("Label printers", "programs, configuration and network recognition",
+             ["Zebra", "TSC", "Honeywell", "Datamax-O'Neil", "Intermec", "SATO", "Toshiba TEC"]),
+            ("Scanners", "ready-to-scan configuration codes",
+             ["Zebra", "Honeywell", "Datalogic"]),
+            ("USB scanners", "recognized when plugged in",
+             ["Zebra", "Honeywell", "Datalogic", "Newland", "Opticon"]),
+        ],
+        "brands_any": "Terminals: any Android terminal or phone, whatever the brand, through the relay page (built-in scanner or camera). Any scanner in keyboard mode works with the test bench.",
         "start_h": "Up and running in two minutes",
         "start": [
             "Download Scanalyse.exe and put it wherever you like, even on a USB stick.",
@@ -152,7 +170,6 @@ T = {
     },
 }
 
-BRANDS = ["Zebra", "Honeywell", "Datalogic", "TSC", "SATO", "Toshiba TEC", "Intermec", "Datamax-O'Neil", "Newland", "Urovo", "CipherLab", "Point Mobile"]
 
 CSS = """
 @font-face{font-family:Archivo;src:url(%(root)sfonts/archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
@@ -216,14 +233,18 @@ h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%%;line-
 .shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
 .mobile{background:var(--mint)}
 .mobile-grid{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
-.mobile-qr{margin:0;text-align:center}
-.mobile-qr img{display:block;width:200px;height:200px;background:#fff;border-radius:16px;padding:12px}
-.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:224px}
+.mobile-qr{margin:0;width:224px;text-align:center}
+.mobile-qr img{display:block;box-sizing:border-box;width:224px;height:224px;background:#fff;border-radius:16px;padding:12px}
+.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px}
 @media (max-width:860px){.mobile-grid{grid-template-columns:1fr}.mobile-qr{display:none}}
 .mobile p{max-width:44em;margin:0 0 20px}
 .btn-green{background:var(--forest);color:#fff}
 .note-dark{font-size:15px;color:var(--muted);margin:14px 0 0!important}
 .brands p{color:var(--muted);margin:0 0 16px}
+.brand-row{margin:0 0 18px}
+.brand-row h3{font-size:17px;margin:0 0 10px}
+.brand-row h3 small{font-weight:400;color:var(--muted);font-size:15px}
+.brands-any{margin:6px 0 0!important;color:var(--ink)!important;max-width:44em}
 .brands ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 .brands li{background:var(--mint);color:var(--forest);font-weight:600;padding:8px 14px;border-radius:999px;font-size:15px}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
@@ -310,13 +331,14 @@ PAGE = """<!doctype html>
     <a class="btn btn-green" href="{root}app/">{mobile_btn}</a>
     <p class="note-dark">{mobile_note}</p>
   </div>
-  <figure class="mobile-qr"><img src="{root}app-qr.png" alt="" width="200" height="200"><figcaption>{mobile_qr}</figcaption></figure>
+  <figure class="mobile-qr"><img src="{root}app-qr.png" alt="" width="224" height="224"><figcaption>{mobile_qr}</figcaption></figure>
 </div></section>
 
 <section class="brands"><div class="wrap">
   <h2 class="sec">{brands_h}</h2>
   <p>{brands_p}</p>
-  <ul>{brands}</ul>
+  {brands}
+  <p class="brands-any">{brands_any}</p>
 </div></section>
 
 <section style="padding-top:0"><div class="wrap split">
@@ -365,7 +387,8 @@ def build(code: str) -> str:
         readout_title=e(t["readout_title"]), a1=t["readout"][0][1], a2=t["readout"][1][1], a3=t["readout"][2][1],
         readout_rows=rows, readout_warn=e(t["readout_warn"]), calls_h=e(t["calls_h"]), calls=calls,
         tools_h=e(t["tools_h"]), tools=tools, shots=shots, brands_h=e(t["brands_h"]), mobile_h=e(t["mobile_h"]), mobile_p=e(t["mobile_p"]), mobile_btn=e(t["mobile_btn"]), mobile_qr=e(t["mobile_qr"]), mobile_note=e(t["mobile_note"]), brands_p=e(t["brands_p"]),
-        brands="".join(f"<li>{e(b)}</li>" for b in BRANDS), start_h=e(t["start_h"]),
+        brands="".join(f'<div class="brand-row"><h3>{e(h)} <small>{e(d)}</small></h3><ul>{"".join(f"<li>{e(b)}</li>" for b in bs)}</ul></div>' for h, d, bs in t["brand_rows"]),
+        brands_any=e(t["brands_any"]), start_h=e(t["start_h"]),
         start="".join(f"<li>{e(s)}</li>" for s in t["start"]), trust_h=e(t["trust_h"]),
         trust="".join(f"<div><h3>{e(h)}</h3><p>{e(p)}</p></div>" for h, p in t["trust"]),
         issue=e(t["issue"]), donate=e(t["donate"]), changelog=e(t["changelog"]), foot=e(t["foot"]),

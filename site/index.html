@@ -78,14 +78,18 @@ h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%;line-h
 .shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
 .mobile{background:var(--mint)}
 .mobile-grid{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
-.mobile-qr{margin:0;text-align:center}
-.mobile-qr img{display:block;width:200px;height:200px;background:#fff;border-radius:16px;padding:12px}
-.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:224px}
+.mobile-qr{margin:0;width:224px;text-align:center}
+.mobile-qr img{display:block;box-sizing:border-box;width:224px;height:224px;background:#fff;border-radius:16px;padding:12px}
+.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px}
 @media (max-width:860px){.mobile-grid{grid-template-columns:1fr}.mobile-qr{display:none}}
 .mobile p{max-width:44em;margin:0 0 20px}
 .btn-green{background:var(--forest);color:#fff}
 .note-dark{font-size:15px;color:var(--muted);margin:14px 0 0!important}
 .brands p{color:var(--muted);margin:0 0 16px}
+.brand-row{margin:0 0 18px}
+.brand-row h3{font-size:17px;margin:0 0 10px}
+.brand-row h3 small{font-weight:400;color:var(--muted);font-size:15px}
+.brands-any{margin:6px 0 0!important;color:var(--ink)!important;max-width:44em}
 .brands ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
 .brands li{background:var(--mint);color:var(--forest);font-weight:600;padding:8px 14px;border-radius:999px;font-size:15px}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
@@ -120,7 +124,7 @@ footer small{flex-basis:100%;color:#A9C6B8}
     <h1>Trouver où ça coince, entre le code, la douchette et l&#x27;imprimante.</h1>
     <p class="lead">Scanalyse lit les codes-barres de vos clients, compare ce que leur douchette transmet vraiment et explique les programmes de leurs imprimantes d&#x27;étiquettes. Gratuit, sans installation, toutes marques.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.2</a>
+      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.3</a>
       <a class="src" href="https://github.com/Kanard-Compagny/scanalyse">Code source sur GitHub</a>
     </div>
     <p class="note">Windows 10 et 11, un seul fichier Scanalyse.exe, rien à installer.</p>
@@ -157,18 +161,19 @@ footer small{flex-basis:100%;color:#A9C6B8}
     <a class="btn btn-green" href="app/">Ouvrir la version web</a>
     <p class="note-dark">Le banc d&#x27;essai, les imprimantes et les terminaux restent dans le programme Windows.</p>
   </div>
-  <figure class="mobile-qr"><img src="app-qr.png" alt="" width="200" height="200"><figcaption>Scannez avec l&#x27;appareil photo du téléphone</figcaption></figure>
+  <figure class="mobile-qr"><img src="app-qr.png" alt="" width="224" height="224"><figcaption>Scannez avec l&#x27;appareil photo du téléphone</figcaption></figure>
 </div></section>
 
 <section class="brands"><div class="wrap">
-  <h2 class="sec">Toutes marques</h2>
-  <p>Scanalyse ne privilégie aucun fabricant. Il reconnaît notamment :</p>
-  <ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li><li>TSC</li><li>SATO</li><li>Toshiba TEC</li><li>Intermec</li><li>Datamax-O&#x27;Neil</li><li>Newland</li><li>Urovo</li><li>CipherLab</li><li>Point Mobile</li></ul>
+  <h2 class="sec">Marques prises en charge</h2>
+  <p>Scanalyse ne privilégie aucun fabricant. Voici précisément ce qu&#x27;il connaît aujourd&#x27;hui ; un matériel manque ? Ouvrez un ticket.</p>
+  <div class="brand-row"><h3>Imprimantes d&#x27;étiquettes <small>programmes, configuration et reconnaissance sur le réseau</small></h3><ul><li>Zebra</li><li>TSC</li><li>Honeywell</li><li>Datamax-O&#x27;Neil</li><li>Intermec</li><li>SATO</li><li>Toshiba TEC</li></ul></div><div class="brand-row"><h3>Douchettes <small>codes de configuration prêts à scanner</small></h3><ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li></ul></div><div class="brand-row"><h3>Douchettes USB <small>reconnues au branchement</small></h3><ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li><li>Newland</li><li>Opticon</li></ul></div>
+  <p class="brands-any">Terminaux : tout terminal ou téléphone Android, quelle que soit la marque, par la page de relais (lecteur intégré ou caméra). Toute douchette en mode clavier fonctionne avec le banc d&#x27;essai.</p>
 </div></section>
 
 <section style="padding-top:0"><div class="wrap split">
   <div><h2 class="sec">Démarrer en deux minutes</h2><ol class="steps"><li>Téléchargez Scanalyse.exe et placez-le où vous voulez, même sur une clé USB.</li><li>Lancez-le. Si Windows affiche « Windows a protégé votre ordinateur », choisissez « Informations complémentaires » puis « Exécuter quand même ».</li><li>Choisissez la langue et vos dossiers, puis suivez la visite guidée.</li></ol>
-    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.2</a></div>
+    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.3</a></div>
   <div class="trust"><h2 class="sec">Ce qui ne change pas</h2><div><h3>Rien ne quitte le PC</h3><p>Aucune image, aucun code lu, aucun rapport n&#x27;est envoyé sur Internet. Pas de compte, pas de publicité, pas de mesure d&#x27;audience.</p></div><div><h3>Gratuit et ouvert</h3><p>Licence GPL v3. Le code est public, chaque version publie son empreinte SHA-256, vérifiée par la mise à jour automatique.</p></div><div><h3>Fait par un technicien</h3><p>Né sur le terrain, pour combler un manque d&#x27;outils. Un problème ou un matériel à ajouter ? Ouvrez un ticket.</p></div></div>
 </div></section>
 </main>
