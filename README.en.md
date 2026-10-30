@@ -17,6 +17,18 @@ A customer calls: "the scanner won't read", "the label prints wrong", "the softw
 
 It is made for support technicians, integrators, IT and logistics teams, and anyone working with barcodes, scanners, mobile terminals and label printers, **whatever the brand**. The interface is available in English and French.
 
+## Screenshots
+
+<p align="center"><img src="site/captures/analyser.webp" alt="Analyze an image: every code read and explained" width="860"></p>
+
+| Scanner test bench | Printer config |
+|---|---|
+| <img src="site/captures/banc.webp" alt="Scanner test bench: read compared with the real content" width="420"> | <img src="site/captures/conf.webp" alt="Printer config: file created from a form" width="420"> |
+| **Printer label** | **Reading devices** |
+| <img src="site/captures/etiquette.webp" alt="Printer label: template, preview and program" width="420"> | <img src="site/captures/appareils.webp" alt="Reading devices: terminal linked over Wi-Fi" width="420"> |
+
+*Screenshots of the French interface; the program is also fully available in English.*
+
 ## What Scanalyse does
 
 ### 🔍 Analyze an image

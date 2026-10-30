@@ -15,7 +15,7 @@
     <StackPanel Margin="0,0,0,14">
       <TextBlock Style="{StaticResource PageTitle}" Text="Conf imprimante" />
       <TextBlock Style="{StaticResource PageSubtitle}"
-                 Text="Les fichiers qui règlent une imprimante d'étiquettes (noirceur, vitesse, support, réseau…), toutes marques : Zebra ZPL et SGD, TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2." />
+                 Text="Les fichiers qui règlent une imprimante d'étiquettes (noirceur, vitesse, support, réseau…), toutes marques : Zebra ZPL et SGD, TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, Toshiba TPCL, EPL2." />
     </StackPanel>
 
     <!-- Que veux-tu faire ? Trois parcours, chacun en étapes numérotées -->

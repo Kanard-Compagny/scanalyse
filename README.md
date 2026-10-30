@@ -19,6 +19,16 @@ Un client appelle : « la douchette ne lit pas », « l'étiquette sort mal », 
 
 Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logistiques, et à tous ceux qui travaillent avec des codes-barres, des douchettes, des terminaux mobiles et des imprimantes d'étiquettes, **quelle que soit la marque**.
 
+## En images
+
+<p align="center"><img src="site/captures/analyser.webp" alt="Analyser une image : chaque code lu et expliqué" width="860"></p>
+
+| Banc d'essai douchette | Conf imprimante |
+|---|---|
+| <img src="site/captures/banc.webp" alt="Banc d'essai : lecture comparée au vrai contenu" width="420"> | <img src="site/captures/conf.webp" alt="Conf imprimante : fichier créé depuis un formulaire" width="420"> |
+| **Étiquette imprimante** | **Appareils de lecture** |
+| <img src="site/captures/etiquette.webp" alt="Étiquette imprimante : modèle, aperçu et programme" width="420"> | <img src="site/captures/appareils.webp" alt="Appareils de lecture : terminal relié en Wi-Fi" width="420"> |
+
 ## Ce que fait Scanalyse
 
 ### 🔍 Analyser une image

@@ -22,13 +22,13 @@ VERSION = re.search(r"<VersionPrefix>([^<]+)</VersionPrefix>", (ROOT / "Director
 
 # Captures : fichier dans site/captures/, légende française, légende anglaise.
 CAPTURES = [
-    ("analyser.png", "Analyser une image : chaque code lu et expliqué", "Analyze an image: every code read and explained"),
-    ("creer.png", "Créer un code : plus de 25 types", "Create a code: more than 25 types"),
-    ("etiquette.png", "Étiquette imprimante : aperçu du programme du client", "Printer label: preview of the customer's program"),
-    ("conf.png", "Conf imprimante : chaque ligne contrôlée", "Printer config: every line checked"),
-    ("banc.png", "Banc d'essai : ce que la douchette transmet vraiment", "Scanner test bench: what the scanner really sends"),
-    ("appareils.png", "Appareils de lecture : douchettes, terminaux, caméras", "Reading devices: scanners, terminals, cameras"),
-    ("relais.png", "Le téléphone ou le PDA sert de douchette", "The phone or PDA works as a scanner"),
+    ("analyser.webp", "Analyser une image : chaque code lu et expliqué, cohérence de l'étiquette", "Analyze an image: every code read and explained, label consistency"),
+    ("banc.webp", "Banc d'essai : la lecture d'un terminal Android comparée au vrai contenu", "Scanner test bench: an Android terminal's read compared with the real content"),
+    ("etiquette.webp", "Étiquette imprimante : modèle prêt à l'emploi, aperçu et programme ZPL", "Printer label: ready-made template, preview and ZPL program"),
+    ("conf.webp", "Conf imprimante : fichier créé depuis un formulaire, Wi-Fi compris", "Printer config: file created from a form, Wi-Fi included"),
+    ("creer.webp", "Créer un code : GS1-128 relu et vérifié", "Create a code: GS1-128 read back and verified"),
+    ("appareils.webp", "Appareils de lecture : un terminal relié en Wi-Fi par QR code", "Reading devices: a terminal linked over Wi-Fi with a QR code"),
+    ("relais.webp", "Le téléphone ou le PDA sert de douchette", "The phone or PDA works as a scanner"),
 ]
 
 T = {
@@ -320,7 +320,7 @@ def build(code: str) -> str:
     for name, fr, en in CAPTURES:
         if (SITE / "captures" / name).exists():
             cap = fr if code == "fr" else en
-            figs.append(f'<figure><img src="{root}captures/{name}" alt="{e(cap)}" loading="lazy"><figcaption>{e(cap)}</figcaption></figure>')
+            figs.append(f'<figure><a href="{root}captures/{name}"><img src="{root}captures/{name}" alt="{e(cap)}" width="1600" height="875" loading="lazy"></a><figcaption>{e(cap)}</figcaption></figure>')
     shots = (f'\n<section><div class="wrap">\n  <h2 class="sec">{e(t["shots_h"])}</h2>\n  <div class="shots">{"".join(figs)}</div>\n</div></section>\n'
              if figs else "")
     other_label, other_href = t["other"]

@@ -3052,7 +3052,7 @@ Ce qui a été repris	What was kept
 Créer un fichier	Create a file
 Laisse vide ce qui ne doit pas changer. Le fichier s'écrit à droite au fur et à mesure.	Leave empty what must not change. The file is written on the right as you go.
 Langage (celui de ton imprimante)	Language (your printer's)
-Les fichiers qui règlent une imprimante d'étiquettes (noirceur, vitesse, support, réseau…), toutes marques : Zebra ZPL et SGD, TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2.	Files that set up a label printer (darkness, speed, media, network…), all brands: Zebra ZPL and SGD, TSC TSPL, Honeywell DPL and Fingerprint, SATO SBPL, EPL2.
+Les fichiers qui règlent une imprimante d'étiquettes (noirceur, vitesse, support, réseau…), toutes marques : Zebra ZPL et SGD, TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, Toshiba TPCL, EPL2.	Files that set up a label printer (darkness, speed, media, network…), all brands: Zebra ZPL and SGD, TSC TSPL, Honeywell DPL and Fingerprint, SATO SBPL, Toshiba TPCL, EPL2.
 Ouvre le fichier converti dans « Analyser un fichier » pour le vérifier ligne par ligne ou le retoucher	Opens the converted file in “Analyze a file” to check it line by line or edit it
 Ouvre le fichier créé dans « Analyser un fichier » pour le vérifier ligne par ligne ou le retoucher	Opens the created file in “Analyze a file” to check it line by line or edit it
 Ouvrir dans l'analyse	Open in the analysis
