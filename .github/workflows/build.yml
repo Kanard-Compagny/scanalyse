@@ -112,9 +112,9 @@ jobs:
           }
           # Empreinte SHA-256 : publiée dans les notes et en fichier (format sha256sum), vérifiée par la mise à jour automatique.
           $hash = (Get-FileHash publication/Scanalyse.exe -Algorithm SHA256).Hash.ToLowerInvariant()
-          Set-Content -Encoding ascii -NoNewline publication/Scanalyse.exe.sha256 "$hash  Scanalyse.exe`n"
+          Set-Content -Path publication/Scanalyse.exe.sha256 -Value "$hash  Scanalyse.exe`n" -Encoding ascii -NoNewline
           $notes = "**SHA-256 de Scanalyse.exe** : ``$hash```n`n" + $notes
-          Set-Content -Encoding utf8 publication/notes.md ($notes + (Get-Content -Raw -Encoding utf8 CHANGELOG.md))
+          Set-Content -Path publication/notes.md -Value ($notes + (Get-Content -Raw -Encoding utf8 CHANGELOG.md)) -Encoding utf8
 
       - name: Release
         if: github.ref_type == 'tag' || github.event.inputs.publier != '' || steps.version.outputs.release == 'true'
