@@ -1,6 +1,6 @@
 # Scanalyse — Quoi de neuf
 
-## 0.12.3 — en préparation
+## 0.12.3 — octobre 2026
 
 - **Paramètres → Sur téléphone** : un QR code à scanner avec l'appareil photo du téléphone ouvre la version web de Scanalyse (lire, créer, historique), à ajouter à l'écran d'accueil. Lien à copier ou à ouvrir dans le navigateur. La visite guidée le signale, et le site l'affiche aussi.
 
