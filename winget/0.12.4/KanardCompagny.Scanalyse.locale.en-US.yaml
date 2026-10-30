@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.10.0.schema.json
 PackageIdentifier: KanardCompagny.Scanalyse
-PackageVersion: 0.12.3
+PackageVersion: 0.12.4
 PackageLocale: en-US
 Publisher: Kanard Compagny
 PublisherUrl: https://github.com/Kanard-Compagny
@@ -26,6 +26,6 @@ Tags:
 - label-printer
 - thermal-printer
 - tspl
-ReleaseNotesUrl: https://github.com/Kanard-Compagny/scanalyse/releases/tag/v0.12.3
+ReleaseNotesUrl: https://github.com/Kanard-Compagny/scanalyse/releases/tag/v0.12.4
 ManifestType: locale
 ManifestVersion: 1.10.0

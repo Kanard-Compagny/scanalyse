@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
 PackageIdentifier: KanardCompagny.Scanalyse
-PackageVersion: 0.12.3
+PackageVersion: 0.12.4
 InstallerType: portable
 Commands:
 - scanalyse
@@ -11,7 +11,7 @@ Dependencies:
 ReleaseDate: 2026-10-30
 Installers:
 - Architecture: x64
-  InstallerUrl: https://github.com/Kanard-Compagny/scanalyse/releases/download/v0.12.3/Scanalyse.exe
-  InstallerSha256: 696396C0D1681CCBEFF373103FA23D46C2768EA18235A61051768497FEA49F59
+  InstallerUrl: https://github.com/Kanard-Compagny/scanalyse/releases/download/v0.12.4/Scanalyse.exe
+  InstallerSha256: 8B7AB0BDE50EA43B432453E15B71454CAED67C9B4EE1C4FEB5E58BD9823092DC
 ManifestType: installer
 ManifestVersion: 1.10.0
