@@ -92,6 +92,14 @@ public partial class MainWindow : Window
         Confirm.IsVisibleChanged += (_, _) => Airspace();
         Welcome.IsVisibleChanged += (_, _) => Airspace();
         Tour.IsVisibleChanged += (_, _) => Airspace();
+        Tour.Ended += () =>
+        {
+            if (Tour.Completed)
+            {
+                // Visite terminée : retour au point de départ habituel.
+                NavAnalyse.IsChecked = true;
+            }
+        };
         Welcome.HistoryFolder = () => _history.Folder;
         Welcome.HistoryFolderChangeRequested += ChangeHistoryFolderAsync;
         Welcome.ImportProfile = SettingsPage.ImportTeamProfileAsync;
@@ -985,22 +993,55 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>Visite guidée : la barre du haut, les outils principaux et le dossier SAV.</summary>
+    /// <summary>
+    /// Visite guidée : chaque page est ouverte et présentée tour à tour, avec la barre du haut, le dossier SAV, le journal
+    /// et les paramètres. Les pages de l'Atelier (moteur web, toujours au premier plan) sont présentées par leur menu.
+    /// </summary>
     private void StartTour()
     {
         NavAnalyse.IsChecked = true;
+        Action Page(RadioButton nav) => () => nav.IsChecked = true;
+        var printerCard = ConfigPage.FindName("PrinterCard") as FrameworkElement;
         Tour.Start(
         [
+            new(null, "Bienvenue dans Scanalyse",
+                "En quelques étapes, voici tout ce que le programme sait faire. Avance avec « Suivant » ou les flèches du clavier, quitte avec Échap. La visite se relance à tout moment depuis les Paramètres."),
+            new(Sidebar, "Le menu",
+                "Chaque outil a sa page. Le bouton « MENU » réduit cette barre à ses icônes pour gagner de la place sur un petit écran.",
+                Page(NavAnalyse)),
             new(ToolbarLeft, "La barre du haut",
-                "« Source » indique comment la douchette est reliée au PC. Importer, Coller (Ctrl + Maj + V), Capturer une zone ou Caméra : l'image part dans « Analyser une image », où chaque code est lu et détaillé."),
-            new(NavBench, "Banc d'essai douchette",
-                "Scanne un code avec la douchette du client : Scanalyse compare ce qu'elle transmet au vrai contenu et explique chaque écart (préfixe, GS perdu, clavier mal réglé…)."),
-            new(NavPrint, "Étiquette imprimante",
-                "Lis le programme ZPL d'un client (aperçu de l'étiquette, contenu des codes, erreurs), pars d'un modèle (palette SSCC, colis…) ou recrée un code, puis envoie-le à l'imprimante."),
-            new(NavDevices, "Appareils de lecture",
-                "Douchettes en port série ou HID POS, terminaux Android et caméras : leurs lectures arrivent directement au banc d'essai, octet par octet."),
+                "« Source » indique comment la douchette est reliée au PC. Importer, Coller (Ctrl + Maj + V), Capturer une zone de l'écran ou Caméra : l'image part dans « Analyser une image »."),
+            new(NavAnalyse, "Analyser une image",
+                "Photo, capture d'écran ou PDF du client, même de plusieurs pages : chaque code est lu et expliqué (lien, Wi-Fi, données GS1 avec dates, lots, numéros de série…). Les défauts sont signalés : clé de contrôle fausse, GS1 mal construit, contraste faible, zone blanche trop petite."),
+            new(NavCreate, "Créer un code",
+                "Plus de 25 types, choisis par catégorie : QR personnalisé (couleurs, logo), Data Matrix, GS1, EAN, Code 128, PDF417, MaxiCode… L'aperçu suit la saisie, puis export en image."),
+            new(PrintPage, "Étiquette imprimante",
+                "Lis le programme d'un client en ZPL, TSPL, EPL2, DPL, SBPL ou Fingerprint : aperçu de l'étiquette, contenu de chaque code, erreurs. Pars d'un modèle prêt à l'emploi (palette SSCC, colis, produit…), envoie à une imprimante réseau ou installée, et entretiens-la d'ici : état, calibrage, page de configuration.",
+                Page(NavPrint)),
+            new(ConfigPage, "Conf imprimante",
+                "Les fichiers de configuration, toutes marques (Zebra, TSC, Honeywell, SATO, Toshiba…). Trois façons de travailler : Analyser un fichier (chaque ligne expliquée, erreurs en couleur, propositions pendant la frappe), le Convertir vers le langage d'une autre marque, ou en Créer un nouveau à partir d'un formulaire simple.",
+                Page(NavConfig)),
+            new(printerCard, "L'imprimante de référence",
+                "Indique l'imprimante visée : Scanalyse reconnaît sa marque et son modèle, puis vérifie que chaque réglage du fichier est bien accepté par elle avant l'envoi."),
+            new(Bench, "Banc d'essai douchette",
+                "Scanne un code avec la douchette du client : Scanalyse compare ce qu'elle transmet au vrai contenu et explique chaque écart (clavier AZERTY ou QWERTY, préfixe en trop, séparateur GS1 perdu…). Des codes de configuration prêts à scanner corrigent les réglages courants.",
+                Page(NavBench)),
+            new(Devices, "Appareils de lecture",
+                "Douchettes USB, série (port COM) ou HID POS, terminaux Android en USB ou en Wi-Fi. Un téléphone ou un PDA se connecte en scannant un QR code : sa page de relais sert de douchette, avec sa caméra s'il n'a pas de lecteur. Chaque lecture arrive au banc d'essai, octet par octet.",
+                Page(NavDevices)),
+            new(HistoryPage, "Historique et rapports",
+                "Toutes les analyses, rangées par dossier client. Rouvre-les, renomme-les, commente-les et produis le rapport PDF à ton en-tête. Le dossier peut être partagé sur le réseau avec toute l'équipe.",
+                Page(NavHistory)),
             new(CaseButton, "Dossier SAV en cours",
-                "Chaque analyse est rangée dans le dossier choisi ici. Retrouve-les dans « Historique » pour les renommer, les commenter et produire le rapport PDF du client."),
+                "Chaque analyse est rangée dans le dossier choisi ici : choisis-le en début d'intervention pour que tout ce que tu fais pour ce client se retrouve au même endroit."),
+            new(Symbols, "Symbologies",
+                "L'aide-mémoire des codes-barres : à quoi sert chaque type, ce qu'il peut contenir et ses pièges. Pratique pour conseiller un client sur le bon code.",
+                Page(NavSymbols)),
+            new(LogHost, "Le journal",
+                "Tout ce qui se passe s'affiche ici : lectures, envois à l'imprimante, erreurs. La flèche le réduit ou le déplie."),
+            new(SettingsPage, "Paramètres",
+                "Langue, thème, taille d'affichage, dossiers, en-tête et logo des rapports, profil d'équipe, « Ouvrir avec », mises à jour automatiques. L'accueil et cette visite se relancent d'ici.",
+                Page(NavSettings)),
         ]);
     }
 

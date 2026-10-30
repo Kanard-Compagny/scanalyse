@@ -39,8 +39,9 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 - **Envoyer à l'imprimante** (réseau ou imprimante installée) et **la maintenir** : lire son état (papier, ruban, tête ouverte), calibrer, imprimer sa page de configuration.
 
 ### ⚙️ Conf imprimante
-- **Contrôler un fichier de configuration** avant de l'envoyer : ZPL et SGD Zebra (`! U1 setvar`, JSON), TSPL, DPL, Fingerprint, SBPL, EPL2. Chaque ligne est expliquée ; fautes de frappe, valeurs hors limites, guillemets copiés depuis Word, ^JUS oublié… sont signalés.
-- **Lire les réglages d'une Zebra** pour voir ce qui va changer et vérifier les valeurs acceptées par ce modèle, puis envoyer.
+- **Analyser un fichier de configuration** avant de l'envoyer : ZPL et SGD Zebra (`! U1 setvar`, JSON), TSPL, DPL, Fingerprint, SBPL, EPL2 et TPCL (Toshiba). Chaque ligne est expliquée, les erreurs sont colorées et des propositions apparaissent pendant la frappe ; fautes de frappe, valeurs hors limites, guillemets copiés depuis Word, ^JUS oublié… sont signalés.
+- **Convertir** un fichier vers le langage d'une autre marque, ou **en créer un** à partir d'un formulaire simple.
+- **Reconnaissance de l'imprimante** (Zebra, TSC, Honeywell, SATO, Toshiba…) : chaque réglage est vérifié pour ce modèle avant l'envoi.
 
 ### ✏️ Créer un code
 - Plus de 25 types : QR personnalisé (couleurs, logo), Data Matrix, GS1, EAN, Code 128, PDF417, MaxiCode…
