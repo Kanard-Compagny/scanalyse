@@ -1,0 +1,35 @@
+# Site vitrine (GitHub Pages) : régénéré et publié quand le site, son générateur ou la version changent.
+# À activer une fois : Settings → Pages → Source : « GitHub Actions ».
+name: Site
+
+on:
+  push:
+    branches: [main]
+    paths: [site/**, tools/build_site.py, Directory.Build.props, .github/workflows/site.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pages générées (français et anglais)
+        run: python3 tools/build_site.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

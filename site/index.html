@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scanalyse — la boîte à outils gratuite du technicien codes-barres</title>
+<meta name="description" content="Programme Windows gratuit : lire et expliquer les codes-barres (GS1, QR, Data Matrix), tester une douchette, lire et envoyer les programmes et fichiers de configuration des imprimantes d&#x27;étiquettes, toutes marques.">
+<link rel="canonical" href="https://kanard-compagny.github.io/scanalyse/">
+<link rel="alternate" hreflang="fr" href="https://kanard-compagny.github.io/scanalyse/">
+<link rel="alternate" hreflang="en" href="https://kanard-compagny.github.io/scanalyse/en/">
+<link rel="icon" type="image/svg+xml" href="logo-petit.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Scanalyse — la boîte à outils gratuite du technicien codes-barres">
+<meta property="og:description" content="Programme Windows gratuit : lire et expliquer les codes-barres (GS1, QR, Data Matrix), tester une douchette, lire et envoyer les programmes et fichiers de configuration des imprimantes d&#x27;étiquettes, toutes marques.">
+<meta property="og:image" content="https://kanard-compagny.github.io/scanalyse/og.png">
+<meta property="og:url" content="https://kanard-compagny.github.io/scanalyse/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F3D2E">
+<style>
+@font-face{font-family:Archivo;src:url(fonts/archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(fonts/jetbrains-mono.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{--forest:#0F3D2E;--deep:#0B2A20;--brand:#145C43;--mint:#E1EEE8;--paper:#F6F7F5;--ink:#15191C;--muted:#55605B;--line:#D9DED9;--orange:#F07F13;--orange-ink:#2B1600;--warn:#FFE7CF}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 Archivo,"Segoe UI",system-ui,sans-serif;font-stretch:100%}
+a{color:var(--brand)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header.top{background:var(--forest);color:#fff}
+header.top .wrap{display:flex;align-items:center;gap:18px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:700;font-size:19px;font-stretch:112%}
+.brand img{width:32px;height:32px}
+header.top nav{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:15px}
+header.top nav a{color:#CFE3D9;text-decoration:none}
+header.top nav a:hover{color:#fff;text-decoration:underline}
+header.top nav a.dl{color:var(--orange-ink);background:var(--orange);padding:8px 14px;border-radius:8px;font-weight:600}
+header.top nav a.dl:hover{text-decoration:none;filter:brightness(1.06)}
+.hero{background:var(--forest);color:#fff;padding:48px 0 72px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+h1{font-size:clamp(34px,5vw,56px);line-height:1.04;font-weight:760;font-stretch:118%;letter-spacing:-.01em;margin:0 0 22px;max-width:15ch}
+.lead{font-size:19px;color:#D6E6DE;max-width:36em;margin:0 0 30px}
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:var(--orange-ink);font-weight:700;font-size:18px;padding:15px 22px;border-radius:10px;text-decoration:none}
+.btn:hover{filter:brightness(1.06)}
+.btn svg{width:20px;height:20px}
+.cta .src{color:#CFE3D9}
+.note{font-size:14px;color:#A9C6B8;margin:14px 0 0}
+/* Lecture dans le viseur : l'élément signature, repris des coins orange du logo */
+.finder{position:relative;padding:26px}
+.finder::before,.finder::after,.finder i::before,.finder i::after{content:"";position:absolute;width:38px;height:38px;border:5px solid var(--orange)}
+.finder::before{top:0;left:0;border-right:0;border-bottom:0;border-top-left-radius:10px}
+.finder::after{top:0;right:0;border-left:0;border-bottom:0;border-top-right-radius:10px}
+.finder i::before{bottom:0;left:0;border-right:0;border-top:0;border-bottom-left-radius:10px}
+.finder i::after{bottom:0;right:0;border-left:0;border-top:0;border-bottom-right-radius:10px}
+.readout{background:var(--deep);border:1px solid #23503F;border-radius:12px;padding:20px 22px;font-size:15px}
+.readout h2{font-size:14px;font-weight:600;color:#A9C6B8;margin:0 0 12px}
+.raw{font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;color:#fff;word-break:break-all;margin:0 0 16px;line-height:1.6}
+.raw .gs{border-radius:3px;padding:0 4px;margin:0 2px;font-size:12px}
+.raw .lost{color:var(--orange-ink);background:var(--orange)}
+.ai{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0}
+.ai dt{font-family:"JetBrains Mono",Consolas,monospace;color:#7FD1A8}
+.ai dd{margin:0;color:#E6F0EB}
+.ai dd code{font-family:"JetBrains Mono",Consolas,monospace;color:#fff;margin-right:8px}
+.warn{margin:16px 0 0;padding:10px 12px;border-radius:8px;background:var(--warn);color:#5A2E00;font-size:14px;font-weight:600}
+section{padding:72px 0}
+h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%;line-height:1.15;margin:0 0 28px;max-width:22ch}
+.calls{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.calls blockquote{margin:0 0 10px;font-size:22px;font-weight:650;font-stretch:108%;line-height:1.2;color:var(--forest)}
+.calls p{margin:0;color:var(--muted)}
+.tools{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tools dl{display:grid;grid-template-columns:repeat(2,1fr);gap:0 56px;margin:0}
+.tools .row{padding:18px 0;border-top:1px solid var(--line)}
+.tools dt{font-weight:700;font-size:19px;margin:0 0 4px}
+.tools dd{margin:0;color:var(--muted);max-width:42em}
+.shots{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.shots figure{margin:0}
+.shots img{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;background:#fff}
+.shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
+.brands p{color:var(--muted);margin:0 0 16px}
+.brands ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.brands li{background:var(--mint);color:var(--forest);font-weight:600;padding:8px 14px;border-radius:999px;font-size:15px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 18px 48px}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:50%;background:var(--forest);color:#fff;font-weight:700;display:grid;place-items:center;font-size:15px}
+.trust div{padding:0 0 18px}
+.trust h3{margin:0 0 4px;font-size:18px}
+.trust p{margin:0;color:var(--muted)}
+footer{background:var(--forest);color:#CFE3D9;padding:36px 0;font-size:15px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+footer a{color:#fff}
+footer small{flex-basis:100%;color:#A9C6B8}
+@media (max-width:860px){
+ .hero .wrap,.split{grid-template-columns:1fr;gap:36px}
+ .calls,.tools dl,.shots{grid-template-columns:1fr}
+ .calls{gap:28px}
+ header.top nav a.src{display:none}
+ section{padding:52px 0}
+}
+@media (max-width:480px){.wrap{padding:0 16px}.finder{padding:18px}.btn{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./"><img src="logo.svg" alt="" width="32" height="32">Scanalyse</a>
+  <nav><a href="en/" hreflang="en" lang="en">English</a><a class="src" href="https://github.com/Kanard-Compagny/scanalyse">GitHub</a><a class="dl" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe">Télécharger</a></nav>
+</div></header>
+<main>
+<div class="hero"><div class="wrap">
+  <div>
+    <h1>Trouver où ça coince, entre le code, la douchette et l&#x27;imprimante.</h1>
+    <p class="lead">Scanalyse lit les codes-barres de vos clients, compare ce que leur douchette transmet vraiment et explique les programmes de leurs imprimantes d&#x27;étiquettes. Gratuit, sans installation, toutes marques.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.1</a>
+      <a class="src" href="https://github.com/Kanard-Compagny/scanalyse">Code source sur GitHub</a>
+    </div>
+    <p class="note">Windows 10 et 11, un seul fichier Scanalyse.exe, rien à installer.</p>
+  </div>
+  <div class="finder"><i></i>
+    <div class="readout">
+      <h2>Lu par la douchette du client</h2>
+      <p class="raw">]d2010345312000001110LOT42<span class="gs lost">GS ?</span>17261231</p>
+      <dl class="ai"><dt>(01)</dt><dd><code>03453120000011</code>GTIN, clé de contrôle juste</dd><dt>(10)</dt><dd><code>LOT42</code>Numéro de lot</dd><dt>(17)</dt><dd><code>261231</code>À consommer avant le 31/12/2026</dd></dl>
+      <p class="warn">Séparateur GS perdu après le lot : le logiciel lit « LOT4217261231 » et ne trouve plus la date. À corriger dans le réglage clavier de la douchette.</p>
+    </div>
+  </div>
+</div></div>
+
+<section><div class="wrap">
+  <h2 class="sec">Trois appels qu&#x27;on connaît par cœur</h2>
+  <div class="calls"><div><blockquote>« La douchette ne lit pas. »</blockquote><p>Le code est lu sur une photo ou une capture : contenu, clé de contrôle, contraste, zone blanche. On sait tout de suite si le code est en cause.</p></div><div><blockquote>« Le logiciel reçoit n&#x27;importe quoi. »</blockquote><p>On scanne avec la douchette du client : Scanalyse compare ce qu&#x27;elle envoie au vrai contenu, octet par octet, et donne le code de configuration qui corrige.</p></div><div><blockquote>« L&#x27;étiquette sort mal. »</blockquote><p>Le programme ou le fichier de configuration de l&#x27;imprimante est lu ligne par ligne, avec l&#x27;aperçu de l&#x27;étiquette et chaque erreur expliquée.</p></div></div>
+</div></section>
+
+<section class="tools"><div class="wrap">
+  <h2 class="sec">Ce qu&#x27;il y a dedans</h2>
+  <dl><div class="row"><dt>Analyser une image</dt><dd>Photo, capture d&#x27;écran ou PDF de plusieurs pages : chaque code lu, ses données GS1 décodées, ses défauts signalés.</dd></div><div class="row"><dt>Créer un code</dt><dd>Plus de 25 types : QR personnalisé, Data Matrix, GS1, EAN, Code 128, PDF417, MaxiCode. Export en image.</dd></div><div class="row"><dt>Étiquette imprimante</dt><dd>ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint : aperçu, contenu des codes, modèles prêts à l&#x27;emploi, envoi à l&#x27;imprimante.</dd></div><div class="row"><dt>Conf imprimante</dt><dd>Fichiers de configuration analysés, convertis d&#x27;une marque à l&#x27;autre ou créés depuis un formulaire, Wi-Fi compris. L&#x27;imprimante est reconnue sur le réseau.</dd></div><div class="row"><dt>Banc d&#x27;essai douchette</dt><dd>Ce que la douchette transmet, comparé au code : clavier, préfixe, suffixe, séparateur GS1. Codes de configuration Honeywell, Datalogic, Zebra.</dd></div><div class="row"><dt>Appareils de lecture</dt><dd>Douchettes USB, série et HID POS, terminaux Android en USB ou en Wi-Fi. Un téléphone sans lecteur lit avec sa caméra.</dd></div><div class="row"><dt>Historique et rapports</dt><dd>Analyses rangées par dossier client, rapport PDF à votre en-tête, dossier partageable avec l&#x27;équipe.</dd></div></dl>
+</div></section>
+
+<section class="brands"><div class="wrap">
+  <h2 class="sec">Toutes marques</h2>
+  <p>Scanalyse ne privilégie aucun fabricant. Il reconnaît notamment :</p>
+  <ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li><li>TSC</li><li>SATO</li><li>Toshiba TEC</li><li>Intermec</li><li>Datamax-O&#x27;Neil</li><li>Newland</li><li>Urovo</li><li>CipherLab</li><li>Point Mobile</li></ul>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap split">
+  <div><h2 class="sec">Démarrer en deux minutes</h2><ol class="steps"><li>Téléchargez Scanalyse.exe et placez-le où vous voulez, même sur une clé USB.</li><li>Lancez-le. Si Windows affiche « Windows a protégé votre ordinateur », choisissez « Informations complémentaires » puis « Exécuter quand même ».</li><li>Choisissez la langue et vos dossiers, puis suivez la visite guidée.</li></ol>
+    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.1</a></div>
+  <div class="trust"><h2 class="sec">Ce qui ne change pas</h2><div><h3>Rien ne quitte le PC</h3><p>Aucune image, aucun code lu, aucun rapport n&#x27;est envoyé sur Internet. Pas de compte, pas de publicité, pas de mesure d&#x27;audience.</p></div><div><h3>Gratuit et ouvert</h3><p>Licence GPL v3. Le code est public, chaque version publie son empreinte SHA-256, vérifiée par la mise à jour automatique.</p></div><div><h3>Fait par un technicien</h3><p>Né sur le terrain, pour combler un manque d&#x27;outils. Un problème ou un matériel à ajouter ? Ouvrez un ticket.</p></div></div>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <a href="https://github.com/Kanard-Compagny/scanalyse/issues/new/choose">Signaler un problème ou proposer une idée</a>
+  <a href="https://github.com/Kanard-Compagny/scanalyse/blob/main/CHANGELOG.md">Nouveautés de chaque version</a>
+  <a href="https://github.com/Kanard-Compagny/scanalyse">GitHub</a>
+  <a href="https://github.com/Kanard-Compagny/scanalyse/blob/main/LICENSE">GPL v3</a>
+  <small>Scanalyse est un projet indépendant, sans lien avec les fabricants cités.</small>
+</div></footer>
+</body>
+</html>

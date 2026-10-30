@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scanalyse — the free toolbox for barcode technicians</title>
+<meta name="description" content="Free Windows program: read and explain barcodes (GS1, QR, Data Matrix), test a scanner, read and send label printer programs and configuration files, all brands.">
+<link rel="canonical" href="https://kanard-compagny.github.io/scanalyse/en/">
+<link rel="alternate" hreflang="fr" href="https://kanard-compagny.github.io/scanalyse/">
+<link rel="alternate" hreflang="en" href="https://kanard-compagny.github.io/scanalyse/en/">
+<link rel="icon" type="image/svg+xml" href="../logo-petit.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Scanalyse — the free toolbox for barcode technicians">
+<meta property="og:description" content="Free Windows program: read and explain barcodes (GS1, QR, Data Matrix), test a scanner, read and send label printer programs and configuration files, all brands.">
+<meta property="og:image" content="https://kanard-compagny.github.io/scanalyse/og.png">
+<meta property="og:url" content="https://kanard-compagny.github.io/scanalyse/en/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F3D2E">
+<style>
+@font-face{font-family:Archivo;src:url(../fonts/archivo.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url(../fonts/jetbrains-mono.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{--forest:#0F3D2E;--deep:#0B2A20;--brand:#145C43;--mint:#E1EEE8;--paper:#F6F7F5;--ink:#15191C;--muted:#55605B;--line:#D9DED9;--orange:#F07F13;--orange-ink:#2B1600;--warn:#FFE7CF}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 Archivo,"Segoe UI",system-ui,sans-serif;font-stretch:100%}
+a{color:var(--brand)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header.top{background:var(--forest);color:#fff}
+header.top .wrap{display:flex;align-items:center;gap:18px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:700;font-size:19px;font-stretch:112%}
+.brand img{width:32px;height:32px}
+header.top nav{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:15px}
+header.top nav a{color:#CFE3D9;text-decoration:none}
+header.top nav a:hover{color:#fff;text-decoration:underline}
+header.top nav a.dl{color:var(--orange-ink);background:var(--orange);padding:8px 14px;border-radius:8px;font-weight:600}
+header.top nav a.dl:hover{text-decoration:none;filter:brightness(1.06)}
+.hero{background:var(--forest);color:#fff;padding:48px 0 72px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+h1{font-size:clamp(34px,5vw,56px);line-height:1.04;font-weight:760;font-stretch:118%;letter-spacing:-.01em;margin:0 0 22px;max-width:15ch}
+.lead{font-size:19px;color:#D6E6DE;max-width:36em;margin:0 0 30px}
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:var(--orange-ink);font-weight:700;font-size:18px;padding:15px 22px;border-radius:10px;text-decoration:none}
+.btn:hover{filter:brightness(1.06)}
+.btn svg{width:20px;height:20px}
+.cta .src{color:#CFE3D9}
+.note{font-size:14px;color:#A9C6B8;margin:14px 0 0}
+/* Lecture dans le viseur : l'élément signature, repris des coins orange du logo */
+.finder{position:relative;padding:26px}
+.finder::before,.finder::after,.finder i::before,.finder i::after{content:"";position:absolute;width:38px;height:38px;border:5px solid var(--orange)}
+.finder::before{top:0;left:0;border-right:0;border-bottom:0;border-top-left-radius:10px}
+.finder::after{top:0;right:0;border-left:0;border-bottom:0;border-top-right-radius:10px}
+.finder i::before{bottom:0;left:0;border-right:0;border-top:0;border-bottom-left-radius:10px}
+.finder i::after{bottom:0;right:0;border-left:0;border-top:0;border-bottom-right-radius:10px}
+.readout{background:var(--deep);border:1px solid #23503F;border-radius:12px;padding:20px 22px;font-size:15px}
+.readout h2{font-size:14px;font-weight:600;color:#A9C6B8;margin:0 0 12px}
+.raw{font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;color:#fff;word-break:break-all;margin:0 0 16px;line-height:1.6}
+.raw .gs{border-radius:3px;padding:0 4px;margin:0 2px;font-size:12px}
+.raw .lost{color:var(--orange-ink);background:var(--orange)}
+.ai{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0}
+.ai dt{font-family:"JetBrains Mono",Consolas,monospace;color:#7FD1A8}
+.ai dd{margin:0;color:#E6F0EB}
+.ai dd code{font-family:"JetBrains Mono",Consolas,monospace;color:#fff;margin-right:8px}
+.warn{margin:16px 0 0;padding:10px 12px;border-radius:8px;background:var(--warn);color:#5A2E00;font-size:14px;font-weight:600}
+section{padding:72px 0}
+h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%;line-height:1.15;margin:0 0 28px;max-width:22ch}
+.calls{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.calls blockquote{margin:0 0 10px;font-size:22px;font-weight:650;font-stretch:108%;line-height:1.2;color:var(--forest)}
+.calls p{margin:0;color:var(--muted)}
+.tools{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tools dl{display:grid;grid-template-columns:repeat(2,1fr);gap:0 56px;margin:0}
+.tools .row{padding:18px 0;border-top:1px solid var(--line)}
+.tools dt{font-weight:700;font-size:19px;margin:0 0 4px}
+.tools dd{margin:0;color:var(--muted);max-width:42em}
+.shots{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.shots figure{margin:0}
+.shots img{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;background:#fff}
+.shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
+.brands p{color:var(--muted);margin:0 0 16px}
+.brands ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.brands li{background:var(--mint);color:var(--forest);font-weight:600;padding:8px 14px;border-radius:999px;font-size:15px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 18px 48px}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:50%;background:var(--forest);color:#fff;font-weight:700;display:grid;place-items:center;font-size:15px}
+.trust div{padding:0 0 18px}
+.trust h3{margin:0 0 4px;font-size:18px}
+.trust p{margin:0;color:var(--muted)}
+footer{background:var(--forest);color:#CFE3D9;padding:36px 0;font-size:15px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+footer a{color:#fff}
+footer small{flex-basis:100%;color:#A9C6B8}
+@media (max-width:860px){
+ .hero .wrap,.split{grid-template-columns:1fr;gap:36px}
+ .calls,.tools dl,.shots{grid-template-columns:1fr}
+ .calls{gap:28px}
+ header.top nav a.src{display:none}
+ section{padding:52px 0}
+}
+@media (max-width:480px){.wrap{padding:0 16px}.finder{padding:18px}.btn{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./"><img src="../logo.svg" alt="" width="32" height="32">Scanalyse</a>
+  <nav><a href="../" hreflang="fr" lang="fr">Français</a><a class="src" href="https://github.com/Kanard-Compagny/scanalyse">GitHub</a><a class="dl" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe">Download</a></nav>
+</div></header>
+<main>
+<div class="hero"><div class="wrap">
+  <div>
+    <h1>Find where it goes wrong, between the code, the scanner and the printer.</h1>
+    <p class="lead">Scanalyse reads your customers&#x27; barcodes, compares what their scanner really sends and explains the programs of their label printers. Free, nothing to install, all brands.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.1</a>
+      <a class="src" href="https://github.com/Kanard-Compagny/scanalyse">Source code on GitHub</a>
+    </div>
+    <p class="note">Windows 10 and 11, a single Scanalyse.exe file, nothing to install.</p>
+  </div>
+  <div class="finder"><i></i>
+    <div class="readout">
+      <h2>Read by the customer&#x27;s scanner</h2>
+      <p class="raw">]d2010345312000001110LOT42<span class="gs lost">GS ?</span>17261231</p>
+      <dl class="ai"><dt>(01)</dt><dd><code>03453120000011</code>GTIN, check digit correct</dd><dt>(10)</dt><dd><code>LOT42</code>Batch number</dd><dt>(17)</dt><dd><code>261231</code>Use by 31/12/2026</dd></dl>
+      <p class="warn">GS separator lost after the batch: the software reads “LOT4217261231” and no longer finds the date. Fix it in the scanner&#x27;s keyboard settings.</p>
+    </div>
+  </div>
+</div></div>
+
+<section><div class="wrap">
+  <h2 class="sec">Three calls you know by heart</h2>
+  <div class="calls"><div><blockquote>“The scanner won&#x27;t read.”</blockquote><p>The code is read from a photo or a screenshot: content, check digit, contrast, quiet zone. You know at once whether the code is to blame.</p></div><div><blockquote>“The software receives garbage.”</blockquote><p>Scan with the customer&#x27;s scanner: Scanalyse compares what it sends with the real content, byte by byte, and gives the configuration code that fixes it.</p></div><div><blockquote>“The label prints wrong.”</blockquote><p>The printer&#x27;s program or configuration file is read line by line, with a preview of the label and every error explained.</p></div></div>
+</div></section>
+
+<section class="tools"><div class="wrap">
+  <h2 class="sec">What&#x27;s inside</h2>
+  <dl><div class="row"><dt>Analyze an image</dt><dd>Photo, screenshot or multi-page PDF: every code read, its GS1 data decoded, its defects reported.</dd></div><div class="row"><dt>Create a code</dt><dd>More than 25 types: custom QR, Data Matrix, GS1, EAN, Code 128, PDF417, MaxiCode. Export as an image.</dd></div><div class="row"><dt>Printer label</dt><dd>ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint: preview, content of the codes, ready-made templates, send to the printer.</dd></div><div class="row"><dt>Printer config</dt><dd>Configuration files analyzed, converted from one brand to another or created from a form, Wi-Fi included. The printer is recognized on the network.</dd></div><div class="row"><dt>Scanner test bench</dt><dd>What the scanner sends, compared with the code: keyboard, prefix, suffix, GS1 separator. Honeywell, Datalogic and Zebra configuration codes.</dd></div><div class="row"><dt>Reading devices</dt><dd>USB, serial and HID POS scanners, Android terminals over USB or Wi-Fi. A phone without a scan engine reads with its camera.</dd></div><div class="row"><dt>History and reports</dt><dd>Analyses filed by customer case, PDF report with your letterhead, folder shared with the team.</dd></div></dl>
+</div></section>
+
+<section class="brands"><div class="wrap">
+  <h2 class="sec">All brands</h2>
+  <p>Scanalyse favors no manufacturer. Among others, it recognizes:</p>
+  <ul><li>Zebra</li><li>Honeywell</li><li>Datalogic</li><li>TSC</li><li>SATO</li><li>Toshiba TEC</li><li>Intermec</li><li>Datamax-O&#x27;Neil</li><li>Newland</li><li>Urovo</li><li>CipherLab</li><li>Point Mobile</li></ul>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap split">
+  <div><h2 class="sec">Up and running in two minutes</h2><ol class="steps"><li>Download Scanalyse.exe and put it wherever you like, even on a USB stick.</li><li>Run it. If Windows shows “Windows protected your PC”, choose “More info” then “Run anyway”.</li><li>Pick the language and your folders, then follow the guided tour.</li></ol>
+    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.1</a></div>
+  <div class="trust"><h2 class="sec">What doesn&#x27;t change</h2><div><h3>Nothing leaves the PC</h3><p>No image, no code read and no report is sent over the Internet. No account, no ads, no analytics.</p></div><div><h3>Free and open</h3><p>GPL v3 license. The code is public, every release publishes its SHA-256 hash, checked by the automatic update.</p></div><div><h3>Made by a technician</h3><p>Born in the field to fill a gap in the tools. A problem, or hardware to support? Open an issue.</p></div></div>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <a href="https://github.com/Kanard-Compagny/scanalyse/issues/new/choose">Report a problem or suggest an idea</a>
+  <a href="https://github.com/Kanard-Compagny/scanalyse/blob/main/CHANGELOG.md">What&#x27;s new in each release</a>
+  <a href="https://github.com/Kanard-Compagny/scanalyse">GitHub</a>
+  <a href="https://github.com/Kanard-Compagny/scanalyse/blob/main/LICENSE">GPL v3</a>
+  <small>Scanalyse is an independent project, not affiliated with the manufacturers mentioned.</small>
+</div></footer>
+</body>
+</html>

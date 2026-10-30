@@ -9,6 +9,8 @@ Comprendre ce que contient un code, pourquoi une douchette le lit mal, et ce qu'
 
 [**⬇ Télécharger la dernière version**](https://github.com/Kanard-Compagny/scanalyse/releases/latest) · Windows 10 / 11 · un seul fichier `Scanalyse.exe`, rien à installer
 
+🌐 [Site de Scanalyse](https://kanard-compagny.github.io/scanalyse/) · 🇬🇧 [Read in English](README.en.md)
+
 ---
 
 ## À quoi ça sert ?
@@ -88,4 +90,4 @@ Chaque version est compilée automatiquement par GitHub Actions à partir du cod
 Logiciel **libre et gratuit**, créé par **Mr.Kanard**, sous licence [GNU GPL v3](LICENSE) : chacun peut l'utiliser, le partager et l'améliorer, à condition que ses versions restent libres. Fourni sans aucune garantie.
 Composants tiers : voir [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
-Vous voulez contribuer au code ? Tout est expliqué dans [docs/DEVELOPPEMENT.md](docs/DEVELOPPEMENT.md).
+Vous voulez contribuer ? Voir [CONTRIBUTING.md](CONTRIBUTING.md) ; pour le code, tout est expliqué dans [docs/DEVELOPPEMENT.md](docs/DEVELOPPEMENT.md).
