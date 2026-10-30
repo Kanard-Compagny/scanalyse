@@ -89,10 +89,12 @@ function gs1String(){return gs1Rows.map(r=>"("+r.ai+")"+normAi(r.ai,r.v).v).join
 /* ================= Interface ================= */
 let cat="qr";
 function renderTypes(){
-  document.querySelectorAll(".tp-cats button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.cat===cat)));
+  document.querySelectorAll(".tp-cats button").forEach(b=>b.setAttribute("aria-checked",String(b.dataset.cat===cat)));
   const list=TYPES.filter(t=>t.cat===cat&&cat!=="qr");
-  $("tpTypes").innerHTML=list.map(t=>`<label class="chip"><input type="radio" name="ctype" value="${t.id}" ${t.id===current?"checked":""}><span>${esc(t.label)}</span></label>`).join("");
-  const t=byId[current];$("tpInfo").innerHTML=(t&&t.cat===cat)?`<span>${esc(t.label)}</span><span> · ${t.info}</span>`:"";
+  // Une carte par type : nom, et à quoi il sert (partie après la caractéristique en gras)
+  const usage=t=>t.info.replace(/<b>[\s\S]*?<\/b>\s*/,"").replace(/<[^>]+>/g,"");
+  $("tpTypes").innerHTML=list.map(t=>`<label class="tp-card"><input type="radio" name="ctype" value="${t.id}" ${t.id===current?"checked":""}><b>${esc(t.label)}</b><span>${esc(usage(t))}</span></label>`).join("");
+  const t=byId[current];$("tpInfo").innerHTML=(t&&t.cat===cat&&cat!=="qr")?`<span>${esc(t.label)}</span><span> · ${t.info}</span>`:"";
 }
 document.querySelectorAll(".tp-cats button").forEach(b=>b.addEventListener("click",()=>{
   cat=b.dataset.cat;
@@ -327,13 +329,13 @@ window.atelierCreateFrom=function(text,id){
   selectType(id,true);window.scrollTo({top:0});
 };
 /* Rendu d'un aperçu pour le banc d'essai du programme Windows */
-window.atelierRender=async function(reqId,text,typeId){
+window.atelierRender=async function(reqId,text,typeId,hrt){
   const reply=o=>{if(DESKTOP)window.chrome.webview.postMessage(JSON.stringify({type:"rendered",id:reqId,...o}));};
   try{
     const t=byId[typeId];if(!t||!t.fmt){reply({error:"Type inconnu."});return;}
     let data=text;
     if(t.gs1&&!/^\(/.test(data)&&window.atelierParseGs1){const els=window.atelierParseGs1(data)||[];data=els.map(([a,v])=>"("+a+")"+v).join("");}
-    const r=await writeFor(typeId,data,{scale:4,hrt:true,quiet:true});
+    const r=await writeFor(typeId,data,{scale:4,hrt:hrt!==false,quiet:true});
     if(r.error){reply({error:r.error.replace(/^Error \d+:\s*/,"").replace(/\s*\(retval.*$/,"")});return;}
     const c=await svgToCanvas(recolor(r.svg,"#000000","#FFFFFF",false),1,0,"#ffffff");
     reply({image:c.toDataURL("image/png")});

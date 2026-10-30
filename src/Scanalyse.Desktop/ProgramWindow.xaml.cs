@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace Scanalyse.Desktop;
 
-/// <summary>Fenêtre qui accueille le programme détaché de l'onglet Code imprimante (deuxième écran).</summary>
+/// <summary>Fenêtre qui accueille le programme détaché de l'onglet Étiquette imprimante (deuxième écran).</summary>
 public partial class ProgramWindow : Window
 {
     public ProgramWindow()

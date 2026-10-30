@@ -7,7 +7,7 @@ Ce document s'adresse à ceux qui veulent compiler, modifier ou améliorer Scana
 | Projet | Rôle | Cible |
 |---|---|---|
 | `src/Scanalyse.Core` | Cerveau de l'analyse : lecture GS1, interprétation du contenu (liens, Wi-Fi, vCard, SEPA, StageNow…), diagnostic « contenu du code ↔ données reçues ». Aucune dépendance externe. | .NET 10 (multi-plateforme) |
-| `src/Scanalyse.Desktop` | Programme Windows (WPF) : menu latéral avec **Analyser une image**, **Créer un code** (Atelier embarqué), **Code imprimante** (programme ZPL / TSPL / EPL2 / DPL, envoi réseau ou file Windows), **Banc d'essai douchette**, **Appareils de lecture** (douchettes en port COM, HID POS, caméras, relais pour terminaux Android par ADB ou Wi-Fi, moniteur des octets reçus), **Historique** (dossiers SAV, rapport PDF), **Symbologies** et **Paramètres** ; barre d'outils (coller une image, capturer une zone de l'écran, thème) ; journal des lectures. | .NET 10 Windows (10.0.19041+) |
+| `src/Scanalyse.Desktop` | Programme Windows (WPF) : menu latéral avec **Analyser une image**, **Créer un code** (Atelier embarqué), **Étiquette imprimante** (programme ZPL / TSPL / EPL2 / DPL, envoi réseau ou file Windows), **Banc d'essai douchette**, **Appareils de lecture** (douchettes en port COM, HID POS, caméras, relais pour terminaux Android par ADB ou Wi-Fi, moniteur des octets reçus), **Historique** (dossiers SAV, rapport PDF), **Symbologies** et **Paramètres** ; barre d'outils (coller une image, capturer une zone de l'écran, thème) ; journal des lectures. | .NET 10 Windows (10.0.19041+) |
 | `web/` | Sources de l'Atelier (HTML/CSS/JS) et bibliothèques figées dans `web/vendor`. `web/build.py` génère la page embarquée `src/Scanalyse.Desktop/Web/index.html`. | Navigateur / WebView2 |
 | `tests/Scanalyse.Core.Tests` | Tests automatiques du Core (xUnit). | .NET 10 |
 
@@ -17,7 +17,7 @@ Ce document s'adresse à ceux qui veulent compiler, modifier ou améliorer Scana
 2. Sur la fiche du code : **Comparer avec une lecture douchette**.
 3. Le banc d'essai s'ouvre avec le contenu exact du code : scanner le même code avec la douchette, puis **Comparer**.
    Avec une douchette reliée en port COM ou en HID POS (page **Appareils de lecture**), la comparaison se lance seule à chaque lecture, sur les octets exacts.
-4. Pour réimprimer le code chez le client : **Code imprimante** sur la fiche du code (ou au banc d'essai), choisir ZPL / TSPL / EPL2 et la taille de l'étiquette, puis **Envoyer à l'imprimante** (adresse IP, port 9100) ou enregistrer le fichier.
+4. Pour réimprimer le code chez le client : **Étiquette imprimante** sur la fiche du code (ou au banc d'essai), choisir ZPL / TSPL / EPL2 et la taille de l'étiquette, puis **Envoyer à l'imprimante** (adresse IP, port 9100) ou enregistrer le fichier.
 
 ## Direction artistique
 

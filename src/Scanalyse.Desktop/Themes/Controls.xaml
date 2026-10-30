@@ -375,8 +375,8 @@
           <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                   BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
             <Grid>
-              <!-- Texte d'aide : même marge, police et alignement que le texte saisi (2 points = marge interne du texte) -->
-              <TextBlock x:Name="PlaceholderText" Margin="{TemplateBinding Padding}" Padding="2,0,2,0" IsHitTestVisible="False" Visibility="Collapsed"
+              <!-- Texte d'aide : même police et alignement que le texte saisi, juste après le curseur (qui ne le chevauche pas) -->
+              <TextBlock x:Name="PlaceholderText" Margin="{TemplateBinding Padding}" Padding="4,0,2,0" IsHitTestVisible="False" Visibility="Collapsed"
                          Text="{Binding Path=(local:Placeholder.Text), RelativeSource={RelativeSource TemplatedParent}}"
                          FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{DynamicResource Muted}"
                          TextWrapping="Wrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Top" />

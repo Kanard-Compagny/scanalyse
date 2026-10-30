@@ -88,7 +88,7 @@
               <WrapPanel x:Name="StartChips">
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="analyse" Content="Analyser une image" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="create" Content="Créer un code" Checked="Option_Changed" />
-                <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="print" Content="Code imprimante" Checked="Option_Changed" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="print" Content="Étiquette imprimante" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="config" Content="Conf imprimante" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="bench" Content="Banc d'essai" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Start" Tag="devices" Content="Appareils de lecture" Checked="Option_Changed" />
@@ -109,7 +109,7 @@
             <StackPanel>
               <TextBlock Style="{StaticResource CardTitle}" Text="Ouvrir avec Scanalyse" />
               <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,4,0,12"
-                         Text="Glisser un fichier sur Scanalyse.exe l'ouvre déjà au bon endroit : programme d'étiquette dans « Code imprimante », image ou PDF dans « Analyser une image », profil d'équipe à l'import." />
+                         Text="Glisser un fichier sur Scanalyse.exe l'ouvre déjà au bon endroit : programme d'étiquette dans « Étiquette imprimante », image ou PDF dans « Analyser une image », profil d'équipe à l'import." />
               <CheckBox x:Name="OpenWithCheck" Style="{StaticResource CheckLine}" Click="OpenWith_Click"
                         Content="Proposer Scanalyse dans « Ouvrir avec » de l'Explorateur (.zpl, .prn, .txt, images, PDF) et ouvrir les profils d'équipe d'un double-clic" />
               <TextBlock FontSize="12" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0"
@@ -214,7 +214,7 @@
 
         <StackPanel x:Name="SecPrint" Visibility="Collapsed">
           <TextBlock Style="{StaticResource SectionTitle}" Text="Impression et banc d'essai" />
-          <TextBlock Style="{StaticResource PageSubtitle}" Text="Réglages par défaut du banc d'essai et de « Code imprimante »." Margin="0,4,0,18" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Text="Réglages par défaut du banc d'essai et de « Étiquette imprimante »." Margin="0,4,0,18" />
           <Border Style="{StaticResource Card}" Margin="0,0,0,14">
             <StackPanel>
               <TextBlock Style="{StaticResource CardTitle}" Text="Banc d'essai" />
@@ -224,7 +224,7 @@
           </Border>
           <Border Style="{StaticResource Card}" Margin="0,0,0,14">
             <StackPanel>
-              <TextBlock Style="{StaticResource CardTitle}" Text="Code imprimante" />
+              <TextBlock Style="{StaticResource CardTitle}" Text="Étiquette imprimante" />
               <TextBlock Style="{StaticResource FieldLabel}" Text="Langage d'imprimante par défaut" Margin="0,12,0,6" />
               <WrapPanel x:Name="LangChips">
                 <RadioButton Style="{StaticResource Chip}" GroupName="DefLang" Tag="Zpl" Content="ZPL II" Checked="Option_Changed" />

@@ -3066,3 +3066,15 @@ Tout vider	Clear all
 Vérifier un fichier existant : chaque ligne expliquée, erreurs signalées, comparaison avec l'imprimante.	Check an existing file: each line explained, errors flagged, comparison with the printer.
 Rien à envoyer : choisis d'abord le langage d'arrivée pour obtenir le fichier converti.	Nothing to send: first choose the target language to get the converted file.
 Rien à envoyer : renseigne au moins un réglage valide dans le formulaire.	Nothing to send: fill in at least one valid setting in the form.
+
+Étiquette imprimante	Printer label
+Étiquette imprimante (ZPL, TSPL, EPL2)	Printer label (ZPL, TSPL, EPL2)
+Langage d'imprimante par défaut (Étiquette imprimante)	Default printer language (Printer label)
+Réglages par défaut du banc d'essai et de « Étiquette imprimante ».	Default settings for the test bench and “Printer label”.
+Glisser un fichier sur Scanalyse.exe l'ouvre déjà au bon endroit : programme d'étiquette dans « Étiquette imprimante », image ou PDF dans « Analyser une image », profil d'équipe à l'import.	Dropping a file onto Scanalyse.exe already opens it in the right place: label program in “Printer label”, image or PDF in “Analyze an image”, team profile to import.
+Étiquette imprimante (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint)	Printer label (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint)Codes 2D	2D codes
+Couleurs, logo, liens, Wi-Fi, cartes de visite, paiements.	Colors, logo, links, Wi-Fi, business cards, payments.
+Data Matrix, PDF417, Aztec… beaucoup de données sur peu de place.	Data Matrix, PDF417, Aztec… lots of data in little space.
+EAN, UPC, ITF-14, DataBar : articles en magasin, cartons.	EAN, UPC, ITF-14, DataBar: store items, cartons.
+Code 128, GS1-128, Code 39… logistique, stock, pharmacie.	Code 128, GS1-128, Code 39… logistics, stock, pharmacy.
+Catégorie	Category

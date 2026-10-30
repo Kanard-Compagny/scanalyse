@@ -127,7 +127,7 @@
                     ToolTip="La lecture devient le contenu attendu ; scanne à nouveau pour vérifier qu'elle se lit toujours pareil" />
             <Button Style="{StaticResource BtnSecondary}" Content="Recréer ce code" Click="Recreate_Click" Margin="0,0,8,8"
                     ToolTip="Ouvre « Créer un code » avec ce contenu, pour l'exporter en image ou le tester" />
-            <Button Style="{StaticResource BtnSecondary}" Content="Code imprimante" Click="Print_Click" Margin="0,0,8,8"
+            <Button Style="{StaticResource BtnSecondary}" Content="Étiquette imprimante" Click="Print_Click" Margin="0,0,8,8"
                     ToolTip="Génère le programme ZPL / TSPL / EPL2 de ce code pour le réimprimer sur l'imprimante du client" />
             <Button Style="{StaticResource BtnGhost}" Content="Effacer la lecture" Click="Clear_Click" Margin="0,0,8,8" />
             <Button Style="{StaticResource BtnGhost}" Content="Nouveau test" Click="NewTest_Click" Margin="0,0,0,8"

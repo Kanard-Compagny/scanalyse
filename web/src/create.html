@@ -1,12 +1,10 @@
   <section class="card typepick" aria-labelledby="typeTitle">
-    <div class="tp-head">
-      <h2 id="typeTitle">Type de code</h2>
-      <div class="tp-cats" role="tablist" aria-label="Catégorie">
-        <button type="button" role="tab" data-cat="qr" aria-selected="true">QR personnalisé</button>
-        <button type="button" role="tab" data-cat="2d" aria-selected="false">2D</button>
-        <button type="button" role="tab" data-cat="retail" aria-selected="false">Distribution</button>
-        <button type="button" role="tab" data-cat="ind" aria-selected="false">Industriel</button>
-      </div>
+    <h2 id="typeTitle">Type de code</h2>
+    <div class="tp-cats" role="radiogroup" aria-label="Catégorie">
+      <button type="button" role="radio" data-cat="qr" aria-checked="true"><b>QR personnalisé</b><span>Couleurs, logo, liens, Wi-Fi, cartes de visite, paiements.</span></button>
+      <button type="button" role="radio" data-cat="2d" aria-checked="false"><b>Codes 2D</b><span>Data Matrix, PDF417, Aztec… beaucoup de données sur peu de place.</span></button>
+      <button type="button" role="radio" data-cat="retail" aria-checked="false"><b>Distribution</b><span>EAN, UPC, ITF-14, DataBar : articles en magasin, cartons.</span></button>
+      <button type="button" role="radio" data-cat="ind" aria-checked="false"><b>Industriel</b><span>Code 128, GS1-128, Code 39… logistique, stock, pharmacie.</span></button>
     </div>
     <div class="tp-types" id="tpTypes" role="radiogroup" aria-label="Type de code"></div>
     <p class="tp-info" id="tpInfo"></p>

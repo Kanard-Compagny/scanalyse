@@ -246,12 +246,17 @@ details.raw pre.hex{white-space:pre;word-break:normal;overflow-wrap:normal}
 .lbl-col:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
 /* --- Créer : choix du type de code --- */
 .typepick{gap:12px;margin-bottom:16px}
-.tp-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
-.tp-cats{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:11px;background:var(--surface2)}
-.tp-cats button{font:inherit;font-size:13px;font-weight:600;border:0;border-radius:8px;padding:7px 12px;background:transparent;color:var(--muted);cursor:pointer}
-.tp-cats button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.tp-cats button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.tp-types{display:flex;flex-wrap:wrap;gap:6px}
+/* Choix du type : grandes cartes (catégorie), puis une carte par type, comme dans le programme Windows */
+.tp-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.tp-cats button,.tp-card{font:inherit;text-align:left;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;background:var(--panel);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.tp-cats button b,.tp-card b{font-size:14px;font-weight:600}
+.tp-cats button span,.tp-card span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.tp-cats button:hover,.tp-card:hover{border-color:var(--muted)}
+.tp-cats button[aria-checked="true"],.tp-card:has(input:checked){border-color:var(--brand);background:var(--soft)}
+.tp-cats button:focus-visible,.tp-card:focus-within{outline:2px solid var(--focus);outline-offset:2px}
+.tp-card input{position:absolute;opacity:0;pointer-events:none}
+.tp-card{position:relative}
+.tp-types{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
 .tp-types:empty{display:none}
 .tp-info{margin:0;font-size:13px;color:var(--muted)}
 .tp-info b{color:var(--ink);font-weight:600}
@@ -291,14 +296,12 @@ input[type=date]:focus-visible{outline:2px solid var(--focus);outline-offset:2px
 
   <div id="view-create" role="tabpanel">
   <section class="card typepick" aria-labelledby="typeTitle">
-    <div class="tp-head">
-      <h2 id="typeTitle">Type de code</h2>
-      <div class="tp-cats" role="tablist" aria-label="Catégorie">
-        <button type="button" role="tab" data-cat="qr" aria-selected="true">QR personnalisé</button>
-        <button type="button" role="tab" data-cat="2d" aria-selected="false">2D</button>
-        <button type="button" role="tab" data-cat="retail" aria-selected="false">Distribution</button>
-        <button type="button" role="tab" data-cat="ind" aria-selected="false">Industriel</button>
-      </div>
+    <h2 id="typeTitle">Type de code</h2>
+    <div class="tp-cats" role="radiogroup" aria-label="Catégorie">
+      <button type="button" role="radio" data-cat="qr" aria-checked="true"><b>QR personnalisé</b><span>Couleurs, logo, liens, Wi-Fi, cartes de visite, paiements.</span></button>
+      <button type="button" role="radio" data-cat="2d" aria-checked="false"><b>Codes 2D</b><span>Data Matrix, PDF417, Aztec… beaucoup de données sur peu de place.</span></button>
+      <button type="button" role="radio" data-cat="retail" aria-checked="false"><b>Distribution</b><span>EAN, UPC, ITF-14, DataBar : articles en magasin, cartons.</span></button>
+      <button type="button" role="radio" data-cat="ind" aria-checked="false"><b>Industriel</b><span>Code 128, GS1-128, Code 39… logistique, stock, pharmacie.</span></button>
     </div>
     <div class="tp-types" id="tpTypes" role="radiogroup" aria-label="Type de code"></div>
     <p class="tp-info" id="tpInfo"></p>
@@ -517,7 +520,7 @@ input[type=date]:focus-visible{outline:2px solid var(--focus);outline-offset:2px
           <div class="exp">
             <button class="btn primary" id="stdDl" type="button">Télécharger</button>
             <button class="btn" id="stdCopy" type="button">Copier le contenu</button>
-            <button class="btn" id="stdPrintCode" type="button" hidden title="Programme ZPL / TSPL / EPL2 de ce code pour une imprimante d'étiquettes">Code imprimante</button>
+            <button class="btn" id="stdPrintCode" type="button" hidden title="Programme ZPL / TSPL / EPL2 de ce code pour une imprimante d'étiquettes">Étiquette imprimante</button>
             <button class="btn" id="stdAnalyse" type="button" title="Relit ce code comme une image reçue : contenu, symbologie, GS1…">Analyser ce code</button>
           </div>
           <p class="toast" id="stdToast" aria-live="polite"></p>
@@ -1691,7 +1694,7 @@ function render(ms,reg){
     html+=`<article class="res" data-i="${i}">
       <div class="res-head"><span class="num">${i+1}</span><h3>${esc(it.kind)}</h3><span class="pill">${esc(fmt)}</span><span class="pill ${health[1]}">${health[0]}</span></div>
       ${structHtml(r.text||"",i)}<pre class="content" ${structOf(r.text||"")?'hidden':''} data-raw="${i}">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
-      <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small" type="button" data-print="${i}" title="Programme ZPL / TSPL / EPL2 pour réimprimer ce code sur une imprimante d'étiquettes">Code imprimante</button><button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
+      <div class="acts"><button class="btn small" type="button" data-copy="${i}">Copier le contenu</button>${it.link?`<a class="btn small" href="${esc(it.link.href)}" target="_blank" rel="noopener noreferrer">${esc(it.link.label)}</a>`:""}<button class="btn small" type="button" data-recreate="${i}" title="Ouvre « Créer un code » avec le même type et le même contenu">Recréer ce code</button>${DESKTOP?`<button class="btn small" type="button" data-print="${i}" title="Programme ZPL / TSPL / EPL2 pour réimprimer ce code sur une imprimante d'étiquettes">Étiquette imprimante</button><button class="btn small primary" type="button" data-bench="${i}">Comparer avec une lecture douchette</button>`:""}</div>
       ${al.length?`<div class="alerts">${al.map(([t,m])=>`<div class="alert ${t}">${esc(m)}</div>`).join("")}</div>`:""}
       ${it.rows.length?`<h4>Ce que contient le code</h4><dl class="kv">${it.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`:""}
       <h4>Caractéristiques techniques</h4><dl class="kv">${spec.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
@@ -2215,10 +2218,12 @@ function gs1String(){return gs1Rows.map(r=>"("+r.ai+")"+normAi(r.ai,r.v).v).join
 /* ================= Interface ================= */
 let cat="qr";
 function renderTypes(){
-  document.querySelectorAll(".tp-cats button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.cat===cat)));
+  document.querySelectorAll(".tp-cats button").forEach(b=>b.setAttribute("aria-checked",String(b.dataset.cat===cat)));
   const list=TYPES.filter(t=>t.cat===cat&&cat!=="qr");
-  $("tpTypes").innerHTML=list.map(t=>`<label class="chip"><input type="radio" name="ctype" value="${t.id}" ${t.id===current?"checked":""}><span>${esc(t.label)}</span></label>`).join("");
-  const t=byId[current];$("tpInfo").innerHTML=(t&&t.cat===cat)?`<span>${esc(t.label)}</span><span> · ${t.info}</span>`:"";
+  // Une carte par type : nom, et à quoi il sert (partie après la caractéristique en gras)
+  const usage=t=>t.info.replace(/<b>[\s\S]*?<\/b>\s*/,"").replace(/<[^>]+>/g,"");
+  $("tpTypes").innerHTML=list.map(t=>`<label class="tp-card"><input type="radio" name="ctype" value="${t.id}" ${t.id===current?"checked":""}><b>${esc(t.label)}</b><span>${esc(usage(t))}</span></label>`).join("");
+  const t=byId[current];$("tpInfo").innerHTML=(t&&t.cat===cat&&cat!=="qr")?`<span>${esc(t.label)}</span><span> · ${t.info}</span>`:"";
 }
 document.querySelectorAll(".tp-cats button").forEach(b=>b.addEventListener("click",()=>{
   cat=b.dataset.cat;
@@ -2453,13 +2458,13 @@ window.atelierCreateFrom=function(text,id){
   selectType(id,true);window.scrollTo({top:0});
 };
 /* Rendu d'un aperçu pour le banc d'essai du programme Windows */
-window.atelierRender=async function(reqId,text,typeId){
+window.atelierRender=async function(reqId,text,typeId,hrt){
   const reply=o=>{if(DESKTOP)window.chrome.webview.postMessage(JSON.stringify({type:"rendered",id:reqId,...o}));};
   try{
     const t=byId[typeId];if(!t||!t.fmt){reply({error:"Type inconnu."});return;}
     let data=text;
     if(t.gs1&&!/^\(/.test(data)&&window.atelierParseGs1){const els=window.atelierParseGs1(data)||[];data=els.map(([a,v])=>"("+a+")"+v).join("");}
-    const r=await writeFor(typeId,data,{scale:4,hrt:true,quiet:true});
+    const r=await writeFor(typeId,data,{scale:4,hrt:hrt!==false,quiet:true});
     if(r.error){reply({error:r.error.replace(/^Error \d+:\s*/,"").replace(/\s*\(retval.*$/,"")});return;}
     const c=await svgToCanvas(recolor(r.svg,"#000000","#FFFFFF",false),1,0,"#ffffff");
     reply({image:c.toDataURL("image/png")});

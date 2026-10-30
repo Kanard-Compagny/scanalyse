@@ -102,7 +102,7 @@ public partial class MainWindow : Window
             AddLog(LogKind.Info, "CRÉER", "Contenu repris du banc d'essai : choisis le type de code si besoin, puis exporte ou imprime.");
         };
         Bench.PrintRequested += (text, type) => OpenPrint(text, PrintView.SymbologyFor(type, text), "banc d'essai");
-        PrintPage.Renderer = (text, type) => _atelier.RenderAsync(text, type);
+        PrintPage.Renderer = (text, type, hri) => _atelier.RenderAsync(text, type, hri);
         PrintPage.Log += (kind, text) => AddLog(kind, "IMPRESSION", text);
         ConfigPage.Log += (kind, text) => AddLog(kind, "CONFIGURATION", text);
         PrintPage.LabelRenderer = json => _atelier.RenderLabelAsync(json);
@@ -271,7 +271,7 @@ public partial class MainWindow : Window
         await _atelier.SetCreateTypeAsync(typeId);
     }
 
-    /// <summary>Ouvre l'onglet « Code imprimante » avec un code venu d'un autre onglet.</summary>
+    /// <summary>Ouvre l'onglet « Étiquette imprimante » avec un code venu d'un autre onglet.</summary>
     private void OpenPrint(string text, Scanalyse.Core.Printing.LabelSymbology symbology, string source)
     {
         PrintPage.Load(text, symbology, source);
@@ -964,7 +964,7 @@ public partial class MainWindow : Window
                 "« Source » indique comment la douchette est reliée au PC. Importer, Coller (Ctrl + Maj + V), Capturer une zone ou Caméra : l'image part dans « Analyser une image », où chaque code est lu et détaillé."),
             new(NavBench, "Banc d'essai douchette",
                 "Scanne un code avec la douchette du client : Scanalyse compare ce qu'elle transmet au vrai contenu et explique chaque écart (préfixe, GS perdu, clavier mal réglé…)."),
-            new(NavPrint, "Code imprimante",
+            new(NavPrint, "Étiquette imprimante",
                 "Lis le programme ZPL d'un client (aperçu de l'étiquette, contenu des codes, erreurs), pars d'un modèle (palette SSCC, colis…) ou recrée un code, puis envoie-le à l'imprimante."),
             new(NavDevices, "Appareils de lecture",
                 "Douchettes en port série ou HID POS, terminaux Android et caméras : leurs lectures arrivent directement au banc d'essai, octet par octet."),
@@ -1210,7 +1210,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// Fichiers passés à Scanalyse (« Ouvrir avec », glisser sur Scanalyse.exe, double-clic sur un profil d'équipe) :
-    /// images et PDF dans « Analyser une image », profil d'équipe à l'import, le reste dans « Code imprimante »,
+    /// images et PDF dans « Analyser une image », profil d'équipe à l'import, le reste dans « Étiquette imprimante »,
     /// qui reconnaît le langage (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint).
     /// </summary>
     public async Task OpenFilesAsync(IReadOnlyList<string> paths)

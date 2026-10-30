@@ -14,7 +14,7 @@ using Scanalyse.Desktop.Printing;
 namespace Scanalyse.Desktop.Views;
 
 /// <summary>
-/// Onglet « Code imprimante » : programme ZPL / TSPL / EPL2 d'une étiquette, aperçu, envoi à l'imprimante.
+/// Onglet « Étiquette imprimante » : programme ZPL / TSPL / EPL2 d'une étiquette, aperçu, envoi à l'imprimante.
 /// Alimenté depuis l'analyse d'image, le banc d'essai et « Créer un code ».
 /// </summary>
 public partial class PrintView : UserControl
@@ -87,7 +87,7 @@ public partial class PrintView : UserControl
     private string _savedQueue = string.Empty;
 
     /// <summary>Dessine un code (texte, type de l'Atelier) : fourni par la fenêtre principale.</summary>
-    public Func<string, string, Task<(byte[]? Png, string? Error)>>? Renderer { get; set; }
+    public Func<string, string, bool, Task<(byte[]? Png, string? Error)>>? Renderer { get; set; }
 
     /// <summary>Message pour le journal des lectures.</summary>
     public event Action<LogKind, string>? Log;
@@ -304,11 +304,11 @@ public partial class PrintView : UserControl
         PreviewInfo.Text = $"{Mm(job.WidthMm)} × {Mm(job.HeightMm)} mm · {job.Dpi} dpi";
 
         var raw = ControlCharacters.FromVisualized(job.Data);
-        var key = $"{AtelierType(job.Symbology)}|{raw}";
+        var key = $"{AtelierType(job.Symbology)}|{job.HumanReadable}|{raw}";
         if (Renderer is not null && raw.Length > 0 && key != _renderedKey)
         {
             var seq = ++_renderSeq;
-            var (png, error) = await Renderer(raw, AtelierType(job.Symbology));
+            var (png, error) = await Renderer(raw, AtelierType(job.Symbology), job.HumanReadable);
             if (seq != _renderSeq)
             {
                 return;

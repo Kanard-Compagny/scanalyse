@@ -254,7 +254,7 @@ public partial class BenchView : UserControl
         RecreateRequested?.Invoke(text, chosen == "auto" ? GuessType(text) : chosen);
     }
 
-    /// <summary>« Code imprimante » : la lecture (sinon la référence) part dans l'onglet d'impression.</summary>
+    /// <summary>« Étiquette imprimante » : la lecture (sinon la référence) part dans l'onglet d'impression.</summary>
     public event Action<string, string>? PrintRequested;
 
     private void Print_Click(object sender, RoutedEventArgs e)

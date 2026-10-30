@@ -141,7 +141,7 @@
               </DockPanel>
               <RadioButton x:Name="NavAnalyse" Style="{StaticResource NavItem}" Tag="{StaticResource IconAnalyse}" Content="Analyser une image" ToolTip="Analyser une image" Checked="Nav_Checked" />
               <RadioButton x:Name="NavCreate" Style="{StaticResource NavItem}" Tag="{StaticResource IconCreate}" Content="Créer un code" ToolTip="Créer un code" Checked="Nav_Checked" />
-              <RadioButton x:Name="NavPrint" Style="{StaticResource NavItem}" Tag="{StaticResource IconPrint}" Content="Code imprimante" ToolTip="Code imprimante (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint)" Checked="Nav_Checked" />
+              <RadioButton x:Name="NavPrint" Style="{StaticResource NavItem}" Tag="{StaticResource IconPrint}" Content="Étiquette imprimante" ToolTip="Étiquette imprimante (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint)" Checked="Nav_Checked" />
               <RadioButton x:Name="NavConfig" Style="{StaticResource NavItem}" Tag="{StaticResource IconPrinterConfig}" Content="Conf imprimante" ToolTip="Conf imprimante : fichiers de configuration (ZPL, SGD, TSPL, DPL, SBPL, Fingerprint) expliqués, contrôlés et envoyés" Checked="Nav_Checked" />
               <RadioButton x:Name="NavBench" Style="{StaticResource NavItem}" Tag="{StaticResource IconBench}" Content="Banc d'essai douchette" ToolTip="Banc d'essai douchette" Checked="Nav_Checked" />
               <RadioButton x:Name="NavDevices" Style="{StaticResource NavItem}" Tag="{StaticResource IconScanner}" Content="Appareils de lecture" ToolTip="Appareils de lecture : douchettes, terminaux Android, caméras" Checked="Nav_Checked" />

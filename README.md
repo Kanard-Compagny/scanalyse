@@ -31,7 +31,7 @@ Il s'adresse aux techniciens SAV, intégrateurs, services informatiques et logis
 - **Terminaux Android** reliés en USB ou en Wi-Fi : leurs lectures arrivent sur le PC.
 - **Terminaux sans lecteur** : leur **caméra sert de douchette**.
 
-### 🖨️ Code imprimante
+### 🖨️ Étiquette imprimante
 - **Lire le programme d'un client** en ZPL (Zebra), TSPL (TSC), EPL2, DPL (Honeywell / Datamax), SBPL (SATO) ou Fingerprint (Honeywell / Intermec) : aperçu de l'étiquette, contenu de chaque code, erreurs.
 - **Modèles d'étiquettes prêts à l'emploi** (palette SSCC, colis, produit, emplacement, inventaire) dans les quatre langages.
 - **Envoyer à l'imprimante** (réseau ou imprimante installée) et **la maintenir** : lire son état (papier, ruban, tête ouverte), calibrer, imprimer sa page de configuration.

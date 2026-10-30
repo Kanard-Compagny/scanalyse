@@ -42,7 +42,7 @@
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
       <StackPanel>
-        <TextBlock Style="{StaticResource PageTitle}" Text="Code imprimante" />
+        <TextBlock Style="{StaticResource PageTitle}" Text="Étiquette imprimante" />
         <TextBlock x:Name="PageSubtitle" Style="{StaticResource PageSubtitle}" TextWrapping="Wrap"
                    Text="Génère le programme ZPL, TSPL, EPL2 ou DPL d'une étiquette pour recréer le code d'un client sur son imprimante, et l'envoie directement." />
       </StackPanel>

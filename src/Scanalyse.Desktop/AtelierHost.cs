@@ -14,7 +14,7 @@ namespace Scanalyse.Desktop;
 /// <param name="ImagePng">Vignette du code découpée dans l'image analysée (PNG), si disponible.</param>
 public sealed record CompareRequest(string Text, string Format, string SymbologyIdentifier, byte[]? ImagePng = null);
 
-/// <summary>Demande « Code imprimante » envoyée par l'Atelier (analyse ou création).</summary>
+/// <summary>Demande « Étiquette imprimante » envoyée par l'Atelier (analyse ou création).</summary>
 /// <param name="Text">Contenu brut du code (caractères GS réels) ou forme « (01)… ».</param>
 /// <param name="Format">Format lu ou type de l'Atelier.</param>
 /// <param name="Gs1">Le code porte des données GS1 (FNC1).</param>
@@ -180,9 +180,10 @@ internal sealed class AtelierHost
         ExecuteAsync($"window.atelierSetCreateType&&window.atelierSetCreateType({JsonSerializer.Serialize(typeId)})");
 
     /// <summary>
-    /// Fait dessiner un code par l'Atelier (aperçu du banc d'essai). Renvoie l'image PNG, ou un message d'erreur.
+    /// Fait dessiner un code par l'Atelier (aperçu du banc d'essai, de l'étiquette). Renvoie l'image PNG, ou un message
+    /// d'erreur. <paramref name="humanReadable"/> : texte lisible sous un code 1D.
     /// </summary>
-    public async Task<(byte[]? Png, string? Error)> RenderAsync(string text, string typeId)
+    public async Task<(byte[]? Png, string? Error)> RenderAsync(string text, string typeId, bool humanReadable = true)
     {
         if (!_ready || _view.CoreWebView2 is null)
         {
@@ -192,7 +193,7 @@ internal sealed class AtelierHost
         var id = Guid.NewGuid().ToString("N");
         var tcs = new TaskCompletionSource<(byte[]? Png, string? Error)>(TaskCreationOptions.RunContinuationsAsynchronously);
         _renders[id] = tcs;
-        await ExecuteAsync($"window.atelierRender({JsonSerializer.Serialize(id)},{JsonSerializer.Serialize(text)},{JsonSerializer.Serialize(typeId)})");
+        await ExecuteAsync($"window.atelierRender({JsonSerializer.Serialize(id)},{JsonSerializer.Serialize(text)},{JsonSerializer.Serialize(typeId)},{(humanReadable ? "true" : "false")})");
         var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(10)));
         _renders.Remove(id);
         return done == tcs.Task ? tcs.Task.Result : (null, "Délai dépassé.");

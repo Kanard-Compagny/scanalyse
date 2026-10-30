@@ -51,7 +51,7 @@ public partial class ConfigView : UserControl
         {
             if (IsVisible && IsLoaded)
             {
-                LoadTarget(); // l'imprimante a pu changer dans « Code imprimante »
+                LoadTarget(); // l'imprimante a pu changer dans « Étiquette imprimante »
                 ProbeIfChanged();
             }
             else
@@ -194,7 +194,7 @@ public partial class ConfigView : UserControl
         }
     }
 
-    /// <summary>Même imprimante que « Code imprimante » : le choix est partagé.</summary>
+    /// <summary>Même imprimante que « Étiquette imprimante » : le choix est partagé.</summary>
     private void SaveTarget()
     {
         if (_loading || !IsLoaded)
