@@ -152,5 +152,3 @@ body.m-app .wrap{display:none}
 .m-ios .m-back{background:var(--soft);color:var(--brand-text,#145C43)}
 .m-ios.m-ios-browser .m-bar{padding-top:10px}
 html.m-ios-html{background:var(--bg)}
-/* Essai de diagnostic : application prolongée jusqu'en bas de l'écran */
-.m-fill .m-app-root{bottom:calc(-1 * env(safe-area-inset-top,0px))}

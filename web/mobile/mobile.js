@@ -264,14 +264,10 @@ $("mBuild").addEventListener("click",()=>{
     "zones sûres (haut droite bas gauche) : "+[cs.paddingTop,cs.paddingRight,cs.paddingBottom,cs.paddingLeft].join(" "),
     "application : haut "+Math.round(r.top)+" bas "+Math.round(r.bottom)+" · barre "+Math.round(bar.top)+"→"+Math.round(bar.bottom)+" · onglets "+Math.round(tb.top)+"→"+Math.round(tb.bottom),
     "hauteurs : outer "+outerHeight+" · client "+document.documentElement.clientHeight+" · svh/lvh/dvh "+["svh","lvh","dvh"].map(u=>{const e=document.createElement("div");e.style.cssText="position:fixed;height:100"+u+";width:1px;visibility:hidden";document.body.appendChild(e);const h=Math.round(e.getBoundingClientRect().height);e.remove();return h;}).join("/"),
-    "essai remplissage : "+document.body.classList.contains("m-fill"),
     "barre d'état demandée : "+((document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')||{}).content||"—"),
     "version : "+$("mBuild").textContent.replace(/^.*· /,""),
     navigator.userAgent].join("\n");
   d.hidden=false;
-  if(!$("mFillTest")){const b=document.createElement("button");b.type="button";b.id="mFillTest";b.className="m-btn";b.style.marginTop="10px";
-    b.textContent=T("Essai : prolonger jusqu'en bas","Test: extend to the bottom");
-    b.addEventListener("click",()=>{document.body.classList.toggle("m-fill");d.hidden=true;$("mBuild").click();});d.after(b);}
 });
 
 /* ---------- Départ ---------- */
