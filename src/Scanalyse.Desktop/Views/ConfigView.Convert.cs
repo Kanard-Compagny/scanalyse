@@ -35,11 +35,13 @@ public partial class ConfigView
 
     private void Mode_Changed(object sender, RoutedEventArgs e)
     {
-        _mode = ModeConvert.IsChecked == true ? PageMode.Convert : ModeCreate.IsChecked == true ? PageMode.Create : PageMode.Analyze;
-        if (EditorCard is null)
+        // Appelé pendant le chargement de la page (carte cochée d'office) : les autres éléments n'existent pas encore.
+        if (ModeConvert is null || ModeCreate is null || EditorCard is null || CreatePreviewCard is null)
         {
             return;
         }
+
+        _mode = ModeConvert.IsChecked == true ? PageMode.Convert : ModeCreate.IsChecked == true ? PageMode.Create : PageMode.Analyze;
 
         SuggestPopup.IsOpen = false;
         EditorCard.Visibility = _mode == PageMode.Create ? Visibility.Collapsed : Visibility.Visible;
