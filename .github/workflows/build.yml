@@ -93,6 +93,8 @@ jobs:
         env:
           SIGNATURE: ${{ steps.signature.outcome }}
         run: |
+          # Erreur détaillée en annotation (lisible sans ouvrir le journal complet).
+          trap { Write-Host "::error::$(($_ | Out-String) -replace "`r?`n", ' ')"; exit 1 }
           New-Item -ItemType Directory -Force publication | Out-Null
           $notes = ""
           if ($env:SIGNATURE -eq "success") {
