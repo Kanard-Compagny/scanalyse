@@ -43,6 +43,25 @@ public partial class MainWindow : Window
     private string _atelierMode = "scan";
     private bool _ready;
 
+    private bool _startupFinished;
+
+    /// <summary>
+    /// Levé une seule fois, quand la fenêtre est affichée et l'Atelier prêt (ou en échec) : l'écran de démarrage peut
+    /// alors se fermer. Un délai de sécurité le lève quoi qu'il arrive.
+    /// </summary>
+    public event Action? StartupFinished;
+
+    private void FinishStartup()
+    {
+        if (_startupFinished)
+        {
+            return;
+        }
+
+        _startupFinished = true;
+        StartupFinished?.Invoke();
+    }
+
     public MainWindow()
     {
         InitializeComponent();
@@ -168,6 +187,13 @@ public partial class MainWindow : Window
 
         Loaded += async (_, _) =>
         {
+            var safety = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(12) };
+            safety.Tick += (_, _) =>
+            {
+                safety.Stop();
+                FinishStartup();
+            };
+            safety.Start();
             if (!AppSettings.Load().WelcomeDone)
             {
                 Welcome.Show();
@@ -226,10 +252,12 @@ public partial class MainWindow : Window
         catch (WebView2RuntimeNotFoundException)
         {
             ShowWebError("Le composant Microsoft Edge WebView2 n'est pas installé sur ce PC. Il est présent d'office sur Windows 11 et sur les Windows 10 à jour ; sinon, installe le « WebView2 Runtime » depuis le site de Microsoft. Le banc d'essai reste utilisable.");
+            FinishStartup();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or COMException)
         {
             ShowWebError("Impossible de démarrer l'Atelier : " + ex.Message);
+            FinishStartup();
         }
     }
 
@@ -238,6 +266,7 @@ public partial class MainWindow : Window
         await _atelier.SetThemeAsync(ThemeManager.IsDark);
         await _atelier.SetLanguageAsync();
         await _atelier.SetModeAsync(_atelierMode);
+        FinishStartup();
         if (_pendingImages.Count > 0)
         {
             var images = _pendingImages.ToList();

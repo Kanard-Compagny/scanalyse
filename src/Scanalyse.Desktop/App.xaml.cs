@@ -19,6 +19,11 @@ public partial class App : Application
     private Mutex? _instance;
     private EventWaitHandle? _activate;
     private CancellationTokenSource? _pipeStop;
+    private SplashScreen? _splash;
+    private readonly System.Diagnostics.Stopwatch _splashClock = new();
+
+    /// <summary>Durée minimale d'affichage de l'écran de démarrage, pour qu'il ne fasse pas qu'un flash.</summary>
+    private static readonly TimeSpan SplashMinimum = TimeSpan.FromMilliseconds(1500);
 
     /// <summary>Canal par lequel une seconde instance transmet ses fichiers (propre à la session Windows et à l'utilisateur).</summary>
     private static string PipeName => $"Scanalyse-ouvrir-{System.Diagnostics.Process.GetCurrentProcess().SessionId}-{Environment.UserName}";
@@ -58,6 +63,7 @@ public partial class App : Application
             return;
         }
 
+        ShowSplash();
         _activate = new EventWaitHandle(false, EventResetMode.AutoReset, ActivateName);
         var listener = new Thread(() =>
         {
@@ -84,11 +90,14 @@ public partial class App : Application
         {
             // Premier lancement : la langue d'abord, avant l'accueil et la visite guidée.
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            _splash?.Close(TimeSpan.Zero);
+            _splash = null;
             var picker = new LanguageWindow();
             picker.ShowDialog();
             settings.Language = picker.Choice;
             settings.LanguageChosen = true;
             settings.Save();
+            ShowSplash();
         }
 
         // La fermeture de la fenêtre principale arrête le programme, même si une autre fenêtre est restée ouverte.
@@ -109,6 +118,7 @@ public partial class App : Application
         base.OnStartup(e);
         var main = new MainWindow();
         MainWindow = main;
+        main.StartupFinished += CloseSplash;
         main.Show();
         if (files.Length > 0)
         {
@@ -252,5 +262,42 @@ public partial class App : Application
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         })
         { IsBackground = true, Name = "Scanalyse - arrêt" }.Start();
+    }
+
+    /// <summary>
+    /// Écran de démarrage piloté à la main : il reste au premier plan tant que la fenêtre principale et l'Atelier ne sont
+    /// pas prêts (l'affichage automatique de WPF se fermait dès la première image, bien avant la fin du chargement).
+    /// </summary>
+    private void ShowSplash()
+    {
+        try
+        {
+            _splash = new SplashScreen("Assets/splash.png");
+            _splash.Show(autoClose: false, topMost: true);
+            _splashClock.Restart();
+        }
+        catch (IOException)
+        {
+            _splash = null;
+        }
+    }
+
+    private async void CloseSplash()
+    {
+        var splash = _splash;
+        _splash = null;
+        if (splash is null)
+        {
+            return;
+        }
+
+        var left = SplashMinimum - _splashClock.Elapsed;
+        if (left > TimeSpan.Zero)
+        {
+            await Task.Delay(left);
+        }
+
+        splash.Close(TimeSpan.FromMilliseconds(300));
+        MainWindow?.Activate();
     }
 }
