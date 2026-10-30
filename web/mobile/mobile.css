@@ -143,3 +143,14 @@ body.m-app .wrap{display:none}
 .m-diag{margin:12px 0 0;padding:12px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font:12px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all}
 #mProbe{position:fixed;top:0;left:0;width:1px;height:1px;visibility:hidden;pointer-events:none;
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+
+/* iPhone : iOS estompe la zone sous la barre d'état (heure, batterie) par-dessus la page. Une barre verte y paraît
+   délavée ; en-tête clair, couleur de la page, comme les applications d'Apple : l'effet devient invisible. */
+.m-ios .m-bar{background:var(--bg);color:var(--ink);border-bottom:1px solid var(--line)}
+.m-ios .m-bar b{color:var(--ink)}
+.m-ios .m-bar nav button,.m-ios .m-bar nav a{color:var(--brand-text,#145C43);background:var(--soft)}
+.m-ios .m-back{background:var(--soft);color:var(--brand-text,#145C43)}
+.m-ios.m-ios-browser .m-bar{padding-top:10px}
+html.m-ios-html{background:var(--bg)}
+/* Essai de diagnostic : application prolongée jusqu'en bas de l'écran */
+.m-fill .m-app-root{bottom:calc(-1 * env(safe-area-inset-top,0px))}

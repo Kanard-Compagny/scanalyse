@@ -5,6 +5,8 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 document.body.classList.add("m-app");
 const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 const INSTALLED=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+if(IOS){document.body.classList.add("m-ios");document.documentElement.classList.add("m-ios-html");
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=matchMedia("(prefers-color-scheme: dark)").matches?"#101314":"#F3F4F6";}
 if(IOS&&!INSTALLED)document.body.classList.add("m-ios-browser");
 window.atelierNoSample=true;
 
@@ -261,10 +263,15 @@ $("mBuild").addEventListener("click",()=>{
     "écran : "+screen.width+" × "+screen.height+" · densité "+devicePixelRatio,
     "zones sûres (haut droite bas gauche) : "+[cs.paddingTop,cs.paddingRight,cs.paddingBottom,cs.paddingLeft].join(" "),
     "application : haut "+Math.round(r.top)+" bas "+Math.round(r.bottom)+" · barre "+Math.round(bar.top)+"→"+Math.round(bar.bottom)+" · onglets "+Math.round(tb.top)+"→"+Math.round(tb.bottom),
+    "hauteurs : outer "+outerHeight+" · client "+document.documentElement.clientHeight+" · svh/lvh/dvh "+["svh","lvh","dvh"].map(u=>{const e=document.createElement("div");e.style.cssText="position:fixed;height:100"+u+";width:1px;visibility:hidden";document.body.appendChild(e);const h=Math.round(e.getBoundingClientRect().height);e.remove();return h;}).join("/"),
+    "essai remplissage : "+document.body.classList.contains("m-fill"),
     "barre d'état demandée : "+((document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')||{}).content||"—"),
     "version : "+$("mBuild").textContent.replace(/^.*· /,""),
     navigator.userAgent].join("\n");
   d.hidden=false;
+  if(!$("mFillTest")){const b=document.createElement("button");b.type="button";b.id="mFillTest";b.className="m-btn";b.style.marginTop="10px";
+    b.textContent=T("Essai : prolonger jusqu'en bas","Test: extend to the bottom");
+    b.addEventListener("click",()=>{document.body.classList.toggle("m-fill");d.hidden=true;$("mBuild").click();});d.after(b);}
 });
 
 /* ---------- Départ ---------- */
