@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
+PackageIdentifier: KanardCompagny.Scanalyse
+PackageVersion: 0.12.1
+PackageLocale: fr-FR
+Publisher: Kanard Compagny
+PublisherUrl: https://github.com/Kanard-Compagny
+PublisherSupportUrl: https://github.com/Kanard-Compagny/scanalyse/issues
+Author: Mr.Kanard
+PackageName: Scanalyse
+PackageUrl: https://kanard-compagny.github.io/scanalyse/
+License: GPL-3.0
+LicenseUrl: https://github.com/Kanard-Compagny/scanalyse/blob/main/LICENSE
+Copyright: Mr.Kanard
+ShortDescription: Boîte à outils gratuite du technicien codes-barres, toutes marques.
+Description: |-
+  Scanalyse lit et explique les codes-barres (GS1, QR, Data Matrix…), compare ce qu'une douchette transmet vraiment au contenu du code, lit et contrôle les programmes et fichiers de configuration des imprimantes d'étiquettes (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint, TPCL) et les envoie à l'imprimante.
+  Analyse 100 % locale : aucune image ni donnée n'est envoyée sur Internet.
+Moniker: scanalyse
+Tags:
+- barcode
+- code-barres
+- gs1
+- qr-code
+- datamatrix
+- douchette
+- zpl
+- zebra
+- imprimante-etiquettes
+- tspl
+ReleaseNotesUrl: https://github.com/Kanard-Compagny/scanalyse/releases/tag/v0.12.1
+ManifestType: defaultLocale
+ManifestVersion: 1.10.0

@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.10.0.schema.json
+PackageIdentifier: KanardCompagny.Scanalyse
+PackageVersion: 0.12.1
+PackageLocale: en-US
+Publisher: Kanard Compagny
+PublisherUrl: https://github.com/Kanard-Compagny
+PublisherSupportUrl: https://github.com/Kanard-Compagny/scanalyse/issues
+Author: Mr.Kanard
+PackageName: Scanalyse
+PackageUrl: https://kanard-compagny.github.io/scanalyse/en/
+License: GPL-3.0
+LicenseUrl: https://github.com/Kanard-Compagny/scanalyse/blob/main/LICENSE
+Copyright: Mr.Kanard
+ShortDescription: Free toolbox for barcode technicians, all brands.
+Description: |-
+  Scanalyse reads and explains barcodes (GS1, QR, Data Matrix…), compares what a scanner really sends with the code's content, reads and checks label printer programs and configuration files (ZPL, TSPL, EPL2, DPL, SBPL, Fingerprint, TPCL) and sends them to the printer.
+  100% local analysis: no image or data is sent over the Internet.
+Tags:
+- barcode
+- barcode-scanner
+- gs1
+- qr-code
+- datamatrix
+- zpl
+- zebra
+- label-printer
+- thermal-printer
+- tspl
+ReleaseNotesUrl: https://github.com/Kanard-Compagny/scanalyse/releases/tag/v0.12.1
+ManifestType: locale
+ManifestVersion: 1.10.0
