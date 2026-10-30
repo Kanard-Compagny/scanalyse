@@ -383,6 +383,25 @@
                 </StackPanel>
               </Border>
 
+              <!-- Soutien : un don libre, sans contrepartie ni rappel ailleurs dans le programme -->
+              <Border Background="{DynamicResource OkBg}" CornerRadius="12" Padding="14,12" Margin="0,0,0,14">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Click="Donate_Click" VerticalAlignment="Center" Margin="12,0,0,0"
+                          ToolTip="paypal.me/MrKanard">
+                    <StackPanel Orientation="Horizontal">
+                      <Path Data="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" Width="18" Height="18" Stretch="Uniform"
+                            Fill="#F07F13" VerticalAlignment="Center" />
+                      <TextBlock Text="Faire un don" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                  </Button>
+                  <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Soutenir Scanalyse" FontWeight="SemiBold" Foreground="{DynamicResource Ink}" />
+                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,2,0,0"
+                               Text="Scanalyse est gratuit et le restera, sans publicité. S'il vous fait gagner du temps, un don libre aide à le faire évoluer." />
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+
               <WrapPanel>
                 <Button Style="{StaticResource BtnSecondary}" Content="Quoi de neuf" Click="Changelog_Click" Margin="0,0,8,8" />
                 <Button Style="{StaticResource BtnSecondary}" Content="Licence GPL v3" Click="License_Click" Margin="0,0,8,8" />

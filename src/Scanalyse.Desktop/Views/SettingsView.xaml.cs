@@ -287,6 +287,10 @@ public partial class SettingsView : UserControl
         }
     }
 
+    /// <summary>Don libre (PayPal), proposé seulement dans « À propos ».</summary>
+    private void Donate_Click(object sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://www.paypal.me/MrKanard") { UseShellExecute = true });
+
     private void OpenAppLink_Click(object sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo(PhoneAppUrl) { UseShellExecute = true });
 
