@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.10.0.schema.json
 PackageIdentifier: KanardCompagny.Scanalyse
-PackageVersion: 0.12.1
+PackageVersion: 0.12.2
 DefaultLocale: fr-FR
 ManifestType: version
 ManifestVersion: 1.10.0
