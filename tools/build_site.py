@@ -83,6 +83,7 @@ T = {
         ],
         "issue": "Signaler un problème ou proposer une idée",
         "changelog": "Nouveautés de chaque version",
+        "donate": "Soutenir le projet (don libre)",
         "foot": "Scanalyse est un projet indépendant, sans lien avec les fabricants cités.",
     },
     "en": {
@@ -136,6 +137,7 @@ T = {
         ],
         "issue": "Report a problem or suggest an idea",
         "changelog": "What's new in each release",
+        "donate": "Support the project (optional donation)",
         "foot": "Scanalyse is an independent project, not affiliated with the manufacturers mentioned.",
     },
 }
@@ -299,6 +301,7 @@ PAGE = """<!doctype html>
   <a href="{repo}/blob/main/CHANGELOG.md">{changelog}</a>
   <a href="{repo}">GitHub</a>
   <a href="{repo}/blob/main/LICENSE">GPL v3</a>
+  <a href="https://www.paypal.me/MrKanard">{donate}</a>
   <small>{foot}</small>
 </div></footer>
 </body>
@@ -336,7 +339,7 @@ def build(code: str) -> str:
         brands="".join(f"<li>{e(b)}</li>" for b in BRANDS), start_h=e(t["start_h"]),
         start="".join(f"<li>{e(s)}</li>" for s in t["start"]), trust_h=e(t["trust_h"]),
         trust="".join(f"<div><h3>{e(h)}</h3><p>{e(p)}</p></div>" for h, p in t["trust"]),
-        issue=e(t["issue"]), changelog=e(t["changelog"]), foot=e(t["foot"]),
+        issue=e(t["issue"]), donate=e(t["donate"]), changelog=e(t["changelog"]), foot=e(t["foot"]),
     )
 
 

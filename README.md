@@ -95,6 +95,10 @@ La seule connexion est la **recherche de mise à jour** sur GitHub (adresse `api
 `Scanalyse.exe` n'est pas encore signé numériquement : au premier lancement, Windows peut afficher « Windows a protégé votre ordinateur » (*Informations complémentaires* → *Exécuter quand même*).
 Chaque version est compilée automatiquement par GitHub Actions à partir du code de ce dépôt, visible de tous ; son **empreinte SHA-256** est publiée avec elle (fichier `Scanalyse.exe.sha256`) et vérifiée par la mise à jour automatique. Pour contrôler un téléchargement : `Get-FileHash Scanalyse.exe` dans PowerShell. Le programme ne contient ni publicité ni mesure d'audience (voir [Confidentialité](#confidentialité)).
 
+## Soutenir le projet
+
+Scanalyse est gratuit et le restera, sans publicité. S'il vous fait gagner du temps, vous pouvez soutenir son développement par un don libre : [paypal.me/MrKanard](https://www.paypal.me/MrKanard). Parler de Scanalyse à vos collègues aide tout autant.
+
 ## Licence
 
 Logiciel **libre et gratuit**, créé par **Mr.Kanard**, sous licence [GNU GPL v3](LICENSE) : chacun peut l'utiliser, le partager et l'améliorer, à condition que ses versions restent libres. Fourni sans aucune garantie.

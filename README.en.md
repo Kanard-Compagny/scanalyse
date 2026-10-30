@@ -95,6 +95,10 @@ The only connection is the **update check** on GitHub (`api.github.com`, without
 `Scanalyse.exe` is not digitally signed yet: on first launch Windows may show "Windows protected your PC" (*More info* → *Run anyway*).
 Every release is built automatically by GitHub Actions from the code in this public repository; its **SHA-256 hash** is published with it (`Scanalyse.exe.sha256` file) and checked by the automatic update. To check a download yourself: `Get-FileHash Scanalyse.exe` in PowerShell.
 
+## Support the project
+
+Scanalyse is free and will stay free, with no ads. If it saves you time, you can support its development with an optional donation: [paypal.me/MrKanard](https://www.paypal.me/MrKanard). Telling your colleagues about Scanalyse helps just as much.
+
 ## License
 
 **Free software**, created by **Mr.Kanard**, under the [GNU GPL v3](LICENSE): anyone can use, share and improve it, provided their versions stay free. Provided without any warranty.
