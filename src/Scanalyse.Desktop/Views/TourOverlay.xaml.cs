@@ -131,8 +131,8 @@ public partial class TourOverlay : UserControl
             y = target.Bottom - bh - 24;
         }
 
-        Canvas.SetLeft(Bubble, Math.Clamp(x, 12, Math.Max(12, ActualWidth - bw - 12)));
-        Canvas.SetTop(Bubble, Math.Clamp(y, 12, Math.Max(12, ActualHeight - bh - 12)));
+        Canvas.SetLeft(Bubble, Math.Round(Math.Clamp(x, 12, Math.Max(12, ActualWidth - bw - 12))));
+        Canvas.SetTop(Bubble, Math.Round(Math.Clamp(y, 12, Math.Max(12, ActualHeight - bh - 12))));
     }
 
     private void Next_Click(object sender, RoutedEventArgs e)

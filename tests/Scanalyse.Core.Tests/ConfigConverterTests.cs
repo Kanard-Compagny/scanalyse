@@ -1,3 +1,4 @@
+using Scanalyse.Core.Content;
 using Scanalyse.Core.Printing;
 
 namespace Scanalyse.Core.Tests;
@@ -21,7 +22,80 @@ public class ConfigConverterTests
         Assert.Equal(152.4, s.LengthMm!.Value, 1);
         Assert.True(s.Dhcp == false);
         Assert.Equal("192.168.1.50", s.IpAddress);
-        Assert.Contains(notes, n => n.Line == 12 && n.Status == ConversionStatus.NotConverted);
+        Assert.True(s.WifiDhcp == true);
+        Assert.DoesNotContain(notes, n => n.Line == 12 && n.Status == ConversionStatus.NotConverted);
+    }
+
+    [Fact]
+    public void Cle_wpa_calculee_comme_la_borne()
+    {
+        // Vecteur de test IEEE 802.11i (annexe H.4) : mot de passe « password », réseau « IEEE ».
+        Assert.Equal("f42c6fc52df0ebef9ebb4b90b38a5f902e83fe1b135a70e23aed762e9710a12e", ConfigConverter.WpaPsk("password", "IEEE"));
+        Assert.True(ConfigConverter.IsValidPassphrase("motdepasse"));
+        Assert.False(ConfigConverter.IsValidPassphrase("court"));
+    }
+
+    private static PrinterSettings Wifi() => new()
+    {
+        WifiSsid = "Entrepot",
+        WifiSecurity = WifiSecurity.WpaPersonal,
+        WifiPassphrase = "motdepasse123",
+        WifiCountry = "europe",
+        WifiDhcp = false,
+        WifiIpAddress = "192.168.10.60",
+        WifiNetmask = "255.255.255.0",
+        WifiGateway = "192.168.10.1",
+        Restart = true,
+    };
+
+    [Fact]
+    public void Wifi_zebra_en_sgd_sans_mot_de_passe_en_clair()
+    {
+        var r = ConfigConverter.Write(Wifi(), ConfigLanguage.Zpl);
+        Assert.StartsWith("! U1 setvar \"wlan.country_code\" \"europe\"", r.Text, StringComparison.Ordinal);
+        var mixed = Wifi();
+        mixed.Darkness = 0.5;
+        Assert.Contains("^XZ\r\n! U1 setvar \"wlan.country_code\"", ConfigConverter.Write(mixed, ConfigLanguage.Zpl).Text, StringComparison.Ordinal);
+        Assert.Contains("! U1 setvar \"wlan.essid\" \"Entrepot\"", r.Text, StringComparison.Ordinal);
+        Assert.Contains("! U1 setvar \"wlan.security\" \"wpa psk\"", r.Text, StringComparison.Ordinal);
+        Assert.Contains($"! U1 setvar \"wlan.wpa.psk\" \"{ConfigConverter.WpaPsk("motdepasse123", "Entrepot")}\"", r.Text, StringComparison.Ordinal);
+        Assert.DoesNotContain("motdepasse123", r.Text, StringComparison.Ordinal);
+        Assert.Contains("! U1 setvar \"wlan.ip.protocol\" \"permanent\"", r.Text, StringComparison.Ordinal);
+        Assert.EndsWith("! U1 do \"device.reset\" \"\"\r\n", r.Text, StringComparison.Ordinal);
+
+        // Relu : mêmes réglages, et l'analyse ne trouve pas d'erreur.
+        var (back, _, _) = ConfigConverter.Extract(r.Text);
+        Assert.Equal("Entrepot", back.WifiSsid);
+        Assert.Equal(WifiSecurity.WpaPersonal, back.WifiSecurity);
+        Assert.True(ConfigConverter.IsHexKey(back.WifiPassphrase));
+        Assert.Equal("192.168.10.60", back.WifiIpAddress);
+        Assert.Equal("europe", back.WifiCountry);
+        var analysed = PrinterConfig.Analyze(r.Text);
+        Assert.DoesNotContain(analysed.Findings, f => f.Severity == Severity.Error);
+    }
+
+    [Fact]
+    public void Wifi_tsc_en_commandes_wlan()
+    {
+        var r = ConfigConverter.Write(Wifi(), ConfigLanguage.Tspl);
+        Assert.Contains("WLAN SSID \"Entrepot\"", r.Text, StringComparison.Ordinal);
+        Assert.Contains("WLAN WPA \"motdepasse123\"", r.Text, StringComparison.Ordinal);
+        Assert.Contains("WLAN IP \"192.168.10.60\",\"255.255.255.0\",\"192.168.10.1\"", r.Text, StringComparison.Ordinal);
+        Assert.Contains(r.Notes, n => n.Status == ConversionStatus.NotConverted && n.Message.StartsWith("Redémarrage", StringComparison.Ordinal));
+        var (back, _, _) = ConfigConverter.Extract("SIZE 100 mm, 50 mm\r\n" + r.Text);
+        Assert.Equal("Entrepot", back.WifiSsid);
+        Assert.Equal("motdepasse123", back.WifiPassphrase);
+        Assert.True(back.WifiDhcp == false);
+        var analysed = PrinterConfig.Analyze("SIZE 100 mm, 50 mm\r\n" + r.Text);
+        Assert.DoesNotContain(analysed.Findings, f => f.Severity == Severity.Error);
+        Assert.Contains(analysed.Findings, f => f.Message.Contains("en clair", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Wifi_autres_marques_explique()
+    {
+        var r = ConfigConverter.Write(new PrinterSettings { WifiSsid = "Entrepot", WifiSecurity = WifiSecurity.Open }, ConfigLanguage.Sbpl);
+        Assert.Contains(r.Notes, n => n.Status == ConversionStatus.NotConverted && n.Message.Contains("SATO All-In-One", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -67,7 +141,7 @@ public class ConfigConverterTests
     {
         var sgd = ConfigConverter.Convert("! U1 setvar \"print.tone\" \"15\"\r\n! U1 setvar \"media.printmode\" \"cutter\"\r\n! U1 setvar \"wlan.essid\" \"X\"\r\n", ConfigLanguage.Fingerprint);
         Assert.Contains("SETUP \"MEDIA\",\"CONTRAST\",\"+0%\"", sgd.Text, StringComparison.Ordinal);
-        Assert.Contains(sgd.Notes, n => n.Line == 3 && n.Status == ConversionStatus.NotConverted);
+        Assert.Contains(sgd.Notes, n => n.Status == ConversionStatus.NotConverted && n.Message.StartsWith("Wi-Fi", StringComparison.Ordinal));
         Assert.Contains(sgd.Notes, n => n.Status == ConversionStatus.NotConverted && n.Message.Contains("Sortie", StringComparison.Ordinal));
 
         var fp = ConfigConverter.Extract("SETUP \"MEDIA\",\"MEDIA TYPE\",\"TICKET (W MARK)\"\r\nSETUP \"PRINT DEFS\",\"PRINT SPEED\",150\r\n").Settings;
@@ -96,7 +170,8 @@ public class ConfigConverterTests
         Assert.Contains("! U1 setvar \"print.tone\" \"15\"", r.Text, StringComparison.Ordinal);
         Assert.Contains("! U1 setvar \"ezpl.print_width\" \"1181\"", r.Text, StringComparison.Ordinal);
         Assert.Contains("! U1 setvar \"ip.protocol\" \"all\"", r.Text, StringComparison.Ordinal);
-        Assert.DoesNotContain(r.Notes, n => n.Status == ConversionStatus.Approximated);
+        Assert.DoesNotContain(r.Notes, n => n.Status == ConversionStatus.Approximated && !n.Message.Contains("redémarrage", StringComparison.Ordinal));
+        Assert.Contains(r.Notes, n => n.Message.Contains("redémarrage", StringComparison.Ordinal));
         Assert.Contains(ConfigConverter.Write(new PrinterSettings(), ConfigLanguage.Zpl).Notes, n => n.Status == ConversionStatus.NotConverted);
     }
 

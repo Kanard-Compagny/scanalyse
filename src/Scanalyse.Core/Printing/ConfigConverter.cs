@@ -20,6 +20,16 @@ public enum PrintMethod
     DirectThermal,
 }
 
+/// <summary>Sécurité du réseau Wi-Fi.</summary>
+public enum WifiSecurity
+{
+    /// <summary>Réseau ouvert, sans mot de passe.</summary>
+    Open,
+
+    /// <summary>WPA / WPA2 personnel (mot de passe partagé, PSK).</summary>
+    WpaPersonal,
+}
+
 /// <summary>Sortie des étiquettes.</summary>
 public enum OutputMode
 {
@@ -83,6 +93,33 @@ public sealed class PrinterSettings
 
     public string? Gateway { get; set; }
 
+    /// <summary>Nom du réseau Wi-Fi (SSID) ; nul : Wi-Fi non réglé.</summary>
+    public string? WifiSsid { get; set; }
+
+    /// <summary>Sécurité du Wi-Fi (avec <see cref="WifiSsid"/>).</summary>
+    public WifiSecurity? WifiSecurity { get; set; }
+
+    /// <summary>Mot de passe WPA (8 à 63 caractères) ou clé déjà calculée (64 caractères hexadécimaux).</summary>
+    public string? WifiPassphrase { get; set; }
+
+    /// <summary>Pays du Wi-Fi (canaux autorisés), valeur Zebra : europe, usa/canada…</summary>
+    public string? WifiCountry { get; set; }
+
+    /// <summary>Adresse Wi-Fi automatique (DHCP) ; faux : adresse fixe ; nul : non réglée.</summary>
+    public bool? WifiDhcp { get; set; }
+
+    public string? WifiIpAddress { get; set; }
+
+    public string? WifiNetmask { get; set; }
+
+    public string? WifiGateway { get; set; }
+
+    /// <summary>Redémarrer l'imprimante à la fin du fichier (nécessaire pour appliquer le réseau et le Wi-Fi).</summary>
+    public bool Restart { get; set; }
+
+    /// <summary>Au moins un réglage Wi-Fi renseigné.</summary>
+    public bool HasWifi => WifiSsid is not null || WifiDhcp is not null || WifiCountry is not null;
+
     /// <summary>Enregistrer les réglages dans l'imprimante (ZPL ^JUS).</summary>
     public bool Save { get; set; } = true;
 
@@ -91,7 +128,7 @@ public sealed class PrinterSettings
 
     /// <summary>Au moins un réglage renseigné.</summary>
     public bool IsEmpty => Darkness is null && SpeedIps is null && Media is null && Method is null && Mode is null && WidthMm is null && LengthMm is null
-        && GapMm is null && LeftShiftMm is null && TopShiftMm is null && TearOffMm is null && Dhcp is null;
+        && GapMm is null && LeftShiftMm is null && TopShiftMm is null && TearOffMm is null && Dhcp is null && !HasWifi;
 
     /// <summary>Copie indépendante.</summary>
     public PrinterSettings Clone() => (PrinterSettings)MemberwiseClone();
@@ -183,16 +220,24 @@ public static partial class ConfigConverter
         var report = PrinterConfig.Analyze(text);
         double? sd = null;
         double? md = null;
+        var lines = text.Split('\n');
+
+        // L'analyse abrège les longues commandes (80 caractères) : la ligne d'origine sert alors (clé Wi-Fi, SSID…).
+        string Full(ConfigItem item) =>
+            item.Command.EndsWith('…') && item.Language != "ZPL" && item.Line >= 1 && item.Line <= lines.Length
+                ? PrinterConfig.Notation(lines[item.Line - 1].Trim())
+                : item.Command;
         foreach (var item in report.Items)
         {
             if (FromAnalysis(item.Language) is { } lang)
             {
+                var command = Full(item);
                 var known = item.Language switch
                 {
                     "ZPL" => Zpl(item.Command, s, ref sd, ref md),
-                    "SGD" => Sgd(item.Command, s),
-                    "JSON SGD" => Json(item.Command, s),
-                    "TSPL" => Tspl(item.Command, s),
+                    "SGD" => Sgd(command, s),
+                    "JSON SGD" => Json(command, s),
+                    "TSPL" => Tspl(command, s),
                     "EPL2" => Epl2(item.Command, s),
                     "DPL" => Dpl(item.Command, s),
                     "Fingerprint" => Fingerprint(item.Command, s),
@@ -319,6 +364,15 @@ public static partial class ConfigConverter
                 s.Netmask = A(2).Length > 0 ? A(2) : s.Netmask;
                 s.Gateway = A(3).Length > 0 ? A(3) : s.Gateway;
                 return Known.Setting;
+            case "^WS" when A(0).Length > 0:
+                s.WifiSsid = A(0);
+                return Known.Setting;
+            case "^WI":
+                s.WifiDhcp = A(0).ToUpperInvariant() switch { "P" => false, "" => s.WifiDhcp, _ => true };
+                s.WifiIpAddress = A(1).Length > 0 ? A(1) : s.WifiIpAddress;
+                s.WifiNetmask = A(2).Length > 0 ? A(2) : s.WifiNetmask;
+                s.WifiGateway = A(3).Length > 0 ? A(3) : s.WifiGateway;
+                return Known.Setting;
             case "^XA" or "^XZ" or "^FX" or "^FS" or "^FO" or "^FD" or "^PQ" or "^LH" or "^CI":
                 return Known.Structure;
             default:
@@ -381,6 +435,34 @@ public static partial class ConfigConverter
                 return Known.Setting;
             case "ip.gateway":
                 s.Gateway = v;
+                return Known.Setting;
+            case "wlan.essid":
+                s.WifiSsid = value.Trim();
+                return Known.Setting;
+            case "wlan.security":
+                s.WifiSecurity = Low(v) == "none" ? WifiSecurity.Open : Low(v) is "wpa psk" or "wpa2 psk" ? WifiSecurity.WpaPersonal : s.WifiSecurity;
+                return Low(v) is "none" or "wpa psk" or "wpa2 psk" ? Known.Setting : Known.Other;
+            case "wlan.wpa.psk":
+                s.WifiPassphrase = value.Trim();
+                s.WifiSecurity ??= WifiSecurity.WpaPersonal;
+                return Known.Setting;
+            case "wlan.country_code":
+                s.WifiCountry = Low(v);
+                return Known.Setting;
+            case "wlan.ip.protocol":
+                s.WifiDhcp = Low(v) != "permanent";
+                return Known.Setting;
+            case "wlan.ip.dhcp.enable":
+                s.WifiDhcp = Low(v) == "on";
+                return Known.Setting;
+            case "wlan.ip.addr":
+                s.WifiIpAddress = v;
+                return Known.Setting;
+            case "wlan.ip.netmask":
+                s.WifiNetmask = v;
+                return Known.Setting;
+            case "wlan.ip.gateway":
+                s.WifiGateway = v;
                 return Known.Setting;
             default:
                 return Known.Other;
@@ -493,6 +575,8 @@ public static partial class ConfigConverter
                 }
             }
 
+            case "WLAN":
+                return TsplWlan(m.Groups[2].Value.Trim(), s);
             case "NET":
             {
                 var t = m.Groups[2].Value.Trim();
@@ -746,9 +830,11 @@ public static partial class ConfigConverter
                 break;
         }
 
+        WriteWifi(s, w);
+        WriteRestart(s, w);
         if (s.IsEmpty)
         {
-            w.Note(ConversionStatus.NotConverted, "Aucun réglage commun trouvé (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau) : rien à écrire.");
+            w.Note(ConversionStatus.NotConverted, "Aucun réglage commun trouvé (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau, Wi-Fi) : rien à écrire.");
         }
 
         return new ConversionResult(w.Text(), w.Notes, s);
@@ -787,6 +873,13 @@ public static partial class ConfigConverter
 
     private static void WriteZpl(PrinterSettings s, Writer w)
     {
+        if (s.Darkness is null && s.SpeedIps is null && s.Media is null && s.Method is null && s.Mode is null && s.WidthMm is null && s.LengthMm is null
+            && s.LeftShiftMm is null && s.TopShiftMm is null && s.TearOffMm is null && s.Dhcp is null && s.HasWifi)
+        {
+            // Wi-Fi seul : tout passe en SGD, un bloc ZPL vide n'apporterait rien.
+            return;
+        }
+
         if (s.Darkness is { } d)
         {
             var v = (int)Math.Round(d * 30);

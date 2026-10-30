@@ -3120,7 +3120,6 @@ sans ruban (thermique direct)	no ribbon (direct thermal)
 {XS;I,…|} : après la quantité, attendu intervalle de coupe (3 chiffres), capteur, mode, vitesse, ruban (ex. 0002C3000).	{XS;I,…|}: after the quantity, expected cut interval (3 digits), sensor, mode, speed, ribbon (e.g. 0002C3000).
 {XS;…|} : forme attendue {XS;I,0001,0002C3000|} (quantité, intervalle de coupe, capteur, mode, vitesse, ruban…).	{XS;…|}: expected form {XS;I,0001,0002C3000|} (quantity, cut interval, sensor, mode, speed, ribbon…).
 Toshiba TEC (B-EX, B-SX, BA400…)	Toshiba TEC (B-EX, B-SX, BA400…)
-Bienvenue dans Scanalyse	Welcome to Scanalyse
 En quelques étapes, voici tout ce que le programme sait faire. Avance avec « Suivant » ou les flèches du clavier, quitte avec Échap. La visite se relance à tout moment depuis les Paramètres.	In a few steps, here is everything the program can do. Move on with “Next” or the arrow keys, leave with Esc. You can restart the tour at any time from Settings.
 Le menu	The menu
 Chaque outil a sa page. Le bouton « MENU » réduit cette barre à ses icônes pour gagner de la place sur un petit écran.	Each tool has its own page. The “MENU” button shrinks this bar to its icons to save room on a small screen.
@@ -3133,10 +3132,68 @@ L'imprimante de référence	The reference printer
 Indique l'imprimante visée : Scanalyse reconnaît sa marque et son modèle, puis vérifie que chaque réglage du fichier est bien accepté par elle avant l'envoi.	Enter the target printer: Scanalyse recognizes its brand and model, then checks that every setting in the file is accepted by it before sending.
 Scanne un code avec la douchette du client : Scanalyse compare ce qu'elle transmet au vrai contenu et explique chaque écart (clavier AZERTY ou QWERTY, préfixe en trop, séparateur GS1 perdu…). Des codes de configuration prêts à scanner corrigent les réglages courants.	Scan a code with the customer's scanner: Scanalyse compares what it sends with the real content and explains every difference (AZERTY or QWERTY keyboard, extra prefix, lost GS1 separator…). Ready-to-scan configuration codes fix the usual settings.
 Douchettes USB, série (port COM) ou HID POS, terminaux Android en USB ou en Wi-Fi. Un téléphone ou un PDA se connecte en scannant un QR code : sa page de relais sert de douchette, avec sa caméra s'il n'a pas de lecteur. Chaque lecture arrive au banc d'essai, octet par octet.	USB, serial (COM port) or HID POS scanners, Android terminals over USB or Wi-Fi. A phone or PDA connects by scanning a QR code: its relay page works as a scanner, using its camera if it has no scan engine. Every read reaches the scanner test bench, byte by byte.
-Historique et rapports	History and reports
 Toutes les analyses, rangées par dossier client. Rouvre-les, renomme-les, commente-les et produis le rapport PDF à ton en-tête. Le dossier peut être partagé sur le réseau avec toute l'équipe.	All analyses, filed by customer case. Reopen, rename and comment them, and produce the PDF report with your letterhead. The folder can be shared on the network with the whole team.
 Chaque analyse est rangée dans le dossier choisi ici : choisis-le en début d'intervention pour que tout ce que tu fais pour ce client se retrouve au même endroit.	Every analysis is filed in the case chosen here: pick it at the start of a job so everything you do for this customer ends up in one place.
 L'aide-mémoire des codes-barres : à quoi sert chaque type, ce qu'il peut contenir et ses pièges. Pratique pour conseiller un client sur le bon code.	The barcode cheat sheet: what each type is for, what it can hold and its pitfalls. Handy for advising a customer on the right code.
 Le journal	The log
 Tout ce qui se passe s'affiche ici : lectures, envois à l'imprimante, erreurs. La flèche le réduit ou le déplie.	Everything that happens shows up here: reads, prints sent, errors. The arrow collapses or expands it.
 Langue, thème, taille d'affichage, dossiers, en-tête et logo des rapports, profil d'équipe, « Ouvrir avec », mises à jour automatiques. L'accueil et cette visite se relancent d'ici.	Language, theme, display size, folders, report letterhead and logo, team profile, “Open with”, automatic updates. The welcome screen and this tour can be restarted from here.
+Pratique pour préparer en USB une imprimante qui passera ensuite en Wi-Fi : choisis « Installée sur ce PC » et envoie ce fichier.	Handy to prepare over USB a printer that will then move to Wi-Fi: choose “Installed on this PC” and send this file.
+Configurer le Wi-Fi	Set up Wi-Fi
+Nom du réseau (SSID, 32 caractères au plus)	Network name (SSID, 32 characters max)
+ex. Entrepot	e.g. Warehouse
+WPA / WPA2 personnel (mot de passe)	WPA / WPA2 personal (password)
+Réseau ouvert (sans mot de passe)	Open network (no password)
+Mot de passe du Wi-Fi	Wi-Fi password
+8 à 63 caractères	8 to 63 characters
+Pays (canaux Wi-Fi autorisés)	Country (allowed Wi-Fi channels)
+Europe	Europe
+Australie / Nouvelle-Zélande	Australia / New Zealand
+Adresse IP en Wi-Fi	IP address over Wi-Fi
+ex. 192.168.1.60	e.g. 192.168.1.60
+Redémarrer l'imprimante à la fin (applique le réseau et le Wi-Fi)	Restart the printer at the end (applies network and Wi-Fi)
+Nom du réseau Wi-Fi (1 à 32 caractères)	Wi-Fi network name (1 to 32 characters)
+Mot de passe Wi-Fi (8 à 63 caractères)	Wi-Fi password (8 to 63 characters)
+Adresse IP du Wi-Fi	Wi-Fi IP address
+Vide : le mot de passe déjà enregistré dans l'imprimante est gardé.	Empty: the password already stored in the printer is kept.
+Zebra : le mot de passe est transformé en clé calculée avec le nom du réseau ; il n'apparaît pas en clair dans le fichier.	Zebra: the password is turned into a key computed with the network name; it does not appear in clear text in the file.
+Le mot de passe est écrit en clair dans le fichier : ne le diffuse pas et supprime-le après usage.	The password is written in clear text in the file: do not share it and delete it after use.
+Pays du Wi-Fi	Wi-Fi country
+Mot de passe Wi-Fi	Wi-Fi password
+Redémarrage	Restart
+Sécurité Wi-Fi (réseau ouvert)	Wi-Fi security (open network)
+Sécurité Wi-Fi (WPA / WPA2 personnel)	Wi-Fi security (WPA / WPA2 personal)
+Clé Wi-Fi WPA	WPA Wi-Fi key
+Masque (Wi-Fi)	Netmask (Wi-Fi)
+pas de commande Wi-Fi fiable en {0} : règle-le avec {1}, en USB, avant de passer en Wi-Fi.	no reliable Wi-Fi command in {0}: set it with {1}, over USB, before switching to Wi-Fi.
+l'outil Honeywell PrintSet ou la page web de l'imprimante	the Honeywell PrintSet tool or the printer's web page
+l'outil SATO All-In-One ou la page web de l'imprimante	the SATO All-In-One tool or the printer's web page
+l'outil de réglage Toshiba TEC ou la page web de l'imprimante	the Toshiba TEC setup tool or the printer's web page
+les commandes SGD Zebra (choisis SGD : les imprimantes EPL2 récentes les acceptent) ou Zebra Setup Utilities	Zebra SGD commands (choose SGD: recent EPL2 printers accept them) or Zebra Setup Utilities
+pas de commande TSPL ; il se règle par la page web de l'imprimante.	no TSPL command; it is set from the printer's web page.
+le fichier d'origine ne contient que la clé calculée ; TSPL attend le mot de passe lui-même : saisis-le dans le formulaire.	the source file only holds the computed key; TSPL expects the password itself: type it in the form.
+pas de commande sûre en {0} : éteins et rallume l'imprimante après l'envoi.	no safe command in {0}: switch the printer off and on again after sending.
+Wi-Fi écrit en commandes SGD (! U1 setvar) à la suite du ZPL : c'est la méthode recommandée par Zebra, l'imprimante les accepte dans le même envoi.	Wi-Fi written as SGD commands (! U1 setvar) after the ZPL: this is the method Zebra recommends, and the printer accepts them in the same send.
+Mot de passe Wi-Fi transformé en clé WPA calculée avec le nom du réseau : il n'apparaît pas en clair dans le fichier. Si le nom du réseau change, la clé est à recalculer.	Wi-Fi password turned into a WPA key computed with the network name: it does not appear in clear text in the file. If the network name changes, the key must be computed again.
+Mot de passe Wi-Fi écrit en clair : ne diffuse pas ce fichier (e-mail, ticket) et supprime-le après usage.	Wi-Fi password written in clear text: do not share this file (email, ticket) and delete it after use.
+Mot de passe Wi-Fi non renseigné : celui déjà enregistré dans l'imprimante est gardé.	Wi-Fi password not entered: the one already stored in the printer is kept.
+Les réglages réseau et Wi-Fi ne s'appliquent qu'au redémarrage de l'imprimante : coche « Redémarrer à la fin » ou éteins-la et rallume-la après l'envoi.	Network and Wi-Fi settings only apply when the printer restarts: tick “Restart at the end” or switch it off and on again after sending.
+{0} (module Wi-Fi TSC : à vérifier selon le modèle)	{0} (TSC Wi-Fi module: check for your model)
+device.reset, en dernière ligne	device.reset, on the last line
+Wi-Fi : sans WPA (réseau ouvert)	Wi-Fi: no WPA (open network)
+WLAN WPA OFF : réseau Wi-Fi sans chiffrement ; à réserver à un réseau isolé.	WLAN WPA OFF: Wi-Fi network without encryption; keep it for an isolated network.
+Wi-Fi : mot de passe WPA	Wi-Fi: WPA password
+WLAN WPA : mot de passe de 8 à 63 caractères attendu.	WLAN WPA: password of 8 to 63 characters expected.
+Wi-Fi : chiffrement WEP	Wi-Fi: WEP encryption
+WEP : chiffrement obsolète, cassé en quelques minutes ; préfère WPA2.	WEP: obsolete encryption, broken in minutes; prefer WPA2.
+Wi-Fi : adresse automatique (DHCP)	Wi-Fi: automatic address (DHCP)
+Wi-Fi : adresse fixe {0}	Wi-Fi: fixed address {0}
+Wi-Fi : port d'impression {0}	Wi-Fi: print port {0}
+Wi-Fi : {0}	Wi-Fi: {0}
+WLAN SSID : nom de réseau de {0} caractères, 32 au plus.	WLAN SSID: network name of {0} characters, 32 max.
+WLAN IP : adresse « {0} » invalide.	WLAN IP: address “{0}” is invalid.
+WLAN {0} : réglage Wi-Fi TSC non répertorié par Scanalyse, vérifie-le dans le manuel du modèle.	WLAN {0}: TSC Wi-Fi setting not listed by Scanalyse, check it in the model's manual.
+Aucun réglage commun trouvé (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau, Wi-Fi) : rien à écrire.	No common setting found (darkness, speed, media, method, output, size, offsets, network, Wi-Fi): nothing to write.
+WLAN IP : adresse, masque et passerelle attendus entre guillemets, ex. WLAN IP "192.168.1.60","255.255.255.0","192.168.1.1".	WLAN IP: address, mask and gateway expected in quotes, e.g. WLAN IP "192.168.1.60","255.255.255.0","192.168.1.1".
+WLAN SSID : nom du réseau entre guillemets attendu, ex. WLAN SSID "Entrepot".	WLAN SSID: network name expected in quotes, e.g. WLAN SSID "Warehouse".
+WLAN WPA : mot de passe entre guillemets attendu, ex. WLAN WPA "motdepasse".	WLAN WPA: password expected in quotes, e.g. WLAN WPA "password".

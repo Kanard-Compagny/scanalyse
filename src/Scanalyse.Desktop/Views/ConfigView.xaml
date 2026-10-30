@@ -163,10 +163,14 @@
                        Text="Colle ici le fichier de configuration (Ctrl + V), ouvre-le, ou glisse-le sur la page. Tape une commande pour voir les propositions (Ctrl + Espace : toute la bibliothèque). Exemple : ! U1 setvar &quot;print.tone&quot; &quot;20&quot;" />
             <!-- Propositions à la saisie (bibliothèque intégrée) -->
             <Popup x:Name="SuggestPopup" Grid.Column="1" PlacementTarget="{Binding ElementName=CodeBox}" Placement="RelativePoint" StaysOpen="True" AllowsTransparency="True" Focusable="False">
-              <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="10" Padding="4" Width="520">
-                <Border.Effect>
+              <Grid Width="520">
+                <!-- Ombre portée sur un fond à part : un effet posé sur le contenu rendrait le texte flou. -->
+                <Border Background="{DynamicResource Surface}" CornerRadius="10" IsHitTestVisible="False">
+                  <Border.Effect>
                   <DropShadowEffect BlurRadius="16" ShadowDepth="3" Opacity="0.35" />
                 </Border.Effect>
+                </Border>
+                <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="10" Padding="4">
                 <DockPanel>
                   <TextBlock DockPanel.Dock="Bottom" x:Name="SuggestFooter" FontSize="11.5" Foreground="{DynamicResource Muted}" Margin="8,4,8,2" TextTrimming="CharacterEllipsis"
                              Text="↑ ↓ choisir · Entrée ou Tab insérer · Échap fermer" />
@@ -175,6 +179,7 @@
                   </ScrollViewer>
                 </DockPanel>
               </Border>
+              </Grid>
             </Popup>
           </Grid>
         </DockPanel>

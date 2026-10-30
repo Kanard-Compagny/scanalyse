@@ -329,7 +329,7 @@ public static partial class PrinterConfig
     }
 
     /// <summary>Notation texte des caractères de contrôle (« &lt;STX&gt; », « &lt;ESC&gt; ») → vrais caractères.</summary>
-    private static string Notation(string text) => text
+    internal static string Notation(string text) => text
         .Replace("<STX>", "\u0002", StringComparison.OrdinalIgnoreCase)
         .Replace("<SOH>", "\u0001", StringComparison.OrdinalIgnoreCase)
         .Replace("<ESC>", "\u001B", StringComparison.OrdinalIgnoreCase)
@@ -1238,6 +1238,9 @@ public static partial class PrinterConfig
                 }
 
                 break;
+            case "WLAN":
+                TsplWlan(arg, line, n, ctx);
+                break;
             case "CLS" or "PRINT" or "TEXT" or "BARCODE" or "QRCODE" or "BOX" or "BAR" or "BITMAP" or "PUTBMP" or "BLOCK" or "DMATRIX" or "PDF417" or "ERASE" or "REVERSE":
                 ctx.Item(n, "TSPL", line, "Contenu d'étiquette", "Étiquette");
                 break;
@@ -1247,6 +1250,90 @@ public static partial class PrinterConfig
             default:
                 ctx.Item(n, "TSPL", line, $"Commande TSPL {cmd}", "Système");
                 ctx.Find(n, Severity.Info, $"{cmd} : commande TSPL non répertoriée par Scanalyse, vérifie-la dans le manuel du modèle.");
+                break;
+        }
+    }
+
+    /// <summary>Module Wi-Fi TSC : WLAN SSID, WPA, WEP, DHCP, IP, PORT.</summary>
+    private static void TsplWlan(string arg, string line, int n, Ctx ctx)
+    {
+        ctx.Risky = true;
+        var parts = arg.Split(' ', 2, StringSplitOptions.TrimEntries);
+        var sub = parts[0].ToUpperInvariant();
+        var rest = parts.Length > 1 ? parts[1] : string.Empty;
+        var quoted = Regex.Matches(rest, "\"([^\"]*)\"").Select(x => x.Groups[1].Value).ToList();
+        switch (sub)
+        {
+            case "SSID":
+                ctx.Item(n, "TSPL", line, $"Wi-Fi : réseau « {(quoted.Count > 0 ? quoted[0] : rest)} »", "Réseau");
+                if (quoted.Count == 0)
+                {
+                    ctx.Find(n, Severity.Error, "WLAN SSID : nom du réseau entre guillemets attendu, ex. WLAN SSID \"Entrepot\".");
+                }
+                else if (quoted[0].Length > 32)
+                {
+                    ctx.Find(n, Severity.Error, $"WLAN SSID : nom de réseau de {quoted[0].Length} caractères, 32 au plus.");
+                }
+                else
+                {
+                    ctx.Set("wlan.essid", "Nom du réseau Wi-Fi (SSID)", quoted[0], n, comparable: true);
+                }
+
+                break;
+            case "WPA":
+                if (rest.Trim().Equals("OFF", StringComparison.OrdinalIgnoreCase))
+                {
+                    ctx.Item(n, "TSPL", line, "Wi-Fi : sans WPA (réseau ouvert)", "Réseau");
+                    ctx.Find(n, Severity.Warning, "WLAN WPA OFF : réseau Wi-Fi sans chiffrement ; à réserver à un réseau isolé.");
+                    break;
+                }
+
+                ctx.Item(n, "TSPL", line, "Wi-Fi : mot de passe WPA", "Réseau");
+                if (quoted.Count == 0)
+                {
+                    ctx.Find(n, Severity.Error, "WLAN WPA : mot de passe entre guillemets attendu, ex. WLAN WPA \"motdepasse\".");
+                }
+                else
+                {
+                    WifiSecret(ctx, n, quoted[0]);
+                    if (quoted[0].Length is < 8 or > 63)
+                    {
+                        ctx.Find(n, Severity.Error, "WLAN WPA : mot de passe de 8 à 63 caractères attendu.");
+                    }
+                }
+
+                break;
+            case "WEP":
+                ctx.Item(n, "TSPL", line, "Wi-Fi : chiffrement WEP", "Réseau");
+                ctx.Find(n, Severity.Warning, "WEP : chiffrement obsolète, cassé en quelques minutes ; préfère WPA2.");
+                break;
+            case "DHCP":
+                ctx.Item(n, "TSPL", line, "Wi-Fi : adresse automatique (DHCP)", "Réseau");
+                break;
+            case "IP":
+                ctx.Item(n, "TSPL", line, "Wi-Fi : adresse fixe " + string.Join(", ", quoted), "Réseau");
+                if (quoted.Count < 3)
+                {
+                    ctx.Find(n, Severity.Error, "WLAN IP : adresse, masque et passerelle attendus entre guillemets, ex. WLAN IP \"192.168.1.60\",\"255.255.255.0\",\"192.168.1.1\".");
+                }
+
+                foreach (var ip in quoted.Where(q => !IsIpv4(q)))
+                {
+                    ctx.Find(n, Severity.Error, $"WLAN IP : adresse « {ip} » invalide.");
+                }
+
+                if (quoted.Count > 0 && IsIpv4(quoted[0]))
+                {
+                    ctx.Set("wlan.ip.addr", "Adresse IP (Wi-Fi)", quoted[0], n, comparable: true);
+                }
+
+                break;
+            case "PORT":
+                ctx.Item(n, "TSPL", line, $"Wi-Fi : port d'impression {rest.Trim()}", "Réseau");
+                break;
+            default:
+                ctx.Item(n, "TSPL", line, $"Wi-Fi : {arg}", "Réseau");
+                ctx.Find(n, Severity.Info, $"WLAN {sub} : réglage Wi-Fi TSC non répertorié par Scanalyse, vérifie-le dans le manuel du modèle.");
                 break;
         }
     }
@@ -1740,7 +1827,7 @@ public static partial class PrinterConfig
     [GeneratedRegex(@"^([A-Za-z0-9_]+)\s*(.*)$")]
     private static partial Regex TsplSetArg();
 
-    [GeneratedRegex(@"^(SET\s+(CUTTER|PEEL|TEAR|GAP|HEAD|RIBBON|COUNTER|REPRINT|PRINTKEY|COM1|BACK|PARTIAL_CUTTER)|INITIALPRINTER|GAPDETECT|BLINEDETECT|AUTODETECT|DENSITY\s+\d|SPEED\s+\d|LIMITFEED|NET\s)", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+    [GeneratedRegex(@"^(SET\s+(CUTTER|PEEL|TEAR|GAP|HEAD|RIBBON|COUNTER|REPRINT|PRINTKEY|COM1|BACK|PARTIAL_CUTTER)|INITIALPRINTER|GAPDETECT|BLINEDETECT|AUTODETECT|DENSITY\s+\d|SPEED\s+\d|LIMITFEED|NET\s|WLAN\s+(SSID|WPA|WEP|DHCP|IP|PORT|OFF|MODE)\b|SIZE\s+[\d.]+\s*mm\s*,)", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex TsplConfigLine();
 
     [GeneratedRegex(@"^(?:\d+\s+)?SETUP\s+(""[^\n]*)$", RegexOptions.IgnoreCase)]

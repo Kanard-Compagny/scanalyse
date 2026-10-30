@@ -374,6 +374,20 @@ public partial class ConfigView
     private readonly TextBox _gateway = new();
     private readonly CheckBox _save = new() { IsChecked = true };
     private readonly StackPanel _staticIp = new();
+    private readonly WrapPanel _wifi = new() { Margin = new Thickness(0, 4, 0, 0) };
+    private readonly StackPanel _wifiPanel = new();
+    private readonly TextBox _ssid = new();
+    private readonly WrapPanel _wifiSecurity = new() { Margin = new Thickness(0, 4, 0, 0) };
+    private readonly StackPanel _passPanel = new();
+    private readonly TextBox _pass = new();
+    private readonly TextBlock _passHint = new() { FontSize = 12, Margin = new Thickness(0, 3, 0, 0), TextWrapping = TextWrapping.Wrap };
+    private readonly WrapPanel _country = new() { Margin = new Thickness(0, 4, 0, 0) };
+    private readonly WrapPanel _wifiNet = new() { Margin = new Thickness(0, 4, 0, 0) };
+    private readonly StackPanel _wifiStatic = new();
+    private readonly TextBox _wifiIp = new();
+    private readonly TextBox _wifiMask = new();
+    private readonly TextBox _wifiGateway = new();
+    private readonly CheckBox _restart = new();
 
     private void ShowCreate()
     {
@@ -450,6 +464,42 @@ public partial class ConfigView
         _staticIp.Visibility = Visibility.Collapsed;
         p.Children.Add(_staticIp);
 
+        p.Children.Add(Section("Réseau Wi-Fi"));
+        var wifiIntro = AsLabel("Pratique pour préparer en USB une imprimante qui passera ensuite en Wi-Fi : choisis « Installée sur ce PC » et envoie ce fichier.");
+        p.Children.Add(wifiIntro);
+        Chips<bool?>(_wifi, "AsWifi", [("Ne pas changer", null), ("Configurer le Wi-Fi", true)]);
+        p.Children.Add(_wifi);
+        _wifiPanel.Children.Add(Field("Nom du réseau (SSID, 32 caractères au plus)", _ssid, "ex. Entrepot"));
+        _wifiPanel.Children.Add(AsLabel("Sécurité"));
+        Chips<WifiSecurity?>(_wifiSecurity, "AsWifiSec", [("WPA / WPA2 personnel (mot de passe)", WifiSecurity.WpaPersonal), ("Réseau ouvert (sans mot de passe)", WifiSecurity.Open)]);
+        Select(_wifiSecurity, WifiSecurity.WpaPersonal);
+        _wifiPanel.Children.Add(_wifiSecurity);
+        _passPanel.Children.Add(Field("Mot de passe du Wi-Fi", _pass, "8 à 63 caractères"));
+        _pass.Width = 320;
+        _passHint.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+        _passPanel.Children.Add(_passHint);
+        _wifiPanel.Children.Add(_passPanel);
+        _wifiPanel.Children.Add(AsLabel("Pays (canaux Wi-Fi autorisés)"));
+        Chips<string?>(_country, "AsCountry", [("Ne pas changer", null), .. ConfigConverter.WifiCountries.Select(c => (c.Label, (string?)c.Value))]);
+        _wifiPanel.Children.Add(_country);
+        _wifiPanel.Children.Add(AsLabel("Adresse IP en Wi-Fi"));
+        Chips<bool?>(_wifiNet, "AsWifiNet", [("Ne pas changer", null), ("Adresse automatique (DHCP)", true), ("Adresse fixe", false)]);
+        _wifiPanel.Children.Add(_wifiNet);
+        _wifiStatic.Children.Add(Field("Adresse IP", _wifiIp, "ex. 192.168.1.60"));
+        _wifiStatic.Children.Add(Field("Masque", _wifiMask, "ex. 255.255.255.0"));
+        _wifiStatic.Children.Add(Field("Passerelle", _wifiGateway, "ex. 192.168.1.1"));
+        _wifiStatic.Visibility = Visibility.Collapsed;
+        _wifiPanel.Children.Add(_wifiStatic);
+        _wifiPanel.Visibility = Visibility.Collapsed;
+        p.Children.Add(_wifiPanel);
+
+        _restart.Style = (Style)FindResource("CheckLine");
+        _restart.Content = Localization.T("Redémarrer l'imprimante à la fin (applique le réseau et le Wi-Fi)");
+        _restart.Margin = new Thickness(0, 14, 0, 0);
+        _restart.Checked += (_, _) => RefreshCreate();
+        _restart.Unchecked += (_, _) => RefreshCreate();
+        p.Children.Add(_restart);
+
         _save.Style = (Style)FindResource("CheckLine");
         _save.Content = Localization.T("Enregistrer les réglages dans l'imprimante (conservés à l'extinction)");
         _save.Margin = new Thickness(0, 14, 0, 8);
@@ -494,9 +544,20 @@ public partial class ConfigView
             };
             chip.Checked += (_, _) =>
             {
-                if (group == "AsNet")
+                switch (group)
                 {
-                    _staticIp.Visibility = Equals(value, false) ? Visibility.Visible : Visibility.Collapsed;
+                    case "AsNet":
+                        _staticIp.Visibility = Equals(value, false) ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                    case "AsWifi":
+                        _wifiPanel.Visibility = Equals(value, true) ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                    case "AsWifiSec":
+                        _passPanel.Visibility = Equals(value, WifiSecurity.Open) ? Visibility.Collapsed : Visibility.Visible;
+                        break;
+                    case "AsWifiNet":
+                        _wifiStatic.Visibility = Equals(value, false) ? Visibility.Visible : Visibility.Collapsed;
+                        break;
                 }
 
                 RefreshCreate();
@@ -537,6 +598,16 @@ public partial class ConfigView
             _ip.Text = s.IpAddress ?? string.Empty;
             _mask.Text = s.Netmask ?? string.Empty;
             _gateway.Text = s.Gateway ?? string.Empty;
+            Select(_wifi, s.HasWifi ? true : null);
+            _ssid.Text = s.WifiSsid ?? string.Empty;
+            Select(_wifiSecurity, s.WifiSecurity ?? WifiSecurity.WpaPersonal);
+            _pass.Text = s.WifiPassphrase ?? string.Empty;
+            Select(_country, s.WifiCountry);
+            Select(_wifiNet, s.WifiDhcp);
+            _wifiIp.Text = s.WifiIpAddress ?? string.Empty;
+            _wifiMask.Text = s.WifiNetmask ?? string.Empty;
+            _wifiGateway.Text = s.WifiGateway ?? string.Empty;
+            _restart.IsChecked = s.Restart;
         }
         finally
         {
@@ -617,6 +688,10 @@ public partial class ConfigView
         }
 
         var dhcp = (bool?)Selected(_network);
+        var wifi = Equals(Selected(_wifi), true);
+        var security = (WifiSecurity?)Selected(_wifiSecurity) ?? WifiSecurity.WpaPersonal;
+        var wifiDhcp = wifi ? (bool?)Selected(_wifiNet) : null;
+        var pass = _pass.Text.Trim();
         var settings = new PrinterSettings
         {
             Darkness = Value(_darkness, "Noirceur") is { } d ? Math.Clamp(d / 100, 0, 1) : null,
@@ -634,6 +709,15 @@ public partial class ConfigView
             IpAddress = dhcp == false ? _ip.Text.Trim() : null,
             Netmask = dhcp == false ? _mask.Text.Trim() : null,
             Gateway = dhcp == false ? _gateway.Text.Trim() : null,
+            WifiSsid = wifi && _ssid.Text.Trim().Length > 0 ? _ssid.Text.Trim() : null,
+            WifiSecurity = wifi ? security : null,
+            WifiPassphrase = wifi && security == WifiSecurity.WpaPersonal && pass.Length > 0 ? pass : null,
+            WifiCountry = wifi ? (string?)Selected(_country) : null,
+            WifiDhcp = wifiDhcp,
+            WifiIpAddress = wifiDhcp == false ? _wifiIp.Text.Trim() : null,
+            WifiNetmask = wifiDhcp == false ? _wifiMask.Text.Trim() : null,
+            WifiGateway = wifiDhcp == false ? _wifiGateway.Text.Trim() : null,
+            Restart = _restart.IsChecked == true,
             Save = _save.IsChecked == true,
             Dpi = CurrentDpi(),
         };
@@ -642,8 +726,32 @@ public partial class ConfigView
             invalid.Add(Localization.T("Adresse IP"));
         }
 
+        if (wifi)
+        {
+            var ssid = _ssid.Text.Trim();
+            if (ssid.Length is 0 or > 32)
+            {
+                invalid.Add(Localization.T("Nom du réseau Wi-Fi (1 à 32 caractères)"));
+            }
+
+            if (pass.Length > 0 && security == WifiSecurity.WpaPersonal && !ConfigConverter.IsValidPassphrase(pass))
+            {
+                invalid.Add(Localization.T("Mot de passe Wi-Fi (8 à 63 caractères)"));
+            }
+
+            if (wifiDhcp == false && !System.Net.IPAddress.TryParse(_wifiIp.Text.Trim(), out _))
+            {
+                invalid.Add(Localization.T("Adresse IP du Wi-Fi"));
+            }
+        }
+
         var target = _createTarget ?? SuggestedTarget(converting: false);
         UpdateDarknessHint(settings.Darkness, target);
+        _passHint.Text = Localization.T(pass.Length == 0
+            ? "Vide : le mot de passe déjà enregistré dans l'imprimante est gardé."
+            : target is ConfigLanguage.Zpl or ConfigLanguage.Sgd
+                ? "Zebra : le mot de passe est transformé en clé calculée avec le nom du réseau ; il n'apparaît pas en clair dans le fichier."
+                : "Le mot de passe est écrit en clair dans le fichier : ne le diffuse pas et supprime-le après usage.");
         if (settings.IsEmpty)
         {
             _createResult = null;
