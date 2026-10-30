@@ -2,103 +2,212 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F3D2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Scanalyse · Relais</title>
 <style>
-:root{--bg:#F4F5F6;--panel:#fff;--ink:#15191C;--muted:#5D656C;--line:#E1E4E7;--brand:#145C43;--soft:#E1EEE8;--ok:#13633F;--okbg:#E1F2E8;--bad:#A3261C;--badbg:#FCE5E3;--side:#0F3D2E}
-@media (prefers-color-scheme:dark){:root{--bg:#101314;--panel:#181C1E;--ink:#E9ECEE;--muted:#9AA3A9;--line:#2A3033;--brand:#5FD3A1;--soft:#173A2D;--ok:#73D9A9;--okbg:#123326;--bad:#FF8A80;--badbg:#3A1714;--side:#0B2A20}}
-*{box-sizing:border-box}
-body{margin:0;font:15px/1.4 "Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:var(--side);color:#E6F0EB;padding:12px 16px;display:flex;align-items:center;gap:10px}
-header b{font-size:17px}
-.mark{width:12px;height:12px;border-radius:3px;background:#F07F13}
-.state{margin-left:auto;font-size:12px;padding:3px 9px;border-radius:10px;background:rgba(255,255,255,.12)}
-.state.ok{background:#1F7454}.state.bad{background:#A3261C}
-main{padding:14px;display:grid;gap:12px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
-h1{font-size:18px;margin:0 0 4px}
-p{margin:0;color:var(--muted);font-size:13.5px}
-textarea{width:100%;min-height:84px;margin-top:10px;font:15px/1.4 Consolas,"Roboto Mono",monospace;color:var(--ink);background:var(--bg);border:2px solid var(--brand);border-radius:10px;padding:10px;resize:none}
-textarea:focus{outline:none}
-.last{font-family:Consolas,"Roboto Mono",monospace;font-size:13px;word-break:break-all}
-.item{border-top:1px solid var(--line);padding:8px 0}
-.item:first-child{border-top:0}
-.item small{display:block;color:var(--muted);font-family:"Segoe UI",Roboto,sans-serif;font-size:11.5px}
+:root{--bg:#F4F5F6;--panel:#fff;--ink:#15191C;--muted:#5D656C;--line:#E1E4E7;--brand:#145C43;--brand-ink:#fff;--soft:#E1EEE8;--ok:#13633F;--okbg:#E1F2E8;--bad:#A3261C;--badbg:#FCE5E3;--side:#0F3D2E;--action:#F07F13}
+@media (prefers-color-scheme:dark){:root{--bg:#101314;--panel:#181C1E;--ink:#E9ECEE;--muted:#9AA3A9;--line:#2A3033;--brand:#1F7454;--brand-ink:#fff;--soft:#173A2D;--ok:#73D9A9;--okbg:#123326;--bad:#FF8A80;--badbg:#3A1714;--side:#0B2A20;--action:#FF9A2E}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.4 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;min-height:100dvh;padding-bottom:env(safe-area-inset-bottom)}
+button{font:inherit;color:inherit}
+/* En-tête et choix du mode, toujours visibles */
+.top{position:sticky;top:0;z-index:5;background:var(--side);color:#E6F0EB;padding:calc(10px + env(safe-area-inset-top)) 16px 12px}
+.bar{display:flex;align-items:center;gap:10px}
+.mark{width:12px;height:12px;border-radius:3px;background:#F07F13;flex:none}
+.bar b{font-size:17px}
+.state{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:13px;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);white-space:nowrap}
+.state i{width:8px;height:8px;border-radius:50%;background:#9AA3A9}
+.state.ok i{background:#5FD3A1}.state.bad i{background:#FF8A80}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:12px;padding:4px;border-radius:12px;background:rgba(255,255,255,.1)}
+.modes button{border:0;border-radius:9px;padding:10px 8px;background:transparent;color:#CFE2D8;font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.modes button[aria-pressed="true"]{background:#fff;color:#0F3D2E}
+.modes svg{width:20px;height:20px;flex:none}
+main{padding:14px 14px 24px;display:grid;gap:12px;max-width:640px;margin:0 auto}
+/* Zone de lecture : douchette du terminal */
+.zone{position:relative;border:2px dashed var(--line);border-radius:18px;background:var(--panel);min-height:38vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 18px;transition:border-color .2s,background .2s}
+.zone svg{width:64px;height:64px;color:var(--muted);transition:color .2s}
+.zone h2{margin:12px 0 4px;font-size:20px}
+.zone p{margin:0;color:var(--muted);font-size:14.5px;max-width:30ch}
+.zone.ready{border-style:solid;border-color:var(--brand);background:var(--soft)}
+.zone.ready svg{color:var(--brand)}
+.zone textarea{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;resize:none;font-size:16px;cursor:pointer}
+/* Caméra */
+.cam{position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:3/4;max-height:62vh;width:100%}
+.cam.idle{aspect-ratio:auto;min-height:280px}
+.cam video{width:100%;height:100%;object-fit:cover;display:block}
+.aim{position:absolute;left:10%;right:10%;top:30%;height:34%;border:3px solid rgba(255,255,255,.9);border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.35);transition:border-color .15s,transform .15s}
+.aim.hit{border-color:#5FD3A1;transform:scale(1.03)}
+.camtip{position:absolute;left:0;right:0;top:calc(64% + 14px);text-align:center;color:#fff;font-size:14px;text-shadow:0 1px 3px rgba(0,0,0,.7);padding:0 16px}
+.camtools{position:absolute;left:0;right:0;bottom:14px;display:flex;justify-content:center;gap:12px}
+.round{border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:15px;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(6px);display:flex;align-items:center;gap:8px}
+.round.on{background:#F07F13;color:#1B0F02}
+.round svg{width:18px;height:18px}
+.camoff{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;height:100%;color:#E6F0EB;text-align:center;padding:20px}
+.camoff p{margin:0;color:#B9C7C0;font-size:14.5px;max-width:32ch}
+.big{border:0;border-radius:14px;padding:15px 22px;font-weight:700;font-size:16px;background:var(--action);color:#1B0F02;min-width:220px}
+/* Dernière lecture */
+.result{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;transition:background .3s}
+.result.flash{background:var(--okbg)}
+.result.flash-bad{background:var(--badbg)}
+.label{font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.value{font:600 21px/1.3 ui-monospace,"Cascadia Mono",Consolas,"Roboto Mono",monospace;word-break:break-all;margin:6px 0 8px}
+.value.empty{font-family:inherit;font-size:15px;color:var(--muted);font-weight:400}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:13.5px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-weight:600;font-size:13px;background:var(--soft);color:var(--ink)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.bad{background:var(--badbg);color:var(--bad)}
+/* Historique, aide, arrêt */
+details{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:0 16px}
+summary{list-style:none;cursor:pointer;padding:14px 0;font-weight:600;display:flex;align-items:center;gap:8px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";margin-left:auto;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+details[open] summary::after{transform:rotate(-135deg)}
+.count{font-weight:600;font-size:13px;color:var(--muted)}
+.item{border-top:1px solid var(--line);padding:10px 0}
+.item code{font:14px/1.35 ui-monospace,"Cascadia Mono",Consolas,monospace;word-break:break-all;display:block}
+.item small{color:var(--muted);font-size:12.5px}
 .sent{color:var(--ok)}.err{color:var(--bad)}
-.stop{display:block;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--bad)}
-.stopped textarea{border-color:var(--line);opacity:.5}
-.banner{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--badbg);color:var(--bad);font-size:13.5px}
-.stopped .banner{display:block}
-.again{display:none;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:0;background:var(--brand);color:#fff}
-.stopped .again{display:block}.stopped .stop{display:none}
-.cam{display:block;width:100%;margin-top:10px;font:600 15px "Segoe UI",Roboto,sans-serif;padding:12px;border-radius:10px;border:0;background:#F07F13;color:#1B0F02}
-.cam.off{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
-.camwrap{position:relative;margin-top:10px;border-radius:12px;overflow:hidden;background:#000;aspect-ratio:4/3}
-.camwrap video{width:100%;height:100%;object-fit:cover;display:block}
-.aim{position:absolute;inset:18% 10%;border:3px solid rgba(255,255,255,.85);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.25);transition:border-color .15s}
-.aim.hit{border-color:#5FD3A1}
-.camstate{margin-top:8px;font-size:13px;color:var(--muted)}
-.card a{color:var(--brand);font-weight:600}
-.stopped #camCard{opacity:.5;pointer-events:none}
+.help{margin:0 0 14px;color:var(--muted);font-size:14px}
+.help a{color:var(--brand);font-weight:600}
+@media (prefers-color-scheme:dark){.help a{color:#5FD3A1}}
+.stop{border:0;background:none;color:var(--bad);font-weight:600;padding:12px;justify-self:center}
+/* Liaison arrêtée */
+.stopped-view{display:none;background:var(--badbg);color:var(--bad);border-radius:16px;padding:16px;text-align:center}
+.stopped-view button{margin-top:10px;border:0;border-radius:12px;padding:12px 20px;font-weight:700;background:var(--brand);color:#fff}
+body.stopped .stopped-view{display:block}
+body.stopped .stage,body.stopped .stop{opacity:.35;pointer-events:none}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
-<header><span class="mark"></span><b>Scanalyse</b><span>Relais</span><span class="state" id="state">connexion…</span></header>
+<div class="top">
+  <div class="bar"><span class="mark"></span><b>Scanalyse</b><span class="state" id="state"><i></i><span id="stateText">connexion…</span></span></div>
+  <div class="modes" role="group" aria-label="Lire avec : le lecteur du terminal ou la caméra">
+    <button type="button" id="modeScan" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6v12M7 6v12M10 6v12M14 6v12M17 6v12M20 6v12"/></svg>Lecteur</button>
+    <button type="button" id="modeCam" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Caméra</button>
+  </div>
+</div>
 <main>
-  <section class="card">
-    <h1>Scanne un code</h1>
-    <p>La lecture du terminal arrive dans le champ ci-dessous puis part au banc d'essai de Scanalyse, avec le détail des touches reçues. Garde cette page au premier plan.</p>
-    <textarea id="in" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" aria-label="Lecture reçue"></textarea>
-    <div class="banner">Liaison arrêtée : les lectures ne sont plus envoyées au PC. Tu peux fermer cette page.</div>
-    <button class="stop" id="stop" type="button">Arrêter la liaison</button>
-    <button class="again" id="again" type="button">Reprendre la liaison</button>
+  <div class="stopped-view">Liaison arrêtée : les lectures ne sont plus envoyées au PC.<br><button type="button" id="again">Reprendre la liaison</button></div>
+
+  <div class="stage">
+    <!-- Lecteur intégré (PDA, terminal) : il tape la lecture comme un clavier dans ce champ invisible -->
+    <section class="zone" id="zone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8"/></svg>
+      <h2 id="zoneTitle">Prêt à lire</h2>
+      <p id="zoneText">Appuie sur la gâchette du terminal : la lecture part au banc d'essai du PC.</p>
+      <textarea id="in" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="none" aria-label="Lecture du terminal"></textarea>
+    </section>
+
+    <!-- Caméra : pour les téléphones et terminaux sans lecteur -->
+    <section class="cam idle" id="cam" hidden>
+      <div class="camoff" id="camOff">
+        <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <p id="camState">La caméra lit le code et l'envoie au PC, comme une douchette.</p>
+        <button type="button" class="big" id="camStart">Ouvrir la caméra</button>
+      </div>
+      <video id="vid" playsinline muted hidden></video>
+      <div class="aim" id="aim" hidden></div>
+      <div class="camtip" id="camTip" hidden>Place le code dans le cadre</div>
+      <div class="camtools" id="camTools" hidden>
+        <button type="button" class="round" id="torch" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6l-1 7h-4zM10 9h4v13h-4z"/></svg>Lampe</button>
+        <button type="button" class="round" id="camStop">Arrêter</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="result" id="result">
+    <div class="label">Dernière lecture</div>
+    <div class="value empty" id="lastValue">Aucune lecture pour l'instant.</div>
+    <div class="meta" id="lastMeta"></div>
   </section>
-  <section class="card" id="camCard">
-    <h1>Scanner avec la caméra</h1>
-    <p>Pour les terminaux sans lecteur intégré : la caméra lit le code et l'envoie au PC, comme une douchette.</p>
-    <button class="cam" id="camBtn" type="button">Utiliser la caméra</button>
-    <div class="camwrap" id="camWrap" hidden><video id="vid" playsinline muted></video><div class="aim" id="aim"></div></div>
-    <p class="camstate" id="camState"></p>
-  </section>
-  <section class="card"><h1 style="font-size:15px">Dernières lectures</h1><div id="log" class="last"><p>Aucune lecture pour l'instant.</p></div></section>
-  <section class="card"><h1 style="font-size:15px">Avertissement de sécurité à chaque fois ?</h1>
-    <p class="camstate" style="margin-top:4px">Installe une fois le certificat de ce PC : <a href="/scanalyse.crt" download="Scanalyse-certificat.crt">télécharger Scanalyse-certificat.crt</a>, puis Paramètres → Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA.</p></section>
+
+  <details id="history"><summary>Historique <span class="count" id="count"></span></summary><div id="log"></div></details>
+
+  <details><summary>Avertissement de sécurité à chaque ouverture ?</summary>
+    <p class="help">Installe une fois le certificat de ce PC : <a href="/scanalyse.crt" download="Scanalyse-certificat.crt">télécharger Scanalyse-certificat.crt</a>, puis Paramètres → Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA. Sur iPhone : Réglages → Profil téléchargé → Installer, puis Réglages → Général → Informations → Réglages des certificats → activer Scanalyse.</p>
+  </details>
+
+  <button type="button" class="stop" id="stop">Arrêter la liaison</button>
 </main>
 <script>
 (function(){
-const box=document.getElementById("in"),log=document.getElementById("log"),st=document.getElementById("state");
-let text="",keys=[],timer=0,count=0,stopped=false;
-function state(ok,msg){st.textContent=msg;st.className="state "+(ok?"ok":"bad");}
-function stop(msg){stopped=true;document.body.classList.add("stopped");box.disabled=true;state(false,msg);}
+const $=id=>document.getElementById(id);
+const box=$("in"),zone=$("zone"),log=$("log"),st=$("state"),stText=$("stateText");
+let text="",keys=[],timer=0,count=0,stopped=false,mode="scan";
+function state(ok,msg){stText.textContent=msg;st.className="state "+(ok?"ok":"bad");}
+function stop(msg){stopped=true;document.body.classList.add("stopped");box.disabled=true;camStop();state(false,msg);}
 function ping(){if(stopped)return;fetch("/ping",{cache:"no-store"}).then(r=>{if(r.status===410){stop("arrêtée par le PC");return;}state(r.ok,r.ok?"relié au PC":"PC injoignable");}).catch(()=>state(false,"PC injoignable"));}
 ping();setInterval(ping,2500);
-// Garder le champ actif : la douchette intégrée tape là où se trouve le curseur.
-setInterval(()=>{if(!stopped&&!camStream&&document.activeElement!==box)box.focus();},800);
-document.getElementById("stop").addEventListener("click",()=>{
-  stop("liaison arrêtée");
-  fetch("/bye",{method:"POST"}).catch(()=>{});
-});
-document.getElementById("again").addEventListener("click",()=>location.reload());
+$("stop").addEventListener("click",()=>{stop("liaison arrêtée");fetch("/bye",{method:"POST"}).catch(()=>{});});
+$("again").addEventListener("click",()=>location.reload());
+
+/* ---------- Mode : lecteur du terminal ou caméra (mémorisé) ---------- */
+// Terminal à lecteur intégré (Zebra, Honeywell, Datalogic…) : lecteur par défaut ; téléphone : caméra.
+const PDA=/Zebra|TC[0-9]{2}|MC[0-9]{2}|ET[0-9]{2}|Honeywell|CT[0-9]{2}|CK[0-9]{2}|EDA[0-9]{2}|ScanPal|Datalogic|Memor|Skorpio|Urovo|Newland|Chainway|Sunmi|Point Mobile|PM[0-9]{2}|Unitech|CipherLab|M3 ?Mobile|Bluebird|Seuic/i;
+let saved=null;try{saved=localStorage.getItem("relayMode");}catch(e){}
+const hasCam=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)||!window.isSecureContext;
+function setMode(m,remember){
+  mode=m;$("modeScan").setAttribute("aria-pressed",String(m==="scan"));$("modeCam").setAttribute("aria-pressed",String(m==="cam"));
+  zone.hidden=m!=="scan";$("cam").hidden=m!=="cam";
+  if(remember){try{localStorage.setItem("relayMode",m);}catch(e){}}
+  if(m==="scan"){camStop();box.focus();}
+}
+$("modeScan").addEventListener("click",()=>setMode("scan",true));
+$("modeCam").addEventListener("click",()=>{setMode("cam",true);if(!camStream)camStart();});
+const wantCam=/[?&]camera=1/.test(location.search);
+
+// Garder le champ actif en mode lecteur : la gâchette tape là où se trouve le curseur.
+function ready(){const on=mode==="scan"&&!stopped&&document.activeElement===box;zone.classList.toggle("ready",on);
+  $("zoneTitle").textContent=on?"Prêt à lire":"Touche ici pour lire";
+  $("zoneText").textContent=on?"Appuie sur la gâchette du terminal : la lecture part au banc d'essai du PC.":"Le champ de lecture n'est plus actif : touche cette zone, puis appuie sur la gâchette.";}
+box.addEventListener("focus",ready);box.addEventListener("blur",ready);
+setInterval(()=>{if(mode==="scan"&&!stopped&&document.activeElement!==box)box.focus();ready();},800);
+
+/* ---------- Envoi au PC et affichage ---------- */
 function vis(t){return t.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":["NUL","SOH","STX","ETX","EOT","ENQ","ACK","BEL","BS","HT","LF","VT","FF","CR","SO","SI","DLE","DC1","DC2","DC3","DC4","NAK","SYN","ETB","CAN","EM","SUB","ESC","FS","GS","RS","US"][c.charCodeAt(0)])+">");}
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function flash(ok){const r=$("result");r.classList.remove("flash","flash-bad");void r.offsetWidth;r.classList.add(ok?"flash":"flash-bad");setTimeout(()=>r.classList.remove("flash","flash-bad"),900);}
 function send(payload,detail){
+  const time=new Date().toLocaleTimeString("fr-FR");
+  const shown=vis(payload.text);
+  $("lastValue").className="value";$("lastValue").textContent=shown;
+  $("lastMeta").innerHTML=`<span>${time}</span><span>${payload.text.length} caractères</span><span>${esc(detail)}</span><span class="pill" id="lastPill">envoi…</span>`;
   const div=document.createElement("div");div.className="item";
-  div.innerHTML=`${esc(vis(payload.text))}<small>${new Date().toLocaleTimeString("fr-FR")} · ${payload.text.length} caractères · ${esc(detail)} · <span>envoi…</span></small>`;
-  if(!count++)log.innerHTML="";log.prepend(div);while(log.children.length>8)log.lastChild.remove();
-  const s=div.querySelector("span");
+  div.innerHTML=`<code>${esc(shown)}</code><small>${time} · ${esc(detail)} · <span>envoi…</span></small>`;
+  if(!count++)log.innerHTML="";log.prepend(div);while(log.children.length>20)log.lastChild.remove();
+  $("count").textContent="("+count+")";
+  const s=div.querySelector("span"),pill=$("lastPill");
+  const done=(ok,msg)=>{s.textContent=msg;s.className=ok?"sent":"err";if(pill){pill.textContent=(ok?"✓ ":"✗ ")+msg;pill.className="pill "+(ok?"ok":"bad");}flash(ok);
+    if(navigator.vibrate)navigator.vibrate(ok?40:[80,60,80]);};
   fetch("/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
-    .then(r=>{if(r.status===410){stop("arrêtée par le PC");}s.textContent=r.ok?"reçu par le PC":"refusé";s.className=r.ok?"sent":"err";})
-    .catch(()=>{s.textContent="PC injoignable";s.className="err";});
+    .then(r=>{if(r.status===410){stop("arrêtée par le PC");}done(r.ok,r.ok?"reçu par le PC":"refusé");})
+    .catch(()=>done(false,"PC injoignable"));
 }
 function flush(){
   clearTimeout(timer);timer=0;
   if(stopped||!text){text="";keys=[];box.value="";return;}
   const payload={text,keys,userAgent:navigator.userAgent};text="";keys=[];box.value="";
-  send(payload,payload.keys.length+" touches");
+  send(payload,"lecteur · "+payload.keys.length+" touches");
 }
-/* ---------- Caméra du terminal (terminaux sans lecteur intégré) ---------- */
-const camBtn=document.getElementById("camBtn"),camWrap=document.getElementById("camWrap"),vid=document.getElementById("vid"),aim=document.getElementById("aim"),camState=document.getElementById("camState");
-let camStream=null,camTimer=0,decoder=null,lastText="",lastAt=0,canvas=null;
+// Les codes longs arrivent parfois en plusieurs morceaux : on attend 300 ms de silence.
+function arm(){clearTimeout(timer);timer=setTimeout(flush,300);}
+// Chaque touche est notée telle que le terminal l'envoie : c'est ce qui permet de voir un GS perdu ou un mauvais clavier.
+box.addEventListener("keydown",e=>{
+  keys.push({key:e.key,code:e.code,keyCode:e.keyCode,shift:e.shiftKey,ctrl:e.ctrlKey,alt:e.altKey});
+  if(e.key==="Enter"){e.preventDefault();text+="\r";flush();return;}
+  if(e.key==="Tab"){e.preventDefault();text+="\t";arm();return;}
+  if(e.ctrlKey&&e.key&&e.key.length===1){const c=e.key.toUpperCase().charCodeAt(0);if(c>=64&&c<96){e.preventDefault();text+=String.fromCharCode(c-64);arm();return;}}
+  arm();
+});
+box.addEventListener("beforeinput",e=>{if(e.data){text+=e.data;arm();}else if(e.inputType==="insertLineBreak"){text+="\r";flush();}});
+box.addEventListener("input",()=>arm());
+
+/* ---------- Caméra ---------- */
+const vid=$("vid"),aim=$("aim"),camState=$("camState");
+let camStream=null,camTimer=0,decoder=null,lastText="",lastAt=0,canvas=null,torchOn=false;
 const FORMATS={QRCode:"QR Code",DataMatrix:"Data Matrix",Code128:"Code 128",EAN13:"EAN-13",EAN8:"EAN-8",UPCA:"UPC-A",UPCE:"UPC-E",ITF:"ITF",Code39:"Code 39",Code93:"Code 93",Codabar:"Codabar",PDF417:"PDF417",Aztec:"Aztec",DataBar:"GS1 DataBar",DataBarExpanded:"GS1 DataBar Expanded",MicroQRCode:"Micro QR Code",
   qr_code:"QR Code",data_matrix:"Data Matrix",code_128:"Code 128",ean_13:"EAN-13",ean_8:"EAN-8",upc_a:"UPC-A",upc_e:"UPC-E",itf:"ITF",code_39:"Code 39",code_93:"Code 93",codabar:"Codabar",pdf417:"PDF417",aztec:"Aztec"};
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
@@ -122,11 +231,13 @@ async function getDecoder(){
   }
   throw new Error("Aucun décodeur disponible sur ce terminal.");
 }
+function showLive(on){$("cam").classList.toggle("idle",!on);$("camOff").hidden=on;vid.hidden=!on;aim.hidden=!on;$("camTip").hidden=!on;$("camTools").hidden=!on;}
 async function camStart(){
+  if(stopped)return;
   if(!window.isSecureContext){
-    // En Wi-Fi, le navigateur n'ouvre la caméra que sur une page sécurisée (HTTPS).
-    camState.innerHTML="En Wi-Fi, la caméra demande la page sécurisée. Ouverture… Si un avertissement s'affiche, touche « Paramètres avancés » puis « Continuer » (une seule fois).";
-    setTimeout(()=>{location.href="https://"+location.hostname+":8767/relais?camera=1";},1500);
+    // Le navigateur n'ouvre la caméra que sur une page sécurisée (HTTPS).
+    camState.textContent="La caméra demande la page sécurisée : ouverture… Si un avertissement s'affiche, touche « Paramètres avancés » puis « Continuer » (une seule fois).";
+    setTimeout(()=>{location.href="https://"+location.hostname+":8767/relais?camera=1";},1200);
     return;
   }
   try{
@@ -134,37 +245,30 @@ async function camStart(){
     const d=await getDecoder();
     camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:960}},audio:false});
     vid.srcObject=camStream;await vid.play();
-    camWrap.hidden=false;camBtn.textContent="Arrêter la caméra";camBtn.classList.add("off");
-    camState.textContent="Vise le code dans le cadre : il part au PC dès qu'il est lu.";
-    const tick=async()=>{if(!camStream)return;try{const r=await d();if(r)found(r);}catch(e){}camTimer=setTimeout(tick,180);};
+    showLive(true);
+    const track=camStream.getVideoTracks()[0];
+    const caps=track&&track.getCapabilities?track.getCapabilities():{};
+    $("torch").hidden=!caps.torch;torchOn=false;$("torch").classList.remove("on");
+    const tick=async()=>{if(!camStream)return;try{const r=await d();if(r)found(r);}catch(e){}camTimer=setTimeout(tick,160);};
     tick();
-  }catch(e){camStop();camState.textContent=(e&&e.name==="NotAllowedError")?"Accès à la caméra refusé : autorise-le dans les réglages du navigateur pour cette page.":"Caméra indisponible : "+(e&&e.message||e);}
+  }catch(e){camStop();camState.textContent=(e&&e.name==="NotAllowedError")?"Accès à la caméra refusé : autorise-le dans les réglages du navigateur pour cette page, puis réessaie.":"Caméra indisponible : "+(e&&e.message||e);}
 }
-function camStop(){clearTimeout(camTimer);if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}camWrap.hidden=true;camBtn.textContent="Utiliser la caméra";camBtn.classList.remove("off");}
+function camStop(){clearTimeout(camTimer);if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}showLive(false);}
 function found(r){
   // Un même code gardé devant la caméra n'est envoyé qu'une fois : il doit sortir du cadre (1,5 s) pour repartir.
   const now=Date.now();const same=r.text===lastText&&now-lastAt<1500;lastText=r.text;lastAt=now;if(stopped||same)return;
-  aim.classList.add("hit");setTimeout(()=>aim.classList.remove("hit"),400);if(navigator.vibrate)navigator.vibrate(60);
+  aim.classList.add("hit");setTimeout(()=>aim.classList.remove("hit"),400);
   const name=FORMATS[r.format]||r.format||"";
   send({text:r.text,keys:[],camera:true,format:name,userAgent:navigator.userAgent},"caméra"+(name?" · "+name:""));
 }
-camBtn.addEventListener("click",()=>{camStream?camStop():camStart();});
+$("camStart").addEventListener("click",camStart);
+$("camStop").addEventListener("click",camStop);
+$("torch").addEventListener("click",async()=>{const t=camStream&&camStream.getVideoTracks()[0];if(!t)return;torchOn=!torchOn;
+  try{await t.applyConstraints({advanced:[{torch:torchOn}]});$("torch").classList.toggle("on",torchOn);}catch(e){torchOn=false;}});
 document.addEventListener("visibilitychange",()=>{if(document.hidden)camStop();});
-if(/[?&]camera=1/.test(location.search)&&window.isSecureContext)setTimeout(camStart,300);
-// Les codes longs arrivent parfois en plusieurs morceaux (saisie par le clavier virtuel) : on attend 300 ms de silence.
-function arm(){clearTimeout(timer);timer=setTimeout(flush,300);}
-// Chaque touche est notée telle que le terminal l'envoie : c'est ce qui permet de voir un GS perdu ou un mauvais clavier.
-box.addEventListener("keydown",e=>{
-  keys.push({key:e.key,code:e.code,keyCode:e.keyCode,shift:e.shiftKey,ctrl:e.ctrlKey,alt:e.altKey});
-  if(e.key==="Enter"){e.preventDefault();text+="\r";flush();return;}
-  if(e.key==="Tab"){e.preventDefault();text+="\t";arm();return;}
-  if(e.ctrlKey&&e.key&&e.key.length===1){const c=e.key.toUpperCase().charCodeAt(0);if(c>=64&&c<96){e.preventDefault();text+=String.fromCharCode(c-64);arm();return;}}
-  if(e.key==="Unidentified"||e.keyCode===229){arm();return;}
-  arm();
-});
-// Le texte vient des événements de saisie (les claviers virtuels n'envoient pas toujours la touche).
-box.addEventListener("beforeinput",e=>{if(e.data){text+=e.data;arm();}else if(e.inputType==="insertLineBreak"){text+="\r";flush();}});
-box.addEventListener("input",()=>arm());
+// Mode de départ (après la déclaration de la caméra, que le mode lecteur arrête).
+setMode(wantCam?"cam":saved||(PDA.test(navigator.userAgent)||!hasCam?"scan":"cam"),false);
+if(wantCam&&window.isSecureContext)setTimeout(camStart,300);
 })();
 </script>
 </body>

@@ -852,7 +852,9 @@ public partial class MainWindow : Window
     {
         AddLog(LogKind.Info, scan.Symbology?.ToUpperInvariant() ?? "LECTURE", $"{ControlCharacters.Visualize(scan.Text)}   [{scan.Hex}]");
         Bench.ReceiveScan(scan);
-        if (Bench.Visibility != Visibility.Visible && Devices.Visibility != Visibility.Visible)
+
+        // La lecture s'affiche au banc d'essai, y compris depuis l'onglet de connexion des terminaux.
+        if (Bench.Visibility != Visibility.Visible)
         {
             NavBench.IsChecked = true;
         }
