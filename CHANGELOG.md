@@ -1,6 +1,6 @@
 # Scanalyse — Quoi de neuf
 
-## 0.12.4 — en préparation
+## 0.12.4 — octobre 2026
 
 - **À propos : « Faire un don »** — un bouton discret pour soutenir Scanalyse (PayPal), seulement dans cette page : aucun rappel ailleurs dans le programme.
 
