@@ -11,8 +11,10 @@
   <!-- Lire : la caméra occupe tout l'écran -->
   <section class="m-screen m-scan" id="mScan">
     <video id="mVideo" playsinline muted autoplay></video>
+    <img class="m-still" id="mStill" alt="" hidden>
     <div class="m-finder" id="mFinder" aria-hidden="true"><i></i></div>
     <p class="m-hint" id="mHint" data-en="Aim at a code">Vise un code</p>
+    <p class="m-privacy" data-en="The camera only runs on this screen. Nothing is recorded or sent.">La caméra ne tourne que sur cet écran. Rien n'est enregistré ni envoyé.</p>
     <div class="m-camtools">
       <label class="m-round" for="mPhoto"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg><span data-en="Photo">Photo</span></label>
       <input type="file" id="mPhoto" accept="image/*" hidden>
@@ -29,6 +31,10 @@
   <!-- Créer : les catégories, puis les types de la catégorie, puis l'éditeur (le même que sur PC) -->
   <section class="m-screen m-page" id="mCreate" hidden>
     <h1 data-en="Create a code">Créer un code</h1>
+    <div class="m-install" id="mInstall" hidden>
+      <p id="mInstallText"></p>
+      <div><button type="button" class="m-btn m-primary" id="mInstallBtn" hidden data-en="Install">Installer</button><button type="button" class="m-btn" id="mInstallClose" data-en="Not now">Plus tard</button></div>
+    </div>
     <div class="m-cats" id="mCats"></div>
   </section>
   <section class="m-screen m-page" id="mTypes" hidden>

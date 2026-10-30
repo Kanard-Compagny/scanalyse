@@ -3,6 +3,9 @@
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 document.body.classList.add("m-app");
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const INSTALLED=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+if(IOS&&!INSTALLED)document.body.classList.add("m-ios-browser");
 window.atelierNoSample=true;
 
 /* ---------- Langue : celle du téléphone, ou celle choisie ---------- */
@@ -72,6 +75,7 @@ if(atelierSetMode)window.atelierSetMode=function(m,save){atelierSetMode(m,save);
 
 /* ---------- Lecture à la caméra ---------- */
 const vid=$("mVideo"),finder=$("mFinder");
+let camSince=0;
 let stream=null,loop=0,canvas=null,frozen=false,torchOn=false,lastText="",lastAt=0,shot=null;
 async function camStart(){
   if(stream||frozen||screen!=="mScan"||document.hidden)return;
@@ -81,7 +85,7 @@ async function camStart(){
     const engine=window.atelierEngine?window.atelierEngine():Promise.resolve();
     stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
     vid.srcObject=stream;await vid.play().catch(()=>{});
-    $("mCamOff").hidden=true;
+    $("mCamOff").hidden=true;$("mStill").hidden=true;camSince=Date.now();
     const track=stream.getVideoTracks()[0],caps=track&&track.getCapabilities?track.getCapabilities():{};
     $("mTorch").hidden=!caps.torch;torchOn=false;$("mTorch").classList.remove("on");
     await engine;
@@ -117,6 +121,8 @@ async function tick(){
       }
     }
   }catch(e){}
+  // Une minute sans code lu : la caméra se met en pause (batterie, et le voyant du téléphone s'éteint).
+  if(Date.now()-camSince>60000){camStop();camOff(T("Caméra en pause pour préserver la batterie.","Camera paused to save battery."),true);return;}
   loop=setTimeout(tick,140);
 }
 function found(b){
@@ -124,7 +130,8 @@ function found(b){
   try{shot=canvas.toDataURL("image/jpeg",.9);}catch(e){shot=null;}
   finder.classList.add("hit");setTimeout(()=>finder.classList.remove("hit"),500);
   if(navigator.vibrate)navigator.vibrate(40);
-  vid.pause();
+  if(shot){$("mStill").src=shot;$("mStill").hidden=false;}
+  camStop();
   const item={text:b.text,format:b.format||"",gs1:b.contentType==="GS1"||/^\(\d{2,4}\)\d/.test(b.text),at:Date.now()};
   addHistory(item);openSheet(item,true);
 }
@@ -152,7 +159,7 @@ function openSheet(item,live){
 /* silent : fermeture déjà due à un retour (geste, touche) ou à un changement d'onglet */
 function closeSheet(silent){if($("mSheet").hidden)return;$("mSheet").hidden=true;if(!silent){try{history.back();}catch(e){}}}
 function resume(fromHistory){if(!fromHistory)closeSheet();frozen=false;lastAt=Date.now();/* le même code, encore devant la caméra, ne repart pas tout de suite */
-  if(screen==="mScan"){if(stream){vid.play().catch(()=>{});tick();}else camStart();}}
+  if(screen==="mScan")camStart();}
 $("mAgain").addEventListener("click",()=>resume());
 $("mSheet").addEventListener("click",e=>{if(e.target===$("mSheet"))resume();});
 $("mCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(sheetItem.text);toast(T("Contenu copié.","Content copied."));}catch(e){toast(T("Copie impossible sur cet appareil.","Copying is not possible on this device."));}});
@@ -225,6 +232,21 @@ document.querySelectorAll("#view-create aside.preview").forEach(addQuick);
 let wake=null;
 $("mFullscreen").addEventListener("click",()=>{$("mFullscreen").hidden=true;if(wake){wake.release().catch(()=>{});wake=null;}});
 renderCats();
+
+/* Installer l'application : bouton du navigateur (Android) ou mode d'emploi (iPhone), une fois, refusable */
+let installEvt=null;const IKEY="scanalyse-install-hidden";
+function installHidden(){try{return localStorage.getItem(IKEY)==="1";}catch(e){return false;}}
+function showInstall(){
+  if(INSTALLED||installHidden())return;
+  if(installEvt){$("mInstallText").textContent=T("Installe Scanalyse sur ce téléphone : une icône sur l'écran d'accueil, en plein écran, même hors connexion.","Install Scanalyse on this phone: an icon on the home screen, full screen, even offline.");$("mInstallBtn").hidden=false;}
+  else if(IOS)$("mInstallText").textContent=T("Pour l'avoir en plein écran comme une application : touche Partager, puis « Sur l'écran d'accueil ».","To use it full screen like an app: tap Share, then “Add to Home Screen”.");
+  else return;
+  $("mInstall").hidden=false;
+}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;showInstall();});
+$("mInstallBtn").addEventListener("click",async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice;}catch(e){}installEvt=null;$("mInstall").hidden=true;});
+$("mInstallClose").addEventListener("click",()=>{$("mInstall").hidden=true;try{localStorage.setItem(IKEY,"1");}catch(e){}});
+showInstall();
 
 /* ---------- Départ ---------- */
 render();
