@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -7,19 +9,69 @@ using Scanalyse.Core.Printing;
 namespace Scanalyse.Desktop.Views;
 
 /// <summary>
-/// Conf imprimante : conversion du fichier vers le langage d'une autre marque, et assistant « Configurer » qui écrit le
-/// fichier à partir d'un formulaire (pré-rempli avec les réglages du fichier ouvert). Les deux passent par les réglages
-/// communs (<see cref="PrinterSettings"/>) et affichent le compte-rendu dans la vue « Conversion ».
+/// Conf imprimante, trois parcours : « Analyser un fichier », « Convertir » (fichier de départ à gauche, langage d'arrivée
+/// et résultat à droite, sans toucher à l'original) et « Créer un fichier » (formulaire à gauche, fichier écrit en direct à
+/// droite). Conversion et création passent par les réglages communs (<see cref="PrinterSettings"/>).
 /// </summary>
 public partial class ConfigView
 {
+    private enum PageMode
+    {
+        Analyze,
+        Convert,
+        Create,
+    }
+
     private static readonly int[] DpiChoices = [203, 300, 600];
 
-    private ConversionResult? _conversion;
-    private string? _beforeConvert;
-    private string _conversionTitle = string.Empty;
-    private ConfigLanguage? _target;
+    private PageMode _mode = PageMode.Analyze;
+    private ConfigLanguage? _convertTarget;
+    private ConfigLanguage? _createTarget;
     private int? _dpi;
+    private ConversionResult? _convertResult;
+    private ConversionResult? _createResult;
+
+    // ------------------------------------------------------------------ Parcours
+
+    private void Mode_Changed(object sender, RoutedEventArgs e)
+    {
+        _mode = ModeConvert.IsChecked == true ? PageMode.Convert : ModeCreate.IsChecked == true ? PageMode.Create : PageMode.Analyze;
+        if (EditorCard is null)
+        {
+            return;
+        }
+
+        SuggestPopup.IsOpen = false;
+        EditorCard.Visibility = _mode == PageMode.Create ? Visibility.Collapsed : Visibility.Visible;
+        CreateFormCard.Visibility = _mode == PageMode.Create ? Visibility.Visible : Visibility.Collapsed;
+        AnalysisCard.Visibility = _mode == PageMode.Analyze ? Visibility.Visible : Visibility.Collapsed;
+        ConvertCard.Visibility = _mode == PageMode.Convert ? Visibility.Visible : Visibility.Collapsed;
+        CreatePreviewCard.Visibility = _mode == PageMode.Create ? Visibility.Visible : Visibility.Collapsed;
+        EditorTitle.Text = Localization.T(_mode == PageMode.Convert ? "1. Le fichier à convertir" : "Fichier de configuration");
+        SendButton.ToolTip = Localization.T(_mode switch
+        {
+            PageMode.Convert => "Envoie le fichier converti à l'imprimante",
+            PageMode.Create => "Envoie le fichier créé à l'imprimante",
+            _ => "Envoie le fichier à l'imprimante",
+        });
+        switch (_mode)
+        {
+            case PageMode.Convert:
+                ShowConvert();
+                break;
+            case PageMode.Create:
+                ShowCreate();
+                break;
+        }
+    }
+
+    /// <summary>Texte envoyé à l'imprimante : celui du parcours affiché.</summary>
+    private string? TextToSend() => _mode switch
+    {
+        PageMode.Convert => _convertResult is { Settings.IsEmpty: false } c ? c.Text : null,
+        PageMode.Create => _createResult is { Settings.IsEmpty: false } c ? c.Text : null,
+        _ => CodeBox.Text.Trim().Length > 0 ? CodeBox.Text : null,
+    };
 
     /// <summary>Résolution : celle choisie, sinon celle lue sur l'imprimante (Zebra), sinon 203 dpi.</summary>
     private int CurrentDpi()
@@ -38,197 +90,255 @@ public partial class ConfigView
         return 203;
     }
 
-    /// <summary>Langage d'arrivée : celui choisi, sinon celui de l'imprimante reconnue (Zebra : SGD pour un fichier ZPL, et inversement).</summary>
-    private ConfigLanguage CurrentTarget()
+    /// <summary>Langage conseillé : celui de l'imprimante reconnue ; pour une Zebra, l'autre de ZPL / SGD que celui du fichier.</summary>
+    private ConfigLanguage SuggestedTarget(bool converting)
     {
-        if (_target is { } chosen)
-        {
-            return chosen;
-        }
-
         var languages = _report?.Languages ?? [];
         if (_profile is { } p && p.Brand != PrinterBrand.Unknown)
         {
             var target = ConfigConverter.ForBrand(p.Brand);
-            return target == ConfigLanguage.Zpl && languages.Contains("ZPL") ? ConfigLanguage.Sgd : target;
+            return converting && target == ConfigLanguage.Zpl && languages.Contains("ZPL") ? ConfigLanguage.Sgd : target;
         }
 
-        return languages.Contains("ZPL") ? ConfigLanguage.Sgd : ConfigLanguage.Zpl;
+        return converting && languages.Contains("ZPL") ? ConfigLanguage.Tspl : ConfigLanguage.Zpl;
     }
 
-    private void FillChoices(WrapPanel targets, WrapPanel dpis, string group)
+    private static string Brands(ConfigLanguage language) => language switch
     {
-        targets.Children.Clear();
-        foreach (var language in Enum.GetValues<ConfigLanguage>())
-        {
-            var chip = new RadioButton
-            {
-                Style = (Style)FindResource("Chip"),
-                GroupName = group + "Target",
-                Content = Localization.T(ConfigConverter.Name(language)),
-                IsChecked = language == CurrentTarget(),
-                Margin = new Thickness(0, 0, 6, 6),
-            };
-            chip.Checked += (_, _) =>
-            {
-                _target = language;
-                UpdateDarknessHint();
-            };
-            targets.Children.Add(chip);
-        }
+        ConfigLanguage.Zpl => "Zebra : commandes ^ et ~",
+        ConfigLanguage.Sgd => "Zebra : ! U1 setvar, réglages enregistrés d'office",
+        ConfigLanguage.Tspl => "TSC (et imprimantes compatibles TSPL)",
+        ConfigLanguage.Epl2 => "Zebra anciennes (LP / TLP 2844…)",
+        ConfigLanguage.Dpl => "Honeywell / Datamax (classe I, M, E…)",
+        ConfigLanguage.Fingerprint => "Honeywell / Intermec (PC, PD, PM, PX…)",
+        _ => "SATO (CL4NX, CT4-LX…)",
+    };
 
-        dpis.Children.Clear();
+    private static string Short(ConfigLanguage language) => language switch
+    {
+        ConfigLanguage.Zpl => "ZPL",
+        ConfigLanguage.Sgd => "SGD",
+        ConfigLanguage.Tspl => "TSPL",
+        ConfigLanguage.Epl2 => "EPL2",
+        ConfigLanguage.Dpl => "DPL",
+        ConfigLanguage.Fingerprint => "Fingerprint",
+        _ => "SBPL",
+    };
+
+    /// <summary>Choix de la résolution, commun aux deux parcours.</summary>
+    private void FillDpi(WrapPanel panel, string group, Action changed)
+    {
+        panel.Children.Clear();
         foreach (var dpi in DpiChoices)
         {
             var chip = new RadioButton
             {
                 Style = (Style)FindResource("Chip"),
-                GroupName = group + "Dpi",
+                GroupName = group,
                 Content = $"{dpi} dpi",
                 IsChecked = dpi == CurrentDpi(),
                 Margin = new Thickness(0, 0, 6, 0),
             };
-            chip.Checked += (_, _) => _dpi = dpi;
-            dpis.Children.Add(chip);
-        }
-    }
-
-    // ------------------------------------------------------------------ Convertir vers…
-
-    private void ConvertButton_Click(object sender, RoutedEventArgs e)
-    {
-        FillChoices(ConvertTargets, ConvertDpi, "Convert");
-        ConvertPopup.IsOpen = true;
-    }
-
-    private void Convert_Click(object sender, RoutedEventArgs e)
-    {
-        ConvertPopup.IsOpen = false;
-        if (CodeBox.Text.Trim().Length == 0)
-        {
-            Log?.Invoke(LogKind.Warning, "Rien à convertir : colle ou ouvre d'abord un fichier de configuration.");
-            return;
-        }
-
-        var target = CurrentTarget();
-        var result = ConfigConverter.Convert(CodeBox.Text, target, CurrentDpi());
-        if (result.Settings.IsEmpty)
-        {
-            _conversion = result;
-            _conversionTitle = Localization.T("Rien à convertir");
-            ShowConversion();
-            Log?.Invoke(LogKind.Warning, "Aucun réglage commun trouvé dans ce fichier : il n'a pas été modifié.");
-            return;
-        }
-
-        ApplyConversion(result, string.Format(CultureInfo.InvariantCulture, Localization.T("Converti en {0}"), Localization.T(ConfigConverter.Name(target))));
-    }
-
-    /// <summary>Remplace le fichier par le résultat (le texte d'avant reste disponible) et montre le compte-rendu.</summary>
-    private void ApplyConversion(ConversionResult result, string title)
-    {
-        _beforeConvert = CodeBox.Text;
-        _conversion = result;
-        _conversionTitle = title;
-        _fileBytes = null;
-        CodeBox.Text = result.Text;
-        FileInfo.Text = title + " · " + Localization.T("non enregistré (Enregistrer sous…)");
-        Analyze();
-        ShowConversion();
-        var notes = result.Notes;
-        Log?.Invoke(LogKind.Ok, string.Format(CultureInfo.InvariantCulture, Localization.T("{0} : {1} réglage(s) repris, {2} approché(s), {3} non converti(s)."),
-            title,
-            notes.Count(n => n.Status == ConversionStatus.Converted),
-            notes.Count(n => n.Status == ConversionStatus.Approximated),
-            notes.Count(n => n.Status == ConversionStatus.NotConverted)));
-    }
-
-    /// <summary>Nouveau fichier : l'ancien compte-rendu de conversion n'a plus lieu d'être.</summary>
-    private void ResetConversion()
-    {
-        _conversion = null;
-        _beforeConvert = null;
-        if (ViewConversion.IsChecked == true)
-        {
-            ViewProblems.IsChecked = true;
-        }
-
-        ViewConversion.Visibility = Visibility.Collapsed;
-    }
-
-    private void ShowConversion()
-    {
-        ViewConversion.Visibility = Visibility.Visible;
-        if (ViewConversion.IsChecked == true)
-        {
-            Render();
-        }
-        else
-        {
-            ViewConversion.IsChecked = true;
-        }
-    }
-
-    private void RenderConversion()
-    {
-        if (_conversion is not { } c)
-        {
-            return;
-        }
-
-        var head = new TextBlock { Text = _conversionTitle, FontSize = 15, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) };
-        ResultPanel.Children.Add(head);
-        ResultPanel.Children.Add(Muted(string.Format(CultureInfo.InvariantCulture,
-            Localization.T("{0} repris · {1} approché(s), à vérifier après un essai · {2} non converti(s), à régler autrement sur l'imprimante."),
-            c.Notes.Count(n => n.Status == ConversionStatus.Converted),
-            c.Notes.Count(n => n.Status == ConversionStatus.Approximated),
-            c.Notes.Count(n => n.Status == ConversionStatus.NotConverted))));
-        if (_beforeConvert is not null)
-        {
-            var back = new Button { Style = (Style)FindResource("BtnSecondary"), Content = Localization.T("Revenir au fichier d'avant"), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 10) };
-            back.Click += (_, _) =>
+            chip.Checked += (_, _) =>
             {
-                CodeBox.Text = _beforeConvert ?? string.Empty;
-                _beforeConvert = null;
-                FileInfo.Text = Localization.T("Fichier d'avant la conversion");
-                Analyze();
-                Render();
+                _dpi = dpi;
+                changed();
             };
-            ResultPanel.Children.Add(back);
+            panel.Children.Add(chip);
+        }
+    }
+
+    // ------------------------------------------------------------------ Convertir
+
+    private void ShowConvert()
+    {
+        ConvertTargets.Children.Clear();
+        foreach (var language in Enum.GetValues<ConfigLanguage>())
+        {
+            var content = new StackPanel();
+            content.Children.Add(new TextBlock { Text = Localization.T(ConfigConverter.Name(language)), FontWeight = FontWeights.SemiBold });
+            var sub = new TextBlock { Text = Localization.T(Brands(language)), FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) };
+            sub.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            content.Children.Add(sub);
+            var card = new RadioButton
+            {
+                Style = (Style)FindResource("ChoiceCard"),
+                GroupName = "ConvertTarget",
+                Content = content,
+                Width = 236,
+                Margin = new Thickness(0, 0, 8, 8),
+                IsChecked = language == _convertTarget,
+            };
+            card.Checked += (_, _) =>
+            {
+                _convertTarget = language;
+                RefreshConvert();
+            };
+            ConvertTargets.Children.Add(card);
         }
 
-        foreach (var note in c.Notes.OrderBy(n => n.Status switch { ConversionStatus.NotConverted => 0, ConversionStatus.Approximated => 1, _ => 2 }))
+        FillDpi(ConvertDpi, "ConvertDpi", RefreshConvert);
+        RefreshConvert();
+    }
+
+    /// <summary>Conversion en direct : à chaque choix de langage ou de résolution, et à chaque modification du fichier de départ.</summary>
+    private void RefreshConvert()
+    {
+        if (_mode != PageMode.Convert)
+        {
+            return;
+        }
+
+        var source = _report is { Languages.Count: > 0 } r ? string.Join(", ", r.Languages) : null;
+        ConvertSource.Text = CodeBox.Text.Trim().Length == 0
+            ? Localization.T("Colle ou ouvre d'abord, à gauche, le fichier à convertir.")
+            : string.Format(CultureInfo.InvariantCulture, Localization.T("Fichier de départ : {0}. Choisis le langage de l'imprimante qui recevra le fichier ({1} conseillé)."),
+                source ?? Localization.T("langage non reconnu"), Short(SuggestedTarget(converting: true)));
+        if (_convertTarget is not { } target || CodeBox.Text.Trim().Length == 0)
+        {
+            _convertResult = null;
+            ConvertResult.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var result = ConfigConverter.Convert(CodeBox.Text, target, CurrentDpi());
+        _convertResult = result;
+        ConvertResult.Visibility = Visibility.Visible;
+        ConvertOutput.Text = result.Settings.IsEmpty ? string.Empty : result.Text;
+        Placeholder.SetText(ConvertOutput, Localization.T("Aucun réglage commun dans le fichier de départ : rien à convertir."));
+        ConvertSummary.Text = Summary(result);
+        Notes(ConvertNotes, result, showLines: true);
+    }
+
+    private static string Summary(ConversionResult result) => string.Format(CultureInfo.InvariantCulture,
+        Localization.T("{0} repris · {1} à vérifier après un essai (valeur approchée) · {2} non repris (à régler autrement sur l'imprimante)."),
+        result.Notes.Count(n => n.Status == ConversionStatus.Converted),
+        result.Notes.Count(n => n.Status == ConversionStatus.Approximated),
+        result.Notes.Count(n => n.Status == ConversionStatus.NotConverted));
+
+    private void Notes(StackPanel panel, ConversionResult result, bool showLines)
+    {
+        panel.Children.Clear();
+        foreach (var note in result.Notes.OrderBy(n => n.Status switch { ConversionStatus.NotConverted => 0, ConversionStatus.Approximated => 1, _ => 2 }))
         {
             var (bg, fg, label) = note.Status switch
             {
-                ConversionStatus.NotConverted => ("BadBg", "BadFg", "Non converti"),
+                ConversionStatus.NotConverted => ("BadBg", "BadFg", "Non repris"),
                 ConversionStatus.Approximated => ("WarnBg", "WarnFg", "À vérifier"),
                 _ => ("OkBg", "OkFg", "Repris"),
             };
-            var text = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 13 };
+            var text = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12.5 };
             text.SetResourceReference(TextBlock.ForegroundProperty, fg);
             text.Inlines.Add(new Run(Localization.T(label)
-                + (note.Line > 0 ? " · " + string.Format(CultureInfo.InvariantCulture, Localization.T("ligne {0} du fichier d'origine"), note.Line) : string.Empty) + " : ")
+                + (showLines && note.Line > 0 ? " · " + string.Format(CultureInfo.InvariantCulture, Localization.T("ligne {0}"), note.Line) : string.Empty) + " : ")
             { FontWeight = FontWeights.SemiBold });
             text.Inlines.Add(new Run(Localization.T(note.Message)));
-            var border = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 8, 12, 8), Margin = new Thickness(0, 0, 0, 6), Child = text };
+            var border = new Border { CornerRadius = new CornerRadius(8), Padding = new Thickness(10, 6, 10, 6), Margin = new Thickness(0, 0, 0, 5), Child = text };
             border.SetResourceReference(Border.BackgroundProperty, bg);
-            ResultPanel.Children.Add(border);
+            if (showLines && note.Line > 0)
+            {
+                border.Cursor = System.Windows.Input.Cursors.Hand;
+                border.ToolTip = Localization.T("Clique pour voir la ligne dans le fichier de départ");
+                border.MouseLeftButtonUp += (_, _) => GoToLine(note.Line);
+            }
+
+            panel.Children.Add(border);
         }
     }
 
-    // ------------------------------------------------------------------ Assistant « Configurer »
+    // ------------------------------------------------------------------ Résultat (Convertir, Créer)
+
+    private ConversionResult? CurrentResult => _mode == PageMode.Convert ? _convertResult : _createResult;
+
+    private ConfigLanguage? CurrentResultLanguage => _mode == PageMode.Convert ? _convertTarget : _createTarget ?? SuggestedTarget(converting: false);
+
+    private void SaveResult_Click(object sender, RoutedEventArgs e)
+    {
+        if (CurrentResult is not { Settings.IsEmpty: false } result)
+        {
+            Log?.Invoke(LogKind.Warning, "Rien à enregistrer pour le moment.");
+            return;
+        }
+
+        var language = CurrentResultLanguage ?? ConfigLanguage.Zpl;
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = Localization.T("Enregistrer le fichier de configuration"),
+            Filter = Localization.T("Fichier texte (*.txt)|*.txt|ZPL (*.zpl)|*.zpl|Fichier d'impression (*.prn)|*.prn|Tous les fichiers|*.*"),
+            FilterIndex = language == ConfigLanguage.Zpl ? 2 : 1,
+            FileName = "configuration-" + Short(language).ToLowerInvariant() + (language == ConfigLanguage.Zpl ? ".zpl" : ".txt"),
+            AddExtension = true,
+            OverwritePrompt = true,
+        };
+        if (_filePath is not null)
+        {
+            dialog.InitialDirectory = Path.GetDirectoryName(_filePath) ?? string.Empty;
+        }
+
+        if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            File.WriteAllBytes(dialog.FileName, new UTF8Encoding(false).GetBytes(result.Text));
+            Log?.Invoke(LogKind.Ok, $"Configuration enregistrée : {dialog.FileName}.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Log?.Invoke(LogKind.Error, "Enregistrement impossible : " + ex.Message);
+        }
+    }
+
+    private void CopyResult_Click(object sender, RoutedEventArgs e)
+    {
+        if (CurrentResult is not { Settings.IsEmpty: false } result)
+        {
+            return;
+        }
+
+        try
+        {
+            Clipboard.SetText(result.Text);
+            Log?.Invoke(LogKind.Info, "Fichier copié dans le presse-papiers.");
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+        }
+    }
+
+    /// <summary>Ouvre le résultat dans « Analyser un fichier » (vérification ligne par ligne, retouches, envoi).</summary>
+    private void OpenResult_Click(object sender, RoutedEventArgs e)
+    {
+        if (CurrentResult is not { Settings.IsEmpty: false } result)
+        {
+            return;
+        }
+
+        var title = _mode == PageMode.Convert
+            ? string.Format(CultureInfo.InvariantCulture, Localization.T("Converti en {0}"), Short(_convertTarget ?? ConfigLanguage.Zpl))
+            : string.Format(CultureInfo.InvariantCulture, Localization.T("Créé en {0}"), Short(CurrentResultLanguage ?? ConfigLanguage.Zpl));
+        _fileBytes = null;
+        _filePath = null;
+        _fileEncoding = "UTF-8";
+        CodeBox.Text = result.Text;
+        FileInfo.Text = title + " · " + Localization.T("non enregistré (Enregistrer sous…)");
+        ModeAnalyze.IsChecked = true;
+        Analyze();
+    }
+
+    // ------------------------------------------------------------------ Créer
 
     private bool _assistantBuilt;
-    private readonly WrapPanel _asTargets = new() { Margin = new Thickness(0, 4, 0, 10) };
-    private readonly WrapPanel _asDpi = new() { Margin = new Thickness(0, 4, 0, 10) };
+    private bool _filling;
     private readonly TextBox _darkness = new();
     private readonly TextBlock _darknessHint = new() { FontSize = 12, Margin = new Thickness(0, 3, 0, 0), TextWrapping = TextWrapping.Wrap };
     private readonly TextBox _speed = new();
     private readonly WrapPanel _media = new() { Margin = new Thickness(0, 4, 0, 0) };
     private readonly TextBox _gap = new();
     private readonly WrapPanel _method = new() { Margin = new Thickness(0, 4, 0, 0) };
-    private readonly WrapPanel _mode = new() { Margin = new Thickness(0, 4, 0, 0) };
+    private readonly WrapPanel _modeChips = new() { Margin = new Thickness(0, 4, 0, 0) };
     private readonly TextBox _width = new();
     private readonly TextBox _length = new();
     private readonly TextBox _left = new();
@@ -241,58 +351,74 @@ public partial class ConfigView
     private readonly CheckBox _save = new() { IsChecked = true };
     private readonly StackPanel _staticIp = new();
 
-    /// <summary>Ouverture de l'assistant : construit une fois, pré-rempli avec les réglages du fichier à la première ouverture.</summary>
-    private void ShowAssistant()
+    private void ShowCreate()
     {
         if (!_assistantBuilt)
         {
             BuildAssistant();
             _assistantBuilt = true;
-            LoadFromFile(quiet: true);
         }
 
-        FillChoices(_asTargets, _asDpi, "Assistant");
-        UpdateDarknessHint();
+        CreateTargets.Children.Clear();
+        foreach (var language in Enum.GetValues<ConfigLanguage>())
+        {
+            var chip = new RadioButton
+            {
+                Style = (Style)FindResource("Chip"),
+                GroupName = "CreateTarget",
+                Content = Short(language),
+                ToolTip = Localization.T(ConfigConverter.Name(language)) + " — " + Localization.T(Brands(language)),
+                IsChecked = language == (_createTarget ?? SuggestedTarget(converting: false)),
+                Margin = new Thickness(0, 0, 6, 6),
+            };
+            chip.Checked += (_, _) =>
+            {
+                _createTarget = language;
+                RefreshCreate();
+            };
+            CreateTargets.Children.Add(chip);
+        }
+
+        FillDpi(CreateDpi, "CreateDpi", RefreshCreate);
+        FromFileButton.Visibility = CodeBox.Text.Trim().Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        FromPrinterButton.Visibility = _printer is not null ? Visibility.Visible : Visibility.Collapsed;
+        RefreshCreate();
     }
 
     private void BuildAssistant()
     {
         var p = AssistantPanel;
-        p.Children.Add(Muted(Localization.T("Règle les valeurs voulues (laisse vide ce qui ne doit pas changer) : Scanalyse écrit le fichier dans le langage choisi, prêt à vérifier et à envoyer.")));
-        p.Children.Add(AsLabel("Langage du fichier"));
-        p.Children.Add(_asTargets);
-        p.Children.Add(AsLabel("Résolution de la tête"));
-        p.Children.Add(_asDpi);
-
         p.Children.Add(Section("Impression"));
         p.Children.Add(Field("Noirceur (0 à 100 %)", _darkness, "ex. 60"));
         p.Children.Add(_darknessHint);
         _darknessHint.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
-        _darkness.TextChanged += (_, _) => UpdateDarknessHint();
-        p.Children.Add(Field("Vitesse (pouces par seconde)", _speed, "ex. 4  (1 pouce/s ≈ 25 mm/s)"));
+        p.Children.Add(Field("Vitesse (pouces par seconde ; 1 pouce/s ≈ 25 mm/s)", _speed, "ex. 4"));
         p.Children.Add(AsLabel("Méthode d'impression"));
-        Chips<PrintMethod?>(_method, "AsMethod", [("—", null), ("Transfert thermique (ruban)", PrintMethod.ThermalTransfer), ("Thermique direct", PrintMethod.DirectThermal)]);
+        Chips<PrintMethod?>(_method, "AsMethod", [("Ne pas changer", null), ("Transfert thermique (avec ruban)", PrintMethod.ThermalTransfer), ("Thermique direct (sans ruban)", PrintMethod.DirectThermal)]);
         p.Children.Add(_method);
         p.Children.Add(AsLabel("Sortie des étiquettes"));
-        Chips<OutputMode?>(_mode, "AsMode",
+        Chips<OutputMode?>(_modeChips, "AsMode",
         [
-            ("—", null), ("Détachage", OutputMode.TearOff), ("Prédécollage", OutputMode.PeelOff), ("Enroulement", OutputMode.Rewind),
+            ("Ne pas changer", null), ("Détachage", OutputMode.TearOff), ("Prédécollage", OutputMode.PeelOff), ("Enroulement", OutputMode.Rewind),
             ("Coupe", OutputMode.Cutter), ("Coupe différée", OutputMode.DelayedCut), ("Applicateur", OutputMode.Applicator),
         ]);
-        p.Children.Add(_mode);
+        p.Children.Add(_modeChips);
 
-        p.Children.Add(Section("Support"));
-        Chips<MediaKind?>(_media, "AsMedia", [("—", null), ("Étiquettes séparées (espace)", MediaKind.Gap), ("Marque noire", MediaKind.Mark), ("Continu", MediaKind.Continuous)]);
+        p.Children.Add(Section("Étiquettes"));
+        p.Children.Add(AsLabel("Type de support"));
+        Chips<MediaKind?>(_media, "AsMedia", [("Ne pas changer", null), ("Étiquettes séparées par un espace", MediaKind.Gap), ("Marque noire au dos", MediaKind.Mark), ("Continu", MediaKind.Continuous)]);
         p.Children.Add(_media);
-        p.Children.Add(Field("Espace entre étiquettes ou hauteur de la marque (mm)", _gap, "ex. 3"));
-        p.Children.Add(Field("Largeur d'impression (mm)", _width, "ex. 101.6"));
-        p.Children.Add(Field("Longueur d'étiquette (mm)", _length, "ex. 152.4"));
+        p.Children.Add(Field("Espace entre étiquettes, ou hauteur de la marque (mm)", _gap, "ex. 3"));
+        p.Children.Add(Field("Largeur d'impression (mm)", _width, "ex. 100"));
+        p.Children.Add(Field("Longueur d'étiquette (mm)", _length, "ex. 150"));
+
+        p.Children.Add(Section("Réglages fins"));
         p.Children.Add(Field("Décalage horizontal (mm)", _left, "ex. 0"));
         p.Children.Add(Field("Décalage vertical (mm)", _top, "ex. 0"));
         p.Children.Add(Field("Position de détachage (mm)", _tear, "ex. 0"));
 
         p.Children.Add(Section("Réseau filaire"));
-        Chips<bool?>(_network, "AsNet", [("—", null), ("Adresse automatique (DHCP)", true), ("Adresse fixe", false)]);
+        Chips<bool?>(_network, "AsNet", [("Ne pas changer", null), ("Adresse automatique (DHCP)", true), ("Adresse fixe", false)]);
         p.Children.Add(_network);
         _staticIp.Children.Add(Field("Adresse IP", _ip, "ex. 192.168.1.50"));
         _staticIp.Children.Add(Field("Masque", _mask, "ex. 255.255.255.0"));
@@ -302,48 +428,29 @@ public partial class ConfigView
 
         _save.Style = (Style)FindResource("CheckLine");
         _save.Content = Localization.T("Enregistrer les réglages dans l'imprimante (conservés à l'extinction)");
-        _save.Margin = new Thickness(0, 12, 0, 0);
+        _save.Margin = new Thickness(0, 14, 0, 8);
+        _save.Checked += (_, _) => RefreshCreate();
+        _save.Unchecked += (_, _) => RefreshCreate();
         p.Children.Add(_save);
-
-        var buttons = new WrapPanel { Margin = new Thickness(0, 14, 0, 8) };
-        var load = new Button { Style = (Style)FindResource("BtnSecondary"), Content = Localization.T("Reprendre les réglages du fichier"), Margin = new Thickness(0, 0, 8, 0) };
-        load.Click += (_, _) => LoadFromFile(quiet: false);
-        var write = new Button { Style = (Style)FindResource("BtnAction"), Content = Localization.T("Écrire le fichier") };
-        write.Click += (_, _) => WriteFromAssistant();
-        buttons.Children.Add(load);
-        buttons.Children.Add(write);
-        p.Children.Add(buttons);
     }
 
-    private static TextBlock Section(string title)
-    {
-        return new TextBlock { Text = Localization.T(title), FontSize = 15, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 14, 0, 2) };
-    }
+    private static TextBlock Section(string title) =>
+        new() { Text = Localization.T(title), FontSize = 15, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 16, 0, 0) };
 
-    private TextBlock AsLabel(string text)
-    {
-        var t = new TextBlock { Text = Localization.T(text), Margin = new Thickness(0, 8, 0, 0) };
-        t.Style = (Style)FindResource("FieldLabel");
-        return t;
-    }
+    private TextBlock AsLabel(string text) =>
+        new() { Text = Localization.T(text), Margin = new Thickness(0, 10, 0, 0), Style = (Style)FindResource("FieldLabel"), TextWrapping = TextWrapping.Wrap };
 
     private StackPanel Field(string label, TextBox box, string hint)
     {
         box.Style = (Style)FindResource("FieldInput");
-        box.MaxWidth = 280;
+        box.Width = 220;
         box.HorizontalAlignment = HorizontalAlignment.Left;
-        box.MinWidth = 200;
-        box.ToolTip = Localization.T(hint);
+        box.Margin = new Thickness(0, 4, 0, 0);
+        Placeholder.SetText(box, Localization.T(hint));
+        box.TextChanged += (_, _) => RefreshCreate();
         var panel = new StackPanel();
         panel.Children.Add(AsLabel(label));
-        var grid = new Grid { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 4, 0, 0) };
-        grid.Children.Add(box);
-        var hintText = new TextBlock { Text = Localization.T(hint), Margin = new Thickness(12, 0, 12, 0), VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false, FontSize = 13 };
-        hintText.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
-        hintText.Visibility = box.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-        box.TextChanged += (_, _) => hintText.Visibility = box.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-        grid.Children.Add(hintText);
-        panel.Children.Add(grid);
+        panel.Children.Add(box);
         return panel;
     }
 
@@ -361,11 +468,15 @@ public partial class ConfigView
                 IsChecked = value is null,
                 Margin = new Thickness(0, 0, 6, 6),
             };
-            if (group == "AsNet")
+            chip.Checked += (_, _) =>
             {
-                chip.Checked += (_, _) => _staticIp.Visibility = Equals(value, false) ? Visibility.Visible : Visibility.Collapsed;
-            }
+                if (group == "AsNet")
+                {
+                    _staticIp.Visibility = Equals(value, false) ? Visibility.Visible : Visibility.Collapsed;
+                }
 
+                RefreshCreate();
+            };
             panel.Children.Add(chip);
         }
     }
@@ -382,92 +493,119 @@ public partial class ConfigView
 
     private static string N(double? v) => v is { } d ? d.ToString("0.##", CultureInfo.InvariantCulture) : string.Empty;
 
-    /// <summary>Pré-remplit le formulaire avec les réglages communs du fichier ouvert.</summary>
-    private void LoadFromFile(bool quiet)
+    private void FillForm(PrinterSettings s)
     {
-        if (CodeBox.Text.Trim().Length == 0)
+        _filling = true;
+        try
         {
-            if (!quiet)
-            {
-                Log?.Invoke(LogKind.Warning, "Le fichier est vide : rien à reprendre.");
-            }
+            _darkness.Text = s.Darkness is { } d ? N(Math.Round(d * 100)) : string.Empty;
+            _speed.Text = N(s.SpeedIps);
+            Select(_media, s.Media);
+            _gap.Text = N(s.GapMm);
+            Select(_method, s.Method);
+            Select(_modeChips, s.Mode);
+            _width.Text = N(s.WidthMm);
+            _length.Text = N(s.LengthMm);
+            _left.Text = N(s.LeftShiftMm);
+            _top.Text = N(s.TopShiftMm);
+            _tear.Text = N(s.TearOffMm);
+            Select(_network, s.Dhcp);
+            _ip.Text = s.IpAddress ?? string.Empty;
+            _mask.Text = s.Netmask ?? string.Empty;
+            _gateway.Text = s.Gateway ?? string.Empty;
+        }
+        finally
+        {
+            _filling = false;
+        }
 
+        RefreshCreate();
+    }
+
+    private void FromFile_Click(object sender, RoutedEventArgs e)
+    {
+        var (s, _, _) = ConfigConverter.Extract(CodeBox.Text, CurrentDpi());
+        FillForm(s);
+        Log?.Invoke(LogKind.Info, s.IsEmpty ? "Aucun réglage commun dans le fichier ouvert." : "Réglages du fichier ouvert repris dans le formulaire.");
+    }
+
+    /// <summary>Réglages lus sur la Zebra, relus comme un fichier SGD pour remplir le formulaire.</summary>
+    private void FromPrinter_Click(object sender, RoutedEventArgs e)
+    {
+        if (_printer is null)
+        {
             return;
         }
 
-        var (s, _, _) = ConfigConverter.Extract(CodeBox.Text, CurrentDpi());
-        _darkness.Text = s.Darkness is { } d ? N(Math.Round(d * 100)) : string.Empty;
-        _speed.Text = N(s.SpeedIps);
-        Select(_media, s.Media);
-        _gap.Text = N(s.GapMm);
-        Select(_method, s.Method);
-        Select(_mode, s.Mode);
-        _width.Text = N(s.WidthMm);
-        _length.Text = N(s.LengthMm);
-        _left.Text = N(s.LeftShiftMm);
-        _top.Text = N(s.TopShiftMm);
-        _tear.Text = N(s.TearOffMm);
-        Select(_network, s.Dhcp);
-        _ip.Text = s.IpAddress ?? string.Empty;
-        _mask.Text = s.Netmask ?? string.Empty;
-        _gateway.Text = s.Gateway ?? string.Empty;
-        if (!quiet)
+        string[] keys = ["print.tone", "media.speed", "ezpl.media_type", "ezpl.print_method", "media.printmode", "ezpl.print_width", "zpl.label_length", "zpl.left_position", "ezpl.tear_off"];
+        var text = new StringBuilder();
+        foreach (var key in keys)
         {
-            Log?.Invoke(LogKind.Info, s.IsEmpty ? "Aucun réglage commun dans ce fichier : formulaire laissé vide." : "Réglages du fichier repris dans l'assistant.");
+            if (_printer.TryGetValue(key, out var v) && v.Value.Length > 0)
+            {
+                text.Append(CultureInfo.InvariantCulture, $"! U1 setvar \"{key}\" \"{v.Value}\"\r\n");
+            }
         }
+
+        var (s, _, _) = ConfigConverter.Extract(text.ToString(), CurrentDpi());
+        FillForm(s);
+        Log?.Invoke(LogKind.Info, "Réglages de l'imprimante repris dans le formulaire : change ce qui doit l'être.");
     }
 
-    /// <summary>Nombre saisi (virgule ou point) ; vide : non réglé ; illisible : message et arrêt.</summary>
-    private bool TryRead(TextBox box, string what, out double? value)
+    private void ClearForm_Click(object sender, RoutedEventArgs e) => FillForm(new PrinterSettings());
+
+    private static double? Read(TextBox box, out bool invalid)
     {
-        value = null;
+        invalid = false;
         var t = box.Text.Trim().Replace(',', '.');
         if (t.Length == 0)
         {
-            return true;
+            return null;
         }
 
         if (double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
         {
-            value = d;
-            return true;
+            return d;
         }
 
-        Log?.Invoke(LogKind.Warning, string.Format(CultureInfo.InvariantCulture, Localization.T("{0} : « {1} » n'est pas un nombre."), Localization.T(what), box.Text));
-        box.Focus();
-        return false;
+        invalid = true;
+        return null;
     }
 
-    private void WriteFromAssistant()
+    /// <summary>Écrit le fichier en direct à partir du formulaire ; une valeur illisible est signalée sans bloquer le reste.</summary>
+    private void RefreshCreate()
     {
-        if (!TryRead(_darkness, "Noirceur", out var dark) || !TryRead(_speed, "Vitesse", out var speed) || !TryRead(_gap, "Espace", out var gap)
-            || !TryRead(_width, "Largeur", out var width) || !TryRead(_length, "Longueur", out var length) || !TryRead(_left, "Décalage horizontal", out var left)
-            || !TryRead(_top, "Décalage vertical", out var top) || !TryRead(_tear, "Position de détachage", out var tear))
+        if (_filling || !_assistantBuilt || _mode != PageMode.Create)
         {
             return;
+        }
+
+        var invalid = new List<string>();
+        double? Value(TextBox box, string what)
+        {
+            var v = Read(box, out var bad);
+            if (bad)
+            {
+                invalid.Add(Localization.T(what));
+            }
+
+            return v;
         }
 
         var dhcp = (bool?)Selected(_network);
-        if (dhcp == false && !System.Net.IPAddress.TryParse(_ip.Text.Trim(), out _))
-        {
-            Log?.Invoke(LogKind.Warning, "Adresse fixe : saisis une adresse IP valide (ex. 192.168.1.50).");
-            _ip.Focus();
-            return;
-        }
-
         var settings = new PrinterSettings
         {
-            Darkness = dark is { } d ? Math.Clamp(d / 100, 0, 1) : null,
-            SpeedIps = speed,
+            Darkness = Value(_darkness, "Noirceur") is { } d ? Math.Clamp(d / 100, 0, 1) : null,
+            SpeedIps = Value(_speed, "Vitesse"),
             Media = (MediaKind?)Selected(_media),
-            GapMm = gap,
+            GapMm = Value(_gap, "Espace"),
             Method = (PrintMethod?)Selected(_method),
-            Mode = (OutputMode?)Selected(_mode),
-            WidthMm = width,
-            LengthMm = length,
-            LeftShiftMm = left,
-            TopShiftMm = top,
-            TearOffMm = tear,
+            Mode = (OutputMode?)Selected(_modeChips),
+            WidthMm = Value(_width, "Largeur"),
+            LengthMm = Value(_length, "Longueur"),
+            LeftShiftMm = Value(_left, "Décalage horizontal"),
+            TopShiftMm = Value(_top, "Décalage vertical"),
+            TearOffMm = Value(_tear, "Position de détachage"),
             Dhcp = dhcp,
             IpAddress = dhcp == false ? _ip.Text.Trim() : null,
             Netmask = dhcp == false ? _mask.Text.Trim() : null,
@@ -475,32 +613,44 @@ public partial class ConfigView
             Save = _save.IsChecked == true,
             Dpi = CurrentDpi(),
         };
+        if (dhcp == false && !System.Net.IPAddress.TryParse(_ip.Text.Trim(), out _))
+        {
+            invalid.Add(Localization.T("Adresse IP"));
+        }
+
+        var target = _createTarget ?? SuggestedTarget(converting: false);
+        UpdateDarknessHint(settings.Darkness, target);
         if (settings.IsEmpty)
         {
-            Log?.Invoke(LogKind.Warning, "Aucune valeur saisie dans l'assistant : rien à écrire.");
+            _createResult = null;
+            CreateOutput.Text = string.Empty;
+            Placeholder.SetText(CreateOutput, Localization.T("Renseigne au moins un réglage à gauche : le fichier s'écrit ici."));
+            CreateSummary.Text = string.Empty;
+            CreateNotes.Children.Clear();
             return;
         }
 
-        var target = CurrentTarget();
-        ApplyConversion(ConfigConverter.Write(settings, target), string.Format(CultureInfo.InvariantCulture, Localization.T("Écrit par l'assistant en {0}"), Localization.T(ConfigConverter.Name(target))));
+        var result = ConfigConverter.Write(settings, target);
+        _createResult = invalid.Count > 0 ? null : result;
+        CreateOutput.Text = result.Text;
+        CreateSummary.Text = invalid.Count > 0
+            ? string.Format(CultureInfo.InvariantCulture, Localization.T("À corriger avant d'enregistrer ou d'envoyer : {0}."), string.Join(", ", invalid))
+            : string.Format(CultureInfo.InvariantCulture, Localization.T("{0} écrit pour {1}. Les lignes « à vérifier » ou « non repris » sont détaillées ci-dessous."),
+                Short(target), Localization.T(Brands(target)));
+        CreateSummary.SetResourceReference(TextBlock.ForegroundProperty, invalid.Count > 0 ? "BadFg" : "Muted");
+        Notes(CreateNotes, new ConversionResult(result.Text, [.. result.Notes.Where(n => n.Status != ConversionStatus.Converted)], result.Settings), showLines: false);
     }
 
     /// <summary>Équivalent de la noirceur saisie dans l'échelle du langage choisi.</summary>
-    private void UpdateDarknessHint()
+    private void UpdateDarknessHint(double? darkness, ConfigLanguage target)
     {
-        if (!_assistantBuilt)
-        {
-            return;
-        }
-
-        if (!double.TryParse(_darkness.Text.Trim().Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var pct))
+        if (darkness is not { } d)
         {
             _darknessHint.Text = Localization.T("Vide : la noirceur n'est pas changée.");
             return;
         }
 
-        var d = Math.Clamp(pct / 100, 0, 1);
-        var written = CurrentTarget() switch
+        var written = target switch
         {
             ConfigLanguage.Zpl => $"~SD{Math.Round(d * 30):00} (0 à 30)",
             ConfigLanguage.Sgd => $"print.tone {Math.Round(d * 30)} (0 à 30)",

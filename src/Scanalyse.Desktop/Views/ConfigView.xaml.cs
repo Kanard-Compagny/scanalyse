@@ -75,6 +75,7 @@ public partial class ConfigView : UserControl
         };
         HintAligner.Attach(AddressBox, AddressHint);
         HintAligner.Attach(QueueSearch, QueueSearchHint);
+        HintAligner.Attach(CodeBox, CodeHint);
     }
 
     /// <summary>Message pour le journal.</summary>
@@ -393,13 +394,22 @@ public partial class ConfigView : UserControl
     private async void Send_Click(object sender, RoutedEventArgs e)
     {
         Analyze();
-        if (_report is not { } r || CodeBox.Text.Trim().Length == 0)
+        var sendText = TextToSend();
+        if (sendText is null)
         {
-            Log?.Invoke(LogKind.Warning, "Rien à envoyer : colle ou ouvre d'abord un fichier de configuration.");
+            Log?.Invoke(LogKind.Warning, _mode switch
+            {
+                PageMode.Convert => "Rien à envoyer : choisis d'abord le langage d'arrivée pour obtenir le fichier converti.",
+                PageMode.Create => "Rien à envoyer : renseigne au moins un réglage valide dans le formulaire.",
+                _ => "Rien à envoyer : colle ou ouvre d'abord un fichier de configuration.",
+            });
             return;
         }
 
-        var errors = r.Findings.Count(f => f.Severity == Severity.Error) + _comparison.Count(f => f.Severity == Severity.Error);
+        // Fichier converti ou créé : contrôlé comme un fichier ouvert, avec l'imprimante choisie.
+        var r = _mode == PageMode.Analyze && _report is not null ? _report : PrinterConfig.Analyze(sendText, _printer);
+        var check = _mode == PageMode.Analyze ? _comparison : (_printer is null ? [] : PrinterConfig.Compare(r, _printer)).Concat(_profile is null ? [] : PrinterConfig.Compatibility(r, _profile)).ToList();
+        var errors = r.Findings.Count(f => f.Severity == Severity.Error) + check.Count(f => f.Severity == Severity.Error);
         var notes = new List<string>();
         if (errors > 0)
         {
@@ -416,7 +426,7 @@ public partial class ConfigView : UserControl
             return;
         }
 
-        var bytes = Payload(out var fixedNewline);
+        var bytes = Payload(sendText, out var fixedNewline);
         try
         {
             if (TargetQueue.IsChecked == true)
@@ -467,12 +477,11 @@ public partial class ConfigView : UserControl
     }
 
     /// <summary>Octets envoyés : ceux du fichier ouvert s'il n'a pas été retouché, sinon le texte en UTF-8 ; une ligne SGD finale reçoit son retour à la ligne.</summary>
-    private byte[] Payload(out bool fixedNewline)
+    private byte[] Payload(string text, out bool fixedNewline)
     {
-        var text = CodeBox.Text;
         var last = text.TrimEnd().Split('\n').LastOrDefault()?.Trim() ?? string.Empty;
         fixedNewline = (last.StartsWith("! U", StringComparison.Ordinal) || last.StartsWith("{}{", StringComparison.Ordinal)) && !text.EndsWith('\n');
-        if (_fileBytes is not null && text == _fileText && !fixedNewline)
+        if (_mode == PageMode.Analyze && _fileBytes is not null && text == _fileText && !fixedNewline)
         {
             return _fileBytes;
         }
@@ -493,6 +502,11 @@ public partial class ConfigView : UserControl
     /// <summary>Ouvre un fichier de configuration (bouton, glisser-déposer, « Ouvrir avec »).</summary>
     public void OpenFile(string path)
     {
+        if (_mode == PageMode.Create)
+        {
+            ModeAnalyze.IsChecked = true; // le fichier ouvert s'affiche dans l'éditeur
+        }
+
         try
         {
             var bytes = File.ReadAllBytes(path);
@@ -508,7 +522,6 @@ public partial class ConfigView : UserControl
             _fileText = text;
             _filePath = path;
             _fileEncoding = encoding;
-            ResetConversion();
             CodeBox.Text = text;
             FileInfo.Text = $"{Path.GetFileName(path)} · {bytes.Length} octets · {encoding}";
             Analyze();
@@ -605,8 +618,7 @@ public partial class ConfigView : UserControl
                 _fileBytes = null;
                 _filePath = null;
                 _fileEncoding = "UTF-8";
-                ResetConversion();
-                CodeBox.Text = Clipboard.GetText();
+                    CodeBox.Text = Clipboard.GetText();
                 FileInfo.Text = Localization.T("Collé depuis le presse-papiers");
                 Analyze();
             }
@@ -621,7 +633,6 @@ public partial class ConfigView : UserControl
         _fileBytes = null;
         _filePath = null;
         _fileEncoding = "UTF-8";
-        ResetConversion();
         CodeBox.Clear();
         FileInfo.Text = string.Empty;
         Analyze();
@@ -697,6 +708,7 @@ public partial class ConfigView : UserControl
             ShowPrinterBanner();
             ResultPanel.Children.Clear();
             UpdateMarks();
+            RefreshConvert();
             return;
         }
 
@@ -726,6 +738,7 @@ public partial class ConfigView : UserControl
         ShowPrinterBanner();
         Render();
         UpdateMarks();
+        RefreshConvert();
     }
 
     private void ShowPrinterBanner()
@@ -751,28 +764,13 @@ public partial class ConfigView : UserControl
             return;
         }
 
-        var assistant = ViewAssistant.IsChecked == true;
-        AssistantScroll.Visibility = assistant ? Visibility.Visible : Visibility.Collapsed;
-        ResultScroll.Visibility = assistant ? Visibility.Collapsed : Visibility.Visible;
-        if (assistant)
-        {
-            ShowAssistant();
-            return;
-        }
-
         Render();
     }
 
     private void Render()
     {
         ResultPanel.Children.Clear();
-        if (ViewConversion.IsChecked == true)
-        {
-            RenderConversion();
-            return;
-        }
-
-        if (ViewAssistant.IsChecked == true || _report is not { } r)
+        if (_report is not { } r)
         {
             return;
         }

@@ -17,6 +17,7 @@ public partial class HistoryView : UserControl
     public HistoryView()
     {
         InitializeComponent();
+        HintAligner.Attach(SearchBox, SearchPlaceholder);
         ScrollChaining.Enable(PageScroll);
         var saved = AppSettings.Load().ReportContent;
         foreach (var chip in ReportContentChips.Children.OfType<RadioButton>())

@@ -3,7 +3,8 @@
   Les couleurs viennent toujours de Light.xaml / Dark.xaml via DynamicResource, pour que le thème change à chaud.
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Scanalyse.Desktop">
 
   <!-- Polices natives Windows 11 -->
   <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
@@ -373,9 +374,24 @@
         <ControlTemplate TargetType="TextBox">
           <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                   BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False" />
+            <Grid>
+              <!-- Texte d'aide : même marge, police et alignement que le texte saisi (2 points = marge interne du texte) -->
+              <TextBlock x:Name="PlaceholderText" Margin="{TemplateBinding Padding}" Padding="2,0,2,0" IsHitTestVisible="False" Visibility="Collapsed"
+                         Text="{Binding Path=(local:Placeholder.Text), RelativeSource={RelativeSource TemplatedParent}}"
+                         FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Foreground="{DynamicResource Muted}"
+                         TextWrapping="Wrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Top" />
+              <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False" />
+            </Grid>
           </Border>
           <ControlTemplate.Triggers>
+            <Trigger Property="Text" Value="">
+              <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <!-- Champ d'une ligne : texte et aide centrés verticalement, quelle que soit la hauteur du champ -->
+            <Trigger Property="VerticalContentAlignment" Value="Center">
+              <Setter TargetName="PART_ContentHost" Property="VerticalAlignment" Value="Center" />
+              <Setter TargetName="PlaceholderText" Property="VerticalAlignment" Value="Center" />
+            </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
               <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Focus}" />
             </Trigger>
@@ -577,6 +593,8 @@
   <Style x:Key="FieldInput" TargetType="TextBox" BasedOn="{StaticResource Input}">
     <Setter Property="FontFamily" Value="{StaticResource UiFont}" />
     <Setter Property="FontSize" Value="14" />
+    <Setter Property="TextWrapping" Value="NoWrap" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
 
   <!-- Champ de recherche (police d'interface, pas monospace) -->
@@ -586,6 +604,7 @@
     <Setter Property="TextWrapping" Value="NoWrap" />
     <Setter Property="Padding" Value="36,9,10,9" />
     <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
 
   <!-- Barres de défilement fines, aux couleurs du thème -->

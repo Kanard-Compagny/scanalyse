@@ -8,17 +8,50 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <StackPanel Margin="0,0,0,16">
+    <StackPanel Margin="0,0,0,14">
       <TextBlock Style="{StaticResource PageTitle}" Text="Conf imprimante" />
       <TextBlock Style="{StaticResource PageSubtitle}"
-                 Text="Colle ou ouvre le fichier de configuration d'une imprimante (Zebra ZPL et SGD « ! U1 setvar », TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2) : chaque ligne est expliquée et contrôlée, comparée à l'imprimante, puis envoyée." />
+                 Text="Les fichiers qui règlent une imprimante d'étiquettes (noirceur, vitesse, support, réseau…), toutes marques : Zebra ZPL et SGD, TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2." />
     </StackPanel>
 
+    <!-- Que veux-tu faire ? Trois parcours, chacun en étapes numérotées -->
+    <Grid Grid.Row="1" Margin="0,0,0,14">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="10" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="10" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <RadioButton x:Name="ModeAnalyze" Style="{StaticResource ChoiceCard}" GroupName="ConfMode" IsChecked="True" Checked="Mode_Changed">
+        <StackPanel>
+          <TextBlock Text="Analyser un fichier" FontWeight="SemiBold" FontSize="14.5" />
+          <TextBlock Text="Vérifier un fichier existant : chaque ligne expliquée, erreurs signalées, comparaison avec l'imprimante." FontSize="12.5"
+                     Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0" />
+        </StackPanel>
+      </RadioButton>
+      <RadioButton x:Name="ModeConvert" Grid.Column="2" Style="{StaticResource ChoiceCard}" GroupName="ConfMode" Checked="Mode_Changed">
+        <StackPanel>
+          <TextBlock Text="Convertir" FontWeight="SemiBold" FontSize="14.5" />
+          <TextBlock Text="Réécrire un fichier pour une imprimante d'une autre marque (ex. ZPL Zebra vers TSPL TSC)." FontSize="12.5"
+                     Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0" />
+        </StackPanel>
+      </RadioButton>
+      <RadioButton x:Name="ModeCreate" Grid.Column="4" Style="{StaticResource ChoiceCard}" GroupName="ConfMode" Checked="Mode_Changed">
+        <StackPanel>
+          <TextBlock Text="Créer un fichier" FontWeight="SemiBold" FontSize="14.5" />
+          <TextBlock Text="Régler noirceur, vitesse, support, réseau… sans connaître le langage : Scanalyse écrit le fichier." FontSize="12.5"
+                     Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0" />
+        </StackPanel>
+      </RadioButton>
+    </Grid>
+
     <!-- Imprimante : la même que « Code imprimante », présentée de la même façon -->
-    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
+    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="16,10" Margin="0,0,0,14">
       <StackPanel>
       <DockPanel>
         <Button DockPanel.Dock="Right" x:Name="SendButton" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="8,0,0,0" VerticalAlignment="Center" />
@@ -77,47 +110,27 @@
       </StackPanel>
     </Border>
 
-    <Grid Grid.Row="2">
+    <Grid Grid.Row="3">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="5*" />
         <ColumnDefinition Width="18" />
         <ColumnDefinition Width="6*" />
       </Grid.ColumnDefinitions>
 
-      <!-- Fichier -->
-      <Border Style="{StaticResource Card}">
+      <!-- Fichier (Analyser, Convertir : fichier de départ) -->
+      <Border x:Name="EditorCard" Style="{StaticResource Card}">
         <DockPanel>
-          <!-- Titre toujours sur une ligne ; les boutons passent à la ligne quand la fenêtre est étroite -->
-          <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto" />
-              <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Style="{StaticResource CardTitle}" Text="Fichier de configuration" VerticalAlignment="Center" TextWrapping="NoWrap" Margin="0,0,12,0" />
-            <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="Open_Click" Margin="0,0,4,0" />
-              <Button x:Name="ConvertButton" Style="{StaticResource BtnGhost}" Content="Convertir vers…" Click="ConvertButton_Click" Margin="0,0,4,0"
-                      ToolTip="Réécrit le fichier dans le langage d'une autre marque (ZPL, SGD, TSPL, EPL2, DPL, Fingerprint, SBPL), avec le compte-rendu de ce qui a été repris" />
-              <Popup x:Name="ConvertPopup" PlacementTarget="{Binding ElementName=ConvertButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
-                <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="12" Padding="14" Margin="0,6,0,0" Width="420">
-                  <StackPanel>
-                    <TextBlock Style="{StaticResource CardTitle}" Text="Convertir le fichier" />
-                    <TextBlock FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,10"
-                               Text="Les réglages communs (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau) sont réécrits ; ce qui est propre à une marque est listé dans le compte-rendu." />
-                    <TextBlock Style="{StaticResource FieldLabel}" Text="Langage d'arrivée" />
-                    <WrapPanel x:Name="ConvertTargets" Margin="0,4,0,10" />
-                    <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution de la tête (pour passer des points aux millimètres)" />
-                    <WrapPanel x:Name="ConvertDpi" Margin="0,4,0,12" />
-                    <Button Style="{StaticResource BtnAction}" Content="Convertir" Click="Convert_Click" HorizontalAlignment="Left" />
-                  </StackPanel>
-                </Border>
-              </Popup>
-              <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveAs_Click" Margin="0,0,4,0"
+          <!-- Titre, puis les actions du fichier sur une ligne à part (elles passent à la ligne proprement en fenêtre étroite) -->
+          <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <TextBlock x:Name="EditorTitle" Style="{StaticResource CardTitle}" Text="Fichier de configuration" TextTrimming="CharacterEllipsis" />
+            <WrapPanel Margin="-8,4,0,0">
+              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir un fichier…" Click="Open_Click" Margin="0,0,2,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Coller" Click="Paste_Click" Margin="0,0,2,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveAs_Click" Margin="0,0,2,0"
                       ToolTip="Enregistre le fichier, avec tes modifications, sous le nom de ton choix (Ctrl + S)" />
-              <Button Style="{StaticResource BtnGhost}" Content="Coller" Click="Paste_Click" Margin="0,0,4,0" />
               <Button Style="{StaticResource BtnGhost}" Content="Effacer" Click="Clear_Click" />
             </WrapPanel>
-          </Grid>
+          </StackPanel>
           <TextBlock x:Name="FileInfo" DockPanel.Dock="Bottom" Style="{StaticResource FieldLabel}" Margin="0,6,0,0" />
           <WrapPanel x:Name="Legend" DockPanel.Dock="Bottom" Margin="0,8,0,0" />
           <Grid>
@@ -165,8 +178,83 @@
         </DockPanel>
       </Border>
 
+      <!-- Créer : formulaire des réglages -->
+      <Border x:Name="CreateFormCard" Style="{StaticResource Card}" Visibility="Collapsed">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <TextBlock Style="{StaticResource CardTitle}" Text="1. Les réglages voulus" />
+            <TextBlock FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0"
+                       Text="Laisse vide ce qui ne doit pas changer. Le fichier s'écrit à droite au fur et à mesure." />
+            <WrapPanel Margin="-8,6,0,0">
+              <Button x:Name="FromFileButton" Style="{StaticResource BtnGhost}" Content="Partir du fichier ouvert" Click="FromFile_Click" Margin="0,0,2,0"
+                      ToolTip="Reprend les réglages du fichier ouvert dans « Analyser un fichier »" />
+              <Button x:Name="FromPrinterButton" Style="{StaticResource BtnGhost}" Content="Partir des réglages de l'imprimante" Click="FromPrinter_Click" Margin="0,0,2,0"
+                      ToolTip="Reprend les réglages lus sur l'imprimante (Zebra lue par le réseau)" />
+              <Button Style="{StaticResource BtnGhost}" Content="Tout vider" Click="ClearForm_Click" />
+            </WrapPanel>
+          </StackPanel>
+          <ScrollViewer x:Name="AssistantScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="AssistantPanel" Margin="0,0,8,0" />
+          </ScrollViewer>
+        </DockPanel>
+      </Border>
+
+      <!-- Convertir : langage d'arrivée et résultat -->
+      <Border x:Name="ConvertCard" Grid.Column="2" Style="{StaticResource Card}" Visibility="Collapsed">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="0,0,8,0">
+            <TextBlock Style="{StaticResource CardTitle}" Text="2. Pour quelle imprimante ?" />
+            <TextBlock x:Name="ConvertSource" FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,10" />
+            <WrapPanel x:Name="ConvertTargets" />
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution de la tête (pour passer des points aux millimètres)" Margin="0,6,0,0" />
+            <WrapPanel x:Name="ConvertDpi" Margin="0,4,0,0" />
+            <StackPanel x:Name="ConvertResult" Visibility="Collapsed" Margin="0,16,0,0">
+              <TextBlock Style="{StaticResource CardTitle}" Text="3. Le fichier converti" />
+              <TextBlock x:Name="ConvertSummary" FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,8" />
+              <TextBox x:Name="ConvertOutput" Style="{StaticResource Input}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" Height="190"
+                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" />
+              <WrapPanel Margin="-8,6,0,8">
+                <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveResult_Click" Margin="0,0,2,0" />
+                <Button Style="{StaticResource BtnGhost}" Content="Copier" Click="CopyResult_Click" Margin="0,0,2,0" />
+                <Button Style="{StaticResource BtnGhost}" Content="Ouvrir dans l'analyse" Click="OpenResult_Click"
+                        ToolTip="Ouvre le fichier converti dans « Analyser un fichier » pour le vérifier ligne par ligne ou le retoucher" />
+              </WrapPanel>
+              <TextBlock Style="{StaticResource FieldLabel}" Text="Ce qui a été repris" />
+              <StackPanel x:Name="ConvertNotes" Margin="0,6,0,0" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <!-- Créer : fichier écrit en direct -->
+      <Border x:Name="CreatePreviewCard" Grid.Column="2" Style="{StaticResource Card}" Visibility="Collapsed">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top">
+            <TextBlock Style="{StaticResource CardTitle}" Text="2. Le fichier créé" />
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Langage (celui de ton imprimante)" Margin="0,8,0,0" />
+            <WrapPanel x:Name="CreateTargets" Margin="0,4,0,0" />
+            <TextBlock Style="{StaticResource FieldLabel}" Text="Résolution de la tête" Margin="0,4,0,0" />
+            <WrapPanel x:Name="CreateDpi" Margin="0,4,0,10" />
+          </StackPanel>
+          <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <WrapPanel Margin="-8,0,0,6">
+              <Button Style="{StaticResource BtnGhost}" Content="Enregistrer sous…" Click="SaveResult_Click" Margin="0,0,2,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Copier" Click="CopyResult_Click" Margin="0,0,2,0" />
+              <Button Style="{StaticResource BtnGhost}" Content="Ouvrir dans l'analyse" Click="OpenResult_Click"
+                      ToolTip="Ouvre le fichier créé dans « Analyser un fichier » pour le vérifier ligne par ligne ou le retoucher" />
+            </WrapPanel>
+            <TextBlock x:Name="CreateSummary" FontSize="12.5" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" />
+            <ScrollViewer MaxHeight="160" VerticalScrollBarVisibility="Auto" Margin="0,6,0,0">
+              <StackPanel x:Name="CreateNotes" Margin="0,0,8,0" />
+            </ScrollViewer>
+          </StackPanel>
+          <TextBox x:Name="CreateOutput" Style="{StaticResource Input}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="120"
+                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" />
+        </DockPanel>
+      </Border>
+
       <!-- Analyse -->
-      <Border Grid.Column="2" Style="{StaticResource Card}">
+      <Border x:Name="AnalysisCard" Grid.Column="2" Style="{StaticResource Card}">
         <DockPanel>
           <StackPanel DockPanel.Dock="Top">
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Analyse" />
@@ -181,21 +269,11 @@
               <RadioButton x:Name="ViewProblems" Style="{StaticResource Chip}" GroupName="ConfView" Content="Points à vérifier" IsChecked="True" Checked="View_Changed" />
               <RadioButton x:Name="ViewLines" Style="{StaticResource Chip}" GroupName="ConfView" Content="Ligne par ligne" Checked="View_Changed" />
               <RadioButton x:Name="ViewSettings" Style="{StaticResource Chip}" GroupName="ConfView" Content="Réglages appliqués" Checked="View_Changed" />
-              <RadioButton x:Name="ViewAssistant" Style="{StaticResource Chip}" GroupName="ConfView" Content="Configurer" Checked="View_Changed"
-                           ToolTip="Assistant : règle noirceur, vitesse, support, sortie, taille, réseau… et Scanalyse écrit le fichier dans le langage de ton choix" />
-              <RadioButton x:Name="ViewConversion" Style="{StaticResource Chip}" GroupName="ConfView" Content="Conversion" Checked="View_Changed" Visibility="Collapsed"
-                           ToolTip="Compte-rendu de la dernière conversion : repris, approché, non converti" />
             </WrapPanel>
           </StackPanel>
-          <Grid>
-            <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-              <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />
-            </ScrollViewer>
-            <!-- Assistant « Configurer » : formulaire construit une fois, conservé entre deux analyses -->
-            <ScrollViewer x:Name="AssistantScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
-              <StackPanel x:Name="AssistantPanel" Margin="0,0,6,0" />
-            </ScrollViewer>
-          </Grid>
+          <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />
+          </ScrollViewer>
         </DockPanel>
       </Border>
     </Grid>

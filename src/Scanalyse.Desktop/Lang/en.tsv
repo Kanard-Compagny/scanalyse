@@ -3012,3 +3012,57 @@ Langage d'arrivée	Target language
 Les réglages communs (noirceur, vitesse, support, méthode, sortie, taille, décalages, réseau) sont réécrits ; ce qui est propre à une marque est listé dans le compte-rendu.	Common settings (darkness, speed, media, method, output, size, offsets, network) are rewritten; brand-specific ones are listed in the report.
 Résolution de la tête (pour passer des points aux millimètres)	Printhead resolution (to convert dots to millimeters)
 Réécrit le fichier dans le langage d'une autre marque (ZPL, SGD, TSPL, EPL2, DPL, Fingerprint, SBPL), avec le compte-rendu de ce qui a été repris	Rewrites the file in another brand's language (ZPL, SGD, TSPL, EPL2, DPL, Fingerprint, SBPL), with a report of what was kept
+1. Le fichier à convertir	1. The file to convert
+Aucun réglage commun dans le fichier de départ : rien à convertir.	No common setting in the source file: nothing to convert.
+Aucun réglage commun dans le fichier ouvert.	No common setting in the open file.
+Clique pour voir la ligne dans le fichier de départ	Click to see the line in the source file
+Colle ou ouvre d'abord, à gauche, le fichier à convertir.	First paste or open, on the left, the file to convert.
+Créé en {0}	Created in {0}
+Envoie le fichier converti à l'imprimante	Sends the converted file to the printer
+Envoie le fichier créé à l'imprimante	Sends the created file to the printer
+Envoie le fichier à l'imprimante	Sends the file to the printer
+Espace entre étiquettes, ou hauteur de la marque (mm)	Gap between labels, or mark height (mm)
+Fichier copié dans le presse-papiers.	File copied to the clipboard.
+Fichier de départ : {0}. Choisis le langage de l'imprimante qui recevra le fichier ({1} conseillé).	Source file: {0}. Choose the language of the printer that will receive the file ({1} suggested).
+Honeywell / Datamax (classe I, M, E…)	Honeywell / Datamax (I, M, E class…)
+Honeywell / Intermec (PC, PD, PM, PX…)	Honeywell / Intermec (PC, PD, PM, PX…)
+Marque noire au dos	Black mark on the back
+Ne pas changer	Don't change
+Non repris	Not kept
+Renseigne au moins un réglage à gauche : le fichier s'écrit ici.	Fill in at least one setting on the left: the file is written here.
+Rien à enregistrer pour le moment.	Nothing to save yet.
+Réglages de l'imprimante repris dans le formulaire : change ce qui doit l'être.	Printer settings loaded into the form: change what needs to be changed.
+Réglages du fichier ouvert repris dans le formulaire.	Open file settings loaded into the form.
+Réglages fins	Fine adjustments
+TSC (et imprimantes compatibles TSPL)	TSC (and TSPL-compatible printers)
+Vitesse (pouces par seconde ; 1 pouce/s ≈ 25 mm/s)	Speed (inches per second; 1 inch/s ≈ 25 mm/s)
+Zebra : ! U1 setvar, réglages enregistrés d'office	Zebra: ! U1 setvar, settings saved automatically
+Zebra : commandes ^ et ~	Zebra: ^ and ~ commands
+Zebra anciennes (LP / TLP 2844…)	Older Zebra (LP / TLP 2844…)
+{0} repris · {1} à vérifier après un essai (valeur approchée) · {2} non repris (à régler autrement sur l'imprimante).	{0} kept · {1} to check after a test (approximate value) · {2} not kept (to set another way on the printer).
+{0} écrit pour {1}. Les lignes « à vérifier » ou « non repris » sont détaillées ci-dessous.	{0} written for {1}. Lines “to check” or “not kept” are detailed below.
+À corriger avant d'enregistrer ou d'envoyer : {0}.	To fix before saving or sending: {0}.
+Étiquettes séparées par un espace	Labels separated by a gap
+1. Les réglages voulus	1. The settings you want
+2. Le fichier créé	2. The created file
+2. Pour quelle imprimante ?	2. For which printer?
+3. Le fichier converti	3. The converted file
+Analyser un fichier	Analyze a file
+Ce qui a été repris	What was kept
+Créer un fichier	Create a file
+Laisse vide ce qui ne doit pas changer. Le fichier s'écrit à droite au fur et à mesure.	Leave empty what must not change. The file is written on the right as you go.
+Langage (celui de ton imprimante)	Language (your printer's)
+Les fichiers qui règlent une imprimante d'étiquettes (noirceur, vitesse, support, réseau…), toutes marques : Zebra ZPL et SGD, TSC TSPL, Honeywell DPL et Fingerprint, SATO SBPL, EPL2.	Files that set up a label printer (darkness, speed, media, network…), all brands: Zebra ZPL and SGD, TSC TSPL, Honeywell DPL and Fingerprint, SATO SBPL, EPL2.
+Ouvre le fichier converti dans « Analyser un fichier » pour le vérifier ligne par ligne ou le retoucher	Opens the converted file in “Analyze a file” to check it line by line or edit it
+Ouvre le fichier créé dans « Analyser un fichier » pour le vérifier ligne par ligne ou le retoucher	Opens the created file in “Analyze a file” to check it line by line or edit it
+Ouvrir dans l'analyse	Open in the analysis
+Partir des réglages de l'imprimante	Start from the printer's settings
+Partir du fichier ouvert	Start from the open file
+Reprend les réglages du fichier ouvert dans « Analyser un fichier »	Takes the settings of the file open in “Analyze a file”
+Reprend les réglages lus sur l'imprimante (Zebra lue par le réseau)	Takes the settings read from the printer (Zebra read over the network)
+Régler noirceur, vitesse, support, réseau… sans connaître le langage : Scanalyse écrit le fichier.	Set darkness, speed, media, network… without knowing the language: Scanalyse writes the file.
+Réécrire un fichier pour une imprimante d'une autre marque (ex. ZPL Zebra vers TSPL TSC).	Rewrite a file for a printer of another brand (e.g. Zebra ZPL to TSC TSPL).
+Tout vider	Clear all
+Vérifier un fichier existant : chaque ligne expliquée, erreurs signalées, comparaison avec l'imprimante.	Check an existing file: each line explained, errors flagged, comparison with the printer.
+Rien à envoyer : choisis d'abord le langage d'arrivée pour obtenir le fichier converti.	Nothing to send: first choose the target language to get the converted file.
+Rien à envoyer : renseigne au moins un réglage valide dans le formulaire.	Nothing to send: fill in at least one valid setting in the form.

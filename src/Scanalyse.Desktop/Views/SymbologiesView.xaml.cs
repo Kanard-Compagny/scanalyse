@@ -35,6 +35,7 @@ public partial class SymbologiesView : UserControl
     public SymbologiesView()
     {
         InitializeComponent();
+        HintAligner.Attach(SearchBox, SearchPlaceholder);
         _all = Symbologies.All
             .OrderBy(s => s.Family)
             .ThenBy(s => s.Name, StringComparer.CurrentCulture)
