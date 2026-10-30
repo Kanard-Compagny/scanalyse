@@ -1,6 +1,11 @@
 # Scanalyse — Quoi de neuf
 
-## Version web (téléphone)
+## 0.12.2 — octobre 2026
+
+- **Créer un code, GS1** : sur une fenêtre étroite, chaque champ GS1 (champ, valeur, contrôle, Retirer) s'affiche proprement l'un sous l'autre.
+- **Conf imprimante** : Toshiba TPCL cité dans la présentation de l'onglet, avec les autres langages.
+
+### Version web pour téléphone (sans installation)
 
 - **Scanalyse sur téléphone, sans rien installer** : https://kanard-compagny.github.io/scanalyse/app/ — une vraie interface de téléphone, avec trois onglets en bas :
   - **Lire** : la caméra en plein écran avec un viseur ; dès qu'un code est lu, une fiche donne son type et son contenu (données GS1 détaillées), avec Copier, Ouvrir le lien, Recréer ce code et l'analyse détaillée complète (la même que dans le programme Windows). Lampe, et analyse d'une photo de la galerie.
@@ -8,10 +13,6 @@
   - **Historique** : les 50 dernières lectures, gardées sur le téléphone uniquement.
   - Retour en arrière par la flèche de la barre, la touche Retour d'Android ou, dans l'application installée, en glissant depuis le bord gauche de l'écran.
   - S'ajoute à l'écran d'accueil (Android et iPhone) et fonctionne hors connexion. Français ou anglais selon la langue du téléphone.
-
-## 0.12.2 — en préparation
-
-- **Créer un code, GS1** : sur une fenêtre étroite, chaque champ GS1 (champ, valeur, contrôle, Retirer) s'affiche proprement l'un sous l'autre.
 
 ## 0.12.1 — octobre 2026
 
