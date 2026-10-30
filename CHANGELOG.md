@@ -2,7 +2,11 @@
 
 ## Version web (téléphone)
 
-- **Scanalyse sur téléphone, sans rien installer** : https://kanard-compagny.github.io/scanalyse/app/ — analyser un code à la caméra ou sur une photo, créer un code et le montrer à l'écran. S'ajoute à l'écran d'accueil (Android et iPhone) et fonctionne hors connexion ; tout reste sur le téléphone. Français ou anglais selon la langue du téléphone (bouton pour changer).
+- **Scanalyse sur téléphone, sans rien installer** : https://kanard-compagny.github.io/scanalyse/app/ — une vraie interface de téléphone, avec trois onglets en bas :
+  - **Lire** : la caméra en plein écran avec un viseur ; dès qu'un code est lu, une fiche donne son type et son contenu (données GS1 détaillées), avec Copier, Ouvrir le lien, Recréer ce code et l'analyse détaillée complète (la même que dans le programme Windows). Lampe, et analyse d'une photo de la galerie.
+  - **Créer** : les codes courants en grandes tuiles (lien, Wi-Fi, texte, EAN-13, Code 128, GS1-128, Data Matrix, GS1 DataMatrix), un formulaire simple, la relecture de vérification, puis Afficher en grand (écran maintenu allumé, pour le faire scanner), Partager ou Enregistrer l'image. Tous les autres types et la personnalisation restent accessibles.
+  - **Historique** : les 50 dernières lectures, gardées sur le téléphone uniquement.
+  - S'ajoute à l'écran d'accueil (Android et iPhone) et fonctionne hors connexion. Français ou anglais selon la langue du téléphone.
 
 ## 0.12.1 — octobre 2026
 

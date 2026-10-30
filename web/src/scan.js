@@ -19,7 +19,7 @@ function setMode(m,save){
   if(save){try{localStorage.setItem("atelier-mode",m);}catch(e){}}
   try{history.replaceState(null,"",scan?"#analyser":"#creer");}catch(e){}
   // Démonstration (QR de l'atelier) seulement sur la page web : le programme Windows garde l'invite vide et ses boutons.
-  if(scan&&!src&&!DESKTOP) loadSample(true);
+  if(scan&&!src&&!DESKTOP&&!window.atelierNoSample) loadSample(true);
   if(DESKTOP){try{window.chrome.webview.postMessage(JSON.stringify({type:"mode",mode:scan?"scan":"create"}));}catch(e){}}
 }
 tabs.create.addEventListener("click",()=>setMode("create",true));
@@ -27,6 +27,8 @@ tabs.scan.addEventListener("click",()=>setMode("scan",true));
 window.atelierSetMode=setMode;
 window.atelierEngine=()=>engine();
 window.atelierParseGs1=t=>parseGS1Elements(t);
+window.atelierAiName=ai=>(AI[ai]&&AI[ai][0])||"";
+window.atelierFormatName=f=>FMT[f]||f;
 // Appelé par le programme Windows : image venant du presse-papiers ou de l'outil Capture d'écran de Windows
 // opts.record === false : image rouverte depuis l'historique ou code créé, à ne pas réenregistrer.
 window.atelierLoadImageData=function(dataUrl,label,opts){

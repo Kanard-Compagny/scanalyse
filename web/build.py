@@ -119,18 +119,17 @@ def english_entries(page):
 
 
 def app_tail(page):
-    """Version web : langue (celle du téléphone, ou choisie), lien vers le site."""
-    return inline_script("""
-(function(){
-const EN_TABLE=""" + english_entries(page) + """;
-let lang=null;try{lang=localStorage.getItem("scanalyse-lang");}catch(e){}
-if(!lang)lang=/^fr\\b/i.test(navigator.language||"fr")?"fr":"en";
-const btn=document.getElementById("appLang"),site=document.getElementById("appSite");
-if(lang==="en"&&window.atelierSetLanguage){window.atelierSetLanguage(EN_TABLE);site.href="../en/";btn.textContent="Français";btn.lang="fr";}
-if(matchMedia("(pointer:coarse)").matches){const cam=document.getElementById("scanCam"),file=document.querySelector('label[for="scanFile"]');
-  if(cam&&file){cam.classList.add("primary");file.classList.remove("primary");}}
-btn.addEventListener("click",()=>{try{localStorage.setItem("scanalyse-lang",lang==="en"?"fr":"en");}catch(e){}location.reload();});
-})();""")
+    """Version téléphone : traductions de l'Atelier, puis les écrans mobiles (web/mobile)."""
+    return inline_script("window.SCANALYSE_EN=" + english_entries(page) + ";") + "\n" + inline_script(read(ROOT, "mobile", "mobile.js"))
+
+
+def mobile_markup():
+    """Écrans du téléphone, avec le logo simplifié en ligne."""
+    logo = read(ROOT, "..", "docs", "logo-petit.svg")
+    logo = re.sub(r"<\?xml[^>]*\?>|<!DOCTYPE[^>]*>", "", logo).strip()
+    logo = logo.replace("<svg ", '<svg class="m-logo" aria-hidden="true" ', 1)
+    html = read(ROOT, "mobile", "mobile.html")
+    return rep(html, '<svg class="m-logo" aria-hidden="true" viewBox="0 0 1024 1024"><use href="#m-logo-art"/></svg>', logo)
 
 
 def main():
@@ -151,9 +150,9 @@ def main():
     offline += "\n" + zx_inline + "\n" + tail
 
     # 2. Version web autonome (PWA)
-    head = read(ROOT, "standalone", "head.html")
+    head = read(ROOT, "standalone", "head.html").replace("/*MOBILECSS*/", read(ROOT, "mobile", "mobile.css"))
     out = os.path.join(DIST, "standalone")
-    write(os.path.join(out, "index.html"), head + offline + "\n" + app_tail(offline) + "\n</body></html>\n")
+    write(os.path.join(out, "index.html"), head + mobile_markup() + offline + "\n" + app_tail(offline) + "\n</body></html>\n")
     for f in ("manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"):
         shutil.copyfile(os.path.join(ROOT, "standalone", f), os.path.join(out, f))
 
