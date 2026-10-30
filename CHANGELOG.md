@@ -1,5 +1,9 @@
 # Scanalyse — Quoi de neuf
 
+## 0.12.1 — en préparation
+
+- **Fenêtre de mise à jour** : les boutons restent visibles quelle que soit la taille de la fenêtre, les nouveautés défilent entre le titre et les boutons. Seules les nouveautés de la version proposée sont affichées, en liste à puces, sans l'empreinte ni la mise en forme brute.
+
 ## 0.12.0 — octobre 2026
 
 - **Nouveau logo** : un code-barres dans un viseur, aux couleurs du programme ; version simplifiée pour les petites tailles (barre des tâches, barres de titre, page de relais). **Écran de démarrage** avec le logo, qui reste affiché jusqu’à ce que la fenêtre et l’Atelier soient prêts (au moins 1,5 s, 12 s au plus).

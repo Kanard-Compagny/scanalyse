@@ -1069,6 +1069,39 @@ public partial class MainWindow : Window
 
     private async void UpdateButton_Click(object sender, RoutedEventArgs e) => await OfferUpdateAsync();
 
+    /// <summary>
+    /// Nouveautés de la version proposée, en texte simple : seulement sa section du journal des versions (pas l'empreinte
+    /// ni les versions précédentes), une puce par nouveauté, sans la mise en forme Markdown.
+    /// </summary>
+    private static string UpdateNotes(string markdown)
+    {
+        var lines = markdown.Replace("\r", string.Empty, StringComparison.Ordinal).Split('\n');
+        // Sans section « ## » (notes écrites à la main), tout le texte est repris.
+        var start = Array.FindIndex(lines, l => l.StartsWith("## ", StringComparison.Ordinal));
+
+        var items = new List<string>();
+        for (var i = start + 1; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (line.StartsWith("## ", StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            var text = line.Trim();
+            if (text.Length == 0 || text.StartsWith('#') || text.StartsWith("**SHA-256", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var sub = line.StartsWith("  ", StringComparison.Ordinal);
+            text = text.TrimStart('-', '*', ' ').Replace("**", string.Empty, StringComparison.Ordinal).Replace("`", string.Empty, StringComparison.Ordinal);
+            items.Add((sub ? "    – " : "• ") + text);
+        }
+
+        return string.Join(Environment.NewLine, items);
+    }
+
     /// <summary>Propose d'installer la version trouvée (nouveautés en résumé), puis remplace le programme et redémarre.</summary>
     private async Task OfferUpdateAsync()
     {
@@ -1077,10 +1110,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var notes = string.Join(Environment.NewLine, u.Notes.Replace("\r", string.Empty, StringComparison.Ordinal).Split('\n')
-            .Select(l => l.Trim().TrimStart('#', '-', '*', ' ').Replace("**", string.Empty, StringComparison.Ordinal))
-            .Where(l => l.Length > 0)
-            .Take(8));
+        var notes = UpdateNotes(u.Notes);
         var ok = await Confirm.AskAsync(
             string.Format(CultureInfo.InvariantCulture, Localization.T("Installer Scanalyse {0} ?"), u.Version),
             (notes.Length > 0 ? notes + Environment.NewLine + Environment.NewLine : string.Empty)

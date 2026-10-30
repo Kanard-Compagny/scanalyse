@@ -4,7 +4,7 @@
              Visibility="Collapsed" KeyboardNavigation.TabNavigation="Cycle" PreviewKeyDown="Root_PreviewKeyDown">
   <!-- Confirmation des actions critiques, aux couleurs du programme (remplace les boîtes de dialogue de Windows). -->
   <Grid Background="#99000000" MouseLeftButtonDown="Scrim_MouseDown">
-    <Grid x:Name="Card" Width="460" HorizontalAlignment="Center" VerticalAlignment="Center" MouseLeftButtonDown="Card_MouseDown">
+    <Grid x:Name="Card" Width="460" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" MouseLeftButtonDown="Card_MouseDown">
       <!-- Ombre portée sur un fond à part : un effet posé sur le contenu rendrait le texte flou. -->
       <Border Background="{DynamicResource Surface}" CornerRadius="14" IsHitTestVisible="False">
         <Border.Effect>
@@ -12,24 +12,27 @@
       </Border.Effect>
       </Border>
       <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="14" Padding="24,22">
-      <StackPanel>
-        <StackPanel Orientation="Horizontal">
+      <!-- Titre en haut, boutons en bas toujours visibles ; un long message (nouveautés d'une version) défile entre les deux. -->
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
           <Border x:Name="IconBox" Width="40" Height="40" CornerRadius="20" Background="{DynamicResource BadBg}">
             <Path x:Name="IconPath" Data="M12 7v6M12 16.5v.5M10.3 3.9L2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" Width="24" Height="24"
                   Stroke="{DynamicResource BadFg}" StrokeThickness="1.9" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0" />
           </Border>
-          <TextBlock x:Name="TitleText" Style="{StaticResource CardTitle}" FontSize="18" VerticalAlignment="Center" Margin="14,0,0,0" MaxWidth="360" />
+          <TextBlock x:Name="TitleText" Style="{StaticResource CardTitle}" FontSize="18" VerticalAlignment="Center" Margin="14,0,0,0" MaxWidth="360" TextWrapping="Wrap" />
         </StackPanel>
-        <TextBlock x:Name="MessageText" TextWrapping="Wrap" Margin="0,16,0,0" Foreground="{DynamicResource Ink}" FontSize="14" LineHeight="20" />
-        <Border x:Name="NoteBox" Background="{DynamicResource BadBg}" CornerRadius="8" Padding="12,9" Margin="0,14,0,0">
-          <TextBlock x:Name="NoteText" TextWrapping="Wrap" Foreground="{DynamicResource BadFg}" FontSize="13" FontWeight="SemiBold" />
-        </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
           <Button x:Name="CancelButton" Style="{StaticResource BtnSecondary}" Content="Annuler" Click="Cancel_Click" Margin="0,0,10,0" MinWidth="96" />
           <Button x:Name="ConfirmButton" Style="{StaticResource BtnDanger}" Click="Confirm_Click" MinWidth="120" />
         </StackPanel>
-      </StackPanel>
+        <Border x:Name="NoteBox" DockPanel.Dock="Bottom" Background="{DynamicResource BadBg}" CornerRadius="8" Padding="12,9" Margin="0,14,0,0">
+          <TextBlock x:Name="NoteText" TextWrapping="Wrap" Foreground="{DynamicResource BadFg}" FontSize="13" FontWeight="SemiBold" />
+        </Border>
+        <ScrollViewer Margin="0,16,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+          <TextBlock x:Name="MessageText" TextWrapping="Wrap" Foreground="{DynamicResource Ink}" FontSize="14" LineHeight="20" Margin="0,0,6,0" />
+        </ScrollViewer>
+      </DockPanel>
     </Border>
     </Grid>
   </Grid>
