@@ -538,9 +538,16 @@ internal sealed partial class RelayServer : IAsyncDisposable
             return "Page de relais absente."u8.ToArray();
         }
 
-        using var ms = new MemoryStream();
-        s.CopyTo(ms);
-        return ms.ToArray();
+        using var reader = new StreamReader(s, Encoding.UTF8);
+        var html = reader.ReadToEnd();
+
+        // Page dans la langue du programme : la page traduit elle-même ses textes quand elle est servie en lang="en".
+        if (Localization.IsEnglish)
+        {
+            html = html.Replace("<html lang=\"fr\">", "<html lang=\"en\">", StringComparison.Ordinal);
+        }
+
+        return Encoding.UTF8.GetBytes(html);
     });
 
     // ------------------------------------------------------------------ TCP brut (sortie IP de DataWedge…)

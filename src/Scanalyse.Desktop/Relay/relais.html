@@ -136,13 +136,37 @@ body.stopped .stage,body.stopped .stop{opacity:.35;pointer-events:none}
 <script>
 (function(){
 const $=id=>document.getElementById(id);
+/* ---------- Langue : celle choisie dans Scanalyse (le PC sert la page en lang="en" pour l'anglais) ---------- */
+const EN=document.documentElement.lang==="en";
+const DICT={
+"Scanalyse · Relais":"Scanalyse · Relay","connexion…":"connecting…","Lire avec : le lecteur du terminal ou la caméra":"Read with: the terminal's scanner or the camera",
+"Lecteur":"Scanner","Caméra":"Camera","Liaison arrêtée : les lectures ne sont plus envoyées au PC.":"Link stopped: reads are no longer sent to the PC.",
+"Reprendre la liaison":"Resume the link","Prêt à lire":"Ready to read","Appuie sur la gâchette du terminal : la lecture part au banc d'essai du PC.":"Press the terminal's trigger: the read goes to the PC's scanner test bench.",
+"Lecture du terminal":"Terminal read","La caméra lit le code et l'envoie au PC, comme une douchette.":"The camera reads the code and sends it to the PC, like a scanner.",
+"Ouvrir la caméra":"Open the camera","Place le code dans le cadre":"Put the code in the frame","Lampe":"Light","Arrêter":"Stop",
+"Dernière lecture":"Last read","Aucune lecture pour l'instant.":"No read yet.","Historique":"History","Avertissement de sécurité à chaque ouverture ?":"Security warning every time you open the page?",
+"Installe une fois le certificat de ce PC :":"Install this PC's certificate once:","télécharger Scanalyse-certificat.crt":"download Scanalyse-certificat.crt",
+", puis Paramètres → Sécurité → Chiffrement et identifiants → Installer un certificat → Certificat CA. Sur iPhone : Réglages → Profil téléchargé → Installer, puis Réglages → Général → Informations → Réglages des certificats → activer Scanalyse.":
+", then Settings → Security → Encryption & credentials → Install a certificate → CA certificate (names vary by model). On iPhone: Settings → Profile Downloaded → Install, then Settings → General → About → Certificate Trust Settings → turn on Scanalyse.",
+"Arrêter la liaison":"Stop the link","arrêtée par le PC":"stopped by the PC","relié au PC":"connected to the PC","PC injoignable":"PC unreachable","liaison arrêtée":"link stopped",
+"Touche ici pour lire":"Tap here to read","Le champ de lecture n'est plus actif : touche cette zone, puis appuie sur la gâchette.":"The read field is no longer active: tap this area, then press the trigger.",
+"caractères":"characters","envoi…":"sending…","reçu par le PC":"received by the PC","refusé":"refused","lecteur":"scanner","touches":"keys","caméra":"camera",
+"Aucun décodeur disponible sur ce terminal.":"No decoder available on this terminal.",
+"La caméra demande la page sécurisée : ouverture… Si un avertissement s'affiche, touche « Paramètres avancés » puis « Continuer » (une seule fois).":"The camera needs the secure page: opening… If a warning appears, tap “Advanced” then “Proceed” (only once).",
+"Démarrage de la caméra…":"Starting the camera…","Accès à la caméra refusé : autorise-le dans les réglages du navigateur pour cette page, puis réessaie.":"Camera access denied: allow it in the browser settings for this page, then try again.",
+"Caméra indisponible : ":"Camera unavailable: "};
+const L=t=>EN&&DICT[t]||t;
+// Textes de la page (balises et libellés d'accessibilité) traduits une fois au chargement.
+if(EN){document.title=L(document.title);
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);for(let n;(n=w.nextNode());){const k=n.nodeValue.trim();if(k&&DICT[k])n.nodeValue=n.nodeValue.replace(k,DICT[k]);}
+  document.querySelectorAll("[aria-label]").forEach(e=>e.setAttribute("aria-label",L(e.getAttribute("aria-label"))));}
 const box=$("in"),zone=$("zone"),log=$("log"),st=$("state"),stText=$("stateText");
 let text="",keys=[],timer=0,count=0,stopped=false,mode="scan";
 function state(ok,msg){stText.textContent=msg;st.className="state "+(ok?"ok":"bad");}
 function stop(msg){stopped=true;document.body.classList.add("stopped");box.disabled=true;camStop();state(false,msg);}
-function ping(){if(stopped)return;fetch("/ping",{cache:"no-store"}).then(r=>{if(r.status===410){stop("arrêtée par le PC");return;}state(r.ok,r.ok?"relié au PC":"PC injoignable");}).catch(()=>state(false,"PC injoignable"));}
+function ping(){if(stopped)return;fetch("/ping",{cache:"no-store"}).then(r=>{if(r.status===410){stop(L("arrêtée par le PC"));return;}state(r.ok,L(r.ok?"relié au PC":"PC injoignable"));}).catch(()=>state(false,L("PC injoignable")));}
 ping();setInterval(ping,2500);
-$("stop").addEventListener("click",()=>{stop("liaison arrêtée");fetch("/bye",{method:"POST"}).catch(()=>{});});
+$("stop").addEventListener("click",()=>{stop(L("liaison arrêtée"));fetch("/bye",{method:"POST"}).catch(()=>{});});
 $("again").addEventListener("click",()=>location.reload());
 
 /* ---------- Mode : lecteur du terminal ou caméra (mémorisé) ---------- */
@@ -162,8 +186,8 @@ const wantCam=/[?&]camera=1/.test(location.search);
 
 // Garder le champ actif en mode lecteur : la gâchette tape là où se trouve le curseur.
 function ready(){const on=mode==="scan"&&!stopped&&document.activeElement===box;zone.classList.toggle("ready",on);
-  $("zoneTitle").textContent=on?"Prêt à lire":"Touche ici pour lire";
-  $("zoneText").textContent=on?"Appuie sur la gâchette du terminal : la lecture part au banc d'essai du PC.":"Le champ de lecture n'est plus actif : touche cette zone, puis appuie sur la gâchette.";}
+  $("zoneTitle").textContent=L(on?"Prêt à lire":"Touche ici pour lire");
+  $("zoneText").textContent=L(on?"Appuie sur la gâchette du terminal : la lecture part au banc d'essai du PC.":"Le champ de lecture n'est plus actif : touche cette zone, puis appuie sur la gâchette.");}
 box.addEventListener("focus",ready);box.addEventListener("blur",ready);
 setInterval(()=>{if(mode==="scan"&&!stopped&&document.activeElement!==box)box.focus();ready();},800);
 
@@ -172,26 +196,26 @@ function vis(t){return t.replace(/[\x00-\x1f\x7f]/g,c=>"<"+(c==="\x7f"?"DEL":["N
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function flash(ok){const r=$("result");r.classList.remove("flash","flash-bad");void r.offsetWidth;r.classList.add(ok?"flash":"flash-bad");setTimeout(()=>r.classList.remove("flash","flash-bad"),900);}
 function send(payload,detail){
-  const time=new Date().toLocaleTimeString("fr-FR");
+  const time=new Date().toLocaleTimeString(EN?"en-GB":"fr-FR");
   const shown=vis(payload.text);
   $("lastValue").className="value";$("lastValue").textContent=shown;
-  $("lastMeta").innerHTML=`<span>${time}</span><span>${payload.text.length} caractères</span><span>${esc(detail)}</span><span class="pill" id="lastPill">envoi…</span>`;
+  $("lastMeta").innerHTML=`<span>${time}</span><span>${payload.text.length} ${L("caractères")}</span><span>${esc(detail)}</span><span class="pill" id="lastPill">${L("envoi…")}</span>`;
   const div=document.createElement("div");div.className="item";
-  div.innerHTML=`<code>${esc(shown)}</code><small>${time} · ${esc(detail)} · <span>envoi…</span></small>`;
+  div.innerHTML=`<code>${esc(shown)}</code><small>${time} · ${esc(detail)} · <span>${L("envoi…")}</span></small>`;
   if(!count++)log.innerHTML="";log.prepend(div);while(log.children.length>20)log.lastChild.remove();
   $("count").textContent="("+count+")";
   const s=div.querySelector("span"),pill=$("lastPill");
   const done=(ok,msg)=>{s.textContent=msg;s.className=ok?"sent":"err";if(pill){pill.textContent=(ok?"✓ ":"✗ ")+msg;pill.className="pill "+(ok?"ok":"bad");}flash(ok);
     if(navigator.vibrate)navigator.vibrate(ok?40:[80,60,80]);};
   fetch("/scan",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
-    .then(r=>{if(r.status===410){stop("arrêtée par le PC");}done(r.ok,r.ok?"reçu par le PC":"refusé");})
-    .catch(()=>done(false,"PC injoignable"));
+    .then(r=>{if(r.status===410){stop(L("arrêtée par le PC"));}done(r.ok,L(r.ok?"reçu par le PC":"refusé"));})
+    .catch(()=>done(false,L("PC injoignable")));
 }
 function flush(){
   clearTimeout(timer);timer=0;
   if(stopped||!text){text="";keys=[];box.value="";return;}
   const payload={text,keys,userAgent:navigator.userAgent};text="";keys=[];box.value="";
-  send(payload,"lecteur · "+payload.keys.length+" touches");
+  send(payload,L("lecteur")+" · "+payload.keys.length+" "+L("touches"));
 }
 // Les codes longs arrivent parfois en plusieurs morceaux : on attend 300 ms de silence.
 function arm(){clearTimeout(timer);timer=setTimeout(flush,300);}
@@ -230,19 +254,19 @@ async function getDecoder(){
     decoder=async()=>{const r=await det.detect(vid);return r&&r[0]?{text:r[0].rawValue,format:r[0].format}:null;};
     return decoder;
   }
-  throw new Error("Aucun décodeur disponible sur ce terminal.");
+  throw new Error(L("Aucun décodeur disponible sur ce terminal."));
 }
 function showLive(on){$("cam").classList.toggle("idle",!on);$("camOff").hidden=on;vid.hidden=!on;aim.hidden=!on;$("camTip").hidden=!on;$("camTools").hidden=!on;}
 async function camStart(){
   if(stopped)return;
   if(!window.isSecureContext){
     // Le navigateur n'ouvre la caméra que sur une page sécurisée (HTTPS).
-    camState.textContent="La caméra demande la page sécurisée : ouverture… Si un avertissement s'affiche, touche « Paramètres avancés » puis « Continuer » (une seule fois).";
+    camState.textContent=L("La caméra demande la page sécurisée : ouverture… Si un avertissement s'affiche, touche « Paramètres avancés » puis « Continuer » (une seule fois).");
     setTimeout(()=>{location.href="https://"+location.hostname+":8767/relais?camera=1";},1200);
     return;
   }
   try{
-    camState.textContent="Démarrage de la caméra…";
+    camState.textContent=L("Démarrage de la caméra…");
     const d=await getDecoder();
     camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:960}},audio:false});
     vid.srcObject=camStream;await vid.play();
@@ -252,7 +276,7 @@ async function camStart(){
     $("torch").hidden=!caps.torch;torchOn=false;$("torch").classList.remove("on");
     const tick=async()=>{if(!camStream)return;try{const r=await d();if(r)found(r);}catch(e){}camTimer=setTimeout(tick,160);};
     tick();
-  }catch(e){camStop();camState.textContent=(e&&e.name==="NotAllowedError")?"Accès à la caméra refusé : autorise-le dans les réglages du navigateur pour cette page, puis réessaie.":"Caméra indisponible : "+(e&&e.message||e);}
+  }catch(e){camStop();camState.textContent=(e&&e.name==="NotAllowedError")?L("Accès à la caméra refusé : autorise-le dans les réglages du navigateur pour cette page, puis réessaie."):L("Caméra indisponible : ")+(e&&e.message||e);}
 }
 function camStop(){clearTimeout(camTimer);if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}showLive(false);}
 function found(r){
@@ -260,7 +284,7 @@ function found(r){
   const now=Date.now();const same=r.text===lastText&&now-lastAt<1500;lastText=r.text;lastAt=now;if(stopped||same)return;
   aim.classList.add("hit");setTimeout(()=>aim.classList.remove("hit"),400);
   const name=FORMATS[r.format]||r.format||"";
-  send({text:r.text,keys:[],camera:true,format:name,userAgent:navigator.userAgent},"caméra"+(name?" · "+name:""));
+  send({text:r.text,keys:[],camera:true,format:name,userAgent:navigator.userAgent},L("caméra")+(name?" · "+name:""));
 }
 $("camStart").addEventListener("click",camStart);
 $("camStop").addEventListener("click",camStop);
