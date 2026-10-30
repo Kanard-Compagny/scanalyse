@@ -123,6 +123,9 @@ function saveInput(){
   if(t.input==="text")values[current]=$("stdTextInput").value;
   if(t.input==="digits")values[current]=$("stdDigitsInput").value;
 }
+/* Version téléphone : la même liste de types, présentée par catégories */
+window.atelierCreateTypes=()=>TYPES.map(t=>({id:t.id,cat:t.cat,label:t.label,usage:t.info.replace(/<b>[\s\S]*?<\/b>\s*/,"").replace(/<[^>]+>/g,"")}));
+window.atelierCreateCurrent=()=>current;
 window.atelierSetCreateType=function(id){if(window.atelierSetMode)window.atelierSetMode("create",false);selectType(id);};
 
 /* --- Assistant GS1 --- */

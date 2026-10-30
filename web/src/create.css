@@ -31,6 +31,6 @@
 .gs1-row .ko{color:var(--bad)}
 .gs1-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
 .gs1-actions .btn{height:40px}
-@media (max-width:560px){.gs1-row{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.gs1-row{grid-template-columns:minmax(0,1fr)}.gs1-msg{grid-column:1/-1;margin-top:-2px;order:3}.gs1-row .btn{order:4;justify-self:start}}
 input[type=date]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 11px;width:100%;min-width:0}
 input[type=date]:focus-visible{outline:2px solid var(--focus);outline-offset:2px}

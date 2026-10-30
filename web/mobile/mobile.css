@@ -1,33 +1,43 @@
 /* ===== Scanalyse sur téléphone ===== */
-:root{--m-bar:#0F3D2E;--m-bar-ink:#fff;--m-orange:#F07F13;--m-tabs-h:64px;--m-bar-h:56px}
-html,body{height:100%}
-body.m-app{margin:0;padding:0!important;background:var(--bg);color:var(--ink);font-family:var(--f-body,-apple-system,"Segoe UI",Roboto,system-ui,sans-serif);
-  -webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
-/* L'Atelier sert de moteur ; il n'apparaît que dans l'analyse détaillée et le créateur complet */
-body.m-app>.wrap{display:none}
-body.m-app.m-show-atelier>.wrap{display:grid;padding:calc(var(--m-bar-h) + env(safe-area-inset-top,0px) + 16px) 16px calc(var(--m-tabs-h) + 24px + env(safe-area-inset-bottom,0px))}
-body.m-show-atelier .m-screens{display:none}
-/* Analyse détaillée : l'image et le détail de l'Atelier ; sa barre d'import est remplacée par celle du téléphone */
-body.m-show-atelier .scan-grid>.card>.src-actions,body.m-show-atelier #pasteHint,body.m-show-atelier #camBar{display:none!important}
-body.m-app .wrap header{display:none}
+:root{--m-bar:#0F3D2E;--m-bar-ink:#fff;--m-orange:#F07F13;--m-tabs-h:60px;--m-bar-h:54px}
+/* Mise en page en colonne sur toute la hauteur visible : barre, écran, onglets. Rien n'est « fixé » à la fenêtre,
+   ce qui évite les décalages de l'application installée sur iPhone (barre d'état, zone du geste d'accueil). */
+html{background:var(--m-bar);height:100%}
+body.m-app{margin:0;padding:0!important;height:100%;overflow:hidden;background:var(--panel);color:var(--ink);
+  font-family:var(--f-body,-apple-system,"Segoe UI",Roboto,system-ui,sans-serif);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+.m-app-root{display:flex;flex-direction:column;height:100vh;height:100dvh}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--m-orange);outline-offset:2px}
 
-/* Barre du haut */
-.m-bar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:10px;background:var(--m-bar);color:var(--m-bar-ink);
-  height:var(--m-bar-h);padding:env(safe-area-inset-top,0px) max(14px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px));box-sizing:content-box}
+/* Barre du haut (sous la barre d'état du téléphone) */
+.m-bar{flex:none;display:flex;align-items:center;gap:10px;background:var(--m-bar);color:var(--m-bar-ink);
+  min-height:var(--m-bar-h);padding:env(safe-area-inset-top,0px) max(12px,env(safe-area-inset-right,0px)) 0 max(14px,env(safe-area-inset-left,0px))}
 .m-logo{width:30px;height:30px;flex:none}
-.m-bar b{font-size:19px;font-weight:700;letter-spacing:-.01em}
-.m-bar nav{margin-left:auto;display:flex;gap:6px}
-.m-bar nav button,.m-bar nav a,.m-back{font-size:14px;font-weight:600;color:#D6E6DE;background:rgba(255,255,255,.1);border:0;border-radius:999px;padding:7px 12px;text-decoration:none}
-.m-back{margin-left:4px}
+.m-bar b{font-size:19px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.m-bar nav{margin-left:auto;display:flex;gap:6px;flex:none}
+.m-bar nav button,.m-bar nav a{font-size:14px;font-weight:600;color:#D6E6DE;background:rgba(255,255,255,.1);border:0;border-radius:999px;padding:7px 12px;text-decoration:none}
+.m-back{flex:none;display:grid;place-items:center;width:38px;height:38px;margin-left:-6px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff}
+.m-back svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.m-back:not([hidden])+.m-logo{display:none}
 
 /* Écrans */
-.m-screens{position:fixed;inset:calc(var(--m-bar-h) + env(safe-area-inset-top,0px)) 0 calc(var(--m-tabs-h) + env(safe-area-inset-bottom,0px)) 0}
+.m-screens{position:relative;flex:1;min-height:0;background:var(--bg);overflow:hidden}
 .m-screen[hidden]{display:none!important}
-.m-page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px 32px;box-sizing:border-box}
+.m-page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:20px 16px 32px;box-sizing:border-box}
 .m-page h1{font-size:24px;line-height:1.15;margin:0 0 16px;font-weight:700;letter-spacing:-.01em}
 .m-muted{color:var(--muted);font-size:14px;margin:0 0 12px}
+.m-screens.m-swiping .m-screen:not([hidden]){transition:none}
+.m-screen.m-back-anim{transition:transform .18s ease-out}
+
+/* L'Atelier dans le téléphone : analyse détaillée ou éditeur ; son en-tête et ses imports de PC sont masqués */
+body.m-app .wrap{display:none}
+.m-atelier .wrap{display:grid!important;max-width:none;gap:16px}
+.m-atelier .wrap header,.m-atelier .typepick,.m-atelier .scan-grid>.card>.src-actions,.m-atelier #pasteHint,.m-atelier #camBar{display:none!important}
+.m-atelier .preview{position:static}
+/* iPhone : pas de zoom automatique en touchant un champ (texte d'au moins 16 px) */
+.m-atelier input,.m-atelier select,.m-atelier textarea{font-size:16px!important}
+.m-quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
+.m-quick .m-primary{grid-column:1/-1}
 
 /* Scanner plein écran */
 .m-scan{position:absolute;inset:0;background:#000;overflow:hidden}
@@ -75,21 +85,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .m-ai dd{margin:0}.m-ai dd small{display:block;color:var(--muted);font-size:13px}
 
 /* Créer */
-.m-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.m-tile{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:104px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer}
-.m-tile svg{width:30px;height:30px;fill:none;stroke:var(--brand-text,#145C43);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.m-tile b{font-size:16px}.m-tile small{color:var(--muted);font-size:13px;line-height:1.3}
-.m-preview{display:grid;place-items:center;background:#fff;border-radius:18px;border:1px solid var(--line);padding:22px;min-height:180px}
-.m-preview img{max-width:100%;max-height:46vh;image-rendering:pixelated}
-.m-check{margin:10px 0 0;font-size:14px;font-weight:600}
-.m-check.ok{color:var(--ok,#13633F)}.m-check.bad{color:var(--bad,#A3261C)}
-.m-form{display:grid;gap:14px;margin:22px 0 0}
-.m-form label{display:grid;gap:6px;font-weight:600;font-size:14px}
-.m-form label small{font-weight:400;color:var(--muted)}
-.m-form input,.m-form textarea,.m-form select{width:100%;box-sizing:border-box;min-height:48px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2,var(--panel));font-size:17px}
-.m-form textarea{min-height:110px;resize:vertical}
-.m-form .m-row{display:flex;align-items:center;gap:10px;font-weight:500}
-.m-form .m-row input{width:22px;min-height:22px}
+.m-cats{display:grid;gap:10px}
+.m-cat{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer}
+.m-cat svg.ic{width:32px;height:32px;fill:none;stroke:var(--brand-text,#145C43);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.m-cat b{display:block;font-size:17px}.m-cat small{display:block;color:var(--muted);font-size:13px;line-height:1.35;margin-top:2px}
+.m-cat svg.go,.m-type svg.go{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.m-types{display:grid;gap:8px}
+.m-type{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer}
+.m-type b{display:block;font-size:16px}.m-type small{display:block;color:var(--muted);font-size:13px;line-height:1.35;margin-top:2px}
 
 /* Historique */
 .m-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -108,7 +111,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .m-toast.show{opacity:1}
 
 /* Onglets du bas */
-.m-tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:var(--panel);border-top:1px solid var(--line);
+.m-tabs{flex:none;display:flex;background:var(--panel);border-top:1px solid var(--line);
   height:var(--m-tabs-h);padding:0 max(6px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(6px,env(safe-area-inset-left,0px));box-sizing:content-box}
 .m-tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;color:var(--muted);font-size:12px;font-weight:600}
 .m-tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -116,4 +119,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .m-tabs button[aria-current="page"] svg{stroke:var(--m-orange)}
 
 /* Grand écran (tablette, ordinateur) : l'application reste lisible au centre */
-@media (min-width:760px){.m-page{max-width:640px;margin:0 auto;left:0;right:0}.m-sheet-in{max-width:560px;margin:0 auto;border-radius:22px}.m-sheet{align-items:center}}
+@media (min-width:760px){.m-page:not(.m-atelier){padding-left:calc(50% - 320px);padding-right:calc(50% - 320px)}.m-sheet-in{max-width:560px;margin:0 auto;border-radius:22px}.m-sheet{align-items:center}}
+/* Éditeur GS1 : un bloc par champ */
+.m-atelier .gs1-row{padding:0 0 14px;border-bottom:1px solid var(--line)}
+.m-atelier .gs1-actions{grid-template-columns:minmax(0,1fr)}
+.m-atelier .gs1-actions .btn{justify-self:start}

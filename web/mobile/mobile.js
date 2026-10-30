@@ -23,39 +23,59 @@ function toast(t){const e=$("mToast");e.textContent=t;e.classList.add("show");cl
 const fmtName=f=>{const n=window.atelierFormatName?window.atelierFormatName(f):f;return window.atelierT?window.atelierT(n):n;};
 const aiName=ai=>{const n=window.atelierAiName?window.atelierAiName(ai):"";return window.atelierT?window.atelierT(n):n;};
 
-/* ---------- Navigation ---------- */
-const SCREENS=["mScan","mCreate","mEdit","mHistory"];
-let screen="mScan",back=null,atelierView=null;
-function show(id,from){
-  leaveAtelier();
-  screen=id;back=from||null;
-  SCREENS.forEach(s=>$(s).hidden=s!==id);
-  const tab=id==="mEdit"?"mCreate":id;
+/* ---------- Navigation : onglets, sous-écrans, retour (bouton, geste, touche Retour d'Android) ---------- */
+const SCREENS=["mScan","mCreate","mTypes","mHistory","mAtelier"];
+const TAB_OF={mScan:"mScan",mCreate:"mCreate",mTypes:"mCreate",mHistory:"mHistory"};
+const wrap=document.querySelector(".wrap");if(wrap)$("mAtelier").appendChild(wrap);
+let stack=[{s:"mScan"}],screen="mScan";
+function render(){
+  const top=stack[stack.length-1];screen=top.s;
+  SCREENS.forEach(id=>$(id).hidden=id!==screen);
+  const tab=top.tab||TAB_OF[screen]||"mScan";
   document.querySelectorAll(".m-tabs button").forEach(b=>{if(b.dataset.go===tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
-  $("mBack").hidden=!back;
-  if(id==="mScan")camStart();else camStop();
-  if(id==="mHistory")renderHistory();
+  $("mBack").hidden=stack.length<2;
+  $("mTitle").textContent=top.title||"Scanalyse";
+  if(screen==="mScan"&&$("mSheet").hidden)camStart();else camStop();
+  if(screen==="mHistory")renderHistory();
+  if(screen==="mTypes")renderTypes(top.cat);
+  if(screen==="mAtelier"&&window.atelierSetMode){const m=top.mode==="details"?"scan":"create";if(!$((m==="scan")?"view-scan":"view-create")||$((m==="scan")?"view-scan":"view-create").hidden)atelierSetMode(m,false);}
 }
-/* Analyse détaillée ou créateur complet : l'Atelier lui-même */
-function showAtelier(mode,from){
-  camStop();closeSheet();
-  atelierView=mode;back=from;
-  document.body.classList.add("m-show-atelier");
-  if(mode==="create"&&window.atelierSetMode)window.atelierSetMode("create",false);
-  $("mBack").hidden=false;window.scrollTo(0,0);
+function go(s,extra){stack.push({s,...extra});try{history.pushState({depth:stack.length},"");}catch(e){}render();const el=$(s);if(el.classList.contains("m-page")&&!(extra&&extra.keepScroll))el.scrollTop=0;}
+function tab(s){closeSheet(true);stack=[{s}];try{history.replaceState({depth:1},"");}catch(e){}render();$(s).scrollTop=0;}
+function back(){if(!$("mSheet").hidden||stack.length>1)history.back();}
+window.addEventListener("popstate",()=>{
+  if(!$("mSheet").hidden){closeSheet(true);resume(true);return;}
+  if(stack.length>1){stack.pop();render();}
+});
+try{history.replaceState({depth:1},"");}catch(e){}
+$("mBack").addEventListener("click",back);
+document.querySelectorAll(".m-tabs button").forEach(b=>b.addEventListener("click",()=>tab(b.dataset.go)));
+
+/* Glisser du bord gauche vers la droite : retour, comme dans les applications (application installée seulement :
+   dans le navigateur, le geste appartient déjà au navigateur) */
+const STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+if(STANDALONE){
+  let sx=0,sy=0,dx=0,track=false,el=null;
+  document.addEventListener("touchstart",e=>{const t=e.touches[0];track=t.clientX<28&&(stack.length>1||!$("mSheet").hidden);if(!track)return;
+    sx=t.clientX;sy=t.clientY;dx=0;el=$("mSheet").hidden?$(screen):$("mSheet").firstElementChild;},{passive:true});
+  document.addEventListener("touchmove",e=>{if(!track)return;const t=e.touches[0];dx=t.clientX-sx;
+    if(Math.abs(t.clientY-sy)>60&&dx<40){track=false;el.style.transform="";return;}
+    if(dx>0)el.style.transform=`translateX(${dx}px)`;},{passive:true});
+  document.addEventListener("touchend",()=>{if(!track)return;track=false;const done=dx>window.innerWidth*0.28;
+    el.classList.add("m-back-anim");el.style.transform=done?"translateX(100%)":"";
+    setTimeout(()=>{el.classList.remove("m-back-anim");el.style.transform="";if(done)back();},180);});
 }
-function leaveAtelier(){if(!atelierView)return;atelierView=null;document.body.classList.remove("m-show-atelier");}
-$("mBack").addEventListener("click",()=>{const to=back||"mScan";show(to==="mEdit"?"mCreate":to);});
-document.querySelectorAll(".m-tabs button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
-// Un bouton de l'analyse détaillée (« Recréer ce code ») passe l'Atelier en création : on suit.
+/* « Recréer ce code » dans l'analyse détaillée : l'Atelier passe en création, l'écran suit. */
 const atelierSetMode=window.atelierSetMode;
-if(atelierSetMode)window.atelierSetMode=function(m,save){atelierSetMode(m,save);if(atelierView==="details"&&m==="create")atelierView="create";};
+if(atelierSetMode)window.atelierSetMode=function(m,save){atelierSetMode(m,save);
+  const top=stack[stack.length-1];if(top.s==="mAtelier"&&top.mode==="details"&&m==="create"){go("mAtelier",{mode:"create",tab:"mCreate",title:T("Créer un code","Create a code")});}};
 
 /* ---------- Lecture à la caméra ---------- */
 const vid=$("mVideo"),finder=$("mFinder");
 let stream=null,loop=0,canvas=null,frozen=false,torchOn=false,lastText="",lastAt=0,shot=null;
 async function camStart(){
   if(stream||frozen||screen!=="mScan"||document.hidden)return;
+  lastAt=Date.now();/* le dernier code lu, encore devant l'objectif, ne rouvre pas sa fiche */
   if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){camOff(T("Ce navigateur ne donne pas accès à la caméra. Analyse une photo à la place.","This browser gives no camera access. Analyze a photo instead."),false);return;}
   try{
     const engine=window.atelierEngine?window.atelierEngine():Promise.resolve();
@@ -78,7 +98,7 @@ function camStop(){clearTimeout(loop);if(stream){stream.getTracks().forEach(t=>t
 $("mCamStart").addEventListener("click",()=>{frozen=false;camStart();});
 $("mTorch").addEventListener("click",async()=>{const t=stream&&stream.getVideoTracks()[0];if(!t)return;torchOn=!torchOn;
   try{await t.applyConstraints({advanced:[{torch:torchOn}]});$("mTorch").classList.toggle("on",torchOn);}catch(e){torchOn=false;}});
-document.addEventListener("visibilitychange",()=>{if(document.hidden)camStop();else if(screen==="mScan"&&!atelierView)camStart();});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)camStop();else if(screen==="mScan"&&$("mSheet").hidden)camStart();});
 
 async function tick(){
   if(!stream||frozen)return;
@@ -111,7 +131,7 @@ function found(b){
 $("mPhoto").addEventListener("change",e=>{
   const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
   const url=URL.createObjectURL(f);
-  if(window.atelierLoadImageData){window.atelierLoadImageData(url,T("Photo","Photo"));showAtelier("details","mScan");}
+  if(window.atelierLoadImageData){window.atelierLoadImageData(url,T("Photo","Photo"));go("mAtelier",{mode:"details",tab:"mScan",title:T("Analyse détaillée","Detailed analysis")});}
 });
 
 /* ---------- Fiche du résultat ---------- */
@@ -127,27 +147,29 @@ function openSheet(item,live){
   $("mOpen").hidden=!isUrl;if(isUrl)$("mOpen").href=item.text.trim();
   $("mDetailsBtn").hidden=!(live&&shot);
   $("mAgain").textContent=live?T("Lire un autre code","Scan another code"):T("Fermer","Close");
-  $("mSheet").hidden=false;
+  $("mSheet").hidden=false;try{history.pushState({sheet:true},"");}catch(e){}
 }
-function closeSheet(){$("mSheet").hidden=true;}
-function resume(){closeSheet();frozen=false;lastAt=Date.now();/* le même code, encore devant la caméra, ne repart pas tout de suite */if(screen==="mScan"){if(stream){vid.play().catch(()=>{});tick();}else camStart();}}
-$("mAgain").addEventListener("click",resume);
+/* silent : fermeture déjà due à un retour (geste, touche) ou à un changement d'onglet */
+function closeSheet(silent){if($("mSheet").hidden)return;$("mSheet").hidden=true;if(!silent){try{history.back();}catch(e){}}}
+function resume(fromHistory){if(!fromHistory)closeSheet();frozen=false;lastAt=Date.now();/* le même code, encore devant la caméra, ne repart pas tout de suite */
+  if(screen==="mScan"){if(stream){vid.play().catch(()=>{});tick();}else camStart();}}
+$("mAgain").addEventListener("click",()=>resume());
 $("mSheet").addEventListener("click",e=>{if(e.target===$("mSheet"))resume();});
 $("mCopy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(sheetItem.text);toast(T("Contenu copié.","Content copied."));}catch(e){toast(T("Copie impossible sur cet appareil.","Copying is not possible on this device."));}});
-$("mDetailsBtn").addEventListener("click",()=>{if(!shot||!window.atelierLoadImageData)return;frozen=false;window.atelierLoadImageData(shot,T("Caméra du téléphone","Phone camera"));showAtelier("details","mScan");});
+$("mDetailsBtn").addEventListener("click",()=>{if(!shot||!window.atelierLoadImageData)return;$("mSheet").hidden=true;frozen=false;
+  window.atelierLoadImageData(shot,T("Caméra du téléphone","Phone camera"));
+  stack.push({s:"mAtelier",mode:"details",tab:"mScan",title:T("Analyse détaillée","Detailed analysis")});try{history.replaceState({depth:stack.length},"");}catch(e){}render();$("mAtelier").scrollTop=0;});
 $("mRecreate").addEventListener("click",()=>{
-  const it=sheetItem;closeSheet();frozen=false;
-  const preset=presetFor(it);
-  if(preset){openEditor(preset.id,preset.values,screen);return;}
-  if(window.atelierLoad){window.atelierLoad(it.text,{format:it.format,gs1:it.gs1});showAtelier("create",screen);}
-});
+  const it=sheetItem;$("mSheet").hidden=true;frozen=false;if(!window.atelierLoad)return;
+  window.atelierLoad(it.text,{format:it.format,gs1:it.gs1});
+  stack.push({s:"mAtelier",mode:"create",tab:"mCreate",title:typeTitle()});try{history.replaceState({depth:stack.length},"");}catch(e){}render();$("mAtelier").scrollTop=0;});
 
 /* ---------- Historique ---------- */
 const HKEY="scanalyse-history";
-function history(){try{return JSON.parse(localStorage.getItem(HKEY)||"[]");}catch(e){return[];}}
-function addHistory(it){const h=history();h.unshift(it);try{localStorage.setItem(HKEY,JSON.stringify(h.slice(0,50)));}catch(e){}}
+function hist(){try{return JSON.parse(localStorage.getItem(HKEY)||"[]");}catch(e){return[];}}
+function addHistory(it){const h=hist();h.unshift(it);try{localStorage.setItem(HKEY,JSON.stringify(h.slice(0,50)));}catch(e){}}
 function renderHistory(){
-  const h=history();
+  const h=hist();
   $("mList").innerHTML=h.length?h.map((it,i)=>`<li><button type="button" data-i="${i}"><code>${esc(it.text.length>120?it.text.slice(0,120)+"…":it.text)}</code><small>${esc(fmtName(it.format))} · ${esc(new Date(it.at).toLocaleString(EN?"en-GB":"fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}))}</small></button></li>`).join("")
     :`<li class="m-empty">${esc(T("Aucune lecture pour l'instant. Les codes lus à la caméra apparaissent ici.","No reads yet. Codes read with the camera show up here."))}</li>`;
   $("mClear").hidden=!h.length;
@@ -155,136 +177,55 @@ function renderHistory(){
 }
 $("mClear").addEventListener("click",()=>{if(!confirm(T("Effacer tout l'historique de ce téléphone ?","Clear the whole history on this phone?")))return;try{localStorage.removeItem(HKEY);}catch(e){}renderHistory();});
 
-/* ---------- Créer ---------- */
-const ICON={
-  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
-  text:'<path d="M5 6h14M5 12h14M5 18h9"/>',
-  wifi:'<path d="M2 9a15 15 0 0 1 20 0M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0"/><circle cx="12" cy="20" r="1"/>',
-  bars:'<path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14"/>',
-  dm:'<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 20V4h16M8 8h2v2H8zM13 9h3M9 14h2M14 13h2v3h-2"/>',
-  gs1:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 8h3v3H8zM13 13h3v3h-3zM13 8h3M8 13v3"/>'
-};
-const TYPES=[
-  {id:"url",fmt:"QRCode",icon:"link",fr:["Lien","QR vers un site web"],en:["Link","QR to a website"]},
-  {id:"wifi",fmt:"QRCode",icon:"wifi",fr:["Wi-Fi","Se connecter en scannant"],en:["Wi-Fi","Connect by scanning"]},
-  {id:"text",fmt:"QRCode",icon:"text",fr:["Texte","QR avec un texte libre"],en:["Text","QR with free text"]},
-  {id:"ean13",fmt:"EAN13",icon:"bars",hrt:true,fr:["EAN-13","Article en magasin"],en:["EAN-13","Retail item"]},
-  {id:"code128",fmt:"Code128",icon:"bars",hrt:true,fr:["Code 128","Étiquette interne, stock"],en:["Code 128","Internal label, stock"]},
-  {id:"gs1128",fmt:"Code128",icon:"gs1",gs1:true,hrt:true,fr:["GS1-128","GTIN, lot, date, série"],en:["GS1-128","GTIN, batch, date, serial"]},
-  {id:"datamatrix",fmt:"DataMatrix",icon:"dm",fr:["Data Matrix","Petites pièces, marquage"],en:["Data Matrix","Small parts, marking"]},
-  {id:"gs1dm",fmt:"DataMatrix",icon:"gs1",gs1:true,fr:["GS1 DataMatrix","Santé, traçabilité"],en:["GS1 DataMatrix","Healthcare, traceability"]},
-];
-const byId=Object.fromEntries(TYPES.map(t=>[t.id,t]));
-const name=t=>(EN?t.en:t.fr)[0];
-$("mTiles").innerHTML=TYPES.map(t=>`<button type="button" class="m-tile" data-t="${t.id}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[t.icon]}</svg><b>${esc(name(t))}</b><small>${esc((EN?t.en:t.fr)[1])}</small></button>`).join("");
-$("mTiles").querySelectorAll(".m-tile").forEach(b=>b.addEventListener("click",()=>openEditor(b.dataset.t,null,"mCreate")));
-$("mAll").addEventListener("click",()=>showAtelier("create","mCreate"));
-
-const FIELDS={
-  url:[{k:"url",type:"url",fr:"Adresse du site",en:"Website address",ph:"https://",def:"https://kanard-compagny.github.io/scanalyse/"}],
-  text:[{k:"text",type:"area",fr:"Texte",en:"Text",def:"Scanalyse"}],
-  wifi:[{k:"ssid",fr:"Nom du réseau (SSID)",en:"Network name (SSID)",def:""},{k:"pass",fr:"Mot de passe",en:"Password",def:""},
-    {k:"sec",type:"select",fr:"Sécurité",en:"Security",opts:[["WPA","WPA / WPA2 / WPA3"],["WEP","WEP"],["nopass",EN?"None (open)":"Aucune (ouvert)"]],def:"WPA"},
-    {k:"hidden",type:"check",fr:"Réseau masqué",en:"Hidden network",def:false}],
-  ean13:[{k:"digits",type:"digits",fr:"Numéro",en:"Number",hint:EN?"12 digits: the check digit is added. 13 digits: it is checked.":"12 chiffres : la clé est ajoutée. 13 chiffres : elle est vérifiée.",def:"300123456789"}],
-  code128:[{k:"text",fr:"Contenu",en:"Content",def:"LOT-2026-ABC"}],
-  datamatrix:[{k:"text",fr:"Contenu",en:"Content",def:"SCANALYSE-0001"}],
-  gs1128:"gs1",gs1dm:"gs1"
-};
-const GS1_FIELDS=[{k:"01",type:"digits",fr:"GTIN (01)",en:"GTIN (01)",hint:EN?"13 or 14 digits, check digit checked.":"13 ou 14 chiffres, clé vérifiée.",def:"03453120000011"},
-  {k:"10",fr:"Lot (10)",en:"Batch (10)",def:"LOT42"},{k:"17",type:"date",fr:"Date d'expiration (17)",en:"Expiry date (17)",def:""},
-  {k:"21",fr:"Numéro de série (21)",en:"Serial number (21)",def:""}];
-let cur=null,vals={},renderSeq=0,lastPng=null;
-function fieldsOf(id){const f=FIELDS[id];return f==="gs1"?GS1_FIELDS:f;}
-function openEditor(id,values,from){
-  cur=id;const t=byId[id];
-  vals={};fieldsOf(id).forEach(f=>vals[f.k]=values&&values[f.k]!==undefined?values[f.k]:f.def);
-  $("mEditTitle").textContent=name(t);
-  $("mForm").innerHTML=fieldsOf(id).map(f=>{
-    const lbl=`${esc(EN?f.en:f.fr)}${f.hint?`<small>${esc(f.hint)}</small>`:""}`;
-    if(f.type==="area")return`<label>${lbl}<textarea name="${f.k}">${esc(vals[f.k])}</textarea></label>`;
-    if(f.type==="select")return`<label>${lbl}<select name="${f.k}">${f.opts.map(([v,l])=>`<option value="${v}"${v===vals[f.k]?" selected":""}>${esc(l)}</option>`).join("")}</select></label>`;
-    if(f.type==="check")return`<label class="m-row"><input type="checkbox" name="${f.k}"${vals[f.k]?" checked":""}>${esc(EN?f.en:f.fr)}</label>`;
-    const it=f.type==="digits"?' inputmode="numeric" pattern="[0-9]*"':f.type==="url"?' type="url" inputmode="url"':f.type==="date"?' type="date"':"";
-    return`<label>${lbl}<input name="${f.k}"${it} value="${esc(vals[f.k])}"${f.ph?` placeholder="${esc(f.ph)}"`:""} autocapitalize="off" autocorrect="off" spellcheck="false"></label>`;
-  }).join("");
-  $("mForm").querySelectorAll("input,textarea,select").forEach(e=>e.addEventListener("input",()=>{vals[e.name]=e.type==="checkbox"?e.checked:e.value;draw();}));
-  show("mEdit",from||"mCreate");$("mEdit").scrollTop=0;
-  draw();
+/* ---------- Créer : les mêmes types et le même éditeur que sur PC, présentés par catégories ---------- */
+const CAT_ICON={qr:'<path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM6 6h1v1H6zM17 6h1v1h-1zM6 17h1v1H6zM14 14h3v3M21 14v7h-7M17 21v-3"/>',
+  "2d":'<rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 20V4h16M8 8h2v2H8zM13 9h3M9 14h2M14 13h2v3h-2"/>',
+  retail:'<path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14"/>',
+  ind:'<path d="M3 21V9l6 4V9l6 4V5h6v16zM7 17h2M12 17h2M17 17h2"/>'};
+const GO='<svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+const tr=t=>window.atelierT?window.atelierT(t):t;
+function cats(){return[...document.querySelectorAll(".tp-cats button[data-cat]")].map(b=>({cat:b.dataset.cat,name:b.querySelector("b").textContent,desc:b.querySelector("span").textContent}));}
+function renderCats(){
+  $("mCats").innerHTML=cats().map(c=>`<button type="button" class="m-cat" data-cat="${c.cat}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${CAT_ICON[c.cat]||""}</svg><span><b>${esc(c.name)}</b><small>${esc(c.desc)}</small></span>${GO}</button>`).join("");
+  $("mCats").querySelectorAll(".m-cat").forEach(b=>b.addEventListener("click",()=>{
+    const c=b.dataset.cat;
+    if(c==="qr"){openType("qr");return;}
+    go("mTypes",{cat:c,title:T("Créer un code","Create a code")});
+  }));
 }
-$("mForm").addEventListener("submit",e=>e.preventDefault());
-function check(d){let s=0;for(let i=0;i<d.length;i++)s+=+d[d.length-1-i]*(i%2?1:3);return(10-s%10)%10;}
-const wifiEsc=s=>String(s).replace(/([\\;,:"])/g,"\\$1");
-/* Données à encoder, ou une erreur expliquée */
-function data(){
-  const t=byId[cur];
-  if(cur==="url"){const u=(vals.url||"").trim();return u?{d:u}:{err:T("Saisis une adresse.","Enter an address.")};}
-  if(cur==="text"||cur==="code128"||cur==="datamatrix"){return vals.text?{d:vals.text}:{err:T("Le contenu est vide.","The content is empty.")};}
-  if(cur==="wifi"){if(!vals.ssid)return{err:T("Saisis le nom du réseau.","Enter the network name.")};
-    return{d:`WIFI:T:${vals.sec};S:${wifiEsc(vals.ssid)};${vals.sec==="nopass"?"":`P:${wifiEsc(vals.pass||"")};`}${vals.hidden?"H:true;":""};`};}
-  if(cur==="ean13"){let d=(vals.digits||"").replace(/\s/g,"");
-    if(!/^\d+$/.test(d))return{err:T("Seuls les chiffres sont acceptés.","Only digits are accepted.")};
-    if(d.length===12)d+=check(d);else if(d.length===13){if(check(d.slice(0,12))!==+d[12])return{err:T(`Clé de contrôle fausse : ${d[12]} au lieu de ${check(d.slice(0,12))}.`,`Wrong check digit: ${d[12]} instead of ${check(d.slice(0,12))}.`)};}
-    else return{err:T(`12 ou 13 chiffres attendus (${d.length} saisis).`,`12 or 13 digits expected (${d.length} entered).`)};
-    return{d};}
-  if(t.gs1){let g=(vals["01"]||"").replace(/\s/g,"");
-    if(!/^\d{13,14}$/.test(g))return{err:T("GTIN : 13 ou 14 chiffres.","GTIN: 13 or 14 digits.")};
-    g=g.padStart(14,"0");if(check(g.slice(0,13))!==+g[13])return{err:T(`GTIN : clé de contrôle fausse (${check(g.slice(0,13))} attendu).`,`GTIN: wrong check digit (${check(g.slice(0,13))} expected).`)};
-    let s=`(01)${g}`;
-    const dt=vals["17"];if(dt){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dt);if(m)s+=`(17)${m[1].slice(2)}${m[2]}${m[3]}`;}
-    for(const ai of ["10","21"]){const v=(vals[ai]||"").trim();if(v){if(v.length>20)return{err:T(`(${ai}) : 20 caractères au plus.`,`(${ai}): 20 characters at most.`)};s+=`(${ai})${v}`;}}
-    return{d:s,gs1:true};}
-  return{err:"?"};
+function renderTypes(cat){
+  const c=cats().find(x=>x.cat===cat)||{name:"",desc:""};
+  $("mTypesTitle").textContent=c.name;$("mTypesDesc").textContent=c.desc;
+  const list=(window.atelierCreateTypes?window.atelierCreateTypes():[]).filter(t=>t.cat===cat);
+  $("mTypesList").innerHTML=list.map(t=>`<button type="button" class="m-type" data-id="${t.id}"><span><b>${esc(tr(t.label))}</b><small>${esc(tr(t.usage))}</small></span>${GO}</button>`).join("");
+  $("mTypesList").querySelectorAll(".m-type").forEach(b=>b.addEventListener("click",()=>openType(b.dataset.id)));
 }
-async function draw(){
-  const id=++renderSeq,t=byId[cur],r=data();
-  const chk=$("mCheck");chk.className="m-check";
-  if(r.err){chk.textContent=r.err;chk.classList.add("bad");$("mCode").removeAttribute("src");lastPng=null;return;}
-  try{
-    if(window.atelierEngine)await window.atelierEngine();
-    const out=await ZXingWASM.writeBarcode(r.d,{format:t.fmt,scale:6,withHRT:!!t.hrt,withQuietZones:true,options:r.gs1?"gs1":""});
-    if(id!==renderSeq)return;
-    if(out.error){chk.textContent=out.error.replace(/^Error \d+:\s*/,"").replace(/\s*\(retval.*$/,"");chk.classList.add("bad");return;}
-    const blob=out.image instanceof Blob?out.image:new Blob([out.svg],{type:"image/svg+xml"});
-    const png=await toPng(blob);if(id!==renderSeq)return;
-    lastPng=png;$("mCode").src=URL.createObjectURL(png);
-    // Relecture : le code produit doit redonner le contenu saisi
-    const back=await ZXingWASM.readBarcodes(png,{tryHarder:true,textMode:"HRI",maxNumberOfSymbols:1});
-    if(id!==renderSeq)return;
-    const ok=back&&back[0]&&back[0].text===r.d;
-    chk.textContent=ok?T("Vérifié : le code se relit correctement.","Verified: the code reads back correctly."):T("Attention : la relecture ne redonne pas exactement le contenu saisi.","Warning: reading it back does not give exactly the content entered.");
-    chk.classList.add(ok?"ok":"bad");
-  }catch(e){chk.textContent=T("Création impossible.","Could not create the code.");chk.classList.add("bad");}
+function typeTitle(){const id=window.atelierCreateCurrent?window.atelierCreateCurrent():"";const t=(window.atelierCreateTypes?window.atelierCreateTypes():[]).find(x=>x.id===id);return t?tr(t.label):T("Créer un code","Create a code");}
+function openType(id){
+  if(window.atelierSetCreateType)window.atelierSetCreateType(id);
+  go("mAtelier",{mode:"create",tab:"mCreate",title:typeTitle()});
 }
-function toPng(blob){
-  return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(blob);
-    img.onload=()=>{const c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
-      x.imageSmoothingEnabled=false;x.drawImage(img,0,0);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png");};
-    img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("img"));};img.src=u;});
+/* Dans l'éditeur : afficher le code en grand (pour le faire scanner) et le partager, en tête de l'aperçu */
+function codeImage(){
+  const std=$("stdMode")&&!$("stdMode").hidden;
+  const box=std?$("stdPreview"):$("qr");if(!box)return Promise.resolve(null);
+  const cv=box.querySelector("canvas");if(cv)return Promise.resolve(cv.toDataURL("image/png"));
+  const svg=box.querySelector("svg");if(!svg)return Promise.resolve(null);
+  return Promise.resolve("data:image/svg+xml;charset=utf-8,"+encodeURIComponent(new XMLSerializer().serializeToString(svg)));
 }
-const fileName=()=>`${cur}-${new Date().toISOString().slice(0,10)}.png`;
-$("mSave").addEventListener("click",()=>{if(!lastPng)return;const a=document.createElement("a");a.href=URL.createObjectURL(lastPng);a.download=fileName();document.body.appendChild(a);a.click();a.remove();});
-const canShare=!!(navigator.canShare&&navigator.canShare({files:[new File([""],"t.png",{type:"image/png"})]}));
-$("mShare").hidden=!canShare;
-$("mShare").addEventListener("click",async()=>{if(!lastPng)return;try{await navigator.share({files:[new File([lastPng],fileName(),{type:"image/png"})]});}catch(e){}});
+function addQuick(aside){
+  if(!aside||aside.querySelector(".m-quick"))return;
+  const q=document.createElement("div");q.className="m-quick";
+  q.innerHTML=`<button type="button" class="m-btn m-primary">${esc(T("Afficher en grand","Show full screen"))}</button>`;
+  aside.prepend(q);
+  q.querySelector("button").addEventListener("click",async()=>{const src=await codeImage();if(!src){toast(T("Rien à afficher : vérifie le contenu.","Nothing to show: check the content."));return;}
+    $("mFullImg").src=src;$("mFullscreen").hidden=false;try{wake=await navigator.wakeLock.request("screen");}catch(e){}});
+}
+document.querySelectorAll("#view-create aside.preview").forEach(addQuick);
 let wake=null;
-$("mFull").addEventListener("click",async()=>{if(!lastPng)return;$("mFullImg").src=$("mCode").src;$("mFullscreen").hidden=false;
-  try{wake=await navigator.wakeLock.request("screen");}catch(e){}});
 $("mFullscreen").addEventListener("click",()=>{$("mFullscreen").hidden=true;if(wake){wake.release().catch(()=>{});wake=null;}});
-
-/* Recréer : le type simple correspondant si possible */
-function presetFor(it){
-  const f=it.format||"";
-  if(it.gs1&&window.atelierParseGs1){const els=window.atelierParseGs1(it.text)||[];const v={};els.forEach(([a,x])=>v[a]=x);
-    if(v["17"]&&/^\d{6}$/.test(v["17"]))v["17"]=`20${v["17"].slice(0,2)}-${v["17"].slice(2,4)}-${v["17"].slice(4,6)}`;
-    if(els.every(([a])=>["01","10","17","21"].includes(a)))return{id:/DataMatrix/.test(f)?"gs1dm":"gs1128",values:v};return null;}
-  if(f==="EAN13")return{id:"ean13",values:{digits:it.text}};
-  if(f==="Code128")return{id:"code128",values:{text:it.text}};
-  if(f==="DataMatrix")return{id:"datamatrix",values:{text:it.text}};
-  if(/^QRCode/.test(f)){if(/^https?:\/\//i.test(it.text))return{id:"url",values:{url:it.text}};if(!/^WIFI:/i.test(it.text))return{id:"text",values:{text:it.text}};}
-  return null;
-}
+renderCats();
 
 /* ---------- Départ ---------- */
-show("mScan");
+render();
 })();
