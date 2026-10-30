@@ -77,8 +77,6 @@
                 <TextBlock x:Name="QueueCount" DockPanel.Dock="Right" FontSize="12" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0" />
                 <TextBlock x:Name="QueueSelected" Text="Choisir une imprimante…" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
               </DockPanel>
-        <!-- Fenêtre étroite : l'adresse passe ici, en pleine largeur -->
-        <Border x:Name="NarrowTargetHost" Margin="0,8,0,0" Visibility="Collapsed" />
             </Button>
             <Popup x:Name="QueuePopup" PlacementTarget="{Binding ElementName=QueueButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True"
                    Width="{Binding ActualWidth, ElementName=QueueButton}" PopupAnimation="Fade">
@@ -103,6 +101,8 @@
           </StackPanel>
         </Grid></Border>
       </DockPanel>
+      <!-- Fenêtre étroite : l'adresse passe ici, en pleine largeur -->
+      <Border x:Name="NarrowTargetHost" Margin="0,8,0,0" Visibility="Collapsed" />
       <!-- Imprimante reconnue : marque, modèle, langages, réglages lus ; sert de référence à l'analyse -->
       <DockPanel Margin="0,8,0,0">
         <Ellipse x:Name="ProfileDot" Width="8" Height="8" Margin="2,0,8,0" VerticalAlignment="Center" Fill="{DynamicResource Muted}" />

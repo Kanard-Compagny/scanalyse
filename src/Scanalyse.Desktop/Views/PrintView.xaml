@@ -84,8 +84,6 @@
                              Text="ex. 192.168.1.50 ou 192.168.1.50:6101" />
                 </Grid>
               </DockPanel>
-        <!-- Fenêtre étroite : l'adresse passe ici, en pleine largeur -->
-        <Border x:Name="NarrowTargetHost" Margin="0,8,0,0" Visibility="Collapsed" />
               <StackPanel x:Name="QueuePanel" Visibility="Collapsed" Margin="0">
                 <Button x:Name="QueueButton" Style="{StaticResource BtnSecondary}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="QueueButton_Click"
                         ToolTip="Choisir l'imprimante (les données partent en mode RAW : le pilote ne les modifie pas)">
@@ -118,6 +116,8 @@
               </StackPanel>
           </Grid></Border>
         </DockPanel>
+        <!-- Fenêtre étroite : l'adresse passe ici, en pleine largeur -->
+        <Border x:Name="NarrowTargetHost" Margin="0,8,0,0" Visibility="Collapsed" />
         <TextBlock x:Name="SendStatus" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,6,0,0" />
         <!-- Maintenance : état, calibrage, page de configuration, redémarrage -->
         <WrapPanel Margin="0,8,0,0">
