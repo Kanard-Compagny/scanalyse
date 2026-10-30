@@ -1040,7 +1040,7 @@ public partial class MainWindow : Window
             new(LogHost, "Le journal",
                 "Tout ce qui se passe s'affiche ici : lectures, envois à l'imprimante, erreurs. La flèche le réduit ou le déplie."),
             new(SettingsPage, "Paramètres",
-                "Langue, thème, taille d'affichage, dossiers, en-tête et logo des rapports, profil d'équipe, « Ouvrir avec », mises à jour automatiques. L'accueil et cette visite se relancent d'ici.",
+                "Langue, thème, taille d'affichage, dossiers, en-tête et logo des rapports, profil d'équipe, « Ouvrir avec », mises à jour automatiques. « Sur téléphone » donne le QR code de la version pour téléphone. L'accueil et cette visite se relancent d'ici.",
                 Page(NavSettings)),
         ]);
     }

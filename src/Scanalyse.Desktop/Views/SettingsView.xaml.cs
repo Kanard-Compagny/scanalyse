@@ -271,6 +271,25 @@ public partial class SettingsView : UserControl
 
     private void Tour_Click(object sender, RoutedEventArgs e) => TourRequested?.Invoke();
 
+    /// <summary>Adresse de la version web pour téléphone (la langue suit celle du téléphone).</summary>
+    public const string PhoneAppUrl = "https://kanard-compagny.github.io/scanalyse/app/";
+
+    private void CopyAppLink_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Clipboard.SetText(PhoneAppUrl);
+            ((Button)sender).Content = "Lien copié";
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            // Presse-papiers occupé par une autre application : le lien reste affiché, sélectionnable.
+        }
+    }
+
+    private void OpenAppLink_Click(object sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo(PhoneAppUrl) { UseShellExecute = true });
+
     private void ShowFolders()
     {
         var s = AppSettings.Load();

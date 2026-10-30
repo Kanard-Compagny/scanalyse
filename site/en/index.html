@@ -77,6 +77,11 @@ h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%;line-h
 .shots img{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;background:#fff}
 .shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
 .mobile{background:var(--mint)}
+.mobile-grid{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
+.mobile-qr{margin:0;text-align:center}
+.mobile-qr img{display:block;width:200px;height:200px;background:#fff;border-radius:16px;padding:12px}
+.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:224px}
+@media (max-width:860px){.mobile-grid{grid-template-columns:1fr}.mobile-qr{display:none}}
 .mobile p{max-width:44em;margin:0 0 20px}
 .btn-green{background:var(--forest);color:#fff}
 .note-dark{font-size:15px;color:var(--muted);margin:14px 0 0!important}
@@ -115,7 +120,7 @@ footer small{flex-basis:100%;color:#A9C6B8}
     <h1>Find where it goes wrong, between the code, the scanner and the printer.</h1>
     <p class="lead">Scanalyse reads your customers&#x27; barcodes, compares what their scanner really sends and explains the programs of their label printers. Free, nothing to install, all brands.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.1</a>
+      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.2</a>
       <a class="src" href="https://github.com/Kanard-Compagny/scanalyse">Source code on GitHub</a>
     </div>
     <p class="note">Windows 10 and 11, a single Scanalyse.exe file, nothing to install.</p>
@@ -145,11 +150,14 @@ footer small{flex-basis:100%;color:#A9C6B8}
   <div class="shots"><figure><a href="../captures/analyser.webp"><img src="../captures/analyser.webp" alt="Analyze an image: every code read and explained, label consistency" width="1600" height="875" loading="lazy"></a><figcaption>Analyze an image: every code read and explained, label consistency</figcaption></figure><figure><a href="../captures/banc.webp"><img src="../captures/banc.webp" alt="Scanner test bench: an Android terminal&#x27;s read compared with the real content" width="1600" height="875" loading="lazy"></a><figcaption>Scanner test bench: an Android terminal&#x27;s read compared with the real content</figcaption></figure><figure><a href="../captures/etiquette.webp"><img src="../captures/etiquette.webp" alt="Printer label: ready-made template, preview and ZPL program" width="1600" height="875" loading="lazy"></a><figcaption>Printer label: ready-made template, preview and ZPL program</figcaption></figure><figure><a href="../captures/conf.webp"><img src="../captures/conf.webp" alt="Printer config: file created from a form, Wi-Fi included" width="1600" height="875" loading="lazy"></a><figcaption>Printer config: file created from a form, Wi-Fi included</figcaption></figure><figure><a href="../captures/creer.webp"><img src="../captures/creer.webp" alt="Create a code: GS1-128 read back and verified" width="1600" height="875" loading="lazy"></a><figcaption>Create a code: GS1-128 read back and verified</figcaption></figure><figure><a href="../captures/appareils.webp"><img src="../captures/appareils.webp" alt="Reading devices: a terminal linked over Wi-Fi with a QR code" width="1600" height="875" loading="lazy"></a><figcaption>Reading devices: a terminal linked over Wi-Fi with a QR code</figcaption></figure><figure><a href="../captures/relais.webp"><img src="../captures/relais.webp" alt="The phone or PDA works as a scanner" width="1600" height="875" loading="lazy"></a><figcaption>The phone or PDA works as a scanner</figcaption></figure></div>
 </div></section>
 
-<section class="mobile"><div class="wrap">
-  <h2 class="sec">On your phone, nothing to install</h2>
-  <p>Read a code with the camera or from a photo, create a code and show it on screen: the web version of Scanalyse opens in the browser of an Android phone or an iPhone. Add it to your home screen to use it like an app, even offline. Everything stays on the phone.</p>
-  <a class="btn btn-green" href="../app/">Open the web version</a>
-  <p class="note-dark">The scanner test bench, printers and terminals stay in the Windows program.</p>
+<section class="mobile"><div class="wrap mobile-grid">
+  <div>
+    <h2 class="sec">On your phone, nothing to install</h2>
+    <p>Read a code with the camera or from a photo, create a code and show it on screen: the web version of Scanalyse opens in the browser of an Android phone or an iPhone. Add it to your home screen to use it like an app, even offline. Everything stays on the phone.</p>
+    <a class="btn btn-green" href="../app/">Open the web version</a>
+    <p class="note-dark">The scanner test bench, printers and terminals stay in the Windows program.</p>
+  </div>
+  <figure class="mobile-qr"><img src="../app-qr.png" alt="" width="200" height="200"><figcaption>Scan with your phone&#x27;s camera</figcaption></figure>
 </div></section>
 
 <section class="brands"><div class="wrap">
@@ -160,7 +168,7 @@ footer small{flex-basis:100%;color:#A9C6B8}
 
 <section style="padding-top:0"><div class="wrap split">
   <div><h2 class="sec">Up and running in two minutes</h2><ol class="steps"><li>Download Scanalyse.exe and put it wherever you like, even on a USB stick.</li><li>Run it. If Windows shows “Windows protected your PC”, choose “More info” then “Run anyway”.</li><li>Pick the language and your folders, then follow the guided tour.</li></ol>
-    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.1</a></div>
+    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download Scanalyse 0.12.2</a></div>
   <div class="trust"><h2 class="sec">What doesn&#x27;t change</h2><div><h3>Nothing leaves the PC</h3><p>No image, no code read and no report is sent over the Internet. No account, no ads, no analytics.</p></div><div><h3>Free and open</h3><p>GPL v3 license. The code is public, every release publishes its SHA-256 hash, checked by the automatic update.</p></div><div><h3>Made by a technician</h3><p>Born in the field to fill a gap in the tools. A problem, or hardware to support? Open an issue.</p></div></div>
 </div></section>
 </main>

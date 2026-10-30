@@ -3197,3 +3197,16 @@ Aucun réglage commun trouvé (noirceur, vitesse, support, méthode, sortie, tai
 WLAN IP : adresse, masque et passerelle attendus entre guillemets, ex. WLAN IP "192.168.1.60","255.255.255.0","192.168.1.1".	WLAN IP: address, mask and gateway expected in quotes, e.g. WLAN IP "192.168.1.60","255.255.255.0","192.168.1.1".
 WLAN SSID : nom du réseau entre guillemets attendu, ex. WLAN SSID "Entrepot".	WLAN SSID: network name expected in quotes, e.g. WLAN SSID "Warehouse".
 WLAN WPA : mot de passe entre guillemets attendu, ex. WLAN WPA "motdepasse".	WLAN WPA: password expected in quotes, e.g. WLAN WPA "password".
+Sur téléphone	On your phone
+Scanalyse dans la poche : lire et créer des codes sans le PC.	Scanalyse in your pocket: read and create codes without the PC.
+QR code de la version téléphone de Scanalyse	QR code of the phone version of Scanalyse
+Scanne ce code avec l'appareil photo du téléphone	Scan this code with your phone's camera
+La version web de Scanalyse s'ouvre dans le navigateur, sur Android comme sur iPhone. Ajoute-la à l'écran d'accueil pour l'avoir comme une application : rien à installer depuis un store, et elle fonctionne même hors connexion.	The web version of Scanalyse opens in the browser, on Android and iPhone alike. Add it to the home screen to use it like an app: nothing to install from a store, and it even works offline.
+• Lire un code à la caméra, avec l'analyse détaillée	• Read a code with the camera, with the detailed analysis
+• Créer un code et l'afficher en grand pour le faire scanner	• Create a code and show it full screen to have it scanned
+• Historique des lectures, gardé sur le téléphone	• Read history, kept on the phone
+Comme sur le PC, rien n'est envoyé sur Internet : les images et les codes restent sur le téléphone.	As on the PC, nothing is sent over the Internet: images and codes stay on the phone.
+Copier le lien	Copy the link
+Ouvrir dans le navigateur	Open in the browser
+Lien copié	Link copied
+Langue, thème, taille d'affichage, dossiers, en-tête et logo des rapports, profil d'équipe, « Ouvrir avec », mises à jour automatiques. « Sur téléphone » donne le QR code de la version pour téléphone. L'accueil et cette visite se relancent d'ici.	Language, theme, display size, folders, report letterhead and logo, team profile, “Open with”, automatic updates. “On your phone” gives the QR code of the phone version. The welcome screen and this tour can be restarted from here.

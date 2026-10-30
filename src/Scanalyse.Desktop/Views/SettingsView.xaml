@@ -25,6 +25,7 @@
           <RadioButton x:Name="NavGeneral" Style="{StaticResource SettingsNav}" Tag="{StaticResource IconSettings}" Content="Général" CommandParameter="SecGeneral" IsChecked="True" Checked="SettingsNav_Checked" />
           <RadioButton x:Name="NavUpdates" Style="{StaticResource SettingsNav}" Tag="{StaticResource IconRefresh}" Content="Mises à jour" CommandParameter="SecUpdates" Checked="SettingsNav_Checked" />
           <RadioButton x:Name="NavHelp" Style="{StaticResource SettingsNav}" Tag="{StaticResource IconHelp}" Content="Prise en main" CommandParameter="SecHelp" Checked="SettingsNav_Checked" />
+          <RadioButton x:Name="NavPhone" Style="{StaticResource SettingsNav}" Tag="{StaticResource IconPhone}" Content="Sur téléphone" CommandParameter="SecPhone" Checked="SettingsNav_Checked" />
           <TextBlock Style="{StaticResource NavGroup}" Text="TRAVAIL" Margin="12,18,0,6" />
           <RadioButton x:Name="NavReports" Style="{StaticResource SettingsNav}" Tag="{StaticResource IconReport}" Content="Rapports PDF" CommandParameter="SecReports" Checked="SettingsNav_Checked" />
           <RadioButton x:Name="NavHistory" Style="{StaticResource SettingsNav}" Tag="{StaticResource IconHistory}" Content="Historique" CommandParameter="SecHistory" Checked="SettingsNav_Checked" />
@@ -312,6 +313,43 @@
                 <Button Style="{StaticResource BtnSecondary}" Content="Lancer la visite guidée" Click="Tour_Click" Margin="0,0,8,8" />
               </WrapPanel>
             </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Version web pour téléphone : un QR code à scanner avec l'appareil photo -->
+        <StackPanel x:Name="SecPhone" Visibility="Collapsed">
+          <TextBlock Style="{StaticResource SectionTitle}" Text="Sur téléphone" />
+          <TextBlock Style="{StaticResource PageSubtitle}" Text="Scanalyse dans la poche : lire et créer des codes sans le PC." Margin="0,4,0,18" />
+          <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Background="White" CornerRadius="14" Padding="10" BorderBrush="{DynamicResource Line}" BorderThickness="1" VerticalAlignment="Top">
+                <Image Source="/Assets/app-qr.png" Width="200" Height="200" RenderOptions.BitmapScalingMode="HighQuality"
+                       AutomationProperties.Name="QR code de la version téléphone de Scanalyse" />
+              </Border>
+              <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <TextBlock Style="{StaticResource CardTitle}" Text="Scanne ce code avec l'appareil photo du téléphone" TextWrapping="Wrap" />
+                <TextBlock TextWrapping="Wrap" Margin="0,8,0,0" Foreground="{DynamicResource Ink}"
+                           Text="La version web de Scanalyse s'ouvre dans le navigateur, sur Android comme sur iPhone. Ajoute-la à l'écran d'accueil pour l'avoir comme une application : rien à installer depuis un store, et elle fonctionne même hors connexion." />
+                <TextBlock TextWrapping="Wrap" Margin="0,12,0,0" Foreground="{DynamicResource Muted}" LineHeight="21">
+                  <Run Text="• Lire un code à la caméra, avec l'analyse détaillée" /><LineBreak />
+                  <Run Text="• Créer un code et l'afficher en grand pour le faire scanner" /><LineBreak />
+                  <Run Text="• Historique des lectures, gardé sur le téléphone" />
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Margin="0,12,0,0" FontSize="12.5" Foreground="{DynamicResource Muted}"
+                           Text="Comme sur le PC, rien n'est envoyé sur Internet : les images et les codes restent sur le téléphone." />
+                <WrapPanel Margin="0,14,0,0">
+                  <Button Style="{StaticResource BtnSecondary}" Content="Copier le lien" Click="CopyAppLink_Click" Margin="0,0,8,8" />
+                  <Button Style="{StaticResource BtnSecondary}" Content="Ouvrir dans le navigateur" Click="OpenAppLink_Click" Margin="0,0,8,8" />
+                </WrapPanel>
+                <TextBox x:Name="AppLinkBox" IsReadOnly="True" BorderThickness="0" Background="Transparent" Padding="0" FontFamily="{StaticResource MonoFont}" FontSize="12.5"
+                         Foreground="{DynamicResource Muted}" Text="https://kanard-compagny.github.io/scanalyse/app/" />
+              </StackPanel>
+            </Grid>
           </Border>
         </StackPanel>
 

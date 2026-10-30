@@ -42,6 +42,7 @@
   <ItemGroup>
     <Resource Include="Assets\Scanalyse.ico" />
     <Resource Include="Assets\logo-64.png" />
+    <Resource Include="Assets\app-qr.png" />
     <!-- Écran de démarrage : affiché par Windows dès le lancement, retiré quand la fenêtre est prête (aucune attente ajoutée) -->
     <Resource Include="Assets\splash.png" />
     <Resource Include="Assets\kanard-128.png" />

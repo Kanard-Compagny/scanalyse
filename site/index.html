@@ -77,6 +77,11 @@ h2.sec{font-size:clamp(26px,3.2vw,36px);font-weight:720;font-stretch:112%;line-h
 .shots img{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block;background:#fff}
 .shots figcaption{font-size:15px;color:var(--muted);margin-top:8px}
 .mobile{background:var(--mint)}
+.mobile-grid{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
+.mobile-qr{margin:0;text-align:center}
+.mobile-qr img{display:block;width:200px;height:200px;background:#fff;border-radius:16px;padding:12px}
+.mobile-qr figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:224px}
+@media (max-width:860px){.mobile-grid{grid-template-columns:1fr}.mobile-qr{display:none}}
 .mobile p{max-width:44em;margin:0 0 20px}
 .btn-green{background:var(--forest);color:#fff}
 .note-dark{font-size:15px;color:var(--muted);margin:14px 0 0!important}
@@ -115,7 +120,7 @@ footer small{flex-basis:100%;color:#A9C6B8}
     <h1>Trouver où ça coince, entre le code, la douchette et l&#x27;imprimante.</h1>
     <p class="lead">Scanalyse lit les codes-barres de vos clients, compare ce que leur douchette transmet vraiment et explique les programmes de leurs imprimantes d&#x27;étiquettes. Gratuit, sans installation, toutes marques.</p>
     <div class="cta">
-      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.1</a>
+      <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.2</a>
       <a class="src" href="https://github.com/Kanard-Compagny/scanalyse">Code source sur GitHub</a>
     </div>
     <p class="note">Windows 10 et 11, un seul fichier Scanalyse.exe, rien à installer.</p>
@@ -145,11 +150,14 @@ footer small{flex-basis:100%;color:#A9C6B8}
   <div class="shots"><figure><a href="captures/analyser.webp"><img src="captures/analyser.webp" alt="Analyser une image : chaque code lu et expliqué, cohérence de l&#x27;étiquette" width="1600" height="875" loading="lazy"></a><figcaption>Analyser une image : chaque code lu et expliqué, cohérence de l&#x27;étiquette</figcaption></figure><figure><a href="captures/banc.webp"><img src="captures/banc.webp" alt="Banc d&#x27;essai : la lecture d&#x27;un terminal Android comparée au vrai contenu" width="1600" height="875" loading="lazy"></a><figcaption>Banc d&#x27;essai : la lecture d&#x27;un terminal Android comparée au vrai contenu</figcaption></figure><figure><a href="captures/etiquette.webp"><img src="captures/etiquette.webp" alt="Étiquette imprimante : modèle prêt à l&#x27;emploi, aperçu et programme ZPL" width="1600" height="875" loading="lazy"></a><figcaption>Étiquette imprimante : modèle prêt à l&#x27;emploi, aperçu et programme ZPL</figcaption></figure><figure><a href="captures/conf.webp"><img src="captures/conf.webp" alt="Conf imprimante : fichier créé depuis un formulaire, Wi-Fi compris" width="1600" height="875" loading="lazy"></a><figcaption>Conf imprimante : fichier créé depuis un formulaire, Wi-Fi compris</figcaption></figure><figure><a href="captures/creer.webp"><img src="captures/creer.webp" alt="Créer un code : GS1-128 relu et vérifié" width="1600" height="875" loading="lazy"></a><figcaption>Créer un code : GS1-128 relu et vérifié</figcaption></figure><figure><a href="captures/appareils.webp"><img src="captures/appareils.webp" alt="Appareils de lecture : un terminal relié en Wi-Fi par QR code" width="1600" height="875" loading="lazy"></a><figcaption>Appareils de lecture : un terminal relié en Wi-Fi par QR code</figcaption></figure><figure><a href="captures/relais.webp"><img src="captures/relais.webp" alt="Le téléphone ou le PDA sert de douchette" width="1600" height="875" loading="lazy"></a><figcaption>Le téléphone ou le PDA sert de douchette</figcaption></figure></div>
 </div></section>
 
-<section class="mobile"><div class="wrap">
-  <h2 class="sec">Sur téléphone, sans rien installer</h2>
-  <p>Analyser un code à la caméra ou sur une photo, créer un code et le montrer à l&#x27;écran : la version web de Scanalyse s&#x27;ouvre dans le navigateur d&#x27;un téléphone Android ou d&#x27;un iPhone. Ajoutez-la à l&#x27;écran d&#x27;accueil pour l&#x27;avoir comme une application, même hors connexion. Tout reste sur le téléphone.</p>
-  <a class="btn btn-green" href="app/">Ouvrir la version web</a>
-  <p class="note-dark">Le banc d&#x27;essai, les imprimantes et les terminaux restent dans le programme Windows.</p>
+<section class="mobile"><div class="wrap mobile-grid">
+  <div>
+    <h2 class="sec">Sur téléphone, sans rien installer</h2>
+    <p>Analyser un code à la caméra ou sur une photo, créer un code et le montrer à l&#x27;écran : la version web de Scanalyse s&#x27;ouvre dans le navigateur d&#x27;un téléphone Android ou d&#x27;un iPhone. Ajoutez-la à l&#x27;écran d&#x27;accueil pour l&#x27;avoir comme une application, même hors connexion. Tout reste sur le téléphone.</p>
+    <a class="btn btn-green" href="app/">Ouvrir la version web</a>
+    <p class="note-dark">Le banc d&#x27;essai, les imprimantes et les terminaux restent dans le programme Windows.</p>
+  </div>
+  <figure class="mobile-qr"><img src="app-qr.png" alt="" width="200" height="200"><figcaption>Scannez avec l&#x27;appareil photo du téléphone</figcaption></figure>
 </div></section>
 
 <section class="brands"><div class="wrap">
@@ -160,7 +168,7 @@ footer small{flex-basis:100%;color:#A9C6B8}
 
 <section style="padding-top:0"><div class="wrap split">
   <div><h2 class="sec">Démarrer en deux minutes</h2><ol class="steps"><li>Téléchargez Scanalyse.exe et placez-le où vous voulez, même sur une clé USB.</li><li>Lancez-le. Si Windows affiche « Windows a protégé votre ordinateur », choisissez « Informations complémentaires » puis « Exécuter quand même ».</li><li>Choisissez la langue et vos dossiers, puis suivez la visite guidée.</li></ol>
-    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.1</a></div>
+    <a class="btn" href="https://github.com/Kanard-Compagny/scanalyse/releases/latest/download/Scanalyse.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Télécharger Scanalyse 0.12.2</a></div>
   <div class="trust"><h2 class="sec">Ce qui ne change pas</h2><div><h3>Rien ne quitte le PC</h3><p>Aucune image, aucun code lu, aucun rapport n&#x27;est envoyé sur Internet. Pas de compte, pas de publicité, pas de mesure d&#x27;audience.</p></div><div><h3>Gratuit et ouvert</h3><p>Licence GPL v3. Le code est public, chaque version publie son empreinte SHA-256, vérifiée par la mise à jour automatique.</p></div><div><h3>Fait par un technicien</h3><p>Né sur le terrain, pour combler un manque d&#x27;outils. Un problème ou un matériel à ajouter ? Ouvrez un ticket.</p></div></div>
 </div></section>
 </main>
