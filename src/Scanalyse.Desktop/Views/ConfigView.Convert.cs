@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using Scanalyse.Core.Printing;
+using Scanalyse.Desktop.Printing;
 
 namespace Scanalyse.Desktop.Views;
 
@@ -425,66 +426,58 @@ public partial class ConfigView
 
     private void BuildAssistant()
     {
-        var p = AssistantPanel;
-        p.Children.Add(Section("Impression"));
+        var p = Group("Impression");
         p.Children.Add(Field("Noirceur (0 à 100 %)", _darkness, "ex. 60"));
+        _darknessHint.Margin = new Thickness(0, -4, 0, 8);
         p.Children.Add(_darknessHint);
         _darknessHint.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
         p.Children.Add(Field("Vitesse (pouces par seconde ; 1 pouce/s ≈ 25 mm/s)", _speed, "ex. 4"));
-        p.Children.Add(AsLabel("Méthode d'impression"));
         Chips<PrintMethod?>(_method, "AsMethod", [("Ne pas changer", null), ("Transfert thermique (avec ruban)", PrintMethod.ThermalTransfer), ("Thermique direct (sans ruban)", PrintMethod.DirectThermal)]);
-        p.Children.Add(_method);
-        p.Children.Add(AsLabel("Sortie des étiquettes"));
+        p.Children.Add(Choice("Méthode d'impression", _method));
         Chips<OutputMode?>(_modeChips, "AsMode",
         [
             ("Ne pas changer", null), ("Détachage", OutputMode.TearOff), ("Prédécollage", OutputMode.PeelOff), ("Enroulement", OutputMode.Rewind),
             ("Coupe", OutputMode.Cutter), ("Coupe différée", OutputMode.DelayedCut), ("Applicateur", OutputMode.Applicator),
         ]);
-        p.Children.Add(_modeChips);
+        p.Children.Add(Choice("Sortie des étiquettes", _modeChips));
 
-        p.Children.Add(Section("Étiquettes"));
-        p.Children.Add(AsLabel("Type de support"));
+        p = Group("Étiquettes");
         Chips<MediaKind?>(_media, "AsMedia", [("Ne pas changer", null), ("Étiquettes séparées par un espace", MediaKind.Gap), ("Marque noire au dos", MediaKind.Mark), ("Continu", MediaKind.Continuous)]);
-        p.Children.Add(_media);
+        p.Children.Add(Choice("Type de support", _media));
         p.Children.Add(Field("Espace entre étiquettes, ou hauteur de la marque (mm)", _gap, "ex. 3"));
         p.Children.Add(Field("Largeur d'impression (mm)", _width, "ex. 100"));
         p.Children.Add(Field("Longueur d'étiquette (mm)", _length, "ex. 150"));
 
-        p.Children.Add(Section("Réglages fins"));
+        p = Group("Réglages fins");
         p.Children.Add(Field("Décalage horizontal (mm)", _left, "ex. 0"));
         p.Children.Add(Field("Décalage vertical (mm)", _top, "ex. 0"));
         p.Children.Add(Field("Position de détachage (mm)", _tear, "ex. 0"));
 
-        p.Children.Add(Section("Réseau filaire"));
+        p = Group("Réseau filaire");
         Chips<bool?>(_network, "AsNet", [("Ne pas changer", null), ("Adresse automatique (DHCP)", true), ("Adresse fixe", false)]);
-        p.Children.Add(_network);
+        p.Children.Add(Choice("Adresse IP", _network));
         _staticIp.Children.Add(Field("Adresse IP", _ip, "ex. 192.168.1.50"));
         _staticIp.Children.Add(Field("Masque", _mask, "ex. 255.255.255.0"));
         _staticIp.Children.Add(Field("Passerelle", _gateway, "ex. 192.168.1.1"));
         _staticIp.Visibility = Visibility.Collapsed;
         p.Children.Add(_staticIp);
 
-        p.Children.Add(Section("Réseau Wi-Fi"));
-        var wifiIntro = AsLabel("Pratique pour préparer en USB une imprimante qui passera ensuite en Wi-Fi : choisis « Installée sur ce PC » et envoie ce fichier.");
-        p.Children.Add(wifiIntro);
+        p = Group("Réseau Wi-Fi", "Pratique pour préparer en USB une imprimante qui passera ensuite en Wi-Fi : choisis « Installée sur ce PC » et envoie ce fichier.");
         Chips<bool?>(_wifi, "AsWifi", [("Ne pas changer", null), ("Configurer le Wi-Fi", true)]);
-        p.Children.Add(_wifi);
+        p.Children.Add(Choice("Wi-Fi", _wifi));
         _wifiPanel.Children.Add(Field("Nom du réseau (SSID, 32 caractères au plus)", _ssid, "ex. Entrepot"));
-        _wifiPanel.Children.Add(AsLabel("Sécurité"));
         Chips<WifiSecurity?>(_wifiSecurity, "AsWifiSec", [("WPA / WPA2 personnel (mot de passe)", WifiSecurity.WpaPersonal), ("Réseau ouvert (sans mot de passe)", WifiSecurity.Open)]);
         Select(_wifiSecurity, WifiSecurity.WpaPersonal);
-        _wifiPanel.Children.Add(_wifiSecurity);
+        _wifiPanel.Children.Add(Choice("Sécurité", _wifiSecurity));
         _passPanel.Children.Add(Field("Mot de passe du Wi-Fi", _pass, "8 à 63 caractères"));
-        _pass.Width = 320;
+        _passHint.Margin = new Thickness(0, -4, 0, 8);
         _passHint.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
         _passPanel.Children.Add(_passHint);
         _wifiPanel.Children.Add(_passPanel);
-        _wifiPanel.Children.Add(AsLabel("Pays (canaux Wi-Fi autorisés)"));
         Chips<string?>(_country, "AsCountry", [("Ne pas changer", null), .. ConfigConverter.WifiCountries.Select(c => (c.Label, (string?)c.Value))]);
-        _wifiPanel.Children.Add(_country);
-        _wifiPanel.Children.Add(AsLabel("Adresse IP en Wi-Fi"));
+        _wifiPanel.Children.Add(Choice("Pays (canaux Wi-Fi autorisés)", _country));
         Chips<bool?>(_wifiNet, "AsWifiNet", [("Ne pas changer", null), ("Adresse automatique (DHCP)", true), ("Adresse fixe", false)]);
-        _wifiPanel.Children.Add(_wifiNet);
+        _wifiPanel.Children.Add(Choice("Adresse IP en Wi-Fi", _wifiNet));
         _wifiStatic.Children.Add(Field("Adresse IP", _wifiIp, "ex. 192.168.1.60"));
         _wifiStatic.Children.Add(Field("Masque", _wifiMask, "ex. 255.255.255.0"));
         _wifiStatic.Children.Add(Field("Passerelle", _wifiGateway, "ex. 192.168.1.1"));
@@ -493,39 +486,105 @@ public partial class ConfigView
         _wifiPanel.Visibility = Visibility.Collapsed;
         p.Children.Add(_wifiPanel);
 
+        p = Group("À la fin du fichier");
         _restart.Style = (Style)FindResource("CheckLine");
         _restart.Content = Localization.T("Redémarrer l'imprimante à la fin (applique le réseau et le Wi-Fi)");
-        _restart.Margin = new Thickness(0, 14, 0, 0);
+        _restart.Margin = new Thickness(0, 8, 0, 4);
         _restart.Checked += (_, _) => RefreshCreate();
         _restart.Unchecked += (_, _) => RefreshCreate();
         p.Children.Add(_restart);
 
         _save.Style = (Style)FindResource("CheckLine");
         _save.Content = Localization.T("Enregistrer les réglages dans l'imprimante (conservés à l'extinction)");
-        _save.Margin = new Thickness(0, 14, 0, 8);
+        _save.Margin = new Thickness(0, 8, 0, 4);
         _save.Checked += (_, _) => RefreshCreate();
         _save.Unchecked += (_, _) => RefreshCreate();
         p.Children.Add(_save);
     }
 
-    private static TextBlock Section(string title) =>
-        new() { Text = Localization.T(title), FontSize = 15, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 16, 0, 0) };
+    /// <summary>
+    /// Bloc du formulaire, présenté comme le plan de travail : titre en capitales, puis des lignes nettes (libellé à gauche,
+    /// champ à droite ; ou libellé puis choix). Renvoie le conteneur des lignes.
+    /// </summary>
+    private StackPanel Group(string title, string? intro = null)
+    {
+        var rows = new StackPanel();
+        var head = new TextBlock { Text = Localization.T(title).ToUpperInvariant(), FontSize = 11, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4) };
+        head.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+        var panel = new StackPanel();
+        panel.Children.Add(head);
+        if (intro is not null)
+        {
+            var t = new TextBlock { Text = Localization.T(intro), FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 4) };
+            t.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            panel.Children.Add(t);
+        }
 
-    private TextBlock AsLabel(string text) =>
-        new() { Text = Localization.T(text), Margin = new Thickness(0, 10, 0, 0), Style = (Style)FindResource("FieldLabel"), TextWrapping = TextWrapping.Wrap };
+        panel.Children.Add(rows);
+        var card = new Border { CornerRadius = new CornerRadius(10), Padding = new Thickness(14, 12, 14, 6), BorderThickness = new Thickness(1), Margin = new Thickness(0, AssistantPanel.Children.Count == 0 ? 4 : 12, 0, 0), Child = panel };
+        card.SetResourceReference(Border.BackgroundProperty, "Surface2");
+        card.SetResourceReference(Border.BorderBrushProperty, "Line");
+        AssistantPanel.Children.Add(card);
+        return rows;
+    }
 
-    private StackPanel Field(string label, TextBox box, string hint)
+    /// <summary>Libellé et précision (le texte entre parenthèses) pour la colonne de gauche d'une ligne.</summary>
+    private static StackPanel RowLabel(string label)
+    {
+        var text = Localization.T(label);
+        var open = text.IndexOf(" (", StringComparison.Ordinal);
+        var main = open > 0 && text.EndsWith(')') ? text[..open] : text;
+        var detail = open > 0 && text.EndsWith(')') ? text[(open + 2)..^1] : null;
+        var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
+        var m = new TextBlock { Text = main, FontSize = 13, TextWrapping = TextWrapping.Wrap };
+        m.SetResourceReference(TextBlock.ForegroundProperty, "Ink");
+        panel.Children.Add(m);
+        if (detail is not null)
+        {
+            var d = new TextBlock { Text = detail, FontSize = 11.5, TextWrapping = TextWrapping.Wrap };
+            d.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            panel.Children.Add(d);
+        }
+
+        return panel;
+    }
+
+    private static Border RowBorder(UIElement child)
+    {
+        var b = new Border { Padding = new Thickness(0, 8, 0, 8), BorderThickness = new Thickness(0, 0, 0, 1), Child = child };
+        b.SetResourceReference(Border.BorderBrushProperty, "Line");
+        return b;
+    }
+
+    /// <summary>Une ligne « libellé — champ » : le champ, de hauteur fixe, est aligné à droite.</summary>
+    private Border Field(string label, TextBox box, string hint)
     {
         box.Style = (Style)FindResource("FieldInput");
-        box.Width = 220;
-        box.HorizontalAlignment = HorizontalAlignment.Left;
-        box.Margin = new Thickness(0, 4, 0, 0);
+        box.Width = 200;
+        box.Height = 34;
+        box.Padding = new Thickness(8, 0, 8, 0);
+        box.HorizontalAlignment = HorizontalAlignment.Right;
+        box.VerticalAlignment = VerticalAlignment.Center;
+        box.Margin = new Thickness(0);
         Placeholder.SetText(box, Localization.T(hint));
         box.TextChanged += (_, _) => RefreshCreate();
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        grid.Children.Add(RowLabel(label));
+        Grid.SetColumn(box, 1);
+        grid.Children.Add(box);
+        return RowBorder(grid);
+    }
+
+    /// <summary>Une ligne « libellé, puis les choix » (puces).</summary>
+    private static Border Choice(string label, WrapPanel chips)
+    {
         var panel = new StackPanel();
-        panel.Children.Add(AsLabel(label));
-        panel.Children.Add(box);
-        return panel;
+        panel.Children.Add(RowLabel(label));
+        chips.Margin = new Thickness(0, 8, 0, 0);
+        panel.Children.Add(chips);
+        return RowBorder(panel);
     }
 
     private void Chips<T>(WrapPanel panel, string group, (string Label, T Value)[] items)
@@ -625,26 +684,67 @@ public partial class ConfigView
     }
 
     /// <summary>Réglages lus sur la Zebra, relus comme un fichier SGD pour remplir le formulaire.</summary>
-    private void FromPrinter_Click(object sender, RoutedEventArgs e)
+    /// <summary>Réglages repris par « Partir des réglages de l'imprimante » (jamais le réseau : le fichier peut servir à une autre imprimante).</summary>
+    private static readonly string[] FormKeys =
+        ["print.tone", "media.speed", "media.type", "ezpl.media_type", "ezpl.print_method", "media.printmode", "ezpl.print_width", "print.width", "zpl.label_length", "zpl.left_position", "ezpl.tear_off"];
+
+    private async void FromPrinter_Click(object sender, RoutedEventArgs e)
     {
         if (_printer is null)
         {
             return;
         }
 
-        string[] keys = ["print.tone", "media.speed", "ezpl.media_type", "ezpl.print_method", "media.printmode", "ezpl.print_width", "zpl.label_length", "zpl.left_position", "ezpl.tear_off"];
-        var text = new StringBuilder();
-        foreach (var key in keys)
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var key in FormKeys)
         {
-            if (_printer.TryGetValue(key, out var v) && v.Value.Length > 0)
+            if (_printer.TryGetValue(key, out var v) && PrinterConfig.Unquote(v.Value) is { Length: > 0 } value)
             {
-                text.Append(CultureInfo.InvariantCulture, $"! U1 setvar \"{key}\" \"{v.Value}\"\r\n");
+                values[key] = value;
             }
+        }
+
+        // Ce que la lecture complète n'a pas donné, on le demande réglage par réglage (getvar), si l'imprimante est en réseau.
+        var missing = FormKeys.Where(k => !values.ContainsKey(k)).ToList();
+        if (missing.Count > 0 && NetworkTarget() is { } target)
+        {
+            FromPrinterButton.IsEnabled = false;
+            try
+            {
+                foreach (var (key, value) in await PrinterProbe.GetVarsAsync(target, missing, CancellationToken.None))
+                {
+                    values[key] = value;
+                }
+            }
+            catch (Exception ex) when (ex is IOException or InvalidOperationException or ArgumentException or OperationCanceledException or System.Net.Sockets.SocketException)
+            {
+                Log?.Invoke(LogKind.Warning, "Lecture complémentaire de l'imprimante impossible : " + ex.Message);
+            }
+            finally
+            {
+                FromPrinterButton.IsEnabled = true;
+            }
+        }
+
+        var text = new StringBuilder();
+        foreach (var (key, value) in values)
+        {
+            text.Append(CultureInfo.InvariantCulture, $"! U1 setvar \"{key}\" \"{value}\"\r\n");
         }
 
         var (s, _, _) = ConfigConverter.Extract(text.ToString(), CurrentDpi());
         FillForm(s);
-        Log?.Invoke(LogKind.Info, "Réglages de l'imprimante repris dans le formulaire : change ce qui doit l'être.");
+        var found = new List<string>();
+        if (s.Darkness is not null) { found.Add(Localization.T("noirceur")); }
+        if (s.SpeedIps is not null) { found.Add(Localization.T("vitesse")); }
+        if (s.Method is not null) { found.Add(Localization.T("méthode")); }
+        if (s.Mode is not null) { found.Add(Localization.T("sortie")); }
+        if (s.Media is not null) { found.Add(Localization.T("support")); }
+        if (s.WidthMm is not null) { found.Add(Localization.T("largeur")); }
+        if (s.LengthMm is not null) { found.Add(Localization.T("longueur")); }
+        Log?.Invoke(found.Count >= 5 ? LogKind.Info : LogKind.Warning, found.Count == 0
+            ? "Aucun réglage du formulaire n'a pu être lu sur cette imprimante."
+            : $"Réglages de l'imprimante repris dans le formulaire ({string.Join(", ", found)}) : change ce qui doit l'être. Non trouvés sur l'imprimante : {string.Join(", ", FormKeys.Where(k => !values.ContainsKey(k)).DefaultIfEmpty("aucun"))}.");
     }
 
     private void ClearForm_Click(object sender, RoutedEventArgs e) => FillForm(new PrinterSettings());

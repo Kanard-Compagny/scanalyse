@@ -19,6 +19,32 @@ internal sealed record ProbeResult(PrinterProfile? Profile, bool Reachable, stri
 internal static class PrinterProbe
 {
     /// <summary>
+    /// Demande des réglages un par un à une Zebra (« ! U1 getvar ») ; « ? » (réglage inconnu) et les valeurs vides sont ignorés.
+    /// </summary>
+    public static async Task<IReadOnlyList<(string Key, string Value)>> GetVarsAsync(string target, IReadOnlyList<string> keys, CancellationToken cancel)
+    {
+        if (keys.Count == 0)
+        {
+            return [];
+        }
+
+        // Un réglage à la fois : une imprimante qui ne répond rien à un nom inconnu ne décale pas les autres réponses.
+        var list = new List<(string, string)>();
+        foreach (var key in keys)
+        {
+            var reply = Encoding.UTF8.GetString(await PrinterTransport.QueryTcpAsync(target, Encoding.ASCII.GetBytes($"! U1 getvar \"{key}\"\r\n"), cancel, maxBytes: 4096, firstWaitMs: 1500, quietMs: 250));
+            var m = System.Text.RegularExpressions.Regex.Match(reply, "\"([^\"]*)\"");
+            var v = m.Success ? m.Groups[1].Value.Trim() : string.Empty;
+            if (v.Length > 0 && v != "?")
+            {
+                list.Add((key, v));
+            }
+        }
+
+        return list;
+    }
+
+    /// <summary>
     /// Recherche l'imprimante. <paramref name="manual"/> (bouton « Lire l'imprimante ») : lecture des réglages Zebra tentée
     /// même si la marque n'a pas été reconnue avant.
     /// </summary>

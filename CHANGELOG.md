@@ -18,6 +18,7 @@
   - **Copier d'une imprimante à une autre** : 1. source (imprimante lue ou état enregistré), 2. destination, 3. écarts à cocher ; jamais les adresses, noms, secrets ni les réglages absents ou refusés sur la destination. Les réglages cochés deviennent les « Modifications prévues » de la destination, revues avant l'envoi.
   - **Enregistrer l'état…** garde tous les réglages d'une imprimante dans un fichier (avant / après une intervention, configuration de référence d'un parc).
 - **Conf imprimante** : une valeur identique à celle de l'imprimante n'est plus signalée en erreur, et les listes de valeurs (canaux Wi-Fi « 1,2,3… ») sont contrôlées élément par élément.
+- **Conf imprimante, Créer un fichier** : formulaire présenté comme le plan de travail (blocs Impression, Étiquettes, Réglages fins, Réseau, Wi-Fi ; lignes nettes, libellé à gauche et champ aligné à droite). « Partir des réglages de l'imprimante » reprend aussi le type de support et la largeur, et demande à l'imprimante, un par un, les réglages absents de la lecture complète ; le journal dit ce qui a été repris et ce qui n'existe pas sur ce modèle.
 - **Défilement** : la molette ne reste plus bloquée dans une zone qui défile (liste, éditeur) : arrivée au bout, c'est la zone autour qui prend le relais.
 
 ## 0.12.4 — octobre 2026

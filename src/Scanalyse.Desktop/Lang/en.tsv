@@ -3461,3 +3461,14 @@ Clique pour reprendre ce réglage dans le fichier	Click to take this setting int
 Ce réglage déclenche une action (remise à zéro, calibrage…) : il ne se met pas dans un fichier d'ici.	This setting triggers an action (reset, calibration…): it is not put in a file from here.
 Réglage propre à cette imprimante (adresse, nom, identifiant, secret) : un fichier qui le contient ne convient qu'à elle.	Setting specific to this printer (address, name, identifier, secret): a file containing it only suits this printer.
 Valeur à écrire dans le fichier	Value to write in the file
+À la fin du fichier	At the end of the file
+noirceur	darkness
+vitesse	speed
+méthode	method
+sortie	output
+support	media
+largeur	width
+longueur	length
+Lecture complémentaire de l'imprimante impossible : {0}	Additional reading of the printer failed: {0}
+Aucun réglage du formulaire n'a pu être lu sur cette imprimante.	None of the form's settings could be read from this printer.
+Réglages de l'imprimante repris dans le formulaire ({0}) : change ce qui doit l'être. Non trouvés sur l'imprimante : {1}.	Printer settings taken into the form ({0}): change what needs changing. Not found on the printer: {1}.
