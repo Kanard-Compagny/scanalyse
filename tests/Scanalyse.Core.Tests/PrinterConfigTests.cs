@@ -173,6 +173,17 @@ public class PrinterConfigTests
         Assert.DoesNotContain(PrinterConfig.Analyze(text, printer).Findings, f => f.Severity == Severity.Error);
         Assert.Equal("abc", PrinterConfig.Unquote(" \"abc\" "));
         Assert.NotNull(PrinterConfig.SettingLabel("print.tone"));
+        Assert.Equal(SettingUse.Specific, PrinterConfig.Classify("ip.addr", printer["ip.addr"]));
+        Assert.Equal(SettingUse.Action, PrinterConfig.Classify("device.restore_defaults", printer["device.restore_defaults"]));
+        Assert.Equal(SettingUse.ReadOnly, PrinterConfig.Classify("appl.name", printer["appl.name"]));
+        Assert.Equal(SettingUse.Portable, PrinterConfig.Classify("print.tone", printer["print.tone"]));
+
+        // Liste de valeurs (canaux Wi-Fi) et valeur identique à celle de l'imprimante : pas d'erreur.
+        Assert.True(PrinterConfig.Accepts("1-14", "1,2,3,11"));
+        Assert.False(PrinterConfig.Accepts("1-14", "1,2,15"));
+        var wifi = PrinterConfig.ParseAllcv("wlan.user_channel_list : 1,2,3,4,5,6,7,8,9,10,11 , Choices: all\r\n");
+        var same = PrinterConfig.Compare(PrinterConfig.Analyze("! U1 setvar \"wlan.user_channel_list\" \"1,2,3,4,5,6,7,8,9,10,11\"\r\n", wifi), wifi);
+        Assert.DoesNotContain(same, f => f.Severity == Severity.Error);
     }
 
     [Fact]

@@ -9,7 +9,12 @@
   - un **conseil** pour le paramètre le plus faible (ruban, noirceur, vitesse, tête d'impression, marge…) ;
   - fonctionne aussi sur photo inclinée, dans le programme Windows comme sur téléphone, et figure dans le rapport PDF.
   C'est une estimation faite sur l'image (sans l'éclairage ni l'étalonnage d'un vérificateur) : elle aide à trouver la cause d'un défaut, mais ne remplace pas un rapport de vérification certifié.
-- **Conf imprimante : « Réglages de l'imprimante »** — après « Lire l'imprimante », tous les réglages lus s'affichent (libellé, valeur, valeurs acceptées), avec un filtre. « Mettre dans l'éditeur » les réécrit en fichier `! U1 setvar` à enregistrer, modifier ou envoyer à une autre imprimante (sans les réglages en lecture seule ni ceux propres à l'imprimante : adresses, nom, numéro de série, secrets) ; « Copier » copie la liste.
+- **Conf imprimante : « Réglages de l'imprimante »** — après « Lire l'imprimante », les réglages lus s'affichent par famille (media, print, wlan…) avec libellé, valeur et valeurs acceptées ; recherche, et informations en lecture seule sur demande.
+  - « + » ajoute un réglage au fichier (ou le met à jour s'il y est déjà), « + ajouter les n » toute une famille, « Tout ajouter » tout ce qui est affiché : on compose son fichier sans rien effacer.
+  - Les réglages propres à l'imprimante (adresses, nom, numéro de série, secrets) et ceux qui déclenchent une action (remise en usine, calibrage) ne sont jamais repris.
+  - « Copier » copie la liste, à coller dans un tableur.
+- **Conf imprimante** : une valeur identique à celle de l'imprimante n'est plus signalée en erreur, et les listes de valeurs (canaux Wi-Fi « 1,2,3… ») sont contrôlées élément par élément.
+- **Défilement** : la molette ne reste plus bloquée dans une zone qui défile (liste, éditeur) : arrivée au bout, c'est la zone autour qui prend le relais.
 
 ## 0.12.4 — octobre 2026
 

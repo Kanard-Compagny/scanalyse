@@ -23,12 +23,25 @@ internal static class ScrollChaining
 
             var up = e.Delta > 0;
             var d = e.OriginalSource as DependencyObject;
+            var blocked = false;
             while (d is not null && !ReferenceEquals(d, page))
             {
-                if (d is ScrollViewer inner && inner.ScrollableHeight > 0.5
-                    && (up ? inner.VerticalOffset > 0.5 : inner.VerticalOffset < inner.ScrollableHeight - 0.5))
+                if (d is ScrollViewer inner)
                 {
-                    return; // La zone sous la souris peut encore défiler : on la laisse faire.
+                    if (inner.ScrollableHeight > 0.5 && (up ? inner.VerticalOffset > 0.5 : inner.VerticalOffset < inner.ScrollableHeight - 0.5))
+                    {
+                        if (blocked)
+                        {
+                            // Une zone intérieure (champ de texte, liste…) garderait la molette sans rien faire défiler :
+                            // on fait défiler nous-mêmes la première zone qui le peut.
+                            inner.ScrollToVerticalOffset(inner.VerticalOffset - e.Delta / 120.0 * 48);
+                            e.Handled = true;
+                        }
+
+                        return; // La zone sous la souris peut encore défiler : on la laisse faire.
+                    }
+
+                    blocked = true;
                 }
 
                 d = d is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(d) : LogicalTreeHelper.GetParent(d);

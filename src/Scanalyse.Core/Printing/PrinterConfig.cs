@@ -47,6 +47,22 @@ public sealed record ConfigReport(IReadOnlyList<string> Languages, IReadOnlyList
 /// <param name="Choices">Valeurs acceptées annoncées par l'imprimante (« on,off », « 0.0-30.0 »…), si elle les donne.</param>
 public sealed record PrinterValue(string Value, string? Choices);
 
+/// <summary>Ce qu'on peut faire d'un réglage lu sur l'imprimante (voir <see cref="PrinterConfig.Classify"/>).</summary>
+public enum SettingUse
+{
+    /// <summary>Réglable, et valable sur une autre imprimante.</summary>
+    Portable,
+
+    /// <summary>Lecture seule (aucun choix annoncé) ou valeur masquée.</summary>
+    ReadOnly,
+
+    /// <summary>Propre à cette imprimante : adresse, nom, numéro de série, secret.</summary>
+    Specific,
+
+    /// <summary>Déclenche une action (remise à zéro, calibrage…).</summary>
+    Action,
+}
+
 /// <summary>
 /// Analyse des fichiers de configuration envoyés aux imprimantes d'étiquettes : Zebra (ZPL et SGD « ! U1 setvar / getvar /
 /// do », JSON SGD), TSC (TSPL), Honeywell / Datamax (DPL), Honeywell / Intermec (Fingerprint, Direct Protocol), SATO (SBPL)
@@ -1774,13 +1790,13 @@ public static partial class PrinterConfig
                 continue;
             }
 
-            if (current.Choices is { } choices && !Accepts(choices, s.Value))
+            if (SameValue(Unquote(current.Value), s.Value))
+            {
+                list.Add(new ConfigFinding(s.Line, Severity.Ok, $"{s.Label} : déjà réglé sur « {Unquote(current.Value)} »."));
+            }
+            else if (current.Choices is { } choices && !Accepts(choices, s.Value))
             {
                 list.Add(new ConfigFinding(s.Line, Severity.Error, $"{s.Label} : « {s.Value} » refusé par cette imprimante (valeurs acceptées : {choices})."));
-            }
-            else if (SameValue(current.Value, s.Value))
-            {
-                list.Add(new ConfigFinding(s.Line, Severity.Ok, $"{s.Label} : déjà réglé sur « {current.Value} »."));
             }
             else
             {
@@ -1796,15 +1812,15 @@ public static partial class PrinterConfig
     {
         ArgumentNullException.ThrowIfNull(choices);
         ArgumentNullException.ThrowIfNull(value);
-        var v = value.Trim();
-        var range = RangeChoice().Match(choices.Trim());
-        if (range.Success)
-        {
-            return double.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out var d)
-                && d >= double.Parse(range.Groups[1].Value, CultureInfo.InvariantCulture) && d <= double.Parse(range.Groups[2].Value, CultureInfo.InvariantCulture);
-        }
+        var options = choices.Split(',').Select(c => c.Trim()).Where(c => c.Length > 0).ToList();
+        bool One(string x) => options.Contains(x, StringComparer.Ordinal) || options.Any(c => RangeChoice().Match(c) is { Success: true } m
+            && double.TryParse(x, NumberStyles.Float, CultureInfo.InvariantCulture, out var d)
+            && d >= double.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture) && d <= double.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture));
 
-        return choices.Split(',').Select(c => c.Trim()).Contains(v, StringComparer.Ordinal);
+        // Une valeur, ou une liste de valeurs (« 1,2,3,11 » pour les canaux Wi-Fi) dont chaque élément est accepté.
+        var v = value.Trim();
+        var parts = v.Split(',').Select(p => p.Trim()).ToList();
+        return One(v) || (parts.Count > 1 && parts.All(p => p.Length > 0 && One(p)));
     }
 
     private static bool SameValue(string a, string b) =>
@@ -1824,10 +1840,38 @@ public static partial class PrinterConfig
     }
 
     /// <summary>
-    /// Réécrit des réglages lus en fichier « ! U1 setvar », pour les garder ou les reporter sur une autre imprimante.
-    /// Sont laissés de côté : les réglages en lecture seule (aucun choix annoncé), les valeurs masquées, ceux qui déclenchent
-    /// une action (remise à zéro, calibrage…) et ceux propres à cette imprimante (adresses, nom, numéro de série, secrets).
+    /// Ce qu'on peut faire d'un réglage lu : le reprendre dans un fichier, ou non (lecture seule, valeur masquée,
+    /// réglage qui déclenche une action, ou propre à cette imprimante : adresses, nom, numéro de série, secrets).
     /// </summary>
+    public static SettingUse Classify(string key, PrinterValue value)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(value);
+        var v = Unquote(value.Value);
+        if (ActionKey().IsMatch(key))
+        {
+            return SettingUse.Action;
+        }
+
+        if (SpecificKey().IsMatch(key))
+        {
+            return SettingUse.Specific;
+        }
+
+        return value.Choices is not { Length: > 0 } || v.Contains('"', StringComparison.Ordinal) || (v.Length > 0 && v.Trim('*').Length == 0)
+            ? SettingUse.ReadOnly
+            : SettingUse.Portable;
+    }
+
+    /// <summary>Ligne « ! U1 setvar » qui règle cette valeur.</summary>
+    public static string SetvarLine(string key, PrinterValue value)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(value);
+        return "! U1 setvar \"" + key + "\" \"" + Unquote(value.Value) + "\"";
+    }
+
+    /// <summary>Réécrit en fichier « ! U1 setvar » les réglages lus qu'on peut reporter (voir <see cref="Classify"/>).</summary>
     public static (string Text, int Written, int Skipped) SettingsFile(IEnumerable<KeyValuePair<string, PrinterValue>> settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -1835,23 +1879,24 @@ public static partial class PrinterConfig
         int written = 0, skipped = 0;
         foreach (var (key, pv) in settings.OrderBy(kv => kv.Key, StringComparer.Ordinal))
         {
-            var value = Unquote(pv.Value);
-            if (pv.Choices is not { Length: > 0 } || value.Contains('"', StringComparison.Ordinal) || (value.Length > 0 && value.Trim('*').Length == 0)
-                || NotPortable().IsMatch(key))
+            if (Classify(key, pv) != SettingUse.Portable)
             {
                 skipped++;
                 continue;
             }
 
-            sb.Append("! U1 setvar \"").Append(key).Append("\" \"").Append(value).Append("\"\r\n");
+            sb.Append(SetvarLine(key, pv)).Append("\r\n");
             written++;
         }
 
         return (sb.ToString(), written, skipped);
     }
 
-    [GeneratedRegex(@"(^|\.)(\w*reset\w*|restore\w*|calibrat\w*|\w*dump\w*|upgrade|download\w*|reboot|feed|print_configuration|test\w*|clear\w*|delete|capture\w*|pause|cancel_all|\w*addr\w*|gateway|netmask|\w*mac\w*|unique_id|friendly_name|\w*serial\w*|odometer|\w*pass\w*|psk|esk|\w*key\w*|pin|\w*cert\w*|licen\w*|username)($|\.)", RegexOptions.IgnoreCase)]
-    private static partial Regex NotPortable();
+    [GeneratedRegex(@"(^|\.)(\w*reset\w*|restore\w*|calibrat\w*|\w*dump\w*|upgrade|download\w*|reboot|feed|print_configuration|test\w*|clear\w*|delete|capture\w*|pause|cancel_all)($|\.)", RegexOptions.IgnoreCase)]
+    private static partial Regex ActionKey();
+
+    [GeneratedRegex(@"(^|\.)(\w*addr\w*|gateway|netmask|\w*mac\w*|unique_id|friendly_name|\w*serial\w*|odometer|\w*pass\w*|psk|esk|\w*key\w*|pin|\w*cert\w*|licen\w*|username)($|\.)", RegexOptions.IgnoreCase)]
+    private static partial Regex SpecificKey();
 
     /// <summary>Commande qui demande à une Zebra tous ses réglages (réponse : <see cref="ParseAllcv"/>).</summary>
     public static byte[] AllcvRequest => Encoding.ASCII.GetBytes("! U1 getvar \"allcv\"\r\n");

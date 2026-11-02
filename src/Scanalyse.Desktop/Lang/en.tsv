@@ -3266,18 +3266,24 @@ Impression engraissée (barres ou modules foncés trop larges) : baisse la noirc
 Impression maigre (barres ou modules foncés trop fins) : augmente la noirceur ou vérifie le ruban.	Print loss (dark bars or modules too thin): raise the darkness or check the ribbon.
 Réglages de l'imprimante	Printer settings
 Tous les réglages lus sur l'imprimante, à consulter ou à reprendre dans un fichier	All the settings read from the printer, to look through or reuse in a file
-Mettre dans l'éditeur	Put in the editor
-Écrit les réglages affichés (modifiables) en commandes ! U1 setvar dans l'éditeur : à enregistrer, modifier ou renvoyer	Writes the displayed (editable) settings as ! U1 setvar commands in the editor: to save, edit or send again
-Copie la liste affichée (nom, valeur, valeurs acceptées)	Copies the displayed list (name, value, accepted values)
-Filtrer les réglages de l'imprimante	Filter the printer settings
-Filtrer : media, darkness, ip, wlan…	Filter: media, darkness, ip, wlan…
-{0} réglage(s) affiché(s) sur {1}, lus sur {2}.	{0} of {1} setting(s) shown, read from {2}.
-Remplacer le fichier ?	Replace the file?
-L'éditeur contient déjà un fichier : il sera remplacé par les réglages de l'imprimante.	The editor already contains a file: it will be replaced by the printer settings.
 Remplacer	Replace
-Réglages lus sur {0} · {1} commande(s)	Settings read from {0} · {1} command(s)
 accepte : {0}	accepts: {0}
 {0} réglage(s) de l'imprimante copiés.	{0} printer setting(s) copied.
-Aucun réglage modifiable parmi ceux affichés.	No editable setting among those shown.
-{0} réglage(s) repris dans l'éditeur ; {1} laissé(s) de côté (lecture seule, ou propres à cette imprimante : adresses, nom, numéro de série).	{0} setting(s) put in the editor; {1} left out (read-only, or specific to this printer: addresses, name, serial number).
-{0} réglage(s) repris dans l'éditeur.	{0} setting(s) put in the editor.
+Rechercher un réglage de l'imprimante	Search for a printer setting
+Rechercher : media, noirceur, wlan…	Search: media, darkness, wlan…
+Lecture seule	Read-only
+Afficher aussi les informations en lecture seule (modèle, firmware, compteurs, état…)	Also show read-only information (model, firmware, counters, status…)
+Ajoute au fichier tous les réglages affichés qui peuvent être repris (ceux déjà présents sont mis à jour)	Adds to the file every displayed setting that can be reused (those already present are updated)
+Copie la liste affichée (nom, valeur, valeurs acceptées), à coller dans un tableur	Copies the displayed list (name, value, accepted values), to paste into a spreadsheet
+Tout ajouter ({0})	Add all ({0})
+{0} réglage(s) lus sur {1} : {2} réglables, {3} en lecture seule. « + » ajoute un réglage au fichier, ou le met à jour s'il y est déjà.	{0} setting(s) read from {1}: {2} adjustable, {3} read-only. "+" adds a setting to the file, or updates it if it is already there.
+Aucun réglage ne correspond à la recherche.	No setting matches the search.
++ ajouter les {0}	+ add all {0}
+Ajoute au fichier les réglages « {0} » affichés	Adds the displayed "{0}" settings to the file
+propre à cette imprimante	specific to this printer
+déclenche une action	triggers an action
+dans le fichier : {0}	in the file: {0}
+Ajouter au fichier	Add to the file
+Mettre à jour dans le fichier	Update in the file
+Réglages lus sur {0}	Settings read from {0}
+Fichier : {0} réglage(s) de l'imprimante ajouté(s), {1} mis à jour.	File: {0} printer setting(s) added, {1} updated.
