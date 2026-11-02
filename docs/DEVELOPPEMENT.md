@@ -11,6 +11,8 @@ Ce document s'adresse à ceux qui veulent compiler, modifier ou améliorer Scana
 | `web/` | Sources de l'Atelier (HTML/CSS/JS) et bibliothèques figées dans `web/vendor`. `web/build.py` génère la page embarquée `src/Scanalyse.Desktop/Web/index.html`. | Navigateur / WebView2 |
 | `tests/Scanalyse.Core.Tests` | Tests automatiques du Core (xUnit). | .NET 10 |
 
+Règles de l'onglet **Conf imprimante** (à respecter pour toute évolution) : [CONF_IMPRIMANTE.md](CONF_IMPRIMANTE.md).
+
 ## Parcours type : « le client m'envoie une photo »
 
 1. **Coller une image** (Ctrl + Maj + V) ou **Capturer une zone** depuis la barre d'outils, ou importer un fichier dans *Analyser une image*.
