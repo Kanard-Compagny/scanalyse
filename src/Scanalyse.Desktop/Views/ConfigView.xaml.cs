@@ -987,6 +987,9 @@ public partial class ConfigView : UserControl
 
     internal string? PrinterName => _printerName;
 
+    /// <summary>Adresse réseau de l'imprimante choisie dans la page (IP saisie, ou celle de l'imprimante installée).</summary>
+    internal string? PrinterTarget => NetworkTarget();
+
     /// <summary>Réglages que le fichier donne (dernière valeur si un réglage apparaît plusieurs fois).</summary>
     internal IReadOnlyDictionary<string, string> FileSettings =>
         _report?.Settings.GroupBy(x => x.Key, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Last().Value, StringComparer.Ordinal)
@@ -1007,7 +1010,7 @@ public partial class ConfigView : UserControl
         var owner = Window.GetWindow(this);
         var w = new ProgramWindow
         {
-            Heading = Localization.T("Réglages de l'imprimante"),
+            Heading = Localization.T("Plan de travail imprimante"),
             CloseTip = Localization.T("Fermer le plan de travail"),
             Owner = owner,
             Width = Math.Max(900, (owner?.ActualWidth ?? 1400) * 0.6),

@@ -3373,3 +3373,85 @@ Fichier : {0} = « {1} ».	File: {0} = "{1}".
 Fichier : {0} retiré.	File: {0} removed.
 {0} : {1} réglage(s) dans le fichier, {2} non copié(s) (absents ou refusés sur l'autre imprimante). Vérifie puis « Envoyer à l'imprimante ».	{0}: {1} setting(s) in the file, {2} not copied (missing or refused on the other printer). Check then "Send to the printer".
 {0} : {1} réglage(s) dans le fichier. Vérifie puis « Envoyer à l'imprimante ».	{0}: {1} setting(s) in the file. Check then "Send to the printer".
+Plan de travail imprimante	Printer workbench
+Régler une imprimante	Adjust a printer
+Copier d'une imprimante à une autre	Copy from one printer to another
+Voir les réglages d'une imprimante et préparer des modifications	See a printer's settings and prepare changes
+Lire une imprimante source et une destination, voir les écarts, et copier	Read a source printer and a destination, see the differences, and copy
+Saisis l'adresse IP de l'imprimante ci-dessus et clique « Lire » : ses réglages s'affichent ici. Rien n'est modifié tant que tu n'envoies pas tes modifications.	Type the printer's IP address above and click "Read": its settings appear here. Nothing is changed until you send your changes.
+Imprimante de cette fenêtre	Printer of this window
+Adresse {0} · réglages lus à {1} · {2} réglages	Address {0} · settings read at {1} · {2} settings
+Adresse de l'imprimante à lire (port 9100)	Address of the printer to read (port 9100)
+Lire	Read
+Lire / relire	Read / read again
+Lit tous les réglages de l'imprimante à cette adresse	Reads all the settings of the printer at this address
+Enregistre tous les réglages de cette imprimante dans un fichier : pour garder une trace (avant / après une intervention) ou les copier plus tard	Saves all this printer's settings to a file: to keep a record (before / after a job) or copy them later
+Changer d'imprimante ?	Change printer?
+{0} modification(s) sont prévues pour {1} ({2}). Elles seront abandonnées si tu lis une autre imprimante.	{0} change(s) are planned for {1} ({2}). They will be dropped if you read another printer.
+Abandonner et lire l'autre	Drop them and read the other
+Lecture de {0}…	Reading {0}…
+Rechercher un réglage : nom, libellé ou valeur	Search for a setting: name, label or value
+Afficher aussi les informations en lecture seule (modèle, compteurs, état…)	Also show read-only information (model, counters, status…)
+modification prévue	planned change
+Clique pour voir ce réglage et préparer une modification	Click to see this setting and prepare a change
+Modifier un réglage	Change a setting
+Clique un réglage dans la liste pour le voir ici. Tu pourras choisir une nouvelle valeur : elle s'ajoute aux « Modifications prévues », et rien n'est envoyé tant que tu ne cliques pas sur le bouton d'envoi.	Click a setting in the list to see it here. You can choose a new value: it is added to "Planned changes", and nothing is sent until you click the send button.
+Sur l'imprimante	On the printer
+Information en lecture seule : l'imprimante la donne mais ne la laisse pas modifier.	Read-only information: the printer reports it but does not let it be changed.
+Ce réglage déclenche une action (remise à zéro, calibrage…) : il ne se modifie pas d'ici.	This setting triggers an action (reset, calibration…): it is not changed from here.
+Réglage propre à cette imprimante (adresse, nom, identifiant, secret). Le changer peut la rendre injoignable sur le réseau : vérifie bien la valeur.	Setting specific to this printer (address, name, identifier, secret). Changing it can make it unreachable on the network: double-check the value.
+Nouvelle valeur	New value
+valeur	value
+Accepte de {0} à {1}	Accepts {0} to {1}
+Accepte : {0}	Accepts: {0}
+Ajouter aux modifications prévues	Add to planned changes
+Mettre à jour la modification prévue	Update the planned change
+Note ce changement dans « Modifications prévues » : il n'est pas encore envoyé	Notes this change in "Planned changes": it is not sent yet
+Annuler cette modification	Cancel this change
+Saisis une valeur (sans guillemets).	Type a value (without quotes).
+Cette imprimante refuserait « {0} » (accepte : {1}).	This printer would refuse "{0}" (accepts: {1}).
+Modifications prévues ({0})	Planned changes ({0})
+Aucune pour l'instant. Rien n'est envoyé à l'imprimante tant que tu n'as pas cliqué sur le bouton d'envoi, qui nomme l'imprimante et son adresse.	None yet. Nothing is sent to the printer until you click the send button, which names the printer and its address.
+Retire ce changement de la liste	Removes this change from the list
+Envoyer à {0} ({1})	Send to {0} ({1})
+Envoyer {0} modification(s) à {1} ({2})	Send {0} change(s) to {1} ({2})
+Tout annuler	Cancel all
+Vide la liste des modifications prévues (rien n'a été envoyé)	Empties the planned changes (nothing has been sent)
+Voir le fichier	See the file
+Met ces modifications dans l'éditeur de la page, sous forme de fichier : pour l'enregistrer ou le relire (rien n'est envoyé)	Puts these changes in the page's editor as a file: to save or review it (nothing is sent)
+Modifications prévues pour {0} ({1})	Planned changes for {0} ({1})
+Imprimante : {0}	Printer: {0}
+Adresse : {0}	Address: {0}
+Attention : des réglages réseau changent. L'imprimante peut devenir injoignable à cette adresse, ou redémarrer.	Warning: network settings change. The printer may become unreachable at this address, or restart.
+Envoyer {0} modification(s) ?	Send {0} change(s)?
+Vérification : relecture de l'imprimante…	Checking: reading the printer again…
+Source : copier depuis	Source: copy from
+Destination : copier vers	Destination: copy to
+1. Lis l'imprimante source (ou ouvre un état enregistré). 2. Lis l'imprimante de destination. 3. Les écarts s'affichent : coche ce que tu veux copier, puis prépare l'envoi vers la destination.	1. Read the source printer (or open a saved state). 2. Read the destination printer. 3. The differences appear: tick what you want to copy, then prepare sending to the destination.
+La source et la destination sont la même imprimante : lis une autre imprimante en destination.	The source and destination are the same printer: read another printer as destination.
+Préparer {0} réglage(s) pour {1} ({2})	Prepare {0} setting(s) for {1} ({2})
+Ajoute les réglages cochés aux « Modifications prévues » de la destination : tu les reverras avant l'envoi	Adds the ticked settings to the destination's "Planned changes": you will review them before sending
+{0} écart(s) · {1} copiable(s) · {2} coché(s)	{0} difference(s) · {1} copyable · {2} ticked
+Destination	Destination
+Aucun écart : les deux imprimantes sont réglées pareil.	No difference: both printers are set the same.
+État enregistré · {0} réglages	Saved state · {0} settings
+Adresse {0} · lue à {1}	Address {0} · read at {1}
+Pas encore lue	Not read yet
+Utilise comme source un état enregistré (fichier) au lieu d'une imprimante lue	Uses a saved state (file) as the source instead of a printer read
+n'existe pas sur la destination	does not exist on the destination
+n'existe pas sur la source	does not exist on the source
+propre à chaque imprimante : jamais copié	specific to each printer: never copied
+action : jamais copiée	action: never copied
+refusé par la destination	refused by the destination
+Remplacer les modifications prévues ?	Replace the planned changes?
+{0} modification(s) étaient prévues pour {1} ({2}) : elles seront abandonnées.	{0} change(s) were planned for {1} ({2}): they will be dropped.
+{0} répond, mais n'a pas donné ses réglages : la lecture complète fonctionne avec les imprimantes Zebra en réseau.	{0} answers, but did not give its settings: full reading works with networked Zebra printers.
+{0} ne répond pas (éteinte, autre réseau ou adresse erronée).	{0} does not answer (off, another network or wrong address).
+Lecture de {0} impossible : {1}	Reading {0} failed: {1}
+{0} modification(s) envoyée(s) à {1} ({2}).	{0} change(s) sent to {1} ({2}).
+Envoi à {0} impossible : {1}	Sending to {0} failed: {1}
+Réglages réseau envoyés : relis l'imprimante quand elle aura redémarré, à sa nouvelle adresse si elle a changé.	Network settings sent: read the printer again once it has restarted, at its new address if it changed.
+Vérifié sur {0} : les {1} réglage(s) ont bien été pris en compte.	Checked on {0}: the {1} setting(s) were applied.
+Vérifié sur {0} : {1} pris en compte, {2} non appliqué(s) (restent dans « Modifications prévues ») : {3}.	Checked on {0}: {1} applied, {2} not applied (kept in "Planned changes"): {3}.
+{0} réglage(s) de {1} préparés pour {2} ({3}) : vérifie « Modifications prévues » puis envoie.	{0} setting(s) from {1} prepared for {2} ({3}): check "Planned changes" then send.
+Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : régler une imprimante en toute sécurité, ou copier les réglages d'une imprimante vers une autre	Opens the printer workbench in a separate window (ideal on a second screen): adjust a printer safely, or copy one printer's settings to another

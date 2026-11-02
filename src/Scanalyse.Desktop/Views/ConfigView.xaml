@@ -311,7 +311,7 @@
               <Button Grid.Column="3" Style="{StaticResource BtnSmall}" Content="Copier" Margin="6,0,0,0" VerticalAlignment="Center" Click="PrinterCopy_Click"
                       ToolTip="Copie la liste affichée (nom, valeur, valeurs acceptées), à coller dans un tableur" />
               <Button Grid.Column="4" Style="{StaticResource BtnSmall}" Content="Détacher" Margin="6,0,0,0" VerticalAlignment="Center" Click="Detach_Click"
-                      ToolTip="Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : familles de réglages, valeurs modifiables, comparaison et copie entre deux imprimantes" />
+                      ToolTip="Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : régler une imprimante en toute sécurité, ou copier les réglages d'une imprimante vers une autre" />
             </Grid>
           </StackPanel>
           <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
