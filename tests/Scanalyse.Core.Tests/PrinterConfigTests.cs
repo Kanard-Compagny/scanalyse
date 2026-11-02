@@ -154,7 +154,7 @@ public class PrinterConfigTests
         Assert.Contains(c, f => f.Line == 1 && f.Severity == Severity.Ok);
         Assert.Contains(c, f => f.Line == 2 && f.Severity == Severity.Error && f.Message.Contains("2.0-6.0", StringComparison.Ordinal));
         Assert.Contains(c, f => f.Line == 3 && f.Severity == Severity.Info && f.Message.Contains("tear off", StringComparison.Ordinal));
-        Assert.Contains(c, f => f.Line == 4 && f.Severity == Severity.Error);
+        Assert.Contains(c, f => f.Line == 4 && f.Severity == Severity.Warning);
         Assert.True(PrinterConfig.Accepts("on,off", "on"));
         Assert.False(PrinterConfig.Accepts("0.0-30.0", "31"));
     }
@@ -202,6 +202,10 @@ public class PrinterConfigTests
         Assert.Equal("! U1 setvar \"media.printmode\" \"tear off\"\r\n! U1 setvar \"print.tone\" \"20.0\"\r\n", text);
         Assert.DoesNotContain(PrinterConfig.Analyze(text, printer).Findings, f => f.Severity == Severity.Error);
         Assert.Equal("abc", PrinterConfig.Unquote(" \"abc\" "));
+
+        // Commande ZPL dont l'équivalent SGD n'a pas été lu : rien à signaler (la commande existe sur tout modèle).
+        var zpl = PrinterConfig.Analyze("^XA^MNY^PW336^XZ\r\n", printer);
+        Assert.DoesNotContain(PrinterConfig.Compare(zpl, printer), f => f.Severity is Severity.Error or Severity.Warning);
         Assert.NotNull(PrinterConfig.SettingLabel("print.tone"));
         Assert.Equal(SettingUse.Specific, PrinterConfig.Classify("ip.addr", printer["ip.addr"]));
         Assert.Equal(SettingUse.Action, PrinterConfig.Classify("device.restore_defaults", printer["device.restore_defaults"]));
@@ -323,7 +327,7 @@ public class PrinterConfigTests
         var withPrinter = PrinterConfig.Analyze(file, printer);
         Assert.DoesNotContain(withPrinter.Findings, f => f.Line is 1 or 3);
         var c = PrinterConfig.Compare(withPrinter, printer);
-        Assert.Contains(c, f => f.Line == 3 && f.Severity == Severity.Error);
+        Assert.Contains(c, f => f.Line == 3 && f.Severity == Severity.Warning);
         Assert.Contains(c, f => f.Line == 1 && f.Severity == Severity.Info);
 
         Assert.Contains(PrinterConfig.Suggest("! U1 setvar \"zbi.s", printer: printer).Items, i => i.Label == "zbi.secret_option");

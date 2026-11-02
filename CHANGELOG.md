@@ -25,6 +25,7 @@
   - Convertir et Créer partent d'un fichier du PC ou de zéro : lire une imprimante ne change jamais le langage, la résolution ni le formulaire déjà choisis ; seul « Partir des réglages de l'imprimante » apparaît quand une Zebra a été lue ;
   - Convertir et Créer : le langage d'arrivée n'est coché d'office que si une imprimante est reconnue, avec la raison affichée (« Choisi d'après l'imprimante sélectionnée… ») ; sans imprimante, rien n'est coché et aucun fichier n'est produit tant que le langage n'est pas choisi (plus de ZPL ou TSPL par défaut, au hasard) ;
   - lecture complète Zebra plus patiente (certains modèles marquent des pauses en cours de réponse) ; « Enregistrer l'état… » joint la réponse brute de l'imprimante, pour le diagnostic.
+- **Conf imprimante, Analyser un fichier** : choix « Le fichier seul » ou « Avec l'imprimante : … » quand une imprimante est reconnue, pour chercher les problèmes d'un fichier sans le comparer à l'imprimante branchée. Avec l'imprimante, une commande ZPL (^MN, ^PW, ~TA…) n'est plus signalée « n'existe pas sur cette imprimante » quand son équivalent SGD n'a pas été lu ; une ligne SGD absente des réglages lus devient « à vérifier » au lieu d'une erreur.
 - **Défilement** : la molette ne reste plus bloquée dans une zone qui défile (liste, éditeur) : arrivée au bout, c'est la zone autour qui prend le relais.
 
 ## 0.12.4 — octobre 2026

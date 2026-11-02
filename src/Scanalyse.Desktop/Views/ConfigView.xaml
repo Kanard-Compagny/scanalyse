@@ -275,6 +275,14 @@
           <StackPanel DockPanel.Dock="Top">
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Analyse" />
             <TextBlock x:Name="ResultSummary" Style="{StaticResource PageSubtitle}" Margin="0,4,0,10" Text="Le fichier est analysé dès qu'il est collé ou ouvert." />
+            <!-- Référence de l'analyse : le fichier seul, ou comparé à l'imprimante choisie -->
+            <WrapPanel x:Name="ReferenceChips" Margin="0,0,0,8" Visibility="Collapsed">
+              <TextBlock Text="Analyser" VerticalAlignment="Center" Margin="0,0,10,6" FontSize="12.5" Foreground="{DynamicResource Muted}" />
+              <RadioButton x:Name="RefFileOnly" Style="{StaticResource Chip}" GroupName="AnalysisRef" Content="Le fichier seul" Checked="Reference_Changed"
+                           ToolTip="Cherche les problèmes du fichier lui-même (syntaxe, valeurs, ordre, commandes risquées), sans tenir compte d'une imprimante" />
+              <RadioButton x:Name="RefPrinter" Style="{StaticResource Chip}" GroupName="AnalysisRef" IsChecked="True" Checked="Reference_Changed"
+                           ToolTip="Vérifie aussi que le fichier convient à l'imprimante choisie : langage, réglages qui existent sur ce modèle, valeurs acceptées, ce qui changera" />
+            </WrapPanel>
             <Border x:Name="RiskBanner" Background="{DynamicResource WarnBg}" CornerRadius="8" Padding="12,9" Margin="0,0,0,10" Visibility="Collapsed">
               <TextBlock x:Name="RiskText" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource WarnFg}" />
             </Border>

@@ -728,17 +728,19 @@ public partial class ConfigView : UserControl
             return;
         }
 
-        var r = PrinterConfig.Analyze(text, _printer);
+        var printer = UsePrinter ? _printer : null;
+        var profile = UsePrinter ? _profile : null;
+        var r = PrinterConfig.Analyze(text, printer);
         _report = r;
         var comparison = new List<ConfigFinding>();
-        if (_printer is not null)
+        if (printer is not null)
         {
-            comparison.AddRange(PrinterConfig.Compare(r, _printer));
+            comparison.AddRange(PrinterConfig.Compare(r, printer));
         }
 
-        if (_profile is not null)
+        if (profile is not null)
         {
-            comparison.AddRange(PrinterConfig.Compatibility(r, _profile));
+            comparison.AddRange(PrinterConfig.Compatibility(r, profile));
         }
 
         _comparison = comparison;
@@ -758,9 +760,29 @@ public partial class ConfigView : UserControl
         BenchStateChanged?.Invoke();
     }
 
+    /// <summary>L'analyse tient compte de l'imprimante choisie (sinon : le fichier seul).</summary>
+    private bool UsePrinter => RefPrinter.IsChecked == true;
+
+    private void Reference_Changed(object sender, RoutedEventArgs e)
+    {
+        if (IsLoaded)
+        {
+            Analyze();
+        }
+    }
+
+    /// <summary>Le choix « Le fichier seul / Avec l'imprimante » n'apparaît que lorsqu'une imprimante est reconnue.</summary>
+    private void UpdateReferenceChips()
+    {
+        ReferenceChips.Visibility = _profile is null ? Visibility.Collapsed : Visibility.Visible;
+        RefPrinter.Content = _profile is null ? Localization.T("Avec l'imprimante")
+            : string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Avec l'imprimante : {0}"), _profile.DisplayName);
+    }
+
     private void ShowPrinterBanner()
     {
-        if (_printer is null)
+        UpdateReferenceChips();
+        if (_printer is null || !UsePrinter)
         {
             PrinterBanner.Visibility = Visibility.Collapsed;
             return;

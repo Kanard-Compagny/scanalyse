@@ -3476,3 +3476,9 @@ Choisi d'après l'imprimante sélectionnée ({0}) : change-le si le fichier est 
 Choisis le langage de l'imprimante qui recevra le fichier.	Choose the language of the printer that will receive the file.
 Fichier de départ : {0}.	Source file: {0}.
 Choisis d'abord, ci-dessus, le langage de l'imprimante qui recevra le fichier : il s'écrit ici.	First choose, above, the language of the printer that will receive the file: it is written here.
+Le fichier seul	The file only
+Avec l'imprimante	With the printer
+Avec l'imprimante : {0}	With the printer: {0}
+Cherche les problèmes du fichier lui-même (syntaxe, valeurs, ordre, commandes risquées), sans tenir compte d'une imprimante	Looks for problems in the file itself (syntax, values, order, risky commands), regardless of any printer
+Vérifie aussi que le fichier convient à l'imprimante choisie : langage, réglages qui existent sur ce modèle, valeurs acceptées, ce qui changera	Also checks that the file suits the chosen printer: language, settings that exist on this model, accepted values, what will change
+« {0} » n'apparaît pas parmi les réglages lus sur cette imprimante : nom erroné, ou réglage absent de ce modèle ou de ce firmware (l'imprimante l'ignorerait sans message d'erreur). Vérifie le nom.	"{0}" is not among the settings read from this printer: wrong name, or setting missing on this model or firmware (the printer would ignore it without an error message). Check the name.

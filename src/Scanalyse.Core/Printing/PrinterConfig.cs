@@ -1786,7 +1786,14 @@ public static partial class PrinterConfig
         {
             if (!printer.TryGetValue(s.Key, out var current))
             {
-                list.Add(new ConfigFinding(s.Line, Severity.Error, $"« {s.Key} » n'existe pas sur cette imprimante (modèle ou firmware) : elle l'ignore sans message d'erreur. Vérifie le nom, ou si ce réglage existe sur ce modèle."));
+                // Une commande ZPL (^MN, ^PW…) existe quel que soit le modèle : seul son équivalent SGD manque à la lecture,
+                // il n'y a rien à comparer. Pour une ligne SGD, le nom n'est pas parmi les réglages lus : à vérifier.
+                var sgd = report.Items.Any(i => i.Line == s.Line && i.Language is "SGD" or "JSON SGD");
+                if (sgd)
+                {
+                    list.Add(new ConfigFinding(s.Line, Severity.Warning, $"« {s.Key} » n'apparaît pas parmi les réglages lus sur cette imprimante : nom erroné, ou réglage absent de ce modèle ou de ce firmware (l'imprimante l'ignorerait sans message d'erreur). Vérifie le nom."));
+                }
+
                 continue;
             }
 
