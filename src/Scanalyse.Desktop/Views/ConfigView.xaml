@@ -284,7 +284,19 @@
               <RadioButton x:Name="ViewProblems" Style="{StaticResource Chip}" GroupName="ConfView" Content="Points à vérifier" IsChecked="True" Checked="View_Changed" />
               <RadioButton x:Name="ViewLines" Style="{StaticResource Chip}" GroupName="ConfView" Content="Ligne par ligne" Checked="View_Changed" />
               <RadioButton x:Name="ViewSettings" Style="{StaticResource Chip}" GroupName="ConfView" Content="Réglages appliqués" Checked="View_Changed" />
+              <RadioButton x:Name="ViewPrinter" Style="{StaticResource Chip}" GroupName="ConfView" Content="Réglages de l'imprimante" Checked="View_Changed" Visibility="Collapsed"
+                           ToolTip="Tous les réglages lus sur l'imprimante, à consulter ou à reprendre dans un fichier" />
             </WrapPanel>
+            <!-- Réglages lus sur l'imprimante : filtre, reprise dans l'éditeur, copie -->
+            <DockPanel x:Name="PrinterTools" Margin="0,0,0,8" Visibility="Collapsed">
+              <WrapPanel DockPanel.Dock="Right" Margin="8,0,0,0" VerticalAlignment="Center">
+                <Button Style="{StaticResource BtnSmall}" Content="Mettre dans l'éditeur" Click="PrinterToEditor_Click" Margin="0,0,6,0"
+                        ToolTip="Écrit les réglages affichés (modifiables) en commandes ! U1 setvar dans l'éditeur : à enregistrer, modifier ou renvoyer" />
+                <Button Style="{StaticResource BtnSmall}" Content="Copier" Click="PrinterCopy_Click"
+                        ToolTip="Copie la liste affichée (nom, valeur, valeurs acceptées)" />
+              </WrapPanel>
+              <TextBox x:Name="PrinterFilter" Style="{StaticResource Input}" TextChanged="PrinterFilter_Changed" AutomationProperties.Name="Filtrer les réglages de l'imprimante" />
+            </DockPanel>
           </StackPanel>
           <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />

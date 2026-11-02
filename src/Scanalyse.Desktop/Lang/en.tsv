@@ -3264,3 +3264,20 @@ Modules étirés dans un sens : pas d'impression mal réglé, support étiré, o
 Correction d'erreur très sollicitée : modules abîmés, logo trop grand, rayures ou taches.	Error correction heavily used: damaged modules, logo too large, scratches or spots.
 Impression engraissée (barres ou modules foncés trop larges) : baisse la noirceur ou ralentis l'impression.	Print growth (dark bars or modules too wide): lower the darkness or slow the printing down.
 Impression maigre (barres ou modules foncés trop fins) : augmente la noirceur ou vérifie le ruban.	Print loss (dark bars or modules too thin): raise the darkness or check the ribbon.
+Réglages de l'imprimante	Printer settings
+Tous les réglages lus sur l'imprimante, à consulter ou à reprendre dans un fichier	All the settings read from the printer, to look through or reuse in a file
+Mettre dans l'éditeur	Put in the editor
+Écrit les réglages affichés (modifiables) en commandes ! U1 setvar dans l'éditeur : à enregistrer, modifier ou renvoyer	Writes the displayed (editable) settings as ! U1 setvar commands in the editor: to save, edit or send again
+Copie la liste affichée (nom, valeur, valeurs acceptées)	Copies the displayed list (name, value, accepted values)
+Filtrer les réglages de l'imprimante	Filter the printer settings
+Filtrer : media, darkness, ip, wlan…	Filter: media, darkness, ip, wlan…
+{0} réglage(s) affiché(s) sur {1}, lus sur {2}.	{0} of {1} setting(s) shown, read from {2}.
+Remplacer le fichier ?	Replace the file?
+L'éditeur contient déjà un fichier : il sera remplacé par les réglages de l'imprimante.	The editor already contains a file: it will be replaced by the printer settings.
+Remplacer	Replace
+Réglages lus sur {0} · {1} commande(s)	Settings read from {0} · {1} command(s)
+accepte : {0}	accepts: {0}
+{0} réglage(s) de l'imprimante copiés.	{0} printer setting(s) copied.
+Aucun réglage modifiable parmi ceux affichés.	No editable setting among those shown.
+{0} réglage(s) repris dans l'éditeur ; {1} laissé(s) de côté (lecture seule, ou propres à cette imprimante : adresses, nom, numéro de série).	{0} setting(s) put in the editor; {1} left out (read-only, or specific to this printer: addresses, name, serial number).
+{0} réglage(s) repris dans l'éditeur.	{0} setting(s) put in the editor.

@@ -160,6 +160,22 @@ public class PrinterConfigTests
     }
 
     [Fact]
+    public void Reglages_lus_reecrits_en_fichier()
+    {
+        var printer = PrinterConfig.ParseAllcv("print.tone : 20.0 , Choices: 0.0-30.0\r\nmedia.printmode : tear off , Choices: tear off,peel off\r\n"
+            + "ip.addr : 172.16.10.32 , Choices: \r\ninternal_wired.ip.addr : 172.16.10.32 , Choices: 0.0.0.0-255.255.255.255\r\n"
+            + "device.friendly_name : ZT230 , Choices: \r\ndevice.restore_defaults :  , Choices: ip,wlan,display\r\nwlan.private_key_password : * , Choices: \r\n"
+            + "appl.name : V92.21.39Z \r\nodometer.total_label_count : 1234 , Choices: 0-4294967295\r\n");
+        var (text, written, skipped) = PrinterConfig.SettingsFile(printer);
+        Assert.Equal(2, written);
+        Assert.Equal(7, skipped);
+        Assert.Equal("! U1 setvar \"media.printmode\" \"tear off\"\r\n! U1 setvar \"print.tone\" \"20.0\"\r\n", text);
+        Assert.DoesNotContain(PrinterConfig.Analyze(text, printer).Findings, f => f.Severity == Severity.Error);
+        Assert.Equal("abc", PrinterConfig.Unquote(" \"abc\" "));
+        Assert.NotNull(PrinterConfig.SettingLabel("print.tone"));
+    }
+
+    [Fact]
     public void Fichier_vide_ou_etranger()
     {
         Assert.Contains(PrinterConfig.Analyze("Bonjour, voici le fichier.").Findings, f => f.Severity == Severity.Warning);

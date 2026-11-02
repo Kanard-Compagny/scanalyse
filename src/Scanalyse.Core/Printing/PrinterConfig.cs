@@ -1812,6 +1812,47 @@ public static partial class PrinterConfig
             ? Math.Abs(x - y) < 0.0001
             : string.Equals(a.Trim(), b.Trim(), StringComparison.Ordinal);
 
+    /// <summary>Libellé connu d'un réglage SGD (« print.tone » → « Noirceur… »), sinon null.</summary>
+    public static string? SettingLabel(string key) => SgdTable.TryGetValue(key, out var def) ? def.Label : null;
+
+    /// <summary>Valeur lue sans ses guillemets éventuels.</summary>
+    public static string Unquote(string value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        var v = value.Trim();
+        return v.Length >= 2 && v[0] == '"' && v[^1] == '"' ? v[1..^1] : v;
+    }
+
+    /// <summary>
+    /// Réécrit des réglages lus en fichier « ! U1 setvar », pour les garder ou les reporter sur une autre imprimante.
+    /// Sont laissés de côté : les réglages en lecture seule (aucun choix annoncé), les valeurs masquées, ceux qui déclenchent
+    /// une action (remise à zéro, calibrage…) et ceux propres à cette imprimante (adresses, nom, numéro de série, secrets).
+    /// </summary>
+    public static (string Text, int Written, int Skipped) SettingsFile(IEnumerable<KeyValuePair<string, PrinterValue>> settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        var sb = new StringBuilder();
+        int written = 0, skipped = 0;
+        foreach (var (key, pv) in settings.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+        {
+            var value = Unquote(pv.Value);
+            if (pv.Choices is not { Length: > 0 } || value.Contains('"', StringComparison.Ordinal) || (value.Length > 0 && value.Trim('*').Length == 0)
+                || NotPortable().IsMatch(key))
+            {
+                skipped++;
+                continue;
+            }
+
+            sb.Append("! U1 setvar \"").Append(key).Append("\" \"").Append(value).Append("\"\r\n");
+            written++;
+        }
+
+        return (sb.ToString(), written, skipped);
+    }
+
+    [GeneratedRegex(@"(^|\.)(\w*reset\w*|restore\w*|calibrat\w*|\w*dump\w*|upgrade|download\w*|reboot|feed|print_configuration|test\w*|clear\w*|delete|capture\w*|pause|cancel_all|\w*addr\w*|gateway|netmask|\w*mac\w*|unique_id|friendly_name|\w*serial\w*|odometer|\w*pass\w*|psk|esk|\w*key\w*|pin|\w*cert\w*|licen\w*|username)($|\.)", RegexOptions.IgnoreCase)]
+    private static partial Regex NotPortable();
+
     /// <summary>Commande qui demande à une Zebra tous ses réglages (réponse : <see cref="ParseAllcv"/>).</summary>
     public static byte[] AllcvRequest => Encoding.ASCII.GetBytes("! U1 getvar \"allcv\"\r\n");
 

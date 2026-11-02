@@ -329,6 +329,16 @@ public partial class ConfigView : UserControl
         _printer = _profile is { Settings.Count: > 0 } ? _profile.Settings : null;
         _printerName = _profile?.DisplayName;
         ReadButton.Content = Localization.T(_printer is null ? "Lire l'imprimante" : "Relire l'imprimante");
+        ViewPrinter.Visibility = _printer is null ? Visibility.Collapsed : Visibility.Visible;
+        if (_printer is null && ViewPrinter.IsChecked == true)
+        {
+            ViewProblems.IsChecked = true;
+        }
+        else if (_printer is not null && manualTarget is not null)
+        {
+            ViewPrinter.IsChecked = true; // lecture demandée : on montre ce qui a été lu
+        }
+
         if (result is null)
         {
             ShowProfileStatus("Muted", Localization.T("Choisis une imprimante : Scanalyse la reconnaît (toutes marques) et vérifie que le fichier lui convient."));
@@ -707,7 +717,7 @@ public partial class ConfigView : UserControl
             ResultSummary.Text = Localization.T("Le fichier est analysé dès qu'il est collé ou ouvert.");
             RiskBanner.Visibility = Visibility.Collapsed;
             ShowPrinterBanner();
-            ResultPanel.Children.Clear();
+            Render();
             UpdateMarks();
             RefreshConvert();
             return;
@@ -771,6 +781,13 @@ public partial class ConfigView : UserControl
     private void Render()
     {
         ResultPanel.Children.Clear();
+        PrinterTools.Visibility = ViewPrinter.IsChecked == true && _printer is not null ? Visibility.Visible : Visibility.Collapsed;
+        if (PrinterTools.Visibility == Visibility.Visible)
+        {
+            RenderPrinter();
+            return;
+        }
+
         if (_report is not { } r)
         {
             return;
@@ -814,6 +831,131 @@ public partial class ConfigView : UserControl
         {
             ResultPanel.Children.Add(Finding(f));
         }
+    }
+
+    // ------------------------------------------------------------------ Réglages lus sur l'imprimante
+
+    /// <summary>Réglages lus, filtrés par le texte saisi (nom, libellé ou valeur), triés par nom.</summary>
+    private List<KeyValuePair<string, PrinterValue>> PrinterShown()
+    {
+        if (_printer is null)
+        {
+            return [];
+        }
+
+        var q = PrinterFilter.Text.Trim();
+        return _printer
+            .Where(kv => q.Length == 0
+                || kv.Key.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || kv.Value.Value.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || (PrinterConfig.SettingLabel(kv.Key) is { } label && Localization.T(label).Contains(q, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(kv => kv.Key, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private void RenderPrinter()
+    {
+        Placeholder.SetText(PrinterFilter, Localization.T("Filtrer : media, darkness, ip, wlan…"));
+        var shown = PrinterShown();
+        var head = new TextBlock { FontSize = 12, Margin = new Thickness(0, 0, 0, 8), TextWrapping = TextWrapping.Wrap };
+        head.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+        head.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("{0} réglage(s) affiché(s) sur {1}, lus sur {2}."), shown.Count, _printer!.Count, _printerName);
+        ResultPanel.Children.Add(head);
+        foreach (var (key, value) in shown)
+        {
+            var grid = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            var left = new StackPanel();
+            if (PrinterConfig.SettingLabel(key) is { } label)
+            {
+                left.Children.Add(new TextBlock { Text = Localization.T(label), TextWrapping = TextWrapping.Wrap, FontWeight = FontWeights.SemiBold });
+            }
+
+            var name = new TextBlock { Text = key, FontSize = 11.5, FontFamily = (FontFamily)FindResource("MonoFont"), TextWrapping = TextWrapping.Wrap };
+            name.SetResourceReference(TextBlock.ForegroundProperty, left.Children.Count > 0 ? "Muted" : "Ink");
+            left.Children.Add(name);
+            grid.Children.Add(left);
+            var right = new StackPanel { Margin = new Thickness(12, 0, 0, 0) };
+            Grid.SetColumn(right, 1);
+            right.Children.Add(new TextBox
+            {
+                Text = PrinterConfig.Unquote(value.Value), FontFamily = (FontFamily)FindResource("MonoFont"), IsReadOnly = true, BorderThickness = new Thickness(0),
+                Background = Brushes.Transparent, Padding = new Thickness(0), TextWrapping = TextWrapping.Wrap,
+            });
+            ((TextBox)right.Children[0]).SetResourceReference(Control.ForegroundProperty, "Ink");
+            var accepts = new TextBlock
+            {
+                Text = value.Choices is { Length: > 0 } c ? string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("accepte : {0}"), c) : Localization.T("lecture seule"),
+                FontSize = 11.5, TextWrapping = TextWrapping.Wrap,
+            };
+            accepts.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
+            right.Children.Add(accepts);
+            grid.Children.Add(right);
+            var row = new Border { Padding = new Thickness(0, 0, 0, 6), BorderThickness = new Thickness(0, 0, 0, 1), Child = grid };
+            row.SetResourceReference(Border.BorderBrushProperty, "Line");
+            ResultPanel.Children.Add(row);
+        }
+    }
+
+    private void PrinterFilter_Changed(object sender, TextChangedEventArgs e)
+    {
+        if (IsLoaded && ViewPrinter.IsChecked == true)
+        {
+            Render();
+        }
+    }
+
+    private void PrinterCopy_Click(object sender, RoutedEventArgs e)
+    {
+        var shown = PrinterShown();
+        if (shown.Count == 0)
+        {
+            return;
+        }
+
+        var text = string.Join(Environment.NewLine, shown.Select(kv => kv.Key + "\t" + PrinterConfig.Unquote(kv.Value.Value) + (kv.Value.Choices is { Length: > 0 } c ? "\t" + c : string.Empty)));
+        try
+        {
+            Clipboard.SetText(text);
+            Log?.Invoke(LogKind.Ok, $"{shown.Count} réglage(s) de l'imprimante copiés.");
+        }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            Log?.Invoke(LogKind.Warning, "Presse-papiers occupé : réessaie.");
+        }
+    }
+
+    private async void PrinterToEditor_Click(object sender, RoutedEventArgs e)
+    {
+        var (text, written, skipped) = PrinterConfig.SettingsFile(PrinterShown());
+        if (written == 0)
+        {
+            Log?.Invoke(LogKind.Warning, "Aucun réglage modifiable parmi ceux affichés.");
+            return;
+        }
+
+        if (CodeBox.Text.Trim().Length > 0 && !await Dialogs.ConfirmAsync(Localization.T("Remplacer le fichier ?"),
+                Localization.T("L'éditeur contient déjà un fichier : il sera remplacé par les réglages de l'imprimante."), Localization.T("Remplacer"), null))
+        {
+            return;
+        }
+
+        if (_mode != PageMode.Analyze)
+        {
+            ModeAnalyze.IsChecked = true;
+        }
+
+        _filePath = null;
+        _fileBytes = null;
+        _fileText = null;
+        CodeBox.Text = text;
+        FileInfo.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Réglages lus sur {0} · {1} commande(s)"), _printerName, written);
+        ViewProblems.IsChecked = true;
+        Analyze();
+        Log?.Invoke(LogKind.Ok, skipped > 0
+            ? $"{written} réglage(s) repris dans l'éditeur ; {skipped} laissé(s) de côté (lecture seule, ou propres à cette imprimante : adresses, nom, numéro de série)."
+            : $"{written} réglage(s) repris dans l'éditeur.");
     }
 
     private Border Finding(ConfigFinding f)

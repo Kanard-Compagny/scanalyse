@@ -9,6 +9,7 @@
   - un **conseil** pour le paramètre le plus faible (ruban, noirceur, vitesse, tête d'impression, marge…) ;
   - fonctionne aussi sur photo inclinée, dans le programme Windows comme sur téléphone, et figure dans le rapport PDF.
   C'est une estimation faite sur l'image (sans l'éclairage ni l'étalonnage d'un vérificateur) : elle aide à trouver la cause d'un défaut, mais ne remplace pas un rapport de vérification certifié.
+- **Conf imprimante : « Réglages de l'imprimante »** — après « Lire l'imprimante », tous les réglages lus s'affichent (libellé, valeur, valeurs acceptées), avec un filtre. « Mettre dans l'éditeur » les réécrit en fichier `! U1 setvar` à enregistrer, modifier ou envoyer à une autre imprimante (sans les réglages en lecture seule ni ceux propres à l'imprimante : adresses, nom, numéro de série, secrets) ; « Copier » copie la liste.
 
 ## 0.12.4 — octobre 2026
 
