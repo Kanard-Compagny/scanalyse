@@ -71,7 +71,7 @@ function normalize(r){
     return {format:x.format,text:x.text,bytes:x.bytes,hasECI:x.hasECI,symId:x.symbologyIdentifier||"",
       pts:[p.topLeft,p.topRight,p.bottomRight,p.bottomLeft],rotation:x.rotation,mirrored:x.isMirrored,inverted:x.isInverted,
       ec:extra.ECLevel||x.ecLevel||"",version:extra.Version||x.version||"",mask:extra.DataMask,uec:extra.UEC,addon:extra.EanAddOn,upce:extra.UPCE,
-      readerInit:extra.ReaderInit||x.readerInit,lines:x.lineCount,seq:x.sequenceSize>0?{size:x.sequenceSize,index:x.sequenceIndex,id:x.sequenceId}:null,extra};
+      readerInit:extra.ReaderInit||x.readerInit,lines:x.lineCount,symbol:x.symbol&&x.symbol.width?{data:x.symbol.data,width:x.symbol.width,height:x.symbol.height}:null,seq:x.sequenceSize>0?{size:x.sequenceSize,index:x.sequenceIndex,id:x.sequenceId}:null,extra};
   });
 }
 const NATIVE_MAP={qr_code:"QRCode",data_matrix:"DataMatrix",aztec:"Aztec",pdf417:"PDF417",ean_13:"EAN13",ean_8:"EAN8",upc_a:"UPCA",upc_e:"UPCE",code_128:"Code128",code_39:"Code39",code_93:"Code93",codabar:"Codabar",itf:"ITF"};
@@ -374,6 +374,7 @@ async function analyze(opts){
   results=found.filter((f,i)=>found.findIndex(g=>g.text===f.text&&g.format===f.format&&Math.hypot(g.pts[0].x-f.pts[0].x,g.pts[0].y-f.pts[0].y)<10)===i);
   results.sort((a,b)=>(a.pts[0].y-b.pts[0].y)||(a.pts[0].x-b.pts[0].x));
   for(const f of results){try{f.stagenow=await decodeStageNow(f.bytes);}catch(e){f.stagenow=null;}}
+  try{await verifyPrepare(results);}catch(e){}
   if(id!==runId) return;
   focusIdx=-1;draw();render(performance.now()-t0,r);
 }
@@ -815,7 +816,10 @@ function render(ms,reg){
     const orient=[];if(r.rotation)orient.push(`rotation ${r.rotation}°`);if(r.mirrored)orient.push("image en miroir");if(r.inverted)orient.push("couleurs inversées (clair sur foncé)");
     spec.push(["Orientation",orient.length?esc(orient.join(" · ")):"normale"]);
     spec.push(["Taille dans l'image",`${Math.round(side)} px de côté`+(modPx?` · ≈ ${modPx.toFixed(1)} px par module`:"")]);
-    spec.push(["Contraste de symbole",`${ct.sc} % <span class="pill ${scGrade[1]}">${scGrade[0]}</span> <span class="hint">estimation indicative, pas une vérification ISO 15415/15416</span>`]);
+    const ver=verifyCode(r);
+    if(ver&&ver.grade){spec.push(["Pré-vérification (estimation)",`note ${ver.grade} <span class="pill ${ver.gradeN>=3?"good":ver.gradeN>=1.5?"warn":"bad"}">${ver.grade}</span>`+(ver.limit?` <span class="hint">· point le plus faible : ${esc(ver.limit)}</span>`:"")+` <span class="hint">· ${ver.norm} sur image, pas une vérification certifiée</span>`]);
+      if(ver.gradeN<=1&&health[1]==="good")health=["Qualité d'impression faible","warn"];}
+    else spec.push(["Contraste de symbole",`${ct.sc} % <span class="pill ${scGrade[1]}">${scGrade[0]}</span> <span class="hint">estimation indicative, pas une vérification ISO 15415/15416</span>`]);
     if(qz) spec.push(["Zone de silence",qz.state==="ok"?`conforme (≥ ${qzNeed} module${qzNeed>1?"s":""}) <span class="pill good">OK</span>`:qz.state==="edge"?`non vérifiable (code au bord de l'image)`:`encombrée <span class="pill warn">à vérifier</span>`]);
     if(!isM&&r.lines)spec.push(["Lignes de lecture concordantes",esc(String(r.lines))]);
     if(r.seq)spec.push(["Séquence (structured append)",`symbole ${r.seq.index+1} sur ${r.seq.size||"?"}`+(r.seq.id?` · id ${esc(r.seq.id)}`:"")]);
@@ -826,8 +830,9 @@ function render(ms,reg){
     if(r.enhanced)al.push(["warn","Lu seulement après accentuation de l'image : la photo est floue. Une douchette ou une caméra moins tolérante risque de ne pas le lire ; refais la photo plus nette si possible."]);
     if(r.inverted)al.push(["warn","Code inversé : de nombreux lecteurs (caisses, vieux smartphones) ne le lisent pas."]);
     if(r.uec!=null&&r.uec<.25)al.push(["bad","Presque toute la correction d'erreur est consommée : le code est abîmé, masqué (logo trop grand) ou mal imprimé."]);
+    if(ver&&ver.grade)ver.advice.forEach(a=>al.push([ver.gradeN>=3?"info":"warn",a]));
     details[i]={health:health[0],healthClass:health[1],kind:it.kind,
-      rows:it.rows.map(([k,v])=>[plainText(k),plainText(v)]),spec:spec.map(([k,v])=>[plainText(k),plainText(v)]),alerts:al.map(([t,m])=>[t,m])};
+      rows:it.rows.map(([k,v])=>[plainText(k),plainText(v)]),spec:[...spec.map(([k,v])=>[plainText(k),plainText(v)]),...(ver&&ver.grade?ver.params.map(([,n,v,g])=>["Pré-vérification · "+n,v+(g==null?"":" ("+VGRADE[Math.max(0,Math.min(4,Math.round(g)))]+")")]):[])],alerts:al.map(([t,m])=>[t,m])};
     html+=`<article class="res" data-i="${i}">
       <div class="res-head"><span class="num">${i+1}</span><h3>${esc(it.kind)}</h3><span class="pill">${esc(fmt)}</span><span class="pill ${health[1]}">${health[0]}</span></div>
       ${structHtml(r.text||"",i)}<pre class="content" ${structOf(r.text||"")?'hidden':''} data-raw="${i}">${esc(r.text||"(vide)").replace(/\x1d/g,'<span class="hint">␝</span>')}</pre>
@@ -835,6 +840,7 @@ function render(ms,reg){
       ${al.length?`<div class="alerts">${al.map(([t,m])=>`<div class="alert ${t}">${esc(m)}</div>`).join("")}</div>`:""}
       ${it.rows.length?`<h4>Ce que contient le code</h4><dl class="kv">${it.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`:""}
       <h4>Caractéristiques techniques</h4><dl class="kv">${spec.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+      ${verifyHtml(ver)}
       ${r.stagenow&&r.stagenow.script?`<details class="raw"><summary>Profil décompressé</summary><pre>${esc(r.stagenow.calls.length?r.stagenow.calls.map(c=>c.csp+(c.json?"\n"+JSON.stringify(c.json,null,2):"("+c.args.join(", ")+")")).join("\n\n"):r.stagenow.script)}</pre></details>`:""}
       <details class="raw"><summary>Données brutes (hexadécimal)</summary><pre class="hex">${esc(hexdump(r.bytes))}</pre></details>
     </article>`;

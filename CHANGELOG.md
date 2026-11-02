@@ -1,5 +1,15 @@
 # Scanalyse — Quoi de neuf
 
+## 0.12.5 — en préparation
+
+- **Analyse : pré-vérification de la qualité d'impression** — chaque code lu reçoit une note estimée de A à F, calculée avec les paramètres des normes de vérification (ISO/IEC 15416 pour les codes linéaires, ISO/IEC 15415 pour les QR codes et Data Matrix) :
+  - **codes linéaires** (EAN, UPC, Code 128, Code 39, ITF…) : 10 lignes de lecture sur la hauteur des barres, avec contraste de symbole, réflectance minimale, contraste de bord, modulation, défauts, décodabilité, détermination des bords et zones de silence ;
+  - **QR code et Data Matrix** : chaque module comparé au code décodé, avec contraste, modulation, motifs fixes (repères), non-uniformité axiale et correction d'erreur inutilisée ;
+  - **engraissement de l'impression** mesuré (barres ou modules trop larges ou trop fins) ;
+  - un **conseil** pour le paramètre le plus faible (ruban, noirceur, vitesse, tête d'impression, marge…) ;
+  - fonctionne aussi sur photo inclinée, dans le programme Windows comme sur téléphone, et figure dans le rapport PDF.
+  C'est une estimation faite sur l'image (sans l'éclairage ni l'étalonnage d'un vérificateur) : elle aide à trouver la cause d'un défaut, mais ne remplace pas un rapport de vérification certifié.
+
 ## 0.12.4 — octobre 2026
 
 - **À propos : « Faire un don »** — un bouton discret pour soutenir Scanalyse (PayPal), seulement dans cette page : aucun rappel ailleurs dans le programme.

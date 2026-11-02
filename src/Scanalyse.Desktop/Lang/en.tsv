@@ -3213,3 +3213,54 @@ Langue, thème, taille d'affichage, dossiers, en-tête et logo des rapports, pro
 Soutenir Scanalyse	Support Scanalyse
 Scanalyse est gratuit et le restera, sans publicité. S'il vous fait gagner du temps, un don libre aide à le faire évoluer.	Scanalyse is free and will stay free, with no ads. If it saves you time, an optional donation helps it keep improving.
 Faire un don	Donate
+Pré-vérification	Pre-verification
+Note estimée {0}	Estimated grade {0}
+Pré-vérification (estimation)	Pre-verification (estimate)
+note {0}	grade {0}
+· point le plus faible : {0}	· weakest parameter: {0}
+· {0} sur image, pas une vérification certifiée	· {0} from an image, not a certified verification
+Qualité d'impression faible	Poor print quality
+Paramètres de la norme {0}, mesurés sur l'image ({1}). Estimation pour trouver la cause d'un défaut : elle ne remplace pas un vérificateur étalonné.	{0} parameters, measured on the image ({1}). An estimate to find the cause of a defect: it does not replace a calibrated verifier.
+{0} lignes de lecture · {1} modules · ≈ {2} px par module	{0} scan lines · {1} modules · ≈ {2} px per module
+{0} lignes de lecture · ≈ {1} px par module	{0} scan lines · ≈ {1} px per module
+{0} × {1} modules · ≈ {2} px par module	{0} × {1} modules · ≈ {2} px per module
+Trop peu de pixels par module (≈ {0}) pour mesurer la qualité : approche-toi ou fais une image plus nette.	Too few pixels per module (≈ {0}) to measure quality: move closer or take a sharper image.
+Contraste de symbole (SC)	Symbol contrast (SC)
+Réflectance minimale	Minimum reflectance
+{0} % (maximum toléré {1} %)	{0} % (maximum allowed {1} %)
+Contraste de bord minimal (ECmin)	Minimum edge contrast (ECmin)
+Modulation (MOD)	Modulation (MOD)
+Défauts	Defects
+Décodabilité	Decodability
+Détermination des bords	Edge determination
+tous les éléments trouvés	all elements found
+éléments manquants ou en trop sur {0} ligne(s) sur {1}	missing or extra elements on {0} of {1} line(s)
+Zones de silence (≥ {0} modules)	Quiet zones (≥ {0} modules)
+dégagées	clear
+encombrées ou trop étroites	cluttered or too narrow
+Engraissement de l'impression	Print growth
+{0} % de module	{0} % of a module
+{0} % de module par barre	{0} % of a module per bar
+Modulation	Modulation
+aucun module lu à l'envers sur {0}	no module read inverted out of {0}
+aucun module lu à l'envers · {0} peu marqué(s) sur {1}	no module read inverted · {0} weak out of {1}
+{0} module(s) lu(s) à l'envers sur {1}	{0} module(s) read inverted out of {1}
+{0} module(s) lu(s) à l'envers · {1} peu marqué(s) sur {2}	{0} module(s) read inverted · {1} weak out of {2}
+Motifs fixes (repères)	Fixed patterns (finders)
+intacts	intact
+{0} module(s) abîmé(s) sur {1}	{0} damaged module(s) out of {1}
+Non-uniformité axiale	Axial nonuniformity
+Correction d'erreur inutilisée (UEC)	Unused error correction (UEC)
+Contraste faible : encre ou ruban trop clair, fond coloré ou brillant, noirceur trop basse. Vérifie le ruban et la noirceur de l'imprimante.	Low contrast: ink or ribbon too light, coloured or glossy background, darkness too low. Check the ribbon and the printer darkness.
+Barres pas assez foncées : ruban usé, noirceur trop basse, ou encre inadaptée au support.	Bars not dark enough: worn ribbon, darkness too low, or ink unsuited to the media.
+Bords peu marqués entre barres et espaces : impression floue, encre qui bave, ou photo floue.	Weak edges between bars and spaces: blurred print, bleeding ink, or a blurred photo.
+Barres ou modules d'intensité inégale : impression grise ou engraissée. Ajuste noirceur et vitesse, vérifie la tête.	Bars or modules of uneven intensity: grey or spread print. Adjust darkness and speed, check the printhead.
+Taches ou manques dans les barres ou les espaces : tête d'impression encrassée ou abîmée (points morts), support poussiéreux.	Spots or voids in bars or spaces: dirty or damaged printhead (dead dots), dusty media.
+Largeurs des barres irrégulières : engraissement ou maigreur, vitesse trop élevée, résolution de l'imprimante inadaptée à la taille du code.	Irregular bar widths: print growth or loss, speed too high, printer resolution unsuited to the code size.
+Certaines barres sont mal séparées sur une partie du code : rayure, tache, pli ou barre coupée.	Some bars are not cleanly separated on part of the code: scratch, spot, crease or broken bar.
+Marge claire insuffisante autour du code : texte, cadre ou bord d'étiquette trop proche.	Not enough clear margin around the code: text, frame or label edge too close.
+Motifs de repérage abîmés (coins, bords) : marge rognée, tache ou pli sur un repère.	Damaged finder patterns (corners, edges): trimmed margin, spot or crease on a finder.
+Modules étirés dans un sens : pas d'impression mal réglé, support étiré, ou photo prise de biais.	Modules stretched in one direction: badly set print pitch, stretched media, or a photo taken at an angle.
+Correction d'erreur très sollicitée : modules abîmés, logo trop grand, rayures ou taches.	Error correction heavily used: damaged modules, logo too large, scratches or spots.
+Impression engraissée (barres ou modules foncés trop larges) : baisse la noirceur ou ralentis l'impression.	Print growth (dark bars or modules too wide): lower the darkness or slow the printing down.
+Impression maigre (barres ou modules foncés trop fins) : augmente la noirceur ou vérifie le ruban.	Print loss (dark bars or modules too thin): raise the darkness or check the ribbon.
