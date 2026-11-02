@@ -10,7 +10,7 @@
   - fonctionne aussi sur photo inclinée, dans le programme Windows comme sur téléphone, et figure dans le rapport PDF.
   C'est une estimation faite sur l'image (sans l'éclairage ni l'étalonnage d'un vérificateur) : elle aide à trouver la cause d'un défaut, mais ne remplace pas un rapport de vérification certifié.
 - **Conf imprimante : « Réglages de l'imprimante »** — après « Lire l'imprimante », les réglages lus s'affichent par famille (media, print, wlan…) avec libellé, valeur et valeurs acceptées ; recherche, et informations en lecture seule sur demande.
-  - « + » ajoute un réglage au fichier (ou le met à jour s'il y est déjà), « + ajouter les n » toute une famille, « Tout ajouter » tout ce qui est affiché : on compose son fichier sans rien effacer.
+  - Même présentation que le plan de travail : lignes nettes (libellé, nom, valeur), en bleu quand le fichier règle le réglage (« 20 → 25 »). Un clic ouvre la ligne sur place : valeur à écrire (choix acceptés par l'imprimante ou saisie contrôlée), « Ajouter au fichier », « Mettre à jour » ou « Retirer du fichier ». « Tout ajouter au fichier » reprend tout ce qui est affiché, sans rien effacer.
   - Les réglages propres à l'imprimante (adresses, nom, numéro de série, secrets) et ceux qui déclenchent une action (remise en usine, calibrage) ne sont jamais repris.
   - « Copier » copie la liste, à coller dans un tableur.
 - **Conf imprimante : plan de travail imprimante** — « Détacher » ouvre une fenêtre à part (idéal sur un deuxième écran) avec sa propre imprimante, affichée en permanence (nom, adresse, heure de lecture). Une règle simple pour ne jamais avoir peur de se tromper : on regarde librement, on modifie à un seul endroit, rien ne part sans le bouton qui nomme l'imprimante.
