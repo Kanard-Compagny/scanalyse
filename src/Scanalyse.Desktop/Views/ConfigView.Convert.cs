@@ -102,18 +102,33 @@ public partial class ConfigView
         return PrinterProbe.DpiFromName(_profile?.Model) ?? (queue is null ? null : _queueDpi[queue]) ?? 203;
     }
 
-    /// <summary>Langage conseillé : celui de l'imprimante reconnue ; pour une Zebra, l'autre de ZPL / SGD que celui du fichier.</summary>
-    private ConfigLanguage SuggestedTarget(bool converting)
+    /// <summary>
+    /// Langage conseillé : celui de l'imprimante reconnue (pour une Zebra, l'autre de ZPL / SGD que celui du fichier).
+    /// Sans imprimante reconnue, aucun : un langage par défaut serait un choix au hasard qui peut induire en erreur.
+    /// </summary>
+    private ConfigLanguage? SuggestedTarget(bool converting)
     {
-        var languages = _report?.Languages ?? [];
-        if (_profile is { } p && p.Brand != PrinterBrand.Unknown)
+        if (_profile is not { } p || p.Brand == PrinterBrand.Unknown)
         {
-            var target = ConfigConverter.ForBrand(p.Brand);
-            return converting && target == ConfigLanguage.Zpl && languages.Contains("ZPL") ? ConfigLanguage.Sgd : target;
+            return null;
         }
 
-        return converting && languages.Contains("ZPL") ? ConfigLanguage.Tspl : ConfigLanguage.Zpl;
+        var languages = _report?.Languages ?? [];
+        var target = ConfigConverter.ForBrand(p.Brand);
+        return converting && target == ConfigLanguage.Zpl && languages.Contains("ZPL") ? ConfigLanguage.Sgd : target;
     }
+
+    /// <summary>Le langage coché a été choisi par Scanalyse (d'après l'imprimante), pas par l'utilisateur.</summary>
+    private bool _convertAuto;
+    private bool _createAuto;
+
+    /// <summary>Phrase qui dit d'où vient le langage coché, ou qu'il faut le choisir.</summary>
+    private string TargetNote(bool auto, ConfigLanguage? chosen) =>
+        auto && chosen is not null && _profile is { } p
+            ? string.Format(CultureInfo.InvariantCulture, Localization.T("Choisi d'après l'imprimante sélectionnée ({0}) : change-le si le fichier est pour une autre imprimante."), p.DisplayName)
+            : chosen is null
+                ? Localization.T("Choisis le langage de l'imprimante qui recevra le fichier.")
+                : string.Empty;
 
     private static string Brands(ConfigLanguage language) => language switch
     {
@@ -166,6 +181,12 @@ public partial class ConfigView
 
     private void ShowConvert()
     {
+        if (_convertTarget is null && SuggestedTarget(converting: true) is { } suggested)
+        {
+            _convertTarget = suggested;
+            _convertAuto = true;
+        }
+
         ConvertTargets.Children.Clear();
         foreach (var language in Enum.GetValues<ConfigLanguage>())
         {
@@ -185,6 +206,7 @@ public partial class ConfigView
             };
             card.Checked += (_, _) =>
             {
+                _convertAuto = _convertAuto && language == _convertTarget;
                 _convertTarget = language;
                 RefreshConvert();
             };
@@ -206,8 +228,8 @@ public partial class ConfigView
         var source = _report is { Languages.Count: > 0 } r ? string.Join(", ", r.Languages) : null;
         ConvertSource.Text = CodeBox.Text.Trim().Length == 0
             ? Localization.T("Colle ou ouvre d'abord, à gauche, le fichier à convertir.")
-            : string.Format(CultureInfo.InvariantCulture, Localization.T("Fichier de départ : {0}. Choisis le langage de l'imprimante qui recevra le fichier ({1} conseillé)."),
-                source ?? Localization.T("langage non reconnu"), Short(SuggestedTarget(converting: true)));
+            : string.Format(CultureInfo.InvariantCulture, Localization.T("Fichier de départ : {0}."), source ?? Localization.T("langage non reconnu"))
+                + (TargetNote(_convertAuto, _convertTarget) is { Length: > 0 } note ? " " + note : string.Empty);
         if (_convertTarget is not { } target || CodeBox.Text.Trim().Length == 0)
         {
             _convertResult = null;
@@ -283,7 +305,7 @@ public partial class ConfigView
 
     private ConversionResult? CurrentResult => _mode == PageMode.Convert ? _convertResult : _createResult;
 
-    private ConfigLanguage? CurrentResultLanguage => _mode == PageMode.Convert ? _convertTarget : _createTarget ?? SuggestedTarget(converting: false);
+    private ConfigLanguage? CurrentResultLanguage => _mode == PageMode.Convert ? _convertTarget : _createTarget;
 
     private void SaveResult_Click(object sender, RoutedEventArgs e)
     {
@@ -406,6 +428,12 @@ public partial class ConfigView
             _assistantBuilt = true;
         }
 
+        if (_createTarget is null && SuggestedTarget(converting: false) is { } suggested)
+        {
+            _createTarget = suggested;
+            _createAuto = true;
+        }
+
         CreateTargets.Children.Clear();
         foreach (var language in Enum.GetValues<ConfigLanguage>())
         {
@@ -415,11 +443,12 @@ public partial class ConfigView
                 GroupName = "CreateTarget",
                 Content = Short(language),
                 ToolTip = Localization.T(ConfigConverter.Name(language)) + " — " + Localization.T(Brands(language)),
-                IsChecked = language == (_createTarget ?? SuggestedTarget(converting: false)),
+                IsChecked = language == _createTarget,
                 Margin = new Thickness(0, 0, 6, 6),
             };
             chip.Checked += (_, _) =>
             {
+                _createAuto = _createAuto && language == _createTarget;
                 _createTarget = language;
                 RefreshCreate();
             };
@@ -853,7 +882,17 @@ public partial class ConfigView
             }
         }
 
-        var target = _createTarget ?? SuggestedTarget(converting: false);
+        CreateTargetNote.Text = TargetNote(_createAuto, _createTarget);
+        CreateTargetNote.Visibility = CreateTargetNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (_createTarget is not { } target)
+        {
+            _createResult = null;
+            ShowCode(CreateCode, string.Empty, "Choisis d'abord, ci-dessus, le langage de l'imprimante qui recevra le fichier : il s'écrit ici.");
+            CreateSummary.Text = string.Empty;
+            CreateNotes.Children.Clear();
+            return;
+        }
+
         UpdateDarknessHint(settings.Darkness, target);
         _passHint.Text = Localization.T(pass.Length == 0
             ? "Vide : le mot de passe déjà enregistré dans l'imprimante est gardé."

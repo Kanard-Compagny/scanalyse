@@ -3472,3 +3472,7 @@ longueur	length
 Lecture complémentaire de l'imprimante impossible : {0}	Additional reading of the printer failed: {0}
 Aucun réglage du formulaire n'a pu être lu sur cette imprimante.	None of the form's settings could be read from this printer.
 Réglages de l'imprimante repris dans le formulaire ({0}) : change ce qui doit l'être. Non trouvés sur l'imprimante : {1}.	Printer settings taken into the form ({0}): change what needs changing. Not found on the printer: {1}.
+Choisi d'après l'imprimante sélectionnée ({0}) : change-le si le fichier est pour une autre imprimante.	Chosen from the selected printer ({0}): change it if the file is for another printer.
+Choisis le langage de l'imprimante qui recevra le fichier.	Choose the language of the printer that will receive the file.
+Fichier de départ : {0}.	Source file: {0}.
+Choisis d'abord, ci-dessus, le langage de l'imprimante qui recevra le fichier : il s'écrit ici.	First choose, above, the language of the printer that will receive the file: it is written here.
