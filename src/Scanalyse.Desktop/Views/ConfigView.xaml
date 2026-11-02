@@ -294,6 +294,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <Grid VerticalAlignment="Center">
                 <TextBox x:Name="PrinterFilter" Style="{StaticResource SearchInput}" TextChanged="PrinterFilter_Changed" AutomationProperties.Name="Rechercher un réglage de l'imprimante" />
@@ -309,6 +310,8 @@
                       ToolTip="Ajoute au fichier tous les réglages affichés qui peuvent être repris (ceux déjà présents sont mis à jour)" />
               <Button Grid.Column="3" Style="{StaticResource BtnSmall}" Content="Copier" Margin="6,0,0,0" VerticalAlignment="Center" Click="PrinterCopy_Click"
                       ToolTip="Copie la liste affichée (nom, valeur, valeurs acceptées), à coller dans un tableur" />
+              <Button Grid.Column="4" Style="{StaticResource BtnSmall}" Content="Détacher" Margin="6,0,0,0" VerticalAlignment="Center" Click="Detach_Click"
+                      ToolTip="Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : familles de réglages, valeurs modifiables, comparaison et copie entre deux imprimantes" />
             </Grid>
           </StackPanel>
           <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">

@@ -33,7 +33,7 @@
           <Button Style="{StaticResource BtnCaption}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Maximize_Click" ToolTip="Agrandir / restaurer">
             <Path x:Name="MaxIcon" Data="M0.5 0.5h9v9h-9z" Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" />
           </Button>
-          <Button Style="{StaticResource BtnCaptionClose}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Close_Click" ToolTip="Rattacher le programme à la page">
+          <Button x:Name="CloseButton" Style="{StaticResource BtnCaptionClose}" WindowChrome.IsHitTestVisibleInChrome="True" Click="Close_Click" ToolTip="Rattacher le programme à la page">
             <Path Data="M0 0l10 10M10 0L0 10" Width="10" Height="10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" />
           </Button>
         </StackPanel>

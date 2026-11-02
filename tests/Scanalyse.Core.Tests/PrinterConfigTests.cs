@@ -160,6 +160,36 @@ public class PrinterConfigTests
     }
 
     [Fact]
+    public void Deux_imprimantes_comparees_et_copiees()
+    {
+        var a = PrinterConfig.ParseAllcv("print.tone : 25.0 , Choices: 0.0-30.0\r\nmedia.speed : 6.0 , Choices: 2.0-6.0\r\nmedia.type : continuous , Choices: continuous,gap/notch,mark\r\n"
+            + "ip.addr : 10.0.0.5 , Choices: \r\nappl.name : V1 \r\nrfid.enable : on , Choices: on,off\r\nmedia.printmode : tear off , Choices: tear off,peel off\r\n");
+        var b = PrinterConfig.ParseAllcv("print.tone : 20.0 , Choices: 0.0-30.0\r\nmedia.speed : 4.0 , Choices: 2.0-4.0\r\nmedia.type : gap/notch , Choices: continuous,gap/notch,mark\r\n"
+            + "ip.addr : 10.0.0.6 , Choices: \r\nappl.name : V2 \r\nmedia.printmode : tear off , Choices: tear off,peel off\r\n");
+        var diff = PrinterConfig.Diff(a, b);
+        Assert.DoesNotContain(diff, d => d.Key == "appl.name");
+        Assert.Contains(diff, d => d.Key == "rfid.enable" && d.Target == null);
+        Assert.Contains(diff, d => d.Key == "media.printmode" && d.Same);
+        Assert.Contains(diff, d => d.Key == "ip.addr" && d.Use == SettingUse.Specific && !d.Same);
+
+        var (text, written, refused) = PrinterConfig.CopyFile(a, b);
+        Assert.Equal(2, written);
+        Assert.Equal("! U1 setvar \"media.type\" \"continuous\"\r\n! U1 setvar \"print.tone\" \"25.0\"\r\n", text);
+        Assert.Equal(["media.speed", "rfid.enable"], refused);
+
+        var saved = PrinterConfig.SaveState(a, "Zebra ZT230 : atelier", new DateTimeOffset(2026, 11, 2, 14, 34, 0, TimeSpan.Zero));
+        var back = PrinterConfig.ParseAllcv(saved);
+        Assert.Equal(a.Count, back.Count);
+        Assert.Equal("25.0", back["print.tone"].Value);
+        Assert.Equal("Zebra ZT230 - atelier - 2026-11-02 14:34", PrinterConfig.StateName(saved));
+
+        Assert.Equal("Wi-Fi", PrinterConfig.FamilyOf("wlan.ssid"));
+        Assert.Equal("Support", PrinterConfig.FamilyOf("media.speed"));
+        Assert.Equal(2.0, PrinterConfig.ChoicesOf(a["media.speed"])!.Min);
+        Assert.Equal(["tear off", "peel off"], PrinterConfig.ChoicesOf(a["media.printmode"])!.Options);
+    }
+
+    [Fact]
     public void Reglages_lus_reecrits_en_fichier()
     {
         var printer = PrinterConfig.ParseAllcv("print.tone : 20.0 , Choices: 0.0-30.0\r\nmedia.printmode : tear off , Choices: tear off,peel off\r\n"

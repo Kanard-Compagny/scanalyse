@@ -23,6 +23,13 @@ public partial class ProgramWindow : Window
         }
     }
 
+    /// <summary>Info-bulle du bouton de fermeture (par défaut : rattacher le programme).</summary>
+    public string CloseTip
+    {
+        get => CloseButton.ToolTip as string ?? string.Empty;
+        set => CloseButton.ToolTip = value;
+    }
+
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
     private void Maximize_Click(object sender, RoutedEventArgs e) =>

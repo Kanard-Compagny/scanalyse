@@ -3287,3 +3287,89 @@ Ajouter au fichier	Add to the file
 Mettre à jour dans le fichier	Update in the file
 Réglages lus sur {0}	Settings read from {0}
 Fichier : {0} réglage(s) de l'imprimante ajouté(s), {1} mis à jour.	File: {0} printer setting(s) added, {1} updated.
+Relire	Read again
+Relit les réglages de l'imprimante choisie dans la page	Reads the settings of the printer chosen on the page again
+Enregistrer l'état…	Save the state…
+Enregistre tous les réglages lus dans un fichier : pour garder une trace, comparer plus tard ou copier vers une autre imprimante	Saves all the settings read to a file: to keep a record, compare later or copy to another printer
+Ouvrir un état…	Open a state…
+Ouvre un état enregistré et le prend comme référence de comparaison	Opens a saved state and uses it as the comparison reference
+Réglages	Settings
+Les réglages de l'imprimante, à reprendre ou modifier dans le fichier	The printer settings, to reuse or change in the file
+Comparer deux imprimantes	Compare two printers
+Les écarts entre une imprimante de référence et une autre, et la copie de l'une vers l'autre	The differences between a reference printer and another one, and copying from one to the other
+Rechercher un réglage	Search for a setting
+Rechercher : nom, libellé ou valeur (noirceur, media, wlan…)	Search: name, label or value (darkness, media, wlan…)
+Aucune imprimante lue	No printer read
+Choisis l'imprimante dans la page « Conf imprimante » puis clique « Lire l'imprimante » : ses réglages s'affichent ici.	Choose the printer on the "Printer config" page then click "Read the printer": its settings appear here.
+{0} réglage(s) lus. Le fichier de configuration reste dans la page : ce que tu ajoutes ou modifies ici y est écrit, prêt à vérifier et à envoyer.	{0} setting(s) read. The configuration file stays on the page: what you add or change here is written there, ready to check and send.
+Tous les réglages	All settings
+Différent du fichier	Different from the file
+Les réglages que le fichier changera à l'envoi	The settings the file will change when sent
+Dans le fichier	In the file
+Les réglages déjà présents dans le fichier	The settings already in the file
+Tout ajouter au fichier ({0})	Add all to the file ({0})
+Ajoute au fichier les réglages affichés qui peuvent être repris (ceux déjà présents sont mis à jour)	Adds to the file the displayed settings that can be reused (those already present are updated)
+Copier la liste	Copy the list
+Clique sur une valeur de la colonne « Fichier » pour la choisir ou la saisir : elle est écrite tout de suite dans le fichier.	Click a value in the "File" column to choose or type it: it is written to the file straight away.
+Aucun réglage dans ce cas : le fichier ne règle rien de différent ici.	No setting in this case: the file sets nothing different here.
+Réglage	Setting
+Fichier	File
+Reprendre la valeur de l'imprimante dans le fichier	Take the printer's value into the file
+Remettre dans le fichier la valeur de l'imprimante	Put the printer's value back in the file
+Choisir la valeur que le fichier donnera à l'imprimante	Choose the value the file will give the printer
+Retirer du fichier	Remove from the file
+Saisis la valeur puis Entrée : elle est écrite dans le fichier. Vide puis Entrée : le réglage est retiré du fichier.	Type the value then Enter: it is written to the file. Empty then Enter: the setting is removed from the file.
+Refusé par cette imprimante (accepte : {0})	Refused by this printer (accepts: {0})
+Différences	Differences
+Les réglages qui ne sont pas identiques	The settings that are not identical
+Tous les réglages des deux imprimantes	All the settings of both printers
+Prendre l'imprimante lue	Use the printer read
+L'imprimante lue dans la page devient la référence ; choisis ensuite l'autre imprimante dans la page et lis-la	The printer read on the page becomes the reference; then choose the other printer on the page and read it
+Prend comme référence un état enregistré (fichier)	Uses a saved state (file) as the reference
+Référence (copier depuis)	Reference (copy from)
+Pas encore choisie	Not chosen yet
+Compare avec un état enregistré au lieu de l'imprimante lue	Compares with a saved state instead of the printer read
+Revenir à l'imprimante lue	Back to the printer read
+Autre imprimante (copier vers)	Other printer (copy to)
+Choisis-la dans la page puis « Lire l'imprimante »	Choose it on the page then "Read the printer"
+Pour comparer : 1. lis la première imprimante dans la page et clique « Prendre l'imprimante lue » (ou ouvre un état enregistré) ; 2. choisis l'autre imprimante dans la page et lis-la. Les écarts s'affichent ici, prêts à être copiés.	To compare: 1. read the first printer on the page and click "Use the printer read" (or open a saved state); 2. choose the other printer on the page and read it. The differences appear here, ready to be copied.
+La référence est l'imprimante lue en ce moment : choisis maintenant l'autre imprimante dans la page et clique « Lire l'imprimante ».	The reference is the printer read right now: now choose the other printer on the page and click "Read the printer".
+Copier la référence vers l'autre imprimante ({0})	Copy the reference to the other printer ({0})
+Écrit dans le fichier de la page les réglages de la référence qui diffèrent sur l'autre imprimante (jamais les adresses, noms ni secrets) : vérifie-le puis « Envoyer à l'imprimante »	Writes to the page's file the reference settings that differ on the other printer (never addresses, names or secrets): check it then "Send to the printer"
+Copie de {0} vers {1}	Copy from {0} to {1}
+Copie la comparaison affichée, à coller dans un tableur	Copies the displayed comparison, to paste into a spreadsheet
+{0} réglage(s) de la référence n'existent pas sur l'autre imprimante ou y seraient refusés : ils ne sont pas copiés.	{0} reference setting(s) do not exist on the other printer or would be refused there: they are not copied.
+{0} différence(s) sur les réglages comparés. En bleu : ce que la copie changera.	{0} difference(s) in the compared settings. In blue: what the copy will change.
+Aucune différence ici : les deux imprimantes sont réglées pareil.	No difference here: both printers are set the same.
+Autre imprimante	Other printer
+identique	identical
+absent sur cette imprimante : non copié	missing on this printer: not copied
+absent sur la référence	missing on the reference
+propre à chaque imprimante : non copié	specific to each printer: not copied
+action : non copiée	action: not copied
+refusé par cette imprimante (accepte : {0})	refused by this printer (accepts: {0})
+sera copié	will be copied
+Lis d'abord une imprimante dans la page « Conf imprimante ».	First read a printer on the "Printer config" page.
+lue à {0}	read at {0}
+Lis d'abord une imprimante : il n'y a pas encore de réglages à enregistrer.	First read a printer: there are no settings to save yet.
+Enregistrer l'état de l'imprimante	Save the printer state
+État d'imprimante (*.txt)|*.txt|Tous les fichiers|*.*	Printer state (*.txt)|*.txt|All files|*.*
+État de {0} enregistré : {1} ({2} réglages).	State of {0} saved: {1} ({2} settings).
+Ouvrir un état d'imprimante	Open a printer state
+Ce fichier ne contient pas d'état d'imprimante (réglages « nom : valeur » d'une lecture allcv).	This file contains no printer state ("name : value" settings from an allcv read).
+État ouvert : {0} ({1} réglages).	State opened: {0} ({1} settings).
+{0} ligne(s) copiées.	{0} line(s) copied.
+Interfaces	Interfaces
+Langages	Languages
+Autres	Other
+Bluetooth	Bluetooth
+RFID	RFID
+valeur…	value…
+Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : familles de réglages, valeurs modifiables, comparaison et copie entre deux imprimantes	Opens the printer workbench in a separate window (ideal on a second screen): setting families, editable values, comparison and copy between two printers
+Fermer le plan de travail	Close the workbench
+Remplacer le fichier ?	Replace the file?
+L'éditeur contient déjà un fichier : il sera remplacé par les réglages à copier.	The editor already contains a file: it will be replaced by the settings to copy.
+Fichier : {0} = « {1} ».	File: {0} = "{1}".
+Fichier : {0} retiré.	File: {0} removed.
+{0} : {1} réglage(s) dans le fichier, {2} non copié(s) (absents ou refusés sur l'autre imprimante). Vérifie puis « Envoyer à l'imprimante ».	{0}: {1} setting(s) in the file, {2} not copied (missing or refused on the other printer). Check then "Send to the printer".
+{0} : {1} réglage(s) dans le fichier. Vérifie puis « Envoyer à l'imprimante ».	{0}: {1} setting(s) in the file. Check then "Send to the printer".

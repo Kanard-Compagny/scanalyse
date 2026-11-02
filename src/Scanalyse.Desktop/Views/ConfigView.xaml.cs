@@ -720,6 +720,7 @@ public partial class ConfigView : UserControl
             Render();
             UpdateMarks();
             RefreshConvert();
+            BenchStateChanged?.Invoke();
             return;
         }
 
@@ -750,6 +751,7 @@ public partial class ConfigView : UserControl
         Render();
         UpdateMarks();
         RefreshConvert();
+        BenchStateChanged?.Invoke();
     }
 
     private void ShowPrinterBanner()
@@ -974,14 +976,70 @@ public partial class ConfigView : UserControl
         return row;
     }
 
-    /// <summary>
-    /// Ajoute des réglages lus au fichier de l'éditeur : une ligne « ! U1 setvar » par réglage, ou la ligne existante mise à
-    /// jour si le fichier règle déjà ce nom. Le fichier ouvert n'est jamais remplacé.
-    /// </summary>
-    private void AddPrinterSettings(IReadOnlyList<KeyValuePair<string, PrinterValue>> settings)
+    // ------------------------------------------------------------------ Plan de travail détaché (deuxième écran)
+
+    private ProgramWindow? _benchWindow;
+
+    /// <summary>Le fichier ou l'imprimante a changé : le plan de travail détaché se redessine.</summary>
+    internal event Action? BenchStateChanged;
+
+    internal IReadOnlyDictionary<string, PrinterValue>? PrinterSettings => _printer;
+
+    internal string? PrinterName => _printerName;
+
+    /// <summary>Réglages que le fichier donne (dernière valeur si un réglage apparaît plusieurs fois).</summary>
+    internal IReadOnlyDictionary<string, string> FileSettings =>
+        _report?.Settings.GroupBy(x => x.Key, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Last().Value, StringComparer.Ordinal)
+        ?? new Dictionary<string, string>(StringComparer.Ordinal);
+
+    internal void Report(LogKind kind, string message) => Log?.Invoke(kind, message);
+
+    internal void ReadPrinterAgain() => Read_Click(this, new RoutedEventArgs());
+
+    private void Detach_Click(object sender, RoutedEventArgs e)
     {
-        var portable = settings.Where(kv => PrinterConfig.Classify(kv.Key, kv.Value) == SettingUse.Portable).ToList();
-        if (portable.Count == 0)
+        if (_benchWindow is { } open)
+        {
+            open.Activate();
+            return;
+        }
+
+        var owner = Window.GetWindow(this);
+        var w = new ProgramWindow
+        {
+            Heading = Localization.T("Réglages de l'imprimante"),
+            CloseTip = Localization.T("Fermer le plan de travail"),
+            Owner = owner,
+            Width = Math.Max(900, (owner?.ActualWidth ?? 1400) * 0.6),
+            Height = Math.Max(640, (owner?.ActualHeight ?? 900) * 0.9),
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        };
+        w.Host.Child = new PrinterBench(this);
+        w.Closed += (_, _) =>
+        {
+            w.Host.Child = null;
+            _benchWindow = null;
+            owner?.Activate();
+        };
+        _benchWindow = w;
+        w.Show();
+    }
+
+    /// <summary>Ajoute au fichier des réglages lus, avec la valeur de l'imprimante (« + »).</summary>
+    internal void AddPrinterSettings(IReadOnlyList<KeyValuePair<string, PrinterValue>> settings) =>
+        WriteSettings(settings.Where(kv => PrinterConfig.Classify(kv.Key, kv.Value) == SettingUse.Portable)
+            .Select(kv => (kv.Key, PrinterConfig.Unquote(kv.Value.Value))).ToList());
+
+    /// <summary>Donne une valeur à un réglage dans le fichier (choisie ou saisie dans le plan de travail).</summary>
+    internal void SetFileValue(string key, string value) => WriteSettings([(key, value)]);
+
+    /// <summary>
+    /// Écrit des réglages dans le fichier de l'éditeur : une ligne « ! U1 setvar » par réglage, ou la ligne existante mise à
+    /// jour si le fichier règle déjà ce nom. Le reste du fichier n'est jamais touché.
+    /// </summary>
+    private void WriteSettings(IReadOnlyList<(string Key, string Value)> settings)
+    {
+        if (settings.Count == 0)
         {
             return;
         }
@@ -993,18 +1051,12 @@ public partial class ConfigView : UserControl
 
         var wasEmpty = CodeBox.Text.Trim().Length == 0;
         var newline = CodeBox.Text.Contains("\r\n", StringComparison.Ordinal) || wasEmpty ? "\r\n" : "\n";
-        List<string> lines = wasEmpty ? [] : CodeBox.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n').ToList();
-        while (lines.Count > 0 && lines[^1].Trim().Length == 0)
-        {
-            lines.RemoveAt(lines.Count - 1);
-        }
-
+        var lines = FileLines();
         int added = 0, updated = 0, last = 0;
-        foreach (var (key, value) in portable)
+        foreach (var (key, value) in settings)
         {
-            var line = PrinterConfig.SetvarLine(key, value);
-            var marker = "setvar \"" + key + "\"";
-            var at = lines.FindIndex(l => l.TrimStart().StartsWith('!') && l.Contains(marker, StringComparison.OrdinalIgnoreCase));
+            var line = PrinterConfig.SetvarLine(key, new PrinterValue(value, null));
+            var at = FindSetting(lines, key);
             if (at >= 0)
             {
                 if (!string.Equals(lines[at].Trim(), line, StringComparison.Ordinal))
@@ -1023,7 +1075,7 @@ public partial class ConfigView : UserControl
             }
         }
 
-        CodeBox.Text = string.Join(newline, lines) + newline;
+        SetFileText(lines, newline);
         if (wasEmpty)
         {
             _filePath = null;
@@ -1033,9 +1085,87 @@ public partial class ConfigView : UserControl
         }
 
         Analyze();
-        GoToLine(last);
-        Log?.Invoke(LogKind.Ok, $"Fichier : {added} réglage(s) de l'imprimante ajouté(s), {updated} mis à jour.");
+        if (_benchWindow is null)
+        {
+            GoToLine(last); // depuis le plan de travail détaché, on ne lui vole pas le clavier
+        }
+
+        Log?.Invoke(LogKind.Ok, settings.Count == 1 && added + updated == 1
+            ? $"Fichier : {settings[0].Key} = « {settings[0].Value} »."
+            : $"Fichier : {added} réglage(s) de l'imprimante ajouté(s), {updated} mis à jour.");
     }
+
+    /// <summary>Retire un réglage du fichier (toutes ses lignes « setvar »).</summary>
+    internal void RemoveFileSetting(string key)
+    {
+        var lines = FileLines();
+        var removed = 0;
+        for (var at = FindSetting(lines, key); at >= 0; at = FindSetting(lines, key))
+        {
+            lines.RemoveAt(at);
+            removed++;
+        }
+
+        if (removed == 0)
+        {
+            return;
+        }
+
+        SetFileText(lines, CodeBox.Text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n");
+        Analyze();
+        Log?.Invoke(LogKind.Info, $"Fichier : {key} retiré.");
+    }
+
+    /// <summary>Met un fichier préparé (copie d'une imprimante vers une autre) dans l'éditeur, après accord s'il en contient déjà un.</summary>
+    internal async Task LoadPrinterFile(string text, string info, int written, int refused)
+    {
+        if (CodeBox.Text.Trim().Length > 0 && !await Dialogs.ConfirmAsync(Localization.T("Remplacer le fichier ?"),
+                Localization.T("L'éditeur contient déjà un fichier : il sera remplacé par les réglages à copier."), Localization.T("Remplacer"), null, danger: false))
+        {
+            return;
+        }
+
+        if (_mode != PageMode.Analyze)
+        {
+            ModeAnalyze.IsChecked = true;
+        }
+
+        _filePath = null;
+        _fileBytes = null;
+        _fileText = null;
+        CodeBox.Text = text;
+        FileInfo.Text = info;
+        ViewProblems.IsChecked = true;
+        Analyze();
+        Log?.Invoke(LogKind.Ok, refused > 0
+            ? $"{info} : {written} réglage(s) dans le fichier, {refused} non copié(s) (absents ou refusés sur l'autre imprimante). Vérifie puis « Envoyer à l'imprimante »."
+            : $"{info} : {written} réglage(s) dans le fichier. Vérifie puis « Envoyer à l'imprimante ».");
+    }
+
+    private List<string> FileLines()
+    {
+        if (CodeBox.Text.Trim().Length == 0)
+        {
+            return [];
+        }
+
+        var lines = CodeBox.Text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n').ToList();
+        while (lines.Count > 0 && lines[^1].Trim().Length == 0)
+        {
+            lines.RemoveAt(lines.Count - 1);
+        }
+
+        return lines;
+    }
+
+    private static int FindSetting(List<string> lines, string key)
+    {
+        var marker = "setvar \"" + key + "\"";
+        return lines.FindIndex(l => l.TrimStart().StartsWith('!') && l.Contains(marker, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void SetFileText(List<string> lines, string newline) =>
+        CodeBox.Text = lines.Count == 0 ? string.Empty : string.Join(newline, lines) + newline;
 
     private void PrinterFilter_Changed(object sender, TextChangedEventArgs e)
     {
