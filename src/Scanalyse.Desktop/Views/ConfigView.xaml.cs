@@ -395,15 +395,9 @@ public partial class ConfigView : UserControl
 
         Analyze();
 
-        // Convertir / Créer : langage conseillé, résolution et « Partir des réglages de l'imprimante » suivent l'imprimante.
-        if (_mode == PageMode.Create && _assistantBuilt)
-        {
-            ShowCreate();
-        }
-        else if (_mode == PageMode.Convert)
-        {
-            ShowConvert();
-        }
+        // Convertir / Créer partent souvent d'un fichier du PC ou de zéro : l'imprimante lue ne change rien de ce qui est
+        // déjà choisi (langage, résolution, formulaire). Seul le bouton « Partir des réglages de l'imprimante » la suit.
+        FromPrinterButton.Visibility = _printer is not null ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void ShowProfileStatus(string brushKey, string text)

@@ -22,7 +22,7 @@
 - **Conf imprimante, toutes marques** :
   - nom de l'imprimante nettoyé (« Zebra ZT230 » au lieu du chemin de partage et du pilote) ;
   - résolution reprise du nom du modèle ou du pilote (« …-200dpi » → 203 dpi) pour toutes les marques, quand l'imprimante ne la donne pas ;
-  - Convertir et Créer suivent l'imprimante choisie (langage conseillé, résolution, « Partir des réglages de l'imprimante ») même quand on la change après avoir ouvert l'onglet ;
+  - Convertir et Créer partent d'un fichier du PC ou de zéro : lire une imprimante ne change jamais le langage, la résolution ni le formulaire déjà choisis ; seul « Partir des réglages de l'imprimante » apparaît quand une Zebra a été lue ;
   - lecture complète Zebra plus patiente (certains modèles marquent des pauses en cours de réponse) ; « Enregistrer l'état… » joint la réponse brute de l'imprimante, pour le diagnostic.
 - **Défilement** : la molette ne reste plus bloquée dans une zone qui défile (liste, éditeur) : arrivée au bout, c'est la zone autour qui prend le relais.
 
