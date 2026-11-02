@@ -1048,7 +1048,14 @@ internal sealed class PrinterBench : UserControl
 
         try
         {
-            File.WriteAllText(dialog.FileName, PrinterConfig.SaveState(p.Settings, p.Name + " (" + p.Target + ")", DateTimeOffset.Now));
+            var state = PrinterConfig.SaveState(p.Settings, p.Name + " (" + p.Target + ")", DateTimeOffset.Now);
+            if (PrinterProbe.LastAllcv.TryGetValue(p.Target, out var raw))
+            {
+                // Réponse brute de l'imprimante en commentaire (ignorée à la relecture) : utile au diagnostic.
+                state += "# --- reponse brute de l'imprimante ---\r\n" + string.Concat(raw.Replace("\r", string.Empty, StringComparison.Ordinal).Split('\n').Select(l => "# " + l + "\r\n"));
+            }
+
+            File.WriteAllText(dialog.FileName, state);
             _host.Report(LogKind.Ok, $"État de {p.Name} enregistré : {Path.GetFileName(dialog.FileName)} ({p.Settings.Count} réglages).");
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

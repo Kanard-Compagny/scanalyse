@@ -394,6 +394,16 @@ public partial class ConfigView : UserControl
         }
 
         Analyze();
+
+        // Convertir / Créer : langage conseillé, résolution et « Partir des réglages de l'imprimante » suivent l'imprimante.
+        if (_mode == PageMode.Create && _assistantBuilt)
+        {
+            ShowCreate();
+        }
+        else if (_mode == PageMode.Convert)
+        {
+            ShowConvert();
+        }
     }
 
     private void ShowProfileStatus(string brushKey, string text)

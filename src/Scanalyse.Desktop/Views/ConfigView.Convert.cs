@@ -30,6 +30,7 @@ public partial class ConfigView
     private ConfigLanguage? _convertTarget;
     private ConfigLanguage? _createTarget;
     private int? _dpi;
+    private readonly Dictionary<string, int?> _queueDpi = new(StringComparer.OrdinalIgnoreCase);
     private ConversionResult? _convertResult;
     private ConversionResult? _createResult;
 
@@ -77,7 +78,7 @@ public partial class ConfigView
         _ => CodeBox.Text.Trim().Length > 0 ? CodeBox.Text : null,
     };
 
-    /// <summary>Résolution : celle choisie, sinon celle lue sur l'imprimante (Zebra), sinon 203 dpi.</summary>
+    /// <summary>Résolution : celle choisie, sinon celle lue sur l'imprimante (Zebra), sinon celle du nom du modèle ou du pilote, sinon 203 dpi.</summary>
     private int CurrentDpi()
     {
         if (_dpi is { } chosen)
@@ -86,12 +87,19 @@ public partial class ConfigView
         }
 
         if (_printer is not null && _printer.TryGetValue("head.resolution.in_dpi", out var v)
-            && double.TryParse(v.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var dpi) && dpi is > 100 and < 1300)
+            && double.TryParse(PrinterConfig.Unquote(v.Value), NumberStyles.Float, CultureInfo.InvariantCulture, out var dpi) && dpi is > 100 and < 1300)
         {
             return (int)dpi;
         }
 
-        return 203;
+        // Toutes marques : la résolution citée dans le nom du modèle ou du pilote (« ZT230-200dpi », « PM45 300 dpi »).
+        var queue = TargetQueue.IsChecked == true ? SelectedQueue : null;
+        if (queue is not null && !_queueDpi.ContainsKey(queue))
+        {
+            _queueDpi[queue] = PrinterProbe.DpiFromName(queue + " " + PrinterTransport.QueueDriver(queue)); // le pilote n'est lu qu'une fois
+        }
+
+        return PrinterProbe.DpiFromName(_profile?.Model) ?? (queue is null ? null : _queueDpi[queue]) ?? 203;
     }
 
     /// <summary>Langage conseillé : celui de l'imprimante reconnue ; pour une Zebra, l'autre de ZPL / SGD que celui du fichier.</summary>

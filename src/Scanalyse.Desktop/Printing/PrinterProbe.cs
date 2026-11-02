@@ -79,8 +79,11 @@ internal static class PrinterProbe
         {
             try
             {
-                var reply = await PrinterTransport.QueryTcpAsync(target, PrinterConfig.AllcvRequest, cancel, maxBytes: 2 * 1024 * 1024, firstWaitMs: manual ? 6000 : 4000, quietMs: 1500);
-                var values = PrinterConfig.ParseAllcv(Encoding.UTF8.GetString(reply));
+                // Certaines Zebra marquent des pauses en cours de réponse : un silence plus long avant de conclure (lecture demandée).
+                var reply = await PrinterTransport.QueryTcpAsync(target, PrinterConfig.AllcvRequest, cancel, maxBytes: 2 * 1024 * 1024, firstWaitMs: manual ? 6000 : 4000, quietMs: manual ? 3000 : 1500);
+                var raw = Encoding.UTF8.GetString(reply);
+                LastAllcv[target] = raw;
+                var values = PrinterConfig.ParseAllcv(raw);
                 if (values.Count > 0)
                 {
                     var zebra = PrinterConfig.ZebraProfile(values, "réseau : réglages lus sur l'imprimante");
@@ -132,14 +135,42 @@ internal static class PrinterProbe
         }
 
         var t = text.Trim();
-        foreach (var word in new[] { "Zebra Technologies", "ZTC", "ZDesigner", "Honeywell", "Intermec", "Datamax-O'Neil", "Datamax", "SATO", "TSC", "Printer", "Imprimante" })
+        foreach (var word in new[] { "Zebra Technologies", "ZTC", "ZDesigner", "Zebra", "Honeywell", "Intermec", "Datamax-O'Neil", "Datamax", "SATO", "TSC", "Toshiba", "TEC", "Printer", "Imprimante" })
         {
-            t = t.Replace(word, string.Empty, StringComparison.OrdinalIgnoreCase);
+            t = System.Text.RegularExpressions.Regex.Replace(t, $@"(?<![\w-]){System.Text.RegularExpressions.Regex.Escape(word)}(?![\w-])", " ", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
 
-        t = string.Join(' ', t.Split([' ', ',', ';'], StringSplitOptions.RemoveEmptyEntries)).Trim('-', ' ');
+        // Ni chemin de partage (\\serveur\file), ni langage, ni résolution : seulement le modèle (« ZT230 »).
+        var tokens = t.Split([' ', ',', ';'], StringSplitOptions.RemoveEmptyEntries)
+            .Where(w => !w.StartsWith('\\') && !System.Text.RegularExpressions.Regex.IsMatch(w, @"^(ZPL|ZPL ?II|EPL2?|DPL|IPL|SBPL|TSPL2?|TPCL|PCL\d?|PS|PDF|\(.*\))$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            .Select(w => System.Text.RegularExpressions.Regex.Replace(w, @"[-_ ]?\d{3}\s?dpi$", string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            .Where(w => w.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        t = string.Join(' ', tokens).Trim('-', ' ');
         return t.Length is 0 or > 60 || (brand == PrinterBrand.Unknown && t.Length > 40) ? null : t;
     }
+
+    /// <summary>Résolution citée dans un nom de modèle ou de pilote (« ZT230-200dpi », « TE300 » non), 200 dpi étant 203 dpi.</summary>
+    public static int? DpiFromName(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return null;
+        }
+
+        var m = System.Text.RegularExpressions.Regex.Match(text, @"(\d{3})\s?dpi", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return m.Success && int.TryParse(m.Groups[1].Value, out var dpi) ? dpi switch
+        {
+            200 or 203 => 203,
+            300 or 305 => 300,
+            600 => 600,
+            _ => null,
+        } : null;
+    }
+
+    /// <summary>Dernière réponse brute « allcv » par adresse : jointe aux états enregistrés, pour le diagnostic.</summary>
+    public static System.Collections.Concurrent.ConcurrentDictionary<string, string> LastAllcv { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Firmware cité dans la description SNMP (« … V92.21.39Z », « FW 1.2.3 »), si présent.</summary>
     private static string? FirmwareFrom(string? sysDescr)
