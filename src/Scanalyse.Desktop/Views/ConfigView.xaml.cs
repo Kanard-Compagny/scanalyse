@@ -837,8 +837,11 @@ public partial class ConfigView : UserControl
 
     // ------------------------------------------------------------------ Réglages lus sur l'imprimante
 
-    /// <summary>Réglages lus, filtrés (nom, libellé ou valeur ; lecture seule masquée sauf demande), triés par nom.</summary>
-    private List<KeyValuePair<string, PrinterValue>> PrinterShown()
+    private string _printerFamily = string.Empty;
+    private string? _printerSelected;
+
+    /// <summary>Réglages lus, filtrés (recherche ; lecture seule masquée sauf demande), triés par nom ; toutes familles.</summary>
+    private List<KeyValuePair<string, PrinterValue>> PrinterMatching()
     {
         if (_printer is null)
         {
@@ -857,68 +860,75 @@ public partial class ConfigView : UserControl
             .ToList();
     }
 
+    /// <summary>Ce qui est affiché : la recherche, dans la famille choisie.</summary>
+    private List<KeyValuePair<string, PrinterValue>> PrinterShown() =>
+        PrinterMatching().Where(kv => _printerFamily.Length == 0 || PrinterConfig.FamilyOf(kv.Key) == _printerFamily).ToList();
+
     private void RenderPrinter()
     {
+        var matching = PrinterMatching();
+        RenderPrinterFamilies(matching);
         var shown = PrinterShown();
         var portable = shown.Count(kv => PrinterConfig.Classify(kv.Key, kv.Value) == SettingUse.Portable);
-        PrinterAddAll.Content = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Tout ajouter ({0})"), portable);
+        PrinterAddAll.Content = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Tout ajouter au fichier ({0})"), portable);
         PrinterAddAll.IsEnabled = portable > 0;
-        var inFile = _report?.Settings.GroupBy(x => x.Key, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Last().Value, StringComparer.Ordinal)
-            ?? new Dictionary<string, string>(StringComparer.Ordinal);
-        var readOnlyCount = _printer!.Count(kv => PrinterConfig.Classify(kv.Key, kv.Value) == SettingUse.ReadOnly);
-        var head = new TextBlock { FontSize = 12, Margin = new Thickness(0, 0, 0, 6), TextWrapping = TextWrapping.Wrap };
-        head.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
-        head.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture,
-            Localization.T("{0} réglage(s) lus sur {1} : {2} réglables, {3} en lecture seule. « + » ajoute un réglage au fichier, ou le met à jour s'il y est déjà."),
-            _printer.Count, _printerName, _printer.Count - readOnlyCount, readOnlyCount);
-        ResultPanel.Children.Add(head);
+        var inFile = FileSettings;
         if (shown.Count == 0)
         {
             ResultPanel.Children.Add(Muted(Localization.T("Aucun réglage ne correspond à la recherche.")));
             return;
         }
 
-        foreach (var group in shown.GroupBy(kv => kv.Key.Split('.')[0], StringComparer.Ordinal))
+        foreach (var kv in shown)
         {
-            var items = group.ToList();
-            var addable = items.Where(kv => PrinterConfig.Classify(kv.Key, kv.Value) == SettingUse.Portable).ToList();
-            var bar = new DockPanel { Margin = new Thickness(0, 10, 0, 4) };
-            if (addable.Count > 1)
-            {
-                var addGroup = new Button
-                {
-                    Style = (Style)FindResource("BtnGhost"), FontSize = 12, Padding = new Thickness(8, 2, 8, 2),
-                    Content = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("+ ajouter les {0}"), addable.Count),
-                    ToolTip = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Ajoute au fichier les réglages « {0} » affichés"), group.Key),
-                };
-                addGroup.Click += (_, _) => AddPrinterSettings(addable);
-                DockPanel.SetDock(addGroup, Dock.Right);
-                bar.Children.Add(addGroup);
-            }
-
-            var title = new TextBlock { FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center };
-            title.Inlines.Add(new Run(group.Key) { FontFamily = (FontFamily)FindResource("MonoFont") });
-            var count = new Run("  " + items.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)) { FontWeight = FontWeights.Normal, FontSize = 12 };
-            count.SetResourceReference(TextElement.ForegroundProperty, "Muted");
-            title.Inlines.Add(count);
-            title.SetResourceReference(TextBlock.ForegroundProperty, "Ink");
-            bar.Children.Add(title);
-            ResultPanel.Children.Add(bar);
-            foreach (var kv in items)
-            {
-                ResultPanel.Children.Add(PrinterRow(kv, inFile.TryGetValue(kv.Key, out var fv) ? fv : null));
-            }
+            ResultPanel.Children.Add(PrinterRow(kv, inFile.TryGetValue(kv.Key, out var fv) ? fv : null));
         }
     }
 
+    private void RenderPrinterFamilies(IReadOnlyList<KeyValuePair<string, PrinterValue>> matching)
+    {
+        PrinterFamilies.Children.Clear();
+        var counts = matching.GroupBy(kv => PrinterConfig.FamilyOf(kv.Key)).ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+        if (_printerFamily.Length > 0 && !counts.ContainsKey(_printerFamily))
+        {
+            _printerFamily = string.Empty;
+        }
+
+        void Add(string tag, string label, int count)
+        {
+            var chip = new RadioButton
+            {
+                Style = (Style)FindResource("Chip"), GroupName = "PrinterFamily", IsChecked = tag == _printerFamily,
+                Content = label + "  " + count.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            };
+            chip.Checked += (_, _) =>
+            {
+                _printerFamily = tag;
+                Render();
+            };
+            PrinterFamilies.Children.Add(chip);
+        }
+
+        Add(string.Empty, Localization.T("Toutes"), matching.Count);
+        foreach (var f in PrinterConfig.SettingFamilies.Where(counts.ContainsKey))
+        {
+            Add(f, Localization.T(f), counts[f]);
+        }
+    }
+
+    /// <summary>
+    /// Une ligne : libellé et nom à gauche, valeur de l'imprimante à droite ; en bleu quand le fichier règle ce réglage.
+    /// Un clic l'ouvre sur place pour la reprendre dans le fichier (même présentation que le plan de travail).
+    /// </summary>
     private Border PrinterRow(KeyValuePair<string, PrinterValue> kv, string? inFile)
     {
         var (key, value) = kv;
         var use = PrinterConfig.Classify(key, value);
+        var printerValue = PrinterConfig.Unquote(value.Value);
+        var selected = key == _printerSelected;
         var grid = new Grid();
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.3, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
         var left = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         if (PrinterConfig.SettingLabel(key) is { } label)
         {
@@ -927,53 +937,188 @@ public partial class ConfigView : UserControl
             left.Children.Add(l);
         }
 
-        var name = new TextBlock { Text = key, FontSize = 11.5, FontFamily = (FontFamily)FindResource("MonoFont"), TextWrapping = TextWrapping.Wrap };
+        var name = new TextBlock { Text = key, FontSize = left.Children.Count > 0 ? 11.5 : 12, FontFamily = (FontFamily)FindResource("MonoFont"), TextWrapping = TextWrapping.Wrap };
         name.SetResourceReference(TextBlock.ForegroundProperty, left.Children.Count > 0 ? "Muted" : "Ink");
         left.Children.Add(name);
         grid.Children.Add(left);
 
         var right = new StackPanel { Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(right, 1);
-        var val = new TextBlock { Text = PrinterConfig.Unquote(value.Value), FontFamily = (FontFamily)FindResource("MonoFont"), FontSize = 12.5, TextWrapping = TextWrapping.Wrap };
-        val.SetResourceReference(TextBlock.ForegroundProperty, "Ink");
-        right.Children.Add(val);
-        var note = use switch
+        var differs = inFile is not null && !string.Equals(inFile, printerValue, StringComparison.Ordinal);
+        var val = new TextBlock
         {
-            SettingUse.ReadOnly => Localization.T("lecture seule"),
-            SettingUse.Specific => Localization.T("propre à cette imprimante"),
-            SettingUse.Action => Localization.T("déclenche une action"),
-            _ => value.Choices is { Length: > 0 } c ? string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("accepte : {0}"), c) : string.Empty,
+            Text = differs ? printerValue + "  →  " + inFile : printerValue, FontFamily = (FontFamily)FindResource("MonoFont"), FontSize = 12.5,
+            TextWrapping = TextWrapping.Wrap, FontWeight = differs ? FontWeights.SemiBold : FontWeights.Normal,
         };
-        if (inFile is not null)
-        {
-            note = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("dans le fichier : {0}"), inFile) + (note.Length > 0 ? " · " + note : string.Empty);
-        }
-
+        val.SetResourceReference(TextBlock.ForegroundProperty, inFile is not null ? "InfoFg" : "Ink");
+        right.Children.Add(val);
+        var note = inFile is not null
+            ? Localization.T(differs ? "le fichier changera cette valeur" : "dans le fichier")
+            : use switch
+            {
+                SettingUse.ReadOnly => Localization.T("lecture seule"),
+                SettingUse.Specific => Localization.T("propre à cette imprimante"),
+                SettingUse.Action => Localization.T("déclenche une action"),
+                _ => string.Empty,
+            };
         if (note.Length > 0)
         {
-            var n = new TextBlock { Text = note, FontSize = 11.5, TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.CharacterEllipsis, MaxHeight = 32 };
-            n.SetResourceReference(TextBlock.ForegroundProperty, inFile is not null ? "OkFg" : "Muted");
-            n.ToolTip = note;
+            var n = new TextBlock { Text = note, FontSize = 11.5, TextWrapping = TextWrapping.Wrap };
+            n.SetResourceReference(TextBlock.ForegroundProperty, inFile is not null ? "InfoFg" : "Muted");
             right.Children.Add(n);
         }
 
         grid.Children.Add(right);
-        if (use == SettingUse.Portable)
+        var content = new StackPanel();
+        content.Children.Add(grid);
+        if (selected)
         {
-            var add = new Button
-            {
-                Style = (Style)FindResource("BtnSmall"), Content = "+", Width = 28, Height = 28, Padding = new Thickness(0), FontSize = 15,
-                HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center,
-                ToolTip = Localization.T(inFile is null ? "Ajouter au fichier" : "Mettre à jour dans le fichier"),
-            };
-            add.Click += (_, _) => AddPrinterSettings([kv]);
-            Grid.SetColumn(add, 2);
-            grid.Children.Add(add);
+            content.Children.Add(PrinterRowEditor(key, value, use, printerValue, inFile));
         }
 
-        var row = new Border { Padding = new Thickness(0, 5, 0, 5), BorderThickness = new Thickness(0, 0, 0, 1), Child = grid };
+        var row = new Border
+        {
+            Padding = new Thickness(10, 7, 10, 7), BorderThickness = new Thickness(0, 0, 0, 1), Child = content, Background = Brushes.Transparent,
+            Cursor = selected ? Cursors.Arrow : Cursors.Hand,
+        };
         row.SetResourceReference(Border.BorderBrushProperty, "Line");
+        if (selected)
+        {
+            row.SetResourceReference(Border.BackgroundProperty, "Surface2");
+        }
+        else if (inFile is not null)
+        {
+            row.SetResourceReference(Border.BackgroundProperty, "InfoBg");
+        }
+        else
+        {
+            row.MouseEnter += (_, _) => row.SetResourceReference(Border.BackgroundProperty, "Surface2");
+            row.MouseLeave += (_, _) => row.Background = Brushes.Transparent;
+        }
+
+        if (!selected)
+        {
+            row.ToolTip = Localization.T("Clique pour reprendre ce réglage dans le fichier");
+        }
+
+        grid.Cursor = Cursors.Hand;
+        grid.MouseLeftButtonUp += (_, _) =>
+        {
+            _printerSelected = selected ? null : key;
+            Render();
+        };
         return row;
+    }
+
+    /// <summary>Le réglage ouvert : valeur à écrire dans le fichier (choix annoncés ou saisie contrôlée), et les boutons du fichier.</summary>
+    private StackPanel PrinterRowEditor(string key, PrinterValue value, SettingUse use, string printerValue, string? inFile)
+    {
+        var panel = new StackPanel { Margin = new Thickness(0, 10, 0, 4) };
+        TextBlock Line(string text, string brush, double size = 12.5)
+        {
+            var t = new TextBlock { Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
+            t.SetResourceReference(TextBlock.ForegroundProperty, brush);
+            return t;
+        }
+
+        if (use is SettingUse.ReadOnly or SettingUse.Action)
+        {
+            panel.Children.Add(Line(Localization.T(use == SettingUse.ReadOnly
+                ? "Information en lecture seule : l'imprimante la donne mais ne la laisse pas modifier."
+                : "Ce réglage déclenche une action (remise à zéro, calibrage…) : il ne se met pas dans un fichier d'ici."), "Muted"));
+            return panel;
+        }
+
+        if (use == SettingUse.Specific)
+        {
+            panel.Children.Add(Line(Localization.T("Réglage propre à cette imprimante (adresse, nom, identifiant, secret) : un fichier qui le contient ne convient qu'à elle."), "WarnFg"));
+        }
+
+        var caption = Line(Localization.T("Valeur à écrire dans le fichier"), "Muted", 11);
+        caption.FontWeight = FontWeights.SemiBold;
+        caption.Margin = new Thickness(0, 0, 0, 6);
+        panel.Children.Add(caption);
+        var choices = PrinterConfig.ChoicesOf(value);
+        var chosen = inFile ?? printerValue;
+        var error = Line(string.Empty, "BadFg", 12);
+        error.Visibility = Visibility.Collapsed;
+        Func<string> read;
+        if (choices is { Options.Count: > 0 } list)
+        {
+            var wrap = new WrapPanel();
+            foreach (var option in list.Options)
+            {
+                var c = new RadioButton { Style = (Style)FindResource("Chip"), GroupName = "PrinterValue", Content = option, IsChecked = string.Equals(option, chosen, StringComparison.Ordinal) };
+                c.Checked += (_, _) => chosen = option;
+                wrap.Children.Add(c);
+            }
+
+            panel.Children.Add(wrap);
+            read = () => chosen;
+        }
+        else
+        {
+            var box = new TextBox { Style = (Style)FindResource("FieldInput"), Text = chosen, Width = 220, HorizontalAlignment = HorizontalAlignment.Left, FontFamily = (FontFamily)FindResource("MonoFont") };
+            panel.Children.Add(box);
+            if (choices is { Min: { } min, Max: { } max })
+            {
+                var range = Line(string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Accepte de {0} à {1}"), min, max), "Muted", 12);
+                range.Margin = new Thickness(0, 4, 0, 0);
+                panel.Children.Add(range);
+            }
+
+            read = () => box.Text.Trim();
+            box.KeyDown += (_, e) =>
+            {
+                if (e.Key == Key.Enter)
+                {
+                    WriteFromRow(key, value, read(), error);
+                }
+            };
+        }
+
+        error.Margin = new Thickness(0, 6, 0, 0);
+        panel.Children.Add(error);
+        var buttons = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
+        var write = new Button { Style = (Style)FindResource("BtnSecondary"), Content = Localization.T(inFile is null ? "Ajouter au fichier" : "Mettre à jour dans le fichier"), Margin = new Thickness(0, 0, 8, 4) };
+        write.Click += (_, _) => WriteFromRow(key, value, read(), error);
+        buttons.Children.Add(write);
+        if (inFile is not null)
+        {
+            var remove = new Button { Style = (Style)FindResource("BtnGhost"), Content = Localization.T("Retirer du fichier"), Margin = new Thickness(0, 0, 8, 4) };
+            remove.Click += (_, _) => RemoveFileSetting(key);
+            buttons.Children.Add(remove);
+        }
+
+        var close = new Button { Style = (Style)FindResource("BtnGhost"), Content = Localization.T("Fermer"), Margin = new Thickness(0, 0, 0, 4) };
+        close.Click += (_, _) =>
+        {
+            _printerSelected = null;
+            Render();
+        };
+        buttons.Children.Add(close);
+        panel.Children.Add(buttons);
+        return panel;
+    }
+
+    private void WriteFromRow(string key, PrinterValue value, string next, TextBlock error)
+    {
+        if (next.Length == 0 || next.Contains('"', StringComparison.Ordinal))
+        {
+            error.Text = Localization.T("Saisis une valeur (sans guillemets).");
+            error.Visibility = Visibility.Visible;
+            return;
+        }
+
+        if (value.Choices is { Length: > 0 } c && !PrinterConfig.Accepts(c, next))
+        {
+            error.Text = string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Cette imprimante refuserait « {0} » (accepte : {1})."), next, c);
+            error.Visibility = Visibility.Visible;
+            return;
+        }
+
+        _printerSelected = null; // la ligne se referme : en bleu, elle montre ce que le fichier règle
+        SetFileValue(key, next);
     }
 
     // ------------------------------------------------------------------ Plan de travail détaché (deuxième écran)

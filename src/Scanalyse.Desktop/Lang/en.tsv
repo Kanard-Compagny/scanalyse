@@ -3455,3 +3455,9 @@ Vérifié sur {0} : les {1} réglage(s) ont bien été pris en compte.	Checked o
 Vérifié sur {0} : {1} pris en compte, {2} non appliqué(s) (restent dans « Modifications prévues ») : {3}.	Checked on {0}: {1} applied, {2} not applied (kept in "Planned changes"): {3}.
 {0} réglage(s) de {1} préparés pour {2} ({3}) : vérifie « Modifications prévues » puis envoie.	{0} setting(s) from {1} prepared for {2} ({3}): check "Planned changes" then send.
 Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : régler une imprimante en toute sécurité, ou copier les réglages d'une imprimante vers une autre	Opens the printer workbench in a separate window (ideal on a second screen): adjust a printer safely, or copy one printer's settings to another
+le fichier changera cette valeur	the file will change this value
+dans le fichier	in the file
+Clique pour reprendre ce réglage dans le fichier	Click to take this setting into the file
+Ce réglage déclenche une action (remise à zéro, calibrage…) : il ne se met pas dans un fichier d'ici.	This setting triggers an action (reset, calibration…): it is not put in a file from here.
+Réglage propre à cette imprimante (adresse, nom, identifiant, secret) : un fichier qui le contient ne convient qu'à elle.	Setting specific to this printer (address, name, identifier, secret): a file containing it only suits this printer.
+Valeur à écrire dans le fichier	Value to write in the file

@@ -287,32 +287,28 @@
               <RadioButton x:Name="ViewPrinter" Style="{StaticResource Chip}" GroupName="ConfView" Content="Réglages de l'imprimante" Checked="View_Changed" Visibility="Collapsed"
                            ToolTip="Tous les réglages lus sur l'imprimante, à consulter ou à reprendre dans un fichier" />
             </WrapPanel>
-            <!-- Réglages lus sur l'imprimante : recherche, lecture seule, reprise dans le fichier, copie -->
-            <Grid x:Name="PrinterTools" Margin="0,0,0,8" Visibility="Collapsed">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="160" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
-              <Grid VerticalAlignment="Center">
+            <!-- Réglages lus sur l'imprimante : recherche, familles, puis actions ; un clic sur une ligne l'ouvre pour la reprendre dans le fichier -->
+            <StackPanel x:Name="PrinterTools" Margin="0,0,0,6" Visibility="Collapsed">
+              <Grid>
                 <TextBox x:Name="PrinterFilter" Style="{StaticResource SearchInput}" TextChanged="PrinterFilter_Changed" AutomationProperties.Name="Rechercher un réglage de l'imprimante" />
                 <Viewbox Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0" IsHitTestVisible="False">
                   <Path Data="{StaticResource IconSearch}" Width="24" Height="24" Stroke="{DynamicResource Muted}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
                 </Viewbox>
-                <TextBlock x:Name="PrinterFilterHint" Text="Rechercher : media, noirceur, wlan…" Margin="37,0,0,0" VerticalAlignment="Center"
+                <TextBlock x:Name="PrinterFilterHint" Text="Rechercher un réglage : nom, libellé ou valeur" Margin="37,0,0,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource Muted}" IsHitTestVisible="False" TextTrimming="CharacterEllipsis" />
               </Grid>
-              <CheckBox x:Name="PrinterReadOnly" Grid.Column="1" Style="{StaticResource CheckLine}" Content="Lecture seule" Margin="12,0,0,0" VerticalAlignment="Center"
-                        Click="PrinterReadOnly_Click" ToolTip="Afficher aussi les informations en lecture seule (modèle, firmware, compteurs, état…)" />
-              <Button x:Name="PrinterAddAll" Grid.Column="2" Style="{StaticResource BtnSmall}" Margin="12,0,0,0" VerticalAlignment="Center" Click="PrinterAddAll_Click"
-                      ToolTip="Ajoute au fichier tous les réglages affichés qui peuvent être repris (ceux déjà présents sont mis à jour)" />
-              <Button Grid.Column="3" Style="{StaticResource BtnSmall}" Content="Copier" Margin="6,0,0,0" VerticalAlignment="Center" Click="PrinterCopy_Click"
-                      ToolTip="Copie la liste affichée (nom, valeur, valeurs acceptées), à coller dans un tableur" />
-              <Button Grid.Column="4" Style="{StaticResource BtnSmall}" Content="Détacher" Margin="6,0,0,0" VerticalAlignment="Center" Click="Detach_Click"
-                      ToolTip="Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : régler une imprimante en toute sécurité, ou copier les réglages d'une imprimante vers une autre" />
-            </Grid>
+              <WrapPanel x:Name="PrinterFamilies" Margin="0,8,0,0" />
+              <DockPanel Margin="0,2,0,0" LastChildFill="False">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Content="Détacher" Margin="6,0,0,0" VerticalAlignment="Center" Click="Detach_Click"
+                        ToolTip="Ouvre le plan de travail de l'imprimante dans une fenêtre à part (idéal sur un deuxième écran) : régler une imprimante en toute sécurité, ou copier les réglages d'une imprimante vers une autre" />
+                <Button DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" Content="Copier" Margin="6,0,0,0" VerticalAlignment="Center" Click="PrinterCopy_Click"
+                        ToolTip="Copie la liste affichée (nom, valeur, valeurs acceptées), à coller dans un tableur" />
+                <Button x:Name="PrinterAddAll" DockPanel.Dock="Right" Style="{StaticResource BtnSmall}" VerticalAlignment="Center" Click="PrinterAddAll_Click"
+                        ToolTip="Ajoute au fichier tous les réglages affichés qui peuvent être repris (ceux déjà présents sont mis à jour)" />
+                <CheckBox x:Name="PrinterReadOnly" Style="{StaticResource CheckLine}" Content="Lecture seule" VerticalAlignment="Center"
+                          Click="PrinterReadOnly_Click" ToolTip="Afficher aussi les informations en lecture seule (modèle, firmware, compteurs, état…)" />
+              </DockPanel>
+            </StackPanel>
           </StackPanel>
           <ScrollViewer x:Name="ResultScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel x:Name="ResultPanel" Margin="0,0,6,0" />

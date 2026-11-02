@@ -136,7 +136,7 @@ internal sealed class PrinterBench : UserControl
 
     private TextBox Field(string text, string hint, double width)
     {
-        var box = new TextBox { Style = (Style)FindResource("FieldInput"), Text = text, Width = width, VerticalAlignment = VerticalAlignment.Center, IsEnabled = !_busy };
+        var box = new TextBox { Style = (Style)FindResource("FieldInput"), Text = text, Width = width, Height = 34, Padding = new Thickness(8, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center, IsEnabled = !_busy };
         Placeholder.SetText(box, T(hint));
         return box;
     }
