@@ -260,15 +260,18 @@ public partial class ConfigView : UserControl
             return;
         }
 
-        if (TargetQueue.IsChecked != true && !LooksLikeAddress(AddressBox.Text))
-        {
-            _probeCts?.Cancel();
-            _probedKey = TargetKey();
-            SetProfile(null, null);
-            return;
-        }
+        // Rien n'est lu sans clic : choisir une imprimante dit seulement où envoyer. Ses réglages et sa marque ne servent de
+        // référence qu'après « Lire l'imprimante » (règles de l'onglet : docs/CONF_IMPRIMANTE.md).
+        _probeCts?.Cancel();
+        _probedKey = TargetKey();
+        SetProfile(null, null);
+    }
 
-        _ = ProbeAsync(manual: false);
+    private void Forget_Click(object sender, RoutedEventArgs e)
+    {
+        _probeCts?.Cancel();
+        SetProfile(null, null);
+        Log?.Invoke(LogKind.Info, "Imprimante oubliée comme référence : le fichier est analysé seul. Elle reste la destination de l'envoi.");
     }
 
     private async Task ProbeAsync(bool manual)
@@ -339,9 +342,14 @@ public partial class ConfigView : UserControl
             ViewPrinter.IsChecked = true; // lecture demandée : on montre ce qui a été lu
         }
 
+        ForgetButton.Visibility = _profile is null ? Visibility.Collapsed : Visibility.Visible;
         if (result is null)
         {
-            ShowProfileStatus("Muted", Localization.T("Choisis une imprimante : Scanalyse la reconnaît (toutes marques) et vérifie que le fichier lui convient."));
+            var chosen = TargetQueue.IsChecked == true ? SelectedQueue : (AddressBox.Text.Trim() is { Length: > 0 } a ? a : null);
+            ShowProfileStatus("Muted", chosen is null
+                ? Localization.T("Choisis l'imprimante qui recevra le fichier. « Lire l'imprimante » l'utilise aussi comme référence (analyse, réglages).")
+                : string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    Localization.T("Imprimante choisie pour l'envoi : {0}. Aucune imprimante lue : le fichier est analysé seul. « Lire l'imprimante » pour l'utiliser comme référence."), chosen));
         }
         else if (_profile is null)
         {
@@ -728,8 +736,8 @@ public partial class ConfigView : UserControl
             return;
         }
 
-        var printer = UsePrinter ? _printer : null;
-        var profile = UsePrinter ? _profile : null;
+        var printer = _printer;
+        var profile = _profile;
         var r = PrinterConfig.Analyze(text, printer);
         _report = r;
         var comparison = new List<ConfigFinding>();
@@ -760,29 +768,9 @@ public partial class ConfigView : UserControl
         BenchStateChanged?.Invoke();
     }
 
-    /// <summary>L'analyse tient compte de l'imprimante choisie (sinon : le fichier seul).</summary>
-    private bool UsePrinter => RefPrinter.IsChecked == true;
-
-    private void Reference_Changed(object sender, RoutedEventArgs e)
-    {
-        if (IsLoaded)
-        {
-            Analyze();
-        }
-    }
-
-    /// <summary>Le choix « Le fichier seul / Avec l'imprimante » n'apparaît que lorsqu'une imprimante est reconnue.</summary>
-    private void UpdateReferenceChips()
-    {
-        ReferenceChips.Visibility = _profile is null ? Visibility.Collapsed : Visibility.Visible;
-        RefPrinter.Content = _profile is null ? Localization.T("Avec l'imprimante")
-            : string.Format(System.Globalization.CultureInfo.InvariantCulture, Localization.T("Avec l'imprimante : {0}"), _profile.DisplayName);
-    }
-
     private void ShowPrinterBanner()
     {
-        UpdateReferenceChips();
-        if (_printer is null || !UsePrinter)
+        if (_printer is null)
         {
             PrinterBanner.Visibility = Visibility.Collapsed;
             return;

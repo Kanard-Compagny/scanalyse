@@ -125,7 +125,7 @@ public partial class ConfigView
     /// <summary>Phrase qui dit d'où vient le langage coché, ou qu'il faut le choisir.</summary>
     private string TargetNote(bool auto, ConfigLanguage? chosen) =>
         auto && chosen is not null && _profile is { } p
-            ? string.Format(CultureInfo.InvariantCulture, Localization.T("Choisi d'après l'imprimante sélectionnée ({0}) : change-le si le fichier est pour une autre imprimante."), p.DisplayName)
+            ? string.Format(CultureInfo.InvariantCulture, Localization.T("Choisi d'après l'imprimante lue ({0}) : change-le si le fichier est pour une autre imprimante."), p.DisplayName)
             : chosen is null
                 ? Localization.T("Choisis le langage de l'imprimante qui recevra le fichier.")
                 : string.Empty;

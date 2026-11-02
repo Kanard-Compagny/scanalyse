@@ -3472,13 +3472,14 @@ longueur	length
 Lecture complémentaire de l'imprimante impossible : {0}	Additional reading of the printer failed: {0}
 Aucun réglage du formulaire n'a pu être lu sur cette imprimante.	None of the form's settings could be read from this printer.
 Réglages de l'imprimante repris dans le formulaire ({0}) : change ce qui doit l'être. Non trouvés sur l'imprimante : {1}.	Printer settings taken into the form ({0}): change what needs changing. Not found on the printer: {1}.
-Choisi d'après l'imprimante sélectionnée ({0}) : change-le si le fichier est pour une autre imprimante.	Chosen from the selected printer ({0}): change it if the file is for another printer.
 Choisis le langage de l'imprimante qui recevra le fichier.	Choose the language of the printer that will receive the file.
 Fichier de départ : {0}.	Source file: {0}.
 Choisis d'abord, ci-dessus, le langage de l'imprimante qui recevra le fichier : il s'écrit ici.	First choose, above, the language of the printer that will receive the file: it is written here.
-Le fichier seul	The file only
-Avec l'imprimante	With the printer
-Avec l'imprimante : {0}	With the printer: {0}
-Cherche les problèmes du fichier lui-même (syntaxe, valeurs, ordre, commandes risquées), sans tenir compte d'une imprimante	Looks for problems in the file itself (syntax, values, order, risky commands), regardless of any printer
-Vérifie aussi que le fichier convient à l'imprimante choisie : langage, réglages qui existent sur ce modèle, valeurs acceptées, ce qui changera	Also checks that the file suits the chosen printer: language, settings that exist on this model, accepted values, what will change
 « {0} » n'apparaît pas parmi les réglages lus sur cette imprimante : nom erroné, ou réglage absent de ce modèle ou de ce firmware (l'imprimante l'ignorerait sans message d'erreur). Vérifie le nom.	"{0}" is not among the settings read from this printer: wrong name, or setting missing on this model or firmware (the printer would ignore it without an error message). Check the name.
+Ne plus utiliser l'imprimante	Stop using the printer
+Oublie ce qui a été lu sur l'imprimante : le fichier est analysé seul. L'imprimante reste la destination de « Envoyer à l'imprimante ».	Forgets what was read from the printer: the file is analyzed on its own. The printer stays the destination of "Send to the printer".
+Reconnaît l'imprimante (toutes marques) et lit ses réglages (Zebra, par le réseau) : elle sert alors de référence pour l'analyse et les réglages	Recognizes the printer (all brands) and reads its settings (Zebra, over the network): it then serves as the reference for analysis and settings
+Choisis l'imprimante qui recevra le fichier. « Lire l'imprimante » l'utilise aussi comme référence (analyse, réglages).	Choose the printer that will receive the file. "Read the printer" also uses it as the reference (analysis, settings).
+Imprimante choisie pour l'envoi : {0}. Aucune imprimante lue : le fichier est analysé seul. « Lire l'imprimante » pour l'utiliser comme référence.	Printer chosen for sending: {0}. No printer read: the file is analyzed on its own. "Read the printer" to use it as the reference.
+Imprimante oubliée comme référence : le fichier est analysé seul. Elle reste la destination de l'envoi.	Printer no longer used as the reference: the file is analyzed on its own. It stays the sending destination.
+Choisi d'après l'imprimante lue ({0}) : change-le si le fichier est pour une autre imprimante.	Chosen from the printer read ({0}): change it if the file is for another printer.

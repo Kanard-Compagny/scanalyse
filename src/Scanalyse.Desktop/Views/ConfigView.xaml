@@ -55,8 +55,10 @@
       <StackPanel>
       <DockPanel>
         <Button DockPanel.Dock="Right" x:Name="SendButton" Style="{StaticResource BtnAction}" Content="Envoyer à l'imprimante" Click="Send_Click" Margin="8,0,0,0" VerticalAlignment="Center" />
-        <Button DockPanel.Dock="Right" x:Name="ReadButton" Style="{StaticResource BtnSecondary}" Content="Lire l'imprimante" Click="Read_Click" Margin="12,0,0,0" VerticalAlignment="Center"
-                ToolTip="Lit tous les réglages de l'imprimante (Zebra, par le réseau) pour les comparer au fichier et vérifier les valeurs acceptées par ce modèle" />
+        <Button DockPanel.Dock="Right" x:Name="ReadButton" Style="{StaticResource BtnSecondary}" Content="Lire l'imprimante" Click="Read_Click" Margin="8,0,0,0" VerticalAlignment="Center"
+                ToolTip="Reconnaît l'imprimante (toutes marques) et lit ses réglages (Zebra, par le réseau) : elle sert alors de référence pour l'analyse et les réglages" />
+        <Button DockPanel.Dock="Right" x:Name="ForgetButton" Style="{StaticResource BtnGhost}" Content="Ne plus utiliser l'imprimante" Click="Forget_Click" Margin="12,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"
+                ToolTip="Oublie ce qui a été lu sur l'imprimante : le fichier est analysé seul. L'imprimante reste la destination de « Envoyer à l'imprimante »." />
         <TextBlock DockPanel.Dock="Left" Text="Imprimante" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0" />
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
           <RadioButton x:Name="TargetTcp" Style="{StaticResource Chip}" GroupName="ConfTarget" Content="Réseau (IP, port 9100)" IsChecked="True" Checked="Target_Changed" Margin="0,0,6,0" />
@@ -275,14 +277,6 @@
           <StackPanel DockPanel.Dock="Top">
             <TextBlock x:Name="ResultTitle" Style="{StaticResource CardTitle}" FontSize="18" Text="Analyse" />
             <TextBlock x:Name="ResultSummary" Style="{StaticResource PageSubtitle}" Margin="0,4,0,10" Text="Le fichier est analysé dès qu'il est collé ou ouvert." />
-            <!-- Référence de l'analyse : le fichier seul, ou comparé à l'imprimante choisie -->
-            <WrapPanel x:Name="ReferenceChips" Margin="0,0,0,8" Visibility="Collapsed">
-              <TextBlock Text="Analyser" VerticalAlignment="Center" Margin="0,0,10,6" FontSize="12.5" Foreground="{DynamicResource Muted}" />
-              <RadioButton x:Name="RefFileOnly" Style="{StaticResource Chip}" GroupName="AnalysisRef" Content="Le fichier seul" Checked="Reference_Changed"
-                           ToolTip="Cherche les problèmes du fichier lui-même (syntaxe, valeurs, ordre, commandes risquées), sans tenir compte d'une imprimante" />
-              <RadioButton x:Name="RefPrinter" Style="{StaticResource Chip}" GroupName="AnalysisRef" IsChecked="True" Checked="Reference_Changed"
-                           ToolTip="Vérifie aussi que le fichier convient à l'imprimante choisie : langage, réglages qui existent sur ce modèle, valeurs acceptées, ce qui changera" />
-            </WrapPanel>
             <Border x:Name="RiskBanner" Background="{DynamicResource WarnBg}" CornerRadius="8" Padding="12,9" Margin="0,0,0,10" Visibility="Collapsed">
               <TextBlock x:Name="RiskText" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource WarnFg}" />
             </Border>
