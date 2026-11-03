@@ -27,11 +27,14 @@ public partial class ConfigView : UserControl
     private byte[]? _fileBytes;
     private string? _fileText;
     private bool _loading;
+    private readonly Action _placeTarget;
 
     public ConfigView()
     {
         InitializeComponent();
-        ResponsiveTarget.Attach(PrinterCard, WideTargetHost, NarrowTargetHost, TargetArea, 1000);
+        // « Ne plus utiliser l'imprimante » prend de la place dans la barre : la zone d'adresse passe plus tôt sur sa ligne.
+        _placeTarget = ResponsiveTarget.Attach(PrinterCard, WideTargetHost, NarrowTargetHost, TargetArea, 1000,
+            () => ForgetButton.Visibility == Visibility.Visible ? Math.Max(ForgetButton.ActualWidth, 200) + 20 : 0);
         ScrollChaining.Enable(PageScroll);
         CodeBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler((_, _) => AlignOverlay()));
         CodeBox.SizeChanged += (_, _) => AlignOverlay();
@@ -343,6 +346,7 @@ public partial class ConfigView : UserControl
         }
 
         ForgetButton.Visibility = _profile is null ? Visibility.Collapsed : Visibility.Visible;
+        Dispatcher.BeginInvoke(_placeTarget, DispatcherPriority.Loaded); // une fois le bouton mesuré
         if (result is null)
         {
             var chosen = TargetQueue.IsChecked == true ? SelectedQueue : (AddressBox.Text.Trim() is { Length: > 0 } a ? a : null);

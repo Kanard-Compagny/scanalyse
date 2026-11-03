@@ -64,7 +64,7 @@ public static partial class PrinterConfig
             };
         }
 
-        return head is "device" or "appl" or "power" or "display" or "power_save" or "file" or "format" or "capture" or "memory" ? "Système" : "Autres";
+        return head is "device" or "appl" or "power" or "display" or "power_save" or "file" or "format" or "capture" or "memory" or "rtc" or "log" ? "Système" : "Autres";
     }
 
     /// <summary>Choix annoncés par l'imprimante : liste de valeurs, plage, ou null (valeur libre ou inconnue).</summary>
