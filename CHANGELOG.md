@@ -27,6 +27,7 @@
   - lecture complète Zebra plus patiente (certains modèles marquent des pauses en cours de réponse) ; « Enregistrer l'état… » joint la réponse brute de l'imprimante, pour le diagnostic.
 - **Conf imprimante : rien n'est lu sans clic** — choisir une imprimante dit seulement où envoyer ; sa marque et ses réglages ne servent de référence (analyse, réglages, langage conseillé) qu'après « Lire l'imprimante ». « Ne plus utiliser l'imprimante » oublie ce qui a été lu : le fichier est analysé seul, l'imprimante reste la destination de l'envoi. Avec une imprimante lue, une commande ZPL (^MN, ^PW, ~TA…) n'est plus signalée « n'existe pas sur cette imprimante » quand son équivalent SGD n'a pas été lu ; une ligne SGD absente des réglages lus devient « à vérifier » au lieu d'une erreur.
 - **Conf imprimante en fenêtre réduite** : dans l'analyse, les bandeaux et les outils des réglages défilent avec la liste (le résultat reste accessible) ; la liste des imprimantes installées s'ouvre assez large pour lire leurs noms ; le champ de l'imprimante passe sur sa propre ligne plus tôt quand « Ne plus utiliser l'imprimante » est affiché.
+- **Étiquette imprimante, TSPL** : le QR code est demandé en modèle 2 (« M2 »). Sans cette précision, une TSC imprime un QR modèle 1, ancien et mal lu par les téléphones (manuel TSPL/TSPL2). Vaut aussi pour la conversion d'une étiquette ZPL vers TSPL.
 - **Défilement** : la molette ne reste plus bloquée dans une zone qui défile (liste, éditeur) : arrivée au bout, c'est la zone autour qui prend le relais.
 
 ## 0.12.4 — octobre 2026

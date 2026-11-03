@@ -161,7 +161,7 @@ public static class LabelConverter
                     }
                     else if (c.Format == "QRCode")
                     {
-                        sb.Append(CultureInfo.InvariantCulture, $"QRCODE {c.X},{c.Y},M,{m},A,{rot},{Q(c.Content)}\r\n");
+                        sb.Append(CultureInfo.InvariantCulture, $"QRCODE {c.X},{c.Y},M,{m},A,{rot},M2,{Q(c.Content)}\r\n");
                     }
                     else if (c.Format == "DataMatrix")
                     {

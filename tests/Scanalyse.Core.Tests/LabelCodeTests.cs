@@ -56,6 +56,9 @@ public class LabelCodeTests
     {
         Assert.Contains("\"A\\\"B\"", LabelCode.Generate(PrinterLanguage.Epl2, new LabelJob("A\"B", LabelSymbology.Code128)).Code);
         Assert.Contains("\"A\\[\"]B\"", LabelCode.Generate(PrinterLanguage.Tspl, new LabelJob("A\"B", LabelSymbology.Code128)).Code);
+
+        // TSPL : sans « M2 », une TSC imprime un QR modèle 1 (ancien, mal lu par les téléphones) — manuel TSPL/TSPL2.
+        Assert.Contains("QRCODE 40,40,M,2,A,0,M2,\"https://a.b\"", LabelCode.Generate(PrinterLanguage.Tspl, new LabelJob("https://a.b", LabelSymbology.QrCode)).Code);
     }
 
     [Fact]

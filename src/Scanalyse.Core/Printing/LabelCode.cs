@@ -355,7 +355,7 @@ public static class LabelCode
         }
         else if (job.Symbology == LabelSymbology.QrCode)
         {
-            sb.Append(CultureInfo.InvariantCulture, $"QRCODE {x},{y},M,{m},A,{rot},{q}\r\n");
+            sb.Append(CultureInfo.InvariantCulture, $"QRCODE {x},{y},M,{m},A,{rot},M2,{q}\r\n");
         }
         else if (job.Symbology == LabelSymbology.DataMatrix)
         {
