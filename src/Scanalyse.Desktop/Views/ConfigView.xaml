@@ -316,7 +316,7 @@
                   <CheckBox x:Name="PrinterReadOnly" Style="{StaticResource CheckLine}" Content="Lecture seule" VerticalAlignment="Center"
                             Click="PrinterReadOnly_Click" ToolTip="Afficher aussi les informations en lecture seule (modèle, firmware, compteurs, état…)" />
                 </DockPanel>
-    
+              </StackPanel>
               <StackPanel x:Name="ResultPanel" />
             </StackPanel>
           </ScrollViewer>
