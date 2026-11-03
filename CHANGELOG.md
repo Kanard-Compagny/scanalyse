@@ -1,6 +1,6 @@
 # Scanalyse — Quoi de neuf
 
-## 0.12.5 — en préparation
+## 0.12.5 — novembre 2026
 
 - **Analyse : pré-vérification de la qualité d'impression** — chaque code lu reçoit une note estimée de A à F, calculée avec les paramètres des normes de vérification (ISO/IEC 15416 pour les codes linéaires, ISO/IEC 15415 pour les QR codes et Data Matrix) :
   - **codes linéaires** (EAN, UPC, Code 128, Code 39, ITF…) : 10 lignes de lecture sur la hauteur des barres, avec contraste de symbole, réflectance minimale, contraste de bord, modulation, défauts, décodabilité, détermination des bords et zones de silence ;
