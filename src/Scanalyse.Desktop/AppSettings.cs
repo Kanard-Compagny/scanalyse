@@ -55,7 +55,7 @@ public sealed class AppSettings
     /// <summary>Journal des lectures déplié au démarrage.</summary>
     public bool LogOpen { get; set; } = true;
 
-    /// <summary>Taille de l'interface : 1, 1.15 ou 1.3.</summary>
+    /// <summary>Taille de l'interface : 0.8, 0.9, 1, 1.15 ou 1.3 (voir UiScale).</summary>
     public double UiScale { get; set; } = 1;
 
     // ---- Historique

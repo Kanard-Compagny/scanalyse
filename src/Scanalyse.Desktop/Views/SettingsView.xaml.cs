@@ -107,7 +107,7 @@ public partial class SettingsView : UserControl
         var s = AppSettings.Load();
         Check(LanguageChips, s.Language);
         Check(StartChips, s.StartPage);
-        Check(ScaleChips, s.UiScale.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Check(ScaleChips, UiScale.Normalize(s.UiScale).ToString(System.Globalization.CultureInfo.InvariantCulture));
         LogOpenCheck.IsChecked = s.LogOpen;
         AutoRecordCheck.IsChecked = s.AutoRecord;
         Check(RetentionChips, s.RetentionDays.ToString(System.Globalization.CultureInfo.InvariantCulture));

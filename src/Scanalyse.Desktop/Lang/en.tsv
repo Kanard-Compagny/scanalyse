@@ -3483,3 +3483,5 @@ Choisis l'imprimante qui recevra le fichier. « Lire l'imprimante » l'utilise a
 Imprimante choisie pour l'envoi : {0}. Aucune imprimante lue : le fichier est analysé seul. « Lire l'imprimante » pour l'utiliser comme référence.	Printer chosen for sending: {0}. No printer read: the file is analyzed on its own. "Read the printer" to use it as the reference.
 Imprimante oubliée comme référence : le fichier est analysé seul. Elle reste la destination de l'envoi.	Printer no longer used as the reference: the file is analyzed on its own. It stays the sending destination.
 Choisi d'après l'imprimante lue ({0}) : change-le si le fichier est pour une autre imprimante.	Chosen from the printer read ({0}): change it if the file is for another printer.
+Pour les petits écrans (PC portable) : tout est plus petit, il tient plus de choses dans la fenêtre	For small screens (laptops): everything is smaller, more fits in the window
+Pour les petits écrans (PC portable)	For small screens (laptops)

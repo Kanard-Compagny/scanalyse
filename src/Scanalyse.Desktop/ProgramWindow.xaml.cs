@@ -10,6 +10,11 @@ public partial class ProgramWindow : Window
     {
         InitializeComponent();
         WindowFrame.Attach(this);
+
+        // Le contenu détaché suit la taille de l'interface (il quitte la page, et donc son échelle).
+        UiScale.Follow(Host);
+        MinWidth = Math.Min(MinWidth * Math.Min(1, UiScale.Value), SystemParameters.WorkArea.Width);
+        MinHeight = Math.Min(MinHeight * Math.Min(1, UiScale.Value), SystemParameters.WorkArea.Height);
     }
 
     /// <summary>Titre affiché dans la barre de la fenêtre.</summary>

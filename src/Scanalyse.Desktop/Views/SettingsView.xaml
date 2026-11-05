@@ -97,6 +97,10 @@
               </WrapPanel>
               <TextBlock Style="{StaticResource FieldLabel}" Text="Taille de l'interface" Margin="0,10,0,6" />
               <WrapPanel x:Name="ScaleChips">
+                <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="0.8" Content="80 %" Checked="Option_Changed"
+                             ToolTip="Pour les petits écrans (PC portable) : tout est plus petit, il tient plus de choses dans la fenêtre" />
+                <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="0.9" Content="90 %" Checked="Option_Changed"
+                             ToolTip="Pour les petits écrans (PC portable)" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="1" Content="100 %" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="1.15" Content="115 %" Checked="Option_Changed" />
                 <RadioButton Style="{StaticResource Chip}" GroupName="Scale" Tag="1.3" Content="130 %" Checked="Option_Changed" />

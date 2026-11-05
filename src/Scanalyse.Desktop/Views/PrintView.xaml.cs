@@ -35,6 +35,7 @@ public partial class PrintView : UserControl
     public PrintView()
     {
         InitializeComponent();
+        UiScale.Follow(QueuePopup); // les listes surgissantes n'héritent pas de l'échelle de la page
         ResponsiveTarget.Attach(PrinterCard, WideTargetHost, NarrowTargetHost, TargetArea, 820);
         _debounce.Tick += async (_, _) =>
         {

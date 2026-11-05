@@ -66,6 +66,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         WindowFrame.Attach(this);
+
+        // Fenêtre de départ à la mesure de l'écran (portable) : jamais plus grande que la zone utile.
+        var area = SystemParameters.WorkArea;
+        Width = Math.Min(Width, area.Width);
+        Height = Math.Min(Height, area.Height);
+        MinWidth = Math.Min(MinWidth, area.Width);
+        MinHeight = Math.Min(MinHeight, area.Height);
         var v = Assembly.GetExecutingAssembly().GetName().Version;
         VersionText.Text = v is null ? string.Empty : $"version {v.Major}.{v.Minor}.{v.Build}";
         LogList.ItemsSource = _log;
@@ -271,6 +278,15 @@ public partial class MainWindow : Window
 
     private async void OnAtelierReady()
     {
+        // Zoom de l'Atelier à la taille de l'interface, posé à nouveau une fois le moteur web prêt (démarrage en 80 %…).
+        try
+        {
+            Web.ZoomFactor = UiScale.Value;
+        }
+        catch (InvalidOperationException)
+        {
+        }
+
         await _atelier.SetThemeAsync(ThemeManager.IsDark);
         await _atelier.SetLanguageAsync();
         await _atelier.SetModeAsync(_atelierMode);
@@ -570,22 +586,70 @@ public partial class MainWindow : Window
     /// <summary>Applique les réglages d'affichage : taille de l'interface, journal.</summary>
     public void ApplyDisplaySettings()
     {
-        var s = AppSettings.Load();
-        var scale = Math.Clamp(s.UiScale, 1, 1.5);
-        // Tout ce qui est dessiné par WPF est agrandi ; l'Atelier (moteur web) suit par son propre zoom.
-        var t = scale == 1 ? Transform.Identity : new ScaleTransform(scale, scale);
+        UiScale.Set(AppSettings.Load().UiScale);
+        var scale = UiScale.Value;
+
+        // Tout ce qui est dessiné par WPF suit la taille de l'interface ; l'Atelier (moteur web) suit par son propre zoom.
+        var t = UiScale.Transform;
         foreach (var el in new FrameworkElement[] { ToolbarHost, Sidebar, AtelierHeader, Bench, Devices, HistoryPage, Symbols, SettingsPage, PrintPage, ConfigPage, LogHost, Confirm, Welcome })
         {
             el.LayoutTransform = t;
         }
 
+        ApplyWebZoom();
+
+        // Taille minimale de la fenêtre à la même échelle (en dessous de 100 %), sans dépasser l'écran : un portable
+        // 1366 × 768 affiché à 125 % n'offre qu'environ 1090 × 610.
+        var area = SystemParameters.WorkArea;
+        MinWidth = Math.Min(1000 * Math.Min(1, scale), area.Width);
+        MinHeight = Math.Min(640 * Math.Min(1, scale), area.Height);
+        KeepOnScreen();
+
+        // Tout est remesuré tout de suite : sans ça, des éléments gardent l'ancienne taille jusqu'au prochain redimensionnement.
+        InvalidateMeasure();
+        UpdateLayout();
+        ApplyResponsive(ActualWidth);
+    }
+
+    /// <summary>Zoom de l'Atelier : réappliqué quand le moteur web est prêt (au démarrage, il ne l'est pas encore).</summary>
+    private void ApplyWebZoom()
+    {
         try
         {
-            Web.ZoomFactor = scale;
+            if (Math.Abs(Web.ZoomFactor - UiScale.Value) > 0.001)
+            {
+                Web.ZoomFactor = UiScale.Value;
+            }
         }
         catch (InvalidOperationException)
         {
-            // Moteur web pas encore prêt : le zoom sera appliqué par l'Atelier au chargement.
+            // Moteur web pas encore prêt : OnAtelierReady le réapplique.
+        }
+    }
+
+    /// <summary>La fenêtre (non agrandie) reste entièrement dans la zone utile de l'écran.</summary>
+    private void KeepOnScreen()
+    {
+        if (WindowState != WindowState.Normal)
+        {
+            return;
+        }
+
+        var area = SystemParameters.WorkArea;
+        if (Width > area.Width)
+        {
+            Width = area.Width;
+        }
+
+        if (Height > area.Height)
+        {
+            Height = area.Height;
+        }
+
+        if (IsLoaded)
+        {
+            Left = Math.Clamp(Left, area.Left, Math.Max(area.Left, area.Right - Width));
+            Top = Math.Clamp(Top, area.Top, Math.Max(area.Top, area.Bottom - Height));
         }
     }
 
@@ -1248,7 +1312,24 @@ public partial class MainWindow : Window
     /// </summary>
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        var w = e.NewSize.Width;
+        if (e.WidthChanged)
+        {
+            ApplyResponsive(e.NewSize.Width);
+        }
+    }
+
+    /// <summary>
+    /// Libellés de la barre d'outils et menu replié selon la place disponible ; la largeur est comptée à la taille de
+    /// l'interface (à 80 %, une fenêtre de 1100 points offre la place de 1375).
+    /// </summary>
+    private void ApplyResponsive(double windowWidth)
+    {
+        if (windowWidth <= 0)
+        {
+            return;
+        }
+
+        var w = windowWidth / UiScale.Value;
         var compact = w < 1320;
         foreach (var label in new FrameworkElement[] { ImportLabel, PasteLabel, CaptureLabel, CameraLabel, ThemeLabel })
         {
@@ -1258,7 +1339,7 @@ public partial class MainWindow : Window
         CaseLabel.MaxWidth = w < 1180 ? 150 : 260;
         SourceText.MaxWidth = w < 1180 ? 140 : double.PositiveInfinity;
         SourceText.TextTrimming = TextTrimming.CharacterEllipsis;
-        if (!_menuManual && e.WidthChanged)
+        if (!_menuManual)
         {
             var wantNarrow = w < 1180;
             if (wantNarrow != Sidebar.Width <= SidebarNarrow)

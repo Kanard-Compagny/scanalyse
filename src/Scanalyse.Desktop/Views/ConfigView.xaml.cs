@@ -32,6 +32,8 @@ public partial class ConfigView : UserControl
     public ConfigView()
     {
         InitializeComponent();
+        UiScale.Follow(QueuePopup); // les listes surgissantes n'héritent pas de l'échelle de la page
+        UiScale.Follow(SuggestPopup);
         // « Ne plus utiliser l'imprimante » prend de la place dans la barre : la zone d'adresse passe plus tôt sur sa ligne.
         _placeTarget = ResponsiveTarget.Attach(PrinterCard, WideTargetHost, NarrowTargetHost, TargetArea, 1000,
             () => ForgetButton.Visibility == Visibility.Visible ? Math.Max(ForgetButton.ActualWidth, 200) + 20 : 0);

@@ -1,5 +1,9 @@
 # Scanalyse — Quoi de neuf
 
+## 0.12.6 — en préparation
+
+- **Paramètres → Taille de l'interface : 80 % et 90 %**, pour les petits écrans (PC portable), en plus de 100, 115 et 130 %. Tout suit en direct, sans redémarrer : menu, barre d'outils, pages, Atelier, journal, listes surgissantes (imprimantes installées, propositions de l'éditeur) et fenêtres détachées. La taille minimale de la fenêtre suit aussi, et la fenêtre reste dans l'écran ; au démarrage, elle ne dépasse jamais la zone utile de l'écran.
+
 ## 0.12.5 — novembre 2026
 
 - **Analyse : pré-vérification de la qualité d'impression** — chaque code lu reçoit une note estimée de A à F, calculée avec les paramètres des normes de vérification (ISO/IEC 15416 pour les codes linéaires, ISO/IEC 15415 pour les QR codes et Data Matrix) :
