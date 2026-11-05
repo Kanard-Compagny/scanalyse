@@ -16,6 +16,8 @@ public partial class DocWindow : Window
     public DocWindow(string title, string markdown)
     {
         InitializeComponent();
+        // Contenu à la taille de l'interface (Paramètres), comme le reste du programme.
+        UiScale.Follow(Viewer);
         WindowFrame.Attach(this);
         TitleText.Text = Localization.T(title);
         Title = TitleText.Text + " — Scanalyse";

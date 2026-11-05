@@ -25,6 +25,9 @@ public partial class ConfigCodesWindow : Window
     {
         _renderer = renderer;
         InitializeComponent();
+        // Contenu à la taille de l'interface (Paramètres), comme le reste du programme.
+        UiScale.Follow(TopArea);
+        UiScale.Follow(CodesArea);
         WindowFrame.Attach(this);
         Loaded += (_, _) => Show("Honeywell");
     }

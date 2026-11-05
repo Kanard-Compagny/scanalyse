@@ -512,7 +512,11 @@
   </Style>
 
   <!-- Menus contextuels (« Déplacer vers… ») aux couleurs du thème -->
+  <!-- Taille de l'interface (Paramètres) : remplacée par le programme quand elle change ; menus et bulles d'aide la suivent -->
+  <ScaleTransform x:Key="UiScaleTransform" ScaleX="1" ScaleY="1" />
+
   <Style TargetType="ContextMenu">
+    <Setter Property="LayoutTransform" Value="{DynamicResource UiScaleTransform}" />
     <Setter Property="Background" Value="{DynamicResource Surface}" />
     <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
     <Setter Property="Foreground" Value="{DynamicResource Ink}" />
@@ -658,6 +662,7 @@
 
   <!-- Bulles d'aide -->
   <Style TargetType="ToolTip">
+    <Setter Property="LayoutTransform" Value="{DynamicResource UiScaleTransform}" />
     <Setter Property="Background" Value="{DynamicResource Ink}" />
     <Setter Property="Foreground" Value="{DynamicResource Bg}" />
     <Setter Property="BorderThickness" Value="0" />

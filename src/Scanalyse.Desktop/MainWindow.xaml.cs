@@ -591,7 +591,7 @@ public partial class MainWindow : Window
 
         // Tout ce qui est dessiné par WPF suit la taille de l'interface ; l'Atelier (moteur web) suit par son propre zoom.
         var t = UiScale.Transform;
-        foreach (var el in new FrameworkElement[] { ToolbarHost, Sidebar, AtelierHeader, Bench, Devices, HistoryPage, Symbols, SettingsPage, PrintPage, ConfigPage, LogHost, Confirm, Welcome })
+        foreach (var el in new FrameworkElement[] { ToolbarHost, Sidebar, AtelierHeader, Bench, Devices, HistoryPage, Symbols, SettingsPage, PrintPage, ConfigPage, LogHost, Confirm, Welcome, Tour })
         {
             el.LayoutTransform = t;
         }

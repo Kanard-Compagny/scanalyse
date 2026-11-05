@@ -37,7 +37,7 @@
         </StackPanel>
       </Grid>
 
-      <StackPanel Grid.Row="1" Margin="24,18,24,8">
+      <StackPanel x:Name="TopArea" Grid.Row="1" Margin="24,18,24,8">
         <DockPanel>
           <Button DockPanel.Dock="Right" Style="{StaticResource BtnSecondary}" Content="Imprimer…" Click="Print_Click" VerticalAlignment="Center" />
           <WrapPanel x:Name="BrandChips" VerticalAlignment="Center">
@@ -49,7 +49,7 @@
         <TextBlock x:Name="BrandNote" TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource Muted}" Margin="0,10,0,0" />
       </StackPanel>
 
-      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24,4,24,20">
+      <ScrollViewer x:Name="CodesArea" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24,4,24,20">
         <StackPanel x:Name="CodesPanel" />
       </ScrollViewer>
     </Grid>

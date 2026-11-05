@@ -32,6 +32,14 @@ internal static class UiScale
         }
 
         Value = value;
+        if (Application.Current is { } app)
+        {
+            // Bulles d'aide et menus contextuels (styles du thème) : ressource remplacée, ils suivent tous.
+            var t = new ScaleTransform(value, value);
+            t.Freeze();
+            app.Resources["UiScaleTransform"] = t;
+        }
+
         Changed?.Invoke();
     }
 
